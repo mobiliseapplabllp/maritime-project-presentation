@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Box, Typography, Stack, Skeleton, Chip, Button, Divider } from '@mui/material';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { CHART_SERIES } from '../../theme';
@@ -122,7 +123,7 @@ export default function PortTwin() {
   return (
     <>
       <PageHeader
-        title="Quay view — live 2-D twin"
+        icon={SpaceDashboardRoundedIcon} iconColor="#0797A5" title="Quay view — live 2-D twin"
         sub={`${occupied} of ${data.berths.length} berths occupied · ${data.anchorage.length} at anchorage · ${data.inbound.length} inbound — refreshes every minute`}
         actions={<Button size="small" startIcon={<RefreshRoundedIcon />} onClick={load}>Refresh</Button>}
       />

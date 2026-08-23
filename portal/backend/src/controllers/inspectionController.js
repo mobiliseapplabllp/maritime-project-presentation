@@ -152,3 +152,50 @@ exports.remove = async (req, res) => {
   audit(req, { action: 'DELETE', entity: 'Inspection', entityId: doc._id, entityLabel: doc.number, before: doc });
   ok(res, { deleted: true });
 };
+
+
+// Survey & audit dashboard — KPIs, result mix, deficiency intensity, monthly trend
+exports.dashboard = async (_req, res) => {
+  const { ok } = require('../utils/respond');
+  const now = new Date();
+  const from = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const all = await Inspection.find().select('type status result detention findings plannedAt closedAt checklist').lean();
+  const closed = all.filter((i) => i.status === 'CLOSED');
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const months = [];
+  const cur = new Date(from);
+  while (cur <= now) {
+    months.push({ key: monthKey(cur), month: cur.toLocaleString('en-IN', { month: 'short', year: '2-digit' }), SATISFACTORY: 0, DEFICIENCIES: 0, DETAINED: 0 });
+    cur.setMonth(cur.getMonth() + 1);
+  }
+  const byType = {};
+  let findingsTotal = 0; let findingsOpen = 0; let checklistYes = 0; let checklistItems = 0;
+  for (const i of all) {
+    byType[i.type] = byType[i.type] || { type: i.type, total: 0, closed: 0, detained: 0 };
+    byType[i.type].total += 1;
+    if (i.status === 'CLOSED') byType[i.type].closed += 1;
+    if (i.detention) byType[i.type].detained += 1;
+    findingsTotal += (i.findings || []).length;
+    findingsOpen += (i.findings || []).filter((f) => f.status === 'OPEN').length;
+    checklistItems += (i.checklist || []).filter((c) => c.answer).length;
+    checklistYes += (i.checklist || []).filter((c) => c.answer === 'YES').length;
+  }
+  for (const i of closed) {
+    if (!i.closedAt || !i.result) continue;
+    const row = months.find((m) => m.key === monthKey(new Date(i.closedAt)));
+    if (row) row[i.result] += 1;
+  }
+  ok(res, {
+    kpis: {
+      open: all.filter((i) => i.status !== 'CLOSED').length,
+      closedYtd: closed.filter((i) => i.closedAt && new Date(i.closedAt) >= new Date(now.getFullYear(), 0, 1)).length,
+      satisfactionPct: closed.length ? Math.round((closed.filter((i) => i.result === 'SATISFACTORY').length / closed.length) * 100) : 0,
+      detentionRatePct: closed.length ? Math.round((closed.filter((i) => i.detention).length / closed.length) * 1000) / 10 : 0,
+      avgFindings: closed.length ? Math.round((findingsTotal / closed.length) * 10) / 10 : 0,
+      openFindings: findingsOpen,
+      checklistCompliancePct: checklistItems ? Math.round((checklistYes / checklistItems) * 100) : 0,
+    },
+    byMonth: months.map(({ key, ...m }) => m),
+    byType: Object.values(byType),
+  });
+};

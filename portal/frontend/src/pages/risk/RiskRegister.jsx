@@ -8,6 +8,7 @@ import {
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
+import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -101,7 +102,7 @@ export default function RiskRegister() {
   return (
     <>
       <PageHeader
-        title="Vessel risk register" sub="Explainable, factor-weighted profiles across the active fleet — recomputed live from operational records"
+        icon={InsightsRoundedIcon} iconColor="#A33229" title="Vessel risk register" sub="Explainable, factor-weighted profiles across the active fleet — recomputed live from operational records"
         actions={hasPerm(user, 'risk.manage') && (
           <Button variant="outlined" startIcon={<TuneRoundedIcon />} onClick={() => { setDraft({ ...weights }); setWeightsDlg(true); }}>Model weights</Button>
         )}

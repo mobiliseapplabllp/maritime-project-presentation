@@ -23,13 +23,13 @@ const InvoiceDetail = lazy(() => import('./pages/invoices/InvoiceDetail'));
 const BerthsPage = lazy(() => import('./pages/masters/BerthsPage'));
 const LookupsPage = lazy(() => import('./pages/masters/LookupsPage'));
 const TariffsPage = lazy(() => import('./pages/masters/TariffsPage'));
-const ChecklistsPage = lazy(() => import('./pages/masters/ChecklistsPage'));
 const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
 const AuditPage = lazy(() => import('./pages/admin/AuditPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const SeafarersList = lazy(() => import('./pages/seafarers/SeafarersList'));
+const CrewDashboard = lazy(() => import('./pages/seafarers/CrewDashboard'));
 const SeafarerDetail = lazy(() => import('./pages/seafarers/SeafarerDetail'));
 const LegislationPage = lazy(() => import('./pages/legislation/LegislationPage'));
 const FacilitiesList = lazy(() => import('./pages/facilities/FacilitiesList'));
@@ -42,6 +42,15 @@ const FleetDashboard = lazy(() => import('./pages/vessels/FleetDashboard'));
 const PortTwin = lazy(() => import('./pages/ops/PortTwin'));
 const VesselSchedule = lazy(() => import('./pages/ops/VesselSchedule'));
 const MarineServices = lazy(() => import('./pages/ops/MarineServices'));
+const MastersHub = lazy(() => import('./pages/masters/MastersHub'));
+const MasterPage = lazy(() => import('./pages/masters/MasterPage'));
+const ReportLibrary = lazy(() => import('./pages/mis/ReportLibrary'));
+const ReportViewer = lazy(() => import('./pages/mis/ReportViewer'));
+const ChecklistBuilder = lazy(() => import('./pages/inspections/ChecklistBuilder'));
+const AuditDashboard = lazy(() => import('./pages/inspections/AuditDashboard'));
+const CompaniesPage = lazy(() => import('./pages/facilities/CompaniesPage'));
+const CompanyDetail = lazy(() => import('./pages/facilities/CompanyDetail'));
+const ModuleSettingsPage = lazy(() => import('./pages/ModuleSettingsPage'));
 const RiskRegister = lazy(() => import('./pages/risk/RiskRegister'));
 const TargetingPage = lazy(() => import('./pages/risk/TargetingPage'));
 const MisReport = lazy(() => import('./pages/mis/MisReport'));
@@ -82,21 +91,28 @@ export default function App() {
           <Route path="/vessels" element={<Guard perm="vessels.view"><VesselsList /></Guard>} />
           <Route path="/vessels/:id" element={<Guard perm="vessels.view"><VesselDetail /></Guard>} />
           <Route path="/certificates" element={<Guard perm="certificates.view"><CertificatesPage /></Guard>} />
+          <Route path="/inspections/overview" element={<Guard perm="inspections.view"><AuditDashboard /></Guard>} />
           <Route path="/inspections" element={<Guard perm="inspections.view"><InspectionsList /></Guard>} />
+          <Route path="/checklist-builder" element={<Guard perm="inspections.view"><ChecklistBuilder /></Guard>} />
           <Route path="/inspections/:id" element={<Guard perm="inspections.view"><InspectionDetail /></Guard>} />
           <Route path="/invoices" element={<Guard perm="invoices.view"><InvoicesList /></Guard>} />
           <Route path="/invoices/:id" element={<Guard perm="invoices.view"><InvoiceDetail /></Guard>} />
+          <Route path="/masters" element={<Guard perm="masters.view"><MastersHub /></Guard>} />
+          <Route path="/masters/m/:category" element={<Guard perm="masters.view"><MasterPage /></Guard>} />
           <Route path="/masters/berths" element={<Guard perm="masters.view"><BerthsPage /></Guard>} />
           <Route path="/masters/lookups" element={<Guard perm="masters.view"><LookupsPage /></Guard>} />
           <Route path="/masters/tariffs" element={<Guard perm="tariffs.view"><TariffsPage /></Guard>} />
-          <Route path="/masters/checklists" element={<Guard perm="masters.view"><ChecklistsPage /></Guard>} />
+          <Route path="/masters/checklists" element={<Navigate to="/checklist-builder" replace />} />
           <Route path="/admin/users" element={<Guard perm="users.view"><UsersPage /></Guard>} />
           <Route path="/admin/roles" element={<Guard perm="roles.view"><RolesPage /></Guard>} />
           <Route path="/admin/audit" element={<Guard perm="audit.view"><AuditPage /></Guard>} />
           <Route path="/admin/settings" element={<Guard perm="settings.view"><SettingsPage /></Guard>} />
+          <Route path="/seafarers/overview" element={<Guard perm="seafarers.view"><CrewDashboard /></Guard>} />
           <Route path="/seafarers" element={<Guard perm="seafarers.view"><SeafarersList /></Guard>} />
           <Route path="/seafarers/:id" element={<Guard perm="seafarers.view"><SeafarerDetail /></Guard>} />
           <Route path="/legislation" element={<Guard perm="legislation.view"><LegislationPage /></Guard>} />
+          <Route path="/companies" element={<Guard perm="facilities.view"><CompaniesPage /></Guard>} />
+          <Route path="/companies/:id" element={<Guard perm="facilities.view"><CompanyDetail /></Guard>} />
           <Route path="/facilities" element={<Guard perm="facilities.view"><FacilitiesList /></Guard>} />
           <Route path="/facilities/:id" element={<Guard perm="facilities.view"><FacilityDetail /></Guard>} />
           <Route path="/nmc/map" element={<Guard perm="nmc.view"><TrafficMap /></Guard>} />
@@ -107,6 +123,9 @@ export default function App() {
           <Route path="/risk" element={<Guard perm="risk.view"><RiskRegister /></Guard>} />
           <Route path="/risk/targeting" element={<Guard perm="risk.view"><TargetingPage /></Guard>} />
           <Route path="/mis" element={<Guard perm="reports.view"><MisReport /></Guard>} />
+          <Route path="/reports" element={<Guard perm="reports.view"><ReportLibrary /></Guard>} />
+          <Route path="/reports/view/:key" element={<Guard perm="reports.view"><ReportViewer /></Guard>} />
+          <Route path="/settings/module/:moduleKey" element={<Guard><ModuleSettingsPage /></Guard>} />
           <Route path="/profile" element={<Guard><ProfilePage /></Guard>} />
           <Route path="*" element={<StatePage code="404" title="Page not found" message="The page you're looking for doesn't exist." />} />
         </Route>

@@ -43,6 +43,7 @@ export default function IncidentCase() {
   const user = useSelector((s) => s.auth.user);
   const [inc, setInc] = useState(null);
   const [meta, setMeta] = useState({});
+  const [docTypes, setDocTypes] = useState([]);
   const [tab, setTab] = useState(0);
   const [busy, setBusy] = useState(false);
   const [transDlg, setTransDlg] = useState(null);   // { to }
@@ -57,7 +58,12 @@ export default function IncidentCase() {
 
   const err = (e) => dispatch(notify({ message: e.message, severity: 'error' }));
   const load = useCallback(() => api.get(`/incidents/${id}`).then((r) => { setInc(r.data); setRcaVals(r.data.rca || {}); }).catch(err), [id]); // eslint-disable-line
-  useEffect(() => { load(); api.get('/meta').then((r) => setMeta(r.data)).catch(() => {}); }, [load]);
+  useEffect(() => {
+    load();
+    api.get('/meta').then((r) => setMeta(r.data)).catch(() => {});
+    api.get('/lookups', { params: { category: 'documentType', limit: 50 } })
+      .then((r) => setDocTypes(r.data.map((d2) => d2.code))).catch(() => {});
+  }, [load]);
 
   if (!inc) return <Skeleton variant="rounded" height={480} />;
   const canManage = hasPerm(user, 'incidents.manage');
@@ -237,7 +243,7 @@ export default function IncidentCase() {
                   onChange={(e) => setDocVals((v) => ({ ...v, name: e.target.value }))} placeholder="e.g. site-photographs.zip" />
                 <TextField select size="small" label="Type" value={docVals.docType || 'REPORT'} sx={{ minWidth: 140 }}
                   onChange={(e) => setDocVals((v) => ({ ...v, docType: e.target.value }))}>
-                  {['REPORT', 'PHOTO', 'STATEMENT', 'SAMPLE', 'PERMIT', 'CCTV', 'OTHER'].map((d2) => <MenuItem key={d2} value={d2}>{tcase(d2)}</MenuItem>)}
+                  {(docTypes.length ? docTypes : ['REPORT', 'PHOTO', 'STATEMENT', 'SAMPLE', 'PERMIT', 'CCTV', 'OTHER']).map((d2) => <MenuItem key={d2} value={d2}>{tcase(d2)}</MenuItem>)}
                 </TextField>
                 <Button variant="contained" startIcon={<AttachFileRoundedIcon />} disabled={busy || !docVals.name}
                   onClick={() => post(`/incidents/${id}/documents`, { ...docVals, sizeKB: Math.round(200 + Math.random() * 4000) }, () => setDocVals({}))}>

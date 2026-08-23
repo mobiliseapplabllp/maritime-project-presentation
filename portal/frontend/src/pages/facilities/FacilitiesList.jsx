@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Chip, Rating } from '@mui/material';
+import WorkspacePremiumRoundedIcon from '@mui/icons-material/WorkspacePremiumRounded';
 import api from '../../api/client';
 import CrudPage from '../../components/common/CrudPage';
 import { fmtD } from '../../utils/format';
@@ -18,7 +19,7 @@ export default function FacilitiesList() {
 
   return (
     <CrudPage
-      statsScope="facilities" title="Facilities & companies" sub="Licensed port ecosystem — agencies, suppliers, yards, institutes and ISPS facilities"
+      statsScope="facilities" icon={WorkspacePremiumRoundedIcon} iconColor="#2C6E52" title="Facilities & companies" sub="Licensed port ecosystem — agencies, suppliers, yards, institutes and ISPS facilities"
       entityName="licence" endpoint="/licenses"
       perms={{ create: 'facilities.manage', edit: 'facilities.manage', del: 'facilities.manage' }}
       searchPlaceholder="Search licence no, entity…"

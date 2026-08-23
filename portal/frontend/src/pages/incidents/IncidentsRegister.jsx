@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import CrisisAlertRoundedIcon from '@mui/icons-material/CrisisAlertRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -36,6 +37,7 @@ export default function IncidentsRegister() {
   const [busy, setBusy] = useState(false);
   const [vessels, setVessels] = useState([]);
   const [berths, setBerths] = useState([]);
+  const [areas, setAreas] = useState([]);
   const [enums, setEnums] = useState({ incidentTypes: [], incidentCategories: [], incidentSeverity: [], incidentSources: [] });
 
   const load = useCallback(() => {
@@ -50,13 +52,14 @@ export default function IncidentsRegister() {
     api.get('/meta').then((r) => setEnums(r.data)).catch(() => {});
     api.get('/vessels', { params: { limit: 100, sort: 'name' } }).then((r) => setVessels(r.data)).catch(() => {});
     api.get('/berths', { params: { limit: 100 } }).then((r) => setBerths(r.data)).catch(() => {});
+    api.get('/lookups', { params: { category: 'incidentArea', limit: 100 } }).then((r) => setAreas(r.data)).catch(() => {});
   }, []);
 
   const canCreate = hasPerm(user, 'incidents.create');
 
   const create = () => {
     setBusy(true);
-    api.post('/incidents', values)
+    api.post('/incidents', { ...values, location: values.area ? { area: values.area } : undefined })
       .then((r) => { dispatch(notify(`Incident ${r.data.number} logged`)); setCreating(false); setStatsKey((k2) => k2 + 1); navigate(`/incidents/${r.data._id}`); })
       .catch((e) => dispatch(notify({ message: e.message, severity: 'error' })))
       .finally(() => setBusy(false));
@@ -73,7 +76,7 @@ export default function IncidentsRegister() {
   return (
     <>
       <PageHeader
-        title="Incident register" sub="Every logged case — search, filter, drill into the case file"
+        icon={CrisisAlertRoundedIcon} iconColor="#B3452E" title="Incident register" sub="Every logged case — search, filter, drill into the case file"
         actions={canCreate && (
           <Button variant="contained" startIcon={<AddRoundedIcon />}
             onClick={() => { setValues({ severity: 'MEDIUM', category: 'MARINE', source: 'PORTAL' }); setCreating(true); }}>
@@ -128,6 +131,7 @@ export default function IncidentsRegister() {
             { name: 'vessel', label: 'Vessel (registered)', type: 'select', options: [{ value: '', label: '— none —' }, ...vessels.map((v) => ({ value: v._id, label: v.name }))] },
             { name: 'vesselName', label: 'Craft (unregistered)', placeholder: 'FV name / registration if not in the registry' },
             { name: 'berth', label: 'Berth', type: 'select', options: [{ value: '', label: '— none —' }, ...berths.map((b) => ({ value: b._id, label: `${b.code} — ${b.terminal}` }))] },
+            { name: 'area', label: 'Location / area (master)', type: 'select', options: [{ value: '', label: '— none —' }, ...areas.map((a) => ({ value: a.label, label: a.label }))] },
             { name: 'reportedBy', label: 'Reported by', placeholder: 'Defaults to you' },
             { name: 'description', label: 'First information', type: 'multiline', rows: 3, cols: 12 },
           ]}

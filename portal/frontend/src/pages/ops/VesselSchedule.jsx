@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
@@ -56,7 +57,7 @@ export default function VesselSchedule() {
   return (
     <>
       <PageHeader
-        title="Vessel schedule" sub="The daily programme — expected arrivals, planned berthings and sailings, and what actually sailed"
+        icon={EventNoteRoundedIcon} iconColor="#0797A5" title="Vessel schedule" sub="The daily programme — expected arrivals, planned berthings and sailings, and what actually sailed"
         actions={(
           <ToggleButtonGroup exclusive size="small" value={days} onChange={(_, v) => v && setDays(v)}>
             <ToggleButton value={3}>3 days</ToggleButton>

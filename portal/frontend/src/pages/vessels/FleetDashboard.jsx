@@ -6,6 +6,7 @@ import {
   TableCell, TableBody, Divider, Chip, TableContainer,
 } from '@mui/material';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
@@ -64,7 +65,7 @@ export default function FleetDashboard() {
   return (
     <>
       <PageHeader
-        title="Fleet dashboard" sub="The registered fleet at a glance — composition, age, certification health and where every ship is right now"
+        icon={SpaceDashboardRoundedIcon} iconColor="#3B6FB6" title="Fleet dashboard" sub="The registered fleet at a glance — composition, age, certification health and where every ship is right now"
         actions={<Button variant="contained" endIcon={<ArrowForwardRoundedIcon />} onClick={() => navigate('/vessels')}>Open register</Button>}
       />
       <Grid container spacing={1.5} sx={{ mb: 2 }}>

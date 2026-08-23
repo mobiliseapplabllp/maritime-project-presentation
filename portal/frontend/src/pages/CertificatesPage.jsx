@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Chip, Stack } from '@mui/material';
+import WorkspacePremiumRoundedIcon from '@mui/icons-material/WorkspacePremiumRounded';
 import api from '../api/client';
 import PageStats from '../components/common/PageStats';
 import PageHeader from '../components/common/PageHeader';
@@ -23,7 +24,7 @@ export default function CertificatesPage() {
 
   return (
     <>
-      <PageHeader title="Fleet certificates" sub="Statutory certificates across all active vessels, ordered by expiry" />
+      <PageHeader icon={WorkspacePremiumRoundedIcon} iconColor="#3B6FB6" title="Fleet certificates" sub="Statutory certificates across all active vessels, ordered by expiry" />
       <PageStats scope="certificates" />
       <DataTable
         columns={[

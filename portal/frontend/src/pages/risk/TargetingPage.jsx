@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Card, Chip, Skeleton, Table, TableHead, TableRow, TableCell, TableBody, Typography, Box, TableContainer } from '@mui/material';
+import TrackChangesRoundedIcon from '@mui/icons-material/TrackChangesRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import PageHeader from '../../components/common/PageHeader';
@@ -22,7 +23,7 @@ export default function TargetingPage() {
   if (!rows) return <Skeleton variant="rounded" height={480} />;
   return (
     <>
-      <PageHeader title="PSC targeting list" sub="Vessels currently in port or inbound, ordered by risk — spend surveyor hours where the evidence points" />
+      <PageHeader icon={TrackChangesRoundedIcon} iconColor="#9C6412" title="PSC targeting list" sub="Vessels currently in port or inbound, ordered by risk — spend surveyor hours where the evidence points" />
       <Card>
         <TableContainer sx={{ overflowX: 'auto' }}>
           <Table size="small">

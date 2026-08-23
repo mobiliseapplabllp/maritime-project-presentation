@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
+import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, LabelList,
 } from 'recharts';
@@ -104,7 +105,7 @@ export default function MisReport() {
   return (
     <>
       <PageHeader
-        title="MIS report" sub="Management aggregates across cargo, traffic, revenue, compliance and licensing"
+        icon={AssessmentRoundedIcon} iconColor="#0B5D8A" title="MIS report" sub="Management aggregates across cargo, traffic, revenue, compliance and licensing"
         actions={<Button variant="outlined" startIcon={<PrintRoundedIcon />} onClick={() => window.print()}>Print / PDF</Button>}
       />
       <Card sx={{ p: 1.5, mb: 2, display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap', displayPrint: 'none' }}>

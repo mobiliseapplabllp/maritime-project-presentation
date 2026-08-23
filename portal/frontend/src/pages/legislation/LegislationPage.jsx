@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Chip, Stack, Button, Typography, Box, Divider } from '@mui/material';
 import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded';
+import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -33,7 +34,7 @@ export default function LegislationPage() {
     <>
       <CrudPage
         key={refresh}
-        statsScope="legislation" title="Legislation & circulars" sub="Acts, rules, notices and circulars — the instrument base behind checklists and fees"
+        statsScope="legislation" icon={CampaignRoundedIcon} iconColor="#8A5A2B" title="Notices & circulars" sub="Acts, rules, notices and circulars — with organisation-wide acknowledgments"
         entityName="instrument" endpoint="/instruments"
         perms={{ create: 'legislation.manage', edit: 'legislation.manage', del: 'legislation.manage' }}
         defaultSort="-issuedDate" searchPlaceholder="Search ref no, title…" drawerWidth="75vw"

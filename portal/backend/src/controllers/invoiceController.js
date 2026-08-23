@@ -1,6 +1,7 @@
 const { Invoice, PortCall, TariffItem, Lookup, Setting, Notification } = require('../models');
 const { buildInvoiceLines, computeTotals } = require('../domain/invoiceMath');
 const { GST_RATE } = require('../config/constants');
+const settings = require('../config/settingsCache');
 const { ApiError, ok, created } = require('../utils/respond');
 const { parseQuery, searchFilter } = require('../utils/paginate');
 const { audit } = require('../utils/audit');
@@ -38,10 +39,11 @@ exports.generate = async (req, res) => {
   const tariffs = Object.fromEntries(tariffDocs.map((t) => [t.code, t]));
   const rawLines = buildInvoiceLines(call, tariffs);
   if (!rawLines.length) throw new ApiError(400, 'Nothing to bill on this call yet — add services or cargo operations first');
-  const totals = computeTotals(rawLines, GST_RATE);
+  const gstRate = Number(settings.get('billing', {}).gstRate) || GST_RATE;
+  const totals = computeTotals(rawLines, gstRate);
   const agent = call.agentCode ? await Lookup.findOne({ category: 'agent', code: call.agentCode }).lean() : null;
   const doc = await Invoice.create({
-    number: await nextNumber(Invoice, 'number', `MUN/INV/${new Date().getFullYear()}/`),
+    number: await nextNumber(Invoice, 'number', `${settings.moduleGet('finance').invoicePrefix || 'MUN/INV'}/${new Date().getFullYear()}/`),
     portCall: call._id, vessel: call.vessel._id,
     billTo: {
       name: call.agentName || (agent && agent.label) || 'Master / Owners',
@@ -49,7 +51,7 @@ exports.generate = async (req, res) => {
       gstin: (agent && agent.meta && agent.meta.gstin) || '',
     },
     lines: totals.lines, subtotal: totals.subtotal,
-    gstRate: GST_RATE, gstAmount: totals.gstAmount, total: totals.total,
+    gstRate, gstAmount: totals.gstAmount, total: totals.total,
   });
   audit(req, { action: 'CREATE', entity: 'Invoice', entityId: doc._id, entityLabel: `${doc.number} (${call.vcn})`, after: doc });
   created(res, doc);

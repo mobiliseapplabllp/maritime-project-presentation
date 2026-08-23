@@ -39,7 +39,7 @@ const tariffs = makeCrud(TariffItem, {
 
 const checklists = makeCrud(ChecklistTemplate, {
   entity: 'ChecklistTemplate', labelField: 'name',
-  fields: ['name', 'inspectionType', 'items', 'active'],
+  fields: ['name', 'inspectionType', 'description', 'items', 'active', 'version', 'passScorePct'],
   searchFields: ['name'], filterFields: ['inspectionType'], defaultSort: 'name',
   validate: (body) => {
     if (body.items !== undefined) {

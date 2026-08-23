@@ -54,6 +54,18 @@ async function run() {
     { name: 'NMC Duty Officer', description: 'Surveillance centre — traffic picture, incidents, SAR', system: true,
       permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use','reports.view',
         'incidents.view','incidents.create','incidents.manage','incidents.close') },
+    { name: 'Terminal Supervisor', description: 'Terminal shift operations — cargo work and berth activity',
+      permissions: P('dashboard.view','portcalls.view','cargo.manage','vessels.view','incidents.view','incidents.create','masters.view','ai.use') },
+    { name: 'HSE Officer', description: 'Health, safety & environment — incident response and closure',
+      permissions: P('dashboard.view','incidents.view','incidents.create','incidents.manage','incidents.close','inspections.view','legislation.view','reports.view','ai.use') },
+    { name: 'Billing Clerk', description: 'Invoice preparation and collections follow-up',
+      permissions: P('dashboard.view','invoices.view','invoices.create','tariffs.view','portcalls.view','vessels.view','ai.use') },
+    { name: 'Security Officer', description: 'ISPS and gate security — watchkeeping and incident reporting',
+      permissions: P('dashboard.view','nmc.view','incidents.view','incidents.create','legislation.view','ai.use') },
+    { name: 'Port Pilot', description: 'Pilotage — vessel movements and schedules',
+      permissions: P('dashboard.view','portcalls.view','vessels.view','legislation.view','ai.use') },
+    { name: 'Management Viewer', description: 'Read-only management view across modules',
+      permissions: P('dashboard.view','portcalls.view','vessels.view','incidents.view','inspections.view','invoices.view','legislation.view','facilities.view','reports.view','nmc.view','risk.view','seafarers.view','ai.use') },
   ]);
   const roleByName = Object.fromEntries(roles.map((r) => [r.name, r._id]));
   const hash = await bcrypt.hash('Mundra@2026', 10);
@@ -102,6 +114,61 @@ async function run() {
     })),
   ]);
   const userByName = Object.fromEntries(users.map((u) => [u.name, u]));
+  // ---- extended staff directory: ~100 generated Indian-named users across departments ----
+  const FIRST = ['Amit','Bhavesh','Chirag','Darshan','Falguni','Gaurav','Hardik','Ilesh','Jignesh','Kalpana','Lalit','Mahesh',
+    'Naresh','Om','Parth','Rajan','Sanjana','Tejas','Umesh','Vandana','Yash','Zarna','Ankit','Bhumika','Chetan','Dhruv',
+    'Esha','Firoz','Gopal','Hetal','Ishita','Jay','Kiran','Lakshmi','Mitali','Nirav','Pooja','Rasik','Snehal','Tarun',
+    'Urvashi','Vipul','Alpesh','Bharti','Dinesh','Hansa','Jatin','Kamlesh','Mayur','Nita','Pankaj','Rekha'];
+  const LAST = ['Patel','Shah','Chauhan','Gohil','Jadeja','Rathod','Solanki','Vaghela','Parmar','Chudasama','Ahir','Rabari',
+    'Maheshwari','Trivedi','Joshi','Dave','Mehta','Bhatt','Vyas','Raval','Thakkar','Gandhi','Koli','Manek','Sama','Baraiya',
+    'Jethwa','Gadhvi','Mistry','Tandel','Chavda','Makwana','Zala','Dodiya','Sarvaiya','Vala'];
+  const DEPTS = [
+    ['Marine Operations', [['Asst. Harbour Master','Harbour Master'],['Berth Planner','Harbour Master'],['Marine Officer','Harbour Master'],['VTS Operator','NMC Duty Officer']], 12],
+    ['Pilotage', [['Pilot','Port Pilot']], 6],
+    ['HSE & Fire', [['HSE Officer','HSE Officer'],['Fire Officer','HSE Officer'],['Environment Officer','HSE Officer'],['Safety Steward','HSE Officer']], 12],
+    ['Terminal Operations', [['Terminal Supervisor','Terminal Supervisor'],['Shift In-charge','Terminal Supervisor'],['Yard Planner','Terminal Supervisor'],['Tally In-charge','Terminal Supervisor']], 22],
+    ['Engineering & Maintenance', [['Maintenance Engineer','Terminal Supervisor'],['Electrical Engineer','Terminal Supervisor'],['Crane Technician','Terminal Supervisor']], 10],
+    ['Finance & Billing', [['Billing Clerk','Billing Clerk'],['Accounts Officer','Finance Officer'],['Collections Executive','Billing Clerk']], 8],
+    ['Commercial & Marketing', [['Commercial Executive','Management Viewer'],['Key Account Manager','Management Viewer']], 5],
+    ['Security & ISPS', [['Security Officer','Security Officer'],['Gate Supervisor','Security Officer'],['CISF Liaison','Security Officer']], 10],
+    ['Surveys & Compliance', [['Surveyor','Marine Surveyor'],['Compliance Auditor','Marine Surveyor']], 6],
+    ['IT & Systems', [['Systems Engineer','Management Viewer']], 3],
+    ['Human Resources', [['HR Executive','Management Viewer']], 3],
+    ['Stores & Procurement', [['Stores Officer','Management Viewer']], 3],
+  ];
+  const usedEmails = new Set(users.map((u) => u.email));
+  const genDocs = [];
+  let gi = 0;
+  for (const [dept, desigs, count] of DEPTS) {
+    for (let k = 0; k < count; k++) {
+      const name = `${FIRST[gi % FIRST.length]} ${LAST[(gi * 7 + Math.floor(gi / FIRST.length)) % LAST.length]}`;
+      let email = `${name.toLowerCase().replace(/[^a-z]+/g, '.')}@mundraport.in`;
+      let n2 = 2;
+      while (usedEmails.has(email)) { email = `${name.toLowerCase().replace(/[^a-z]+/g, '.')}${n2}@mundraport.in`; n2 += 1; }
+      usedEmails.add(email);
+      const [designation, roleName] = desigs[k % desigs.length];
+      genDocs.push({
+        name, email, passwordHash: hash, role: roleByName[roleName], designation, department: dept,
+        phone: mkPhone(40 + gi), active: gi % 23 !== 22,
+        lastLoginAt: rnd() < 0.65 ? new Date(NOW.getTime() - ri(1, 400) * H) : undefined,
+      });
+      gi += 1;
+    }
+  }
+  await M.User.insertMany(genDocs);
+  // stamp departments on the named staff too
+  const namedDept = { 'Capt. Rajiv Nair': 'Marine Operations', 'Vinod Menon': 'Marine Operations', 'Capt. Pradeep Chauhan': 'Marine Operations',
+    'Capt. Meera Krishnan': 'Pilotage', 'Capt. Arjun Jadeja': 'Pilotage', 'Capt. Farooq Bukhari': 'Pilotage', 'Capt. Devraj Sodha': 'Marine Operations',
+    'Nilesh Gohil': 'Marine Operations', 'Ketan Maheshwari': 'Terminal Operations', 'Ravindra Ahir': 'Terminal Operations', 'Prakash Koli': 'Terminal Operations',
+    'Heena Chudasama': 'Marine Operations', 'Lt. Vikram Solanki': 'Marine Operations', 'Harshad Mange': 'Security & ISPS',
+    'Dr. Kavita Raval': 'HSE & Fire', 'Jaydeep Rathod': 'HSE & Fire', 'Bhavna Joshi': 'HSE & Fire', 'Sanjay Vaghela': 'HSE & Fire',
+    'Narendra Shah': 'Surveys & Compliance', 'Lt. Rakesh Joshi': 'Surveys & Compliance',
+    'Deepa Krishnamurthy': 'Finance & Billing', 'Rohan Trivedi': 'Finance & Billing', 'Nikita Parmar': 'Finance & Billing',
+    'Cdr. Suresh Patel': 'Surveys & Compliance', 'Meenakshi Iyer': 'Finance & Billing', 'Ashish Sharma': 'IT & Systems', 'Lt. Aditi Rathore': 'Marine Operations' };
+  for (const [nm, dept] of Object.entries(namedDept)) {
+    if (userByName[nm]) await M.User.updateOne({ _id: userByName[nm]._id }, { $set: { department: dept } });
+  }
+
   const hseOfficers = ['Dr. Kavita Raval', 'Jaydeep Rathod', 'Bhavna Joshi', 'Sanjay Vaghela'].map((n) => userByName[n]);
   const dutyOfficers = ['Lt. Aditi Rathore', 'Lt. Vikram Solanki', 'Heena Chudasama', 'Harshad Mange'].map((n) => userByName[n]);
   const marineOfficers = ['Capt. Rajiv Nair', 'Vinod Menon', 'Capt. Pradeep Chauhan', 'Capt. Devraj Sodha'].map((n) => userByName[n]);
@@ -148,6 +215,95 @@ async function run() {
     lk('actionCode','30','Detainable deficiency — ship detained', {}), lk('actionCode','99','Other (specify)', {}),
   ]);
 
+  // ---------- v6 configuration masters (geography · units · assets · org structure) ----------
+  await M.Lookup.insertMany([
+    // countries (trade-lane + registry set)
+    ...[['IN','India'],['CN','China'],['SG','Singapore'],['AE','United Arab Emirates'],['SA','Saudi Arabia'],['MY','Malaysia'],
+       ['LK','Sri Lanka'],['NL','Netherlands'],['ID','Indonesia'],['AU','Australia'],['ZA','South Africa'],['AR','Argentina'],
+       ['IQ','Iraq'],['KW','Kuwait'],['PA','Panama'],['LR','Liberia'],['MT','Malta'],['HK','Hong Kong SAR'],['MH','Marshall Islands'],['JP','Japan']]
+      .map(([c, l2]) => lk('country', c, l2)),
+    // states of India (operational footprint)
+    ...[['GJ','Gujarat'],['MH2','Maharashtra'],['KL','Kerala'],['TN','Tamil Nadu'],['KA','Karnataka'],['GA','Goa'],
+       ['AP','Andhra Pradesh'],['WB','West Bengal'],['OD','Odisha'],['DL','Delhi (NCT)'],['RJ','Rajasthan'],['HR','Haryana']]
+      .map(([c, l2]) => lk('state', c, l2, { country: 'IN' })),
+    // cities (Kutch cluster + gateway cities)
+    ...[['MUNDRA','Mundra','GJ'],['BHUJ','Bhuj','GJ'],['GDM','Gandhidham','GJ'],['ADIPUR','Adipur','GJ'],['MANDVI','Mandvi','GJ'],
+       ['ANJAR','Anjar','GJ'],['AMD','Ahmedabad','GJ'],['BOM','Mumbai','MH2'],['MAA','Chennai','TN'],['COK','Kochi','KL'],
+       ['CCU','Kolkata','WB'],['VTZ','Visakhapatnam','AP'],['NDLS','New Delhi','DL'],['JPR','Jaipur','RJ'],['FBD','Faridabad','HR']]
+      .map(([c, l2, st]) => lk('city', c, l2, { state: st, country: 'IN' })),
+    // units of measure
+    ...[['MT','Metric Tonne'],['TEU','Twenty-foot Equivalent Unit'],['UNITS','Units (vehicles/pieces)'],['KL','Kilolitre'],
+       ['CBM','Cubic Metre'],['MOVE','Crane Move'],['TUGMOV','Tug Movement'],['DAY','Day'],['HR','Hour'],['CALL','Per Call'],
+       ['NM','Nautical Mile'],['KN','Knot'],['M','Metre'],['GRT','Gross Register Tonnage']]
+      .map(([c, l2]) => lk('uom', c, l2)),
+    // currencies
+    ...[['INR','Indian Rupee', { symbol: '₹', base: true }],['USD','US Dollar', { symbol: '$' }],['EUR','Euro', { symbol: '€' }],
+       ['AED','UAE Dirham', { symbol: 'د.إ' }],['SGD','Singapore Dollar', { symbol: 'S$' }]]
+      .map(([c, l2, m2]) => lk('currency', c, l2, m2 || {})),
+    // equipment types
+    ...[['STS','Ship-to-Shore Crane'],['RTG','Rubber-Tyred Gantry'],['MHC','Harbour Mobile Crane'],['RS','Reach Stacker'],
+       ['CONV','Conveyor Stream'],['SL','Shiploader'],['GU','Grab Unloader'],['FL','Forklift'],['TT','Terminal Tractor'],
+       ['BOOM','Oil Containment Boom'],['SKIM','Oil Skimmer'],['GWY','Shore Gangway']]
+      .map(([c, l2]) => lk('equipmentType', c, l2)),
+    // equipment & assets register (used by incident and maintenance flows)
+    ...[['STS-01','STS Crane 1 — CT3-1','STS','CT-3 AICTPL (Adani–MSC JV)','OPERATIONAL','ZPMC'],
+       ['STS-02','STS Crane 2 — CT3-1','STS','CT-3 AICTPL (Adani–MSC JV)','OPERATIONAL','ZPMC'],
+       ['STS-03','STS Crane 3 — CT3-2','STS','CT-3 AICTPL (Adani–MSC JV)','OPERATIONAL','ZPMC'],
+       ['STS-04','STS Crane 4 — CT4-1','STS','CT-4 ACMTPL (Adani–CMA CGM JV)','OPERATIONAL','Liebherr'],
+       ['STS-05','STS Crane 5 — MICT-1','STS','MICT (DP World)','OPERATIONAL','ZPMC'],
+       ['RTG-01','RTG 1 — CT3 Yard Block A','RTG','CT-3 AICTPL (Adani–MSC JV)','OPERATIONAL','Konecranes'],
+       ['RTG-02','RTG 2 — CT3 Yard Block B','RTG','CT-3 AICTPL (Adani–MSC JV)','OPERATIONAL','Konecranes'],
+       ['RTG-03','RTG 3 — CT4 Yard','RTG','CT-4 ACMTPL (Adani–CMA CGM JV)','MAINTENANCE','Konecranes'],
+       ['MHC-01','Harbour Mobile Crane 1 — MP','MHC','Multipurpose Terminal','OPERATIONAL','Liebherr LHM 550'],
+       ['MHC-02','Harbour Mobile Crane 2 — MP','MHC','Multipurpose Terminal','OPERATIONAL','Liebherr LHM 550'],
+       ['GU-01','Grab Unloader 1 — WB-1','GU','West Basin Coal Terminal','OPERATIONAL','ThyssenKrupp'],
+       ['GU-02','Grab Unloader 2 — WB-2','GU','West Basin Coal Terminal','OPERATIONAL','ThyssenKrupp'],
+       ['CONV-W1','Coal Conveyor Stream 1','CONV','West Basin Coal Terminal','OPERATIONAL','—'],
+       ['CONV-W2','Coal Conveyor Stream 2','CONV','West Basin Coal Terminal','OPERATIONAL','—'],
+       ['SL-01','Shiploader — Bulk Export','SL','Multipurpose Terminal','OPERATIONAL','—'],
+       ['RS-01','Reach Stacker 1','RS','CT-3 AICTPL (Adani–MSC JV)','OPERATIONAL','Kalmar'],
+       ['RS-02','Reach Stacker 2','RS','CT-4 ACMTPL (Adani–CMA CGM JV)','OPERATIONAL','Kalmar'],
+       ['BOOM-A','Containment Boom Set A (400 m)','BOOM','Liquid Terminal','OPERATIONAL','—'],
+       ['SKIM-1','Disc Skimmer Unit 1','SKIM','Liquid Terminal','OPERATIONAL','—'],
+       ['GWY-L1','Shore Gangway — LB-1','GWY','Liquid Terminal','OPERATIONAL','—']]
+      .map(([c, l2, t, term, st, make]) => lk('equipment', c, l2, { type: t, terminal: term, status: st, make })),
+    // departments & designations
+    ...[['MAR','Marine Operations'],['PIL','Pilotage'],['HSE','HSE & Fire'],['TER','Terminal Operations'],
+       ['ENG','Engineering & Maintenance'],['FIN','Finance & Billing'],['COM','Commercial & Marketing'],
+       ['SEC','Security & ISPS'],['SUR','Surveys & Compliance'],['IT','IT & Systems'],['HR2','Human Resources'],['STO','Stores & Procurement']]
+      .map(([c, l2]) => lk('department', c, l2)),
+    ...[['AHM','Asst. Harbour Master','Marine Operations'],['BP','Berth Planner','Marine Operations'],['MO','Marine Officer','Marine Operations'],
+       ['VTS','VTS Operator','Marine Operations'],['PLT','Pilot','Pilotage'],['HSO','HSE Officer','HSE & Fire'],
+       ['FO','Fire Officer','HSE & Fire'],['EO','Environment Officer','HSE & Fire'],['TS','Terminal Supervisor','Terminal Operations'],
+       ['SIC','Shift In-charge','Terminal Operations'],['YP','Yard Planner','Terminal Operations'],['ME','Maintenance Engineer','Engineering & Maintenance'],
+       ['EE','Electrical Engineer','Engineering & Maintenance'],['CT','Crane Technician','Engineering & Maintenance'],
+       ['BC','Billing Clerk','Finance & Billing'],['AO','Accounts Officer','Finance & Billing'],['CE','Collections Executive','Finance & Billing'],
+       ['CX','Commercial Executive','Commercial & Marketing'],['SO','Security Officer','Security & ISPS'],['GS','Gate Supervisor','Security & ISPS'],
+       ['SV','Surveyor','Surveys & Compliance'],['CA','Compliance Auditor','Surveys & Compliance'],['SE','Systems Engineer','IT & Systems'],
+       ['HRX','HR Executive','Human Resources']]
+      .map(([c, l2, d2]) => lk('designation', c, l2, { department: d2 })),
+    // shifts
+    ...[['A','Shift A (0600–1400)', { start: '06:00', end: '14:00' }],['B','Shift B (1400–2200)', { start: '14:00', end: '22:00' }],
+       ['C','Shift C (2200–0600)', { start: '22:00', end: '06:00' }],['G','General (0900–1800)', { start: '09:00', end: '18:00' }]]
+      .map(([c, l2, m2]) => lk('shift', c, l2, m2)),
+    // document types (incident & compliance attachments)
+    ...[['REPORT','Report'],['PHOTO','Photographs'],['STATEMENT','Statement'],['SAMPLE','Sample / Analysis'],
+       ['PERMIT','Permit to Work'],['CCTV','CCTV Footage'],['MANIFEST','Cargo Manifest'],['SURVEY','Survey Report'],
+       ['NOTICE','Notice / Letter'],['OTHER','Other']]
+      .map(([c, l2]) => lk('documentType', c, l2)),
+    // incident locations
+    ...[['APPCH','Approach channel'],['ANCH-A1','Outer anchorage A1'],['FWY','Fairway buoy sector'],['GATE','Gate complex'],
+       ['CT3YD','CT-3 container yard'],['CT4YD','CT-4 container yard'],['WBSY','West Basin stockyard'],['TANKF','Liquid terminal tank farm'],
+       ['SEZ2','SEZ Zone-2'],['RAILY','Railway sidings'],['WSHOP','Engineering workshop']]
+      .map(([c, l2]) => lk('incidentArea', c, l2)),
+    // holiday calendar 2026 (port runs 24×365 — flags restricted gate/office working)
+    ...[['REP26','Republic Day', '2026-01-26'],['HOLI26','Holi (Dhuleti)', '2026-03-04'],['GDFR26','Good Friday', '2026-04-03'],
+       ['IDU26','Idul Fitr', '2026-03-21'],['IND26','Independence Day', '2026-08-15'],['GAN26','Ganesh Chaturthi', '2026-09-14'],
+       ['GJ26','Gandhi Jayanti', '2026-10-02'],['DUS26','Dussehra', '2026-10-20'],['DIW26','Diwali', '2026-11-08'],
+       ['BHAI26','Bhai Dooj', '2026-11-11'],['XMAS26','Christmas Day', '2026-12-25']]
+      .map(([c, l2, d2]) => lk('holiday', c, l2, { date: d2, working: '24×365 marine ops — office & gate restricted' })),
+  ]);
+
   // ---------- tariffs ----------
   await M.TariffItem.insertMany([
     { code: 'PD',  name: 'Port dues', category: 'MARINE', unit: 'per GRT', rate: 12.5 },
@@ -171,15 +327,46 @@ async function run() {
       'Lifeboats and davits — condition and launching', 'Emergency generator starts on load',
       'Oily-water separator and 15ppm alarm test', 'Garbage management plan and record book',
       'Crew accommodation hygiene', 'Mooring arrangement condition',
-    ].map((t, i) => ({ seq: i + 1, text: t, category: i < 2 ? 'Documentation' : i < 5 ? 'Safety' : 'Machinery & MARPOL' })) },
+    ].map((t, i) => ({ seq: i + 1, text: t, category: i < 2 ? 'Documentation' : i < 5 ? 'Safety' : 'Machinery & MARPOL',
+      answerType: 'YES_NO_NA', weight: i < 2 ? 3 : 2, critical: i === 0 || i === 5,
+      guidance: i === 0 ? 'Verify originals on board; check endorsements and validity dates.' : '' })),
+      description: 'Initial PSC boarding checklist aligned to Tokyo/Indian Ocean MoU practice.', passScorePct: 85 },
     { name: 'Pre-Berthing Safety Check', inspectionType: 'FSI', items: [
       'Arrival draft within berth limit', 'Dangerous goods declaration reviewed',
       'Mooring plan agreed with pilot', 'Gangway and access arrangement safe', 'Bunker operations notified',
-    ].map((t, i) => ({ seq: i + 1, text: t, category: 'Pre-berthing' })) },
+    ].map((t, i) => ({ seq: i + 1, text: t, category: 'Pre-berthing', answerType: 'YES_NO_NA', weight: 2, critical: i === 0 })),
+      description: 'Marine pre-berthing verification run by the duty berth planner.', passScorePct: 100 },
     { name: 'MLC On-board Conditions', inspectionType: 'MLC', items: [
       'Seafarer employment agreements available', 'Wage records up to date', 'Rest hour records maintained',
       'Food and catering standard', 'Medical chest inventory complete',
-    ].map((t, i) => ({ seq: i + 1, text: t, category: 'MLC' })) },
+    ].map((t, i) => ({ seq: i + 1, text: t, category: 'MLC', answerType: 'YES_NO_NA', weight: 2, critical: i === 2 })),
+      description: 'On-board living and working condition verification under MLC 2006.', passScorePct: 80 },
+    { name: 'HSE Walkabout — Terminal', inspectionType: 'HSE', passScorePct: 80,
+      description: 'Weekly HSE walkabout of a working terminal — housekeeping, PPE, permits, emergency readiness.',
+      items: [
+        ['PPE worn by all personnel in cargo areas', 'PPE & People', 3, true],
+        ['Toolbox talk record available for the shift', 'PPE & People', 2, false],
+        ['Walkways and quay apron clear of obstructions', 'Housekeeping', 2, false],
+        ['Spill kits stocked and accessible', 'Emergency readiness', 3, false],
+        ['Fire extinguishers in date and unobstructed', 'Emergency readiness', 3, true],
+        ['Hot-work permits displayed at worksites', 'Permits', 3, true],
+        ['Working-at-height controls in place on lashing bridges', 'Permits', 2, false],
+        ['Lighting adequate in working areas (night shift)', 'Housekeeping', 2, false],
+        ['Waste segregation bins not overflowing', 'Housekeeping', 1, false],
+        ['Emergency assembly point signage visible', 'Emergency readiness', 1, false],
+      ].map(([text, category, weight, critical], i) => ({ seq: i + 1, text, category, weight, critical, answerType: 'YES_NO_NA' })) },
+    { name: 'Terminal Safety Audit — Equipment', inspectionType: 'TERMINAL', passScorePct: 85,
+      description: 'Quarterly audit of terminal cargo-handling equipment and operator competency.',
+      items: [
+        ['Crane daily inspection log up to date', 'Cranes', 3, true],
+        ['Limit switches and anti-collision tested', 'Cranes', 3, true],
+        ['Wire ropes within discard criteria', 'Cranes', 3, false],
+        ['RTG/ITV seat belts and cameras functional', 'Yard equipment', 2, false],
+        ['Operators hold valid competency cards', 'People', 3, true],
+        ['Fuelling area bunded and signed', 'Yard', 2, false],
+        ['Reefer towers earthed and guarded', 'Yard', 2, false],
+        ['Conveyor emergency pull-cords tested', 'Bulk stream', 3, true],
+      ].map(([text, category, weight, critical], i) => ({ seq: i + 1, text, category, weight, critical, answerType: 'YES_NO_NA' })) },
   ]);
 
   // ---------- berths ----------
@@ -762,6 +949,44 @@ async function run() {
   }));
   console.log('licenses: 12');
 
+  // ---------- port companies directory ----------
+  const companyDefs = [
+    // documented terminal operators (public JV structure) — flagged real
+    ['MICT', 'DP World Mundra (MICT)', 'TERMINAL_OPERATOR', ['TERMINAL_OPERATOR'], true, 4.5],
+    ['AICT', 'Adani International Container Terminal (CT-3)', 'TERMINAL_OPERATOR', ['TERMINAL_OPERATOR'], true, 4.5],
+    ['ACMT', 'Adani CMA Mundra Terminal (CT-4)', 'TERMINAL_OPERATOR', ['TERMINAL_OPERATOR'], true, 4.5],
+    // demo service companies (fictional)
+    ['KSA', 'Kutch Shipping Agency', 'AGENCY', ['SHIPPING_AGENCY'], false, 4.5],
+    ['BMS', 'Bharat Marine Services', 'AGENCY', ['SHIPPING_AGENCY'], false, 4.0],
+    ['OAP', 'Oceanic Agencies Pvt Ltd', 'AGENCY', ['SHIPPING_AGENCY'], false, 3.5],
+    ['WCM', 'WestCoast Maritime Services', 'AGENCY', ['SHIPPING_AGENCY'], false, 3.5],
+    ['SSL', 'Seven Seas Logistics', 'AGENCY', ['SHIPPING_AGENCY'], false, 3.0],
+    ['TMA', 'Trident Marine Agencies', 'AGENCY', ['SHIPPING_AGENCY'], false, 4.0],
+    ['SBL', 'Saurashtra Bunkers LLP', 'SUPPLIER', ['BUNKER_SUPPLIER'], false, 3.0],
+    ['GMR', 'Gulf Marine Repairs', 'SERVICE_PROVIDER', ['REPAIR_YARD'], false, 4.0],
+    ['NSC', 'Navinal Ship Chandlers', 'SUPPLIER', ['SHIP_CHANDLER'], false, 3.5],
+    ['WMS', 'WestCoast Manning Services', 'SERVICE_PROVIDER', ['MANNING_AGENCY'], false, 4.0],
+    ['KMS', 'Kandla Marine Surveyors', 'SERVICE_PROVIDER', ['MARINE_SURVEYOR'], false, 4.5],
+    ['MMA', 'Mundra Maritime Academy', 'INSTITUTE', ['TRAINING_INSTITUTE'], false, 4.0],
+    ['ASC', 'Adipur Stevedores Co-op', 'SERVICE_PROVIDER', ['STEVEDORE'], false, 2.0],
+    ['BDW', 'BlueDepth Diving Works', 'SERVICE_PROVIDER', ['DIVING_CONTRACTOR'], false, 3.0],
+    ['SGT', 'Sagar Tank Cleaning Services', 'SERVICE_PROVIDER', ['STEVEDORE'], false, 3.5],
+  ];
+  await M.Company.insertMany(companyDefs.map(([code, name, category, types, real, rating], i) => ({
+    code, name, category, types, real, rating,
+    contactPerson: real ? '—' : pick(['Ramesh Shah', 'Mukhtar Khan', 'Priti Joshi', 'Sunil Ahuja', 'Dilip Chauhan', 'Kavita Mehta']),
+    phone: real ? '' : '+91 2838 2' + String(20000 + i * 613).slice(0, 5),
+    email: real ? '' : `office@${name.toLowerCase().replace(/[^a-z]+/g, '')}.example.in`,
+    address: real ? 'Mundra Port, Navinal Island' : pick(['Port User Complex, Mundra', 'Adipur 370205', 'Gandhidham 370201', 'SEZ Zone-2, Mundra', 'Mundra-Bhuj Road']),
+    city: 'Mundra', state: 'Gujarat',
+    gstin: real ? '' : `24XXXXX${2000 + i}X1Z${i % 10} (sample)`,
+    pan: real ? '' : `AAxCx${1000 + i}x (sample)`,
+    status: name === 'Adipur Stevedores Co-op' ? 'SUSPENDED' : 'ACTIVE',
+    onboardedAt: new Date(NOW.getTime() - ri(200, 2400) * D),
+    remarks: real ? 'Terminal joint-venture operator — public record' : '',
+  })));
+  console.log(`companies: ${companyDefs.length}`);
+
   // ---------- marine resources (tugs · pilot launches · mooring boats · pilots) ----------
   // Fleet mirrors the researched Mundra marine craft mix: 5 tugs (2 above 50 T BP),
   // 5 pilot launches, 2 mooring boats — with an Indian pilot roster.
@@ -1093,6 +1318,7 @@ async function run() {
     portCalls: await M.PortCall.countDocuments(), inspections: await M.Inspection.countDocuments(),
     invoices: await M.Invoice.countDocuments(), templates: await M.ChecklistTemplate.countDocuments(),
     incidents: await M.Incident.countDocuments(), resources: await M.Resource.countDocuments(),
+    companies: await M.Company.countDocuments(),
   };
   console.log('SEED COMPLETE', JSON.stringify(counts));
   await mongoose.disconnect();

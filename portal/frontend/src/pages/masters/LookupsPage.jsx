@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Tabs, Tab, Box, Chip } from '@mui/material';
+import ListAltRoundedIcon from '@mui/icons-material/ListAltRounded';
 import api from '../../api/client';
 import CrudPage from '../../components/common/CrudPage';
 

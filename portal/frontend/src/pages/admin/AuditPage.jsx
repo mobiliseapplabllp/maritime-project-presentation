@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Chip } from '@mui/material';
+import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
 import api from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
@@ -23,7 +24,7 @@ export default function AuditPage() {
 
   return (
     <>
-      <PageHeader title="Audit log" sub="Every write in the system — who, what, when, before and after" />
+      <PageHeader icon={HistoryRoundedIcon} iconColor="#0A2239" title="Audit log" sub="Every write in the system — who, what, when, before and after" />
       <DataTable
         columns={[
           { key: 'at', label: 'When', render: (r) => fmtDT(r.at), mono: true },

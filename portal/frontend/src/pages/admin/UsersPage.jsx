@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Chip } from '@mui/material';
 import KeyRoundedIcon from '@mui/icons-material/KeyRounded';
+import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import CrudPage from '../../components/common/CrudPage';
@@ -21,7 +22,7 @@ export default function UsersPage() {
   return (
     <>
       <CrudPage
-        statsScope="users" title="Users" sub="Portal accounts and their roles"
+        statsScope="users" icon={GroupRoundedIcon} iconColor="#0A2239" title="Users" sub="Portal accounts and their roles"
         entityName="user" endpoint="/users" defaultSort="name"
         perms={{ create: 'users.manage', edit: 'users.manage', del: 'users.manage' }}
         searchPlaceholder="Search name, email…"
@@ -30,6 +31,7 @@ export default function UsersPage() {
           { key: 'email', label: 'Email', mono: true },
           { key: 'role', label: 'Role', render: (r) => <Chip size="small" variant="outlined" label={r.role?.name || '—'} sx={{ height: 20, fontSize: 11 }} /> },
           { key: 'designation', label: 'Designation' },
+          { key: 'department', label: 'Department', render: (r) => r.department || '—' },
           { key: 'active', label: 'Status', render: (r) => <Chip size="small" label={r.active ? 'Active' : 'Disabled'} color={r.active ? 'success' : 'default'} sx={{ height: 20, fontSize: 11 }} /> },
           { key: 'lastLoginAt', label: 'Last login', render: (r) => fmtDT(r.lastLoginAt) },
         ]}
@@ -38,7 +40,7 @@ export default function UsersPage() {
           { name: 'name', label: 'Full name', required: true }, { name: 'email', label: 'Email', required: true },
           ...(!editing?._id ? [{ name: 'password', label: 'Initial password', required: true, helper: 'Min 8 characters' }] : []),
           { name: 'role', label: 'Role', type: 'select', required: true, options: roleOpts },
-          { name: 'designation', label: 'Designation' }, { name: 'phone', label: 'Phone' },
+          { name: 'designation', label: 'Designation' }, { name: 'department', label: 'Department' }, { name: 'phone', label: 'Phone' },
           { name: 'active', label: 'Account active', type: 'switch' },
         ]}
         defaults={{ active: true }}

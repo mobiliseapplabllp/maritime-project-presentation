@@ -35,6 +35,7 @@ if (require.main === module) {
           execFileSync(process.execPath, [path.join(__dirname, 'scripts', 'seed.js')], { stdio: 'inherit' });
         }
       }
+      await require('./src/config/settingsCache').init();
       app.listen(port, '0.0.0.0', () => console.log(`Mundra Portal on :${port}`));
     })
     .catch((e) => { console.error('DB connection failed:', e.message); process.exit(1); });

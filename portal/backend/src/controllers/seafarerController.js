@@ -88,3 +88,43 @@ module.exports = {
     ok(res, decorate(doc));
   },
 };
+
+
+// Crew dashboard — roll KPIs, rank mix, document expiry funnel and onboard roll
+module.exports.dashboard = async (_req, res) => {
+  const { ok } = require('../utils/respond');
+  const { certStatus } = require('../domain/certStatus');
+  const settings = require('../config/settingsCache').moduleGet('crew');
+  const D2 = 24 * 3600 * 1000;
+  const crew = await Seafarer.find().populate('currentVessel', 'name').lean();
+  const byRank = {};
+  const funnel = { expired: 0, d30: 0, d90: 0, valid: 0 };
+  let onboard = 0; let medicalIssues = 0; let seaDays = 0;
+  const alertList = [];
+  for (const s2 of crew) {
+    byRank[s2.rank] = (byRank[s2.rank] || 0) + 1;
+    if (s2.currentVessel) onboard += 1;
+    seaDays += (s2.seaService || []).reduce((t, x) => t + Math.max(0, Math.round((new Date(x.to) - new Date(x.from)) / D2)), 0);
+    let alerts = 0;
+    for (const c of s2.certificates || []) {
+      const days = Math.floor((new Date(c.expiryDate) - Date.now()) / D2);
+      if (days < 0) { funnel.expired += 1; alerts += 1; }
+      else if (days <= 30) { funnel.d30 += 1; alerts += 1; }
+      else if (days <= 90) funnel.d90 += 1;
+      else funnel.valid += 1;
+      if (/medical/i.test(c.certType) && certStatus(c.expiryDate) !== 'VALID') medicalIssues += 1;
+    }
+    if (alerts) alertList.push({ _id: s2._id, name: s2.name, rank: s2.rank, vessel: s2.currentVessel?.name || 'Ashore', alerts });
+  }
+  alertList.sort((a, b) => b.alerts - a.alerts);
+  ok(res, {
+    kpis: {
+      roll: crew.length, onboard, ashore: crew.length - onboard,
+      medicalIssues, avgSeaDays: crew.length ? Math.round(seaDays / crew.length) : 0,
+      medicalWindow: settings.medicalExpiringDays || 45,
+    },
+    byRank: Object.entries(byRank).map(([rank, count]) => ({ rank, count })).sort((a, b) => b.count - a.count),
+    funnel,
+    alertList: alertList.slice(0, 10),
+  });
+};

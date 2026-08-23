@@ -19,4 +19,5 @@ module.exports = {
   MdaAlert: require('./MdaAlert'),
   Position: require('./Position'),
   Resource: require('./Resource'),
+  Company: require('./Company'),
 };

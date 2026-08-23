@@ -30,6 +30,9 @@ import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
 import DirectionsBoatRoundedIcon from '@mui/icons-material/DirectionsBoatRounded';
 import HealthAndSafetyRoundedIcon from '@mui/icons-material/HealthAndSafetyRounded';
 import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
+import SettingsSuggestRoundedIcon from '@mui/icons-material/SettingsSuggestRounded';
+import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded';
+import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 
 export const MODULES = [
   {
@@ -50,6 +53,7 @@ export const MODULES = [
         { to: '/quay-view', label: 'Quay View (2D)', icon: SpaceDashboardRoundedIcon, perm: 'portcalls.view' },
         { to: '/schedule', label: 'Vessel Schedule', icon: EventNoteRoundedIcon, perm: 'portcalls.view' },
         { to: '/marine-services', label: 'Marine Craft & Pilots', icon: DirectionsBoatRoundedIcon, perm: 'portcalls.view' },
+        { to: '/nmc/map', label: 'Live Traffic', icon: RadarRoundedIcon, perm: 'nmc.view' },
       ],
     }],
   },
@@ -73,25 +77,19 @@ export const MODULES = [
     icon: GroupsRoundedIcon, perm: 'seafarers.view', home: '/seafarers',
     nav: [{
       header: 'Crew',
-      items: [{ to: '/seafarers', label: 'Crew Register', icon: BadgeRoundedIcon, perm: 'seafarers.view' }],
+      items: [
+        { to: '/seafarers/overview', label: 'Crew Dashboard', icon: SpaceDashboardRoundedIcon, perm: 'seafarers.view' },
+        { to: '/seafarers', label: 'Crew Register', icon: BadgeRoundedIcon, perm: 'seafarers.view', end: true },
+      ],
     }],
   },
   {
-    key: 'legis', name: 'Regulatory Desk', short: 'Regulatory', color: '#8A5A2B',
+    key: 'legis', name: 'Notices & Circulars', short: 'Notices', color: '#8A5A2B',
     desc: 'Acts, rules, notices and circulars — with acknowledgments',
-    icon: GavelRoundedIcon, perm: 'legislation.view', home: '/legislation',
+    icon: CampaignRoundedIcon, perm: 'legislation.view', home: '/legislation',
     nav: [{
       header: 'Instruments',
-      items: [{ to: '/legislation', label: 'Instrument Library', icon: GavelRoundedIcon, perm: 'legislation.view' }],
-    }],
-  },
-  {
-    key: 'nmc', name: 'Ocean Watch', short: 'Watch', color: '#0B4F8A',
-    desc: 'Live traffic picture and derived surveillance alerts',
-    icon: RadarRoundedIcon, perm: 'nmc.view', home: '/nmc/map',
-    nav: [{
-      header: 'Surveillance',
-      items: [{ to: '/nmc/map', label: 'Live Traffic', icon: MapRoundedIcon, perm: 'nmc.view' }],
+      items: [{ to: '/legislation', label: 'Notice Library', icon: GavelRoundedIcon, perm: 'legislation.view' }],
     }],
   },
   {
@@ -113,18 +111,23 @@ export const MODULES = [
     nav: [{
       header: 'Surveys',
       items: [
-        { to: '/inspections', label: 'Survey Register', icon: FactCheckRoundedIcon, perm: 'inspections.view' },
+        { to: '/inspections/overview', label: 'Audit Dashboard', icon: SpaceDashboardRoundedIcon, perm: 'inspections.view' },
+        { to: '/inspections', label: 'Survey Register', icon: FactCheckRoundedIcon, perm: 'inspections.view', end: true },
+        { to: '/checklist-builder', label: 'Checklist Builder', icon: ChecklistRoundedIcon, perm: 'inspections.view' },
         { to: '/risk/targeting', label: 'Boarding Targets', icon: TrackChangesRoundedIcon, perm: 'risk.view' },
       ],
     }],
   },
   {
-    key: 'facil', name: 'Trade Partners', short: 'Partners', color: '#2C6E52',
-    desc: 'Licensing of agencies, suppliers, yards and institutes',
-    icon: CorporateFareRoundedIcon, perm: 'facilities.view', home: '/facilities',
+    key: 'facil', name: 'Port Companies', short: 'Companies', color: '#2C6E52',
+    desc: 'The company directory and licensing of everyone working in the port',
+    icon: CorporateFareRoundedIcon, perm: 'facilities.view', home: '/companies',
     nav: [{
-      header: 'Licensing',
-      items: [{ to: '/facilities', label: 'Licence Register', icon: CorporateFareRoundedIcon, perm: 'facilities.view' }],
+      header: 'Companies',
+      items: [
+        { to: '/companies', label: 'Company Directory', icon: CorporateFareRoundedIcon, perm: 'facilities.view' },
+        { to: '/facilities', label: 'Licence Register', icon: WorkspacePremiumRoundedIcon, perm: 'facilities.view' },
+      ],
     }],
   },
   {
@@ -145,19 +148,22 @@ export const MODULES = [
     icon: AssessmentRoundedIcon, perm: 'reports.view', home: '/mis',
     nav: [{
       header: 'Reporting',
-      items: [{ to: '/mis', label: 'MIS Report', icon: AssessmentRoundedIcon, perm: 'reports.view' }],
+      items: [
+        { to: '/reports', label: 'Report Library', icon: LibraryBooksRoundedIcon, perm: 'reports.view', end: true },
+        { to: '/mis', label: 'MIS Report', icon: AssessmentRoundedIcon, perm: 'reports.view' },
+      ],
     }],
   },
   {
     key: 'masters', name: 'Data Studio', short: 'Masters', color: '#5A6B78',
     desc: 'Berth master, lookups and checklist templates',
-    icon: HubRoundedIcon, perm: 'masters.view', home: '/masters/berths',
+    icon: HubRoundedIcon, perm: 'masters.view', home: '/masters',
     nav: [{
       header: 'Reference data',
       items: [
-        { to: '/masters/berths', label: 'Berths & Terminals', icon: HubRoundedIcon, perm: 'masters.view' },
-        { to: '/masters/lookups', label: 'Lookups', icon: ListAltRoundedIcon, perm: 'masters.view' },
-        { to: '/masters/checklists', label: 'Checklist Templates', icon: ChecklistRoundedIcon, perm: 'masters.view' },
+        { to: '/masters', label: 'All Masters', icon: HubRoundedIcon, perm: 'masters.view', end: true },
+        { to: '/masters/berths', label: 'Berths & Terminals', icon: AnchorRoundedIcon, perm: 'masters.view' },
+        { to: '/masters/lookups', label: 'Raw Lookups', icon: ListAltRoundedIcon, perm: 'masters.view' },
       ],
     }],
   },
@@ -180,6 +186,15 @@ export const MODULES = [
 // safety icon reused by incident pages
 export { HealthAndSafetyRoundedIcon };
 
+// every module carries its own settings page, looped back into behaviour
+for (const m of MODULES) {
+  if (m.key === 'home') continue;
+  m.nav.push({
+    header: 'Configuration',
+    items: [{ to: `/settings/module/${m.key}`, label: 'Module Settings', icon: SettingsSuggestRoundedIcon, perm: m.perm }],
+  });
+}
+
 export const moduleOf = (pathname) => {
   if (pathname === '/') return MODULES[0];
   let best = null;
@@ -196,7 +211,7 @@ export const moduleOf = (pathname) => {
     if (pathname.startsWith('/vessels')) return MODULES.find((m) => m.key === 'ships');
     if (pathname.startsWith('/seafarers')) return MODULES.find((m) => m.key === 'crew');
     if (pathname.startsWith('/facilities')) return MODULES.find((m) => m.key === 'facil');
-    if (pathname.startsWith('/nmc')) return MODULES.find((m) => m.key === 'nmc');
+    if (pathname.startsWith('/nmc')) return MODULES.find((m) => m.key === 'ops');
     if (pathname.startsWith('/incidents')) return MODULES.find((m) => m.key === 'incidents');
     if (pathname.startsWith('/inspections')) return MODULES.find((m) => m.key === 'inspect');
     if (pathname.startsWith('/invoices')) return MODULES.find((m) => m.key === 'finance');

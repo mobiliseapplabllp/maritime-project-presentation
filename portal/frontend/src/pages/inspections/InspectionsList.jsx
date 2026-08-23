@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Chip } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -39,7 +40,7 @@ export default function InspectionsList() {
   return (
     <>
       <PageHeader
-        title="Inspections & audits" sub="PSC, flag state, ISM, ISPS and MLC inspections"
+        icon={FactCheckRoundedIcon} iconColor="#9C6412" title="Inspections & audits" sub="PSC, flag state, ISM, ISPS and MLC inspections"
         actions={hasPerm(user, 'inspections.create') && (
           <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={() => {
             setValues({ plannedAt: toInputDT(new Date()), inspector: user.name });

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Chip } from '@mui/material';
+import DirectionsBoatFilledRoundedIcon from '@mui/icons-material/DirectionsBoatFilledRounded';
 import CrudPage from '../../components/common/CrudPage';
 import StatusChip from '../../components/common/StatusChip';
 import EntityHover from '../../components/common/EntityHover';
@@ -13,7 +14,7 @@ export default function VesselsList() {
   const navigate = useNavigate();
   return (
     <CrudPage
-      statsScope="vessels" title="Vessel registry" sub="Ships known to the port, with their particulars and certificates"
+      statsScope="vessels" icon={DirectionsBoatFilledRoundedIcon} iconColor="#3B6FB6" title="Vessel registry" sub="Ships known to the port, with their particulars and certificates"
       entityName="vessel" endpoint="/vessels" permBase="vessels"
       perms={{ create: 'vessels.create', edit: 'vessels.edit', del: 'vessels.delete' }}
       defaultSort="name" searchPlaceholder="Search name, IMO, call sign…"

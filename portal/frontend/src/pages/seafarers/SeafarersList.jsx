@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Chip, Badge } from '@mui/material';
+import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
 import api from '../../api/client';
 import CrudPage from '../../components/common/CrudPage';
 import EntityHover from '../../components/common/EntityHover';
@@ -15,7 +16,7 @@ export default function SeafarersList() {
 
   return (
     <CrudPage
-      statsScope="seafarers" title="Seafarer register" sub="Crew identity, competency certificates and verified sea service"
+      statsScope="seafarers" icon={BadgeRoundedIcon} iconColor="#75479C" title="Seafarer register" sub="Crew identity, competency certificates and verified sea service"
       entityName="seafarer" endpoint="/seafarers"
       perms={{ create: 'seafarers.create', edit: 'seafarers.edit', del: 'seafarers.delete' }}
       defaultSort="name" searchPlaceholder="Search name, CDC, INDoS…"

@@ -198,7 +198,9 @@ exports.dashboard = async (req, res) => {
     else if (ageH <= 168) aging['3-7d'] += 1;
     else aging['>7d'] += 1;
   }
+  const sla = require('../config/settingsCache').moduleGet('incidents');
   ok(res, {
+    sla: { mttaTargetMin: sla.mttaTargetMin, mttrTargetHrs: sla.mttrTargetHrs },
     kpis: {
       open: everOpen.length,
       highOpen: everOpen.filter((i) => ['HIGH', 'CRITICAL'].includes(i.severity)).length,

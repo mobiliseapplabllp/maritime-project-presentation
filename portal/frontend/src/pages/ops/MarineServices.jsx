@@ -52,7 +52,7 @@ export default function MarineServices() {
   return (
     <>
       <PageHeader
-        title="Marine craft & pilots"
+        icon={DirectionsBoatRoundedIcon} iconColor="#0797A5" title="Marine craft & pilots"
         sub={`Pilotage runs 24×365 — boarding ground ≈3 NM south-east of the breakwaters · ${available} available · ${tasked} tasked now`}
       />
       <Stack spacing={2.5}>

@@ -1,4 +1,5 @@
 import CrudPage from '../../components/common/CrudPage';
+import PriceChangeRoundedIcon from '@mui/icons-material/PriceChangeRounded';
 import { fmtINR } from '../../utils/format';
 
 const CATS = ['MARINE', 'CARGO', 'MISC'].map((c) => ({ value: c, label: c }));
@@ -6,7 +7,7 @@ const CATS = ['MARINE', 'CARGO', 'MISC'].map((c) => ({ value: c, label: c }));
 export default function TariffsPage() {
   return (
     <CrudPage
-      title="Tariff master" sub="Rates applied when invoices are generated from a port call"
+      icon={PriceChangeRoundedIcon} iconColor="#BD3861" title="Tariff master" sub="Rates applied when invoices are generated from a port call"
       entityName="tariff item" endpoint="/tariffs" permBase="tariffs" defaultSort="code"
       perms={{ create: 'tariffs.manage', edit: 'tariffs.manage', del: 'tariffs.manage' }}
       searchPlaceholder="Search code or name…"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import api from '../../api/client';
@@ -26,7 +27,7 @@ export default function InvoicesList() {
 
   return (
     <>
-      <PageHeader title="Invoices" sub="Port charges billed per call — draft, issue, collect" />
+      <PageHeader icon={ReceiptLongRoundedIcon} iconColor="#BD3861" title="Invoices" sub="Port charges billed per call — draft, issue, collect" />
       <PageStats scope="invoices" />
       <DataTable
         columns={[

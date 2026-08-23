@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Card, Box, Typography, Chip, Stack, Skeleton, IconButton, Tooltip, Divider, Button } from '@mui/material';
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import RadarRoundedIcon from '@mui/icons-material/RadarRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -42,7 +43,7 @@ export default function TrafficMap() {
   return (
     <>
       <PageHeader
-        title="Live traffic picture" sub={`${data.positions.length} tracked targets · ${data.coverage}`}
+        icon={RadarRoundedIcon} iconColor="#0B4F8A" title="Live traffic picture" sub={`${data.positions.length} tracked targets · ${data.coverage}`}
         actions={<Button size="small" startIcon={<RefreshRoundedIcon />} onClick={load}>Refresh</Button>}
       />
       <Grid container spacing={2}>

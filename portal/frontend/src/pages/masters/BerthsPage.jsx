@@ -1,4 +1,5 @@
 import CrudPage from '../../components/common/CrudPage';
+import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
 import StatusChip from '../../components/common/StatusChip';
 import { BERTH_STATUS_META } from '../../utils/status';
 
@@ -7,7 +8,7 @@ const TYPES = ['CONTAINER', 'BULK', 'MULTIPURPOSE', 'LIQUID', 'RORO', 'SPM', 'CO
 export default function BerthsPage() {
   return (
     <CrudPage
-      statsScope="masters" title="Berths & terminals" sub="Physical berth inventory — allocation checks run against these limits"
+      statsScope="masters" icon={AnchorRoundedIcon} iconColor="#0797A5" title="Berths & terminals" sub="Physical berth inventory — allocation checks run against these limits"
       entityName="berth" endpoint="/berths" permBase="masters" defaultSort="code"
       searchPlaceholder="Search code, name, terminal…"
       columns={[

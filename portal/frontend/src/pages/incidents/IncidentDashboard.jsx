@@ -6,6 +6,7 @@ import {
   TableRow, TableCell, TableBody, Divider, TableContainer,
 } from '@mui/material';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
@@ -67,7 +68,7 @@ export default function IncidentDashboard() {
   return (
     <>
       <PageHeader
-        title="Incident dashboard"
+        icon={MonitorHeartRoundedIcon} iconColor="#B3452E" title="Incident dashboard"
         sub="Response posture across HSE, marine, security, cargo and equipment cases — trailing 12 months"
         actions={<Button variant="contained" endIcon={<ArrowForwardRoundedIcon />} onClick={() => navigate('/incidents')}>Open register</Button>}
       />

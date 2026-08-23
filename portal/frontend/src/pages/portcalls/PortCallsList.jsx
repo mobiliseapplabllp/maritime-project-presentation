@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import ViewTimelineRoundedIcon from '@mui/icons-material/ViewTimelineRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -63,7 +64,7 @@ export default function PortCallsList() {
   return (
     <>
       <PageHeader
-        title="Port calls" sub="Every vessel call from announcement to sailing"
+        icon={ViewTimelineRoundedIcon} iconColor="#0797A5" title="Port calls" sub="Every vessel call from announcement to sailing"
         actions={hasPerm(user, 'portcalls.create') && (
           <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>Announce call</Button>
         )}

@@ -11,6 +11,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
+import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
 import api from '../api/client';
 import { notify } from '../store/uiSlice';
 import { hasPerm } from '../utils/perms';
@@ -79,7 +80,7 @@ export default function BerthBoard() {
   return (
     <>
       <PageHeader
-        title="Berth board" sub="Live occupancy across every terminal — with the berth master maintained in place"
+        icon={AnchorRoundedIcon} iconColor="#0797A5" title="Berth board" sub="Live occupancy across every terminal — with the berth master maintained in place"
         actions={
           <>
             <ToggleButtonGroup exclusive size="small" value={view} onChange={(_, v) => setViewPersist(v)}>

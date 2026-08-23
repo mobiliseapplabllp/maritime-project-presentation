@@ -21,6 +21,9 @@ const ai = require('../controllers/aiController');
 const stats = require('../controllers/statsController');
 const reports = require('../controllers/reportController');
 const cards = require('../controllers/cardController');
+const companies = require('../controllers/companyController');
+const reportLib = require('../controllers/reportLibraryController');
+const settingsCtl = require('../controllers/settingsController');
 const opsx = require('../controllers/opsController');
 
 // express 4 doesn't catch async rejections — wrap every handler
@@ -68,6 +71,7 @@ r.put('/port-calls/:id/cargo/:opId', requirePerm('cargo.manage'), w(portCalls.up
 r.delete('/port-calls/:id/cargo/:opId', requirePerm('cargo.manage'), w(portCalls.removeCargoOp));
 
 // inspections
+r.get('/inspections/dashboard', requirePerm('inspections.view'), w(inspections.dashboard));
 r.get('/inspections', requirePerm('inspections.view'), w(inspections.list));
 r.post('/inspections', requirePerm('inspections.create'), w(inspections.create));
 r.get('/inspections/:id', requirePerm('inspections.view'), w(inspections.get));
@@ -117,6 +121,7 @@ r.delete('/roles/:id', requirePerm('roles.manage'), w(roles.remove));
 r.get('/audit', requirePerm('audit.view'), w(misc.auditList));
 
 // seafarers
+r.get('/seafarers/dashboard', requirePerm('seafarers.view'), w(seafarers.dashboard));
 r.get('/seafarers', requirePerm('seafarers.view'), w(seafarers.list));
 r.post('/seafarers', requirePerm('seafarers.create'), w(seafarers.create));
 r.get('/seafarers/:id', requirePerm('seafarers.view'), w(seafarers.get));
@@ -169,6 +174,13 @@ r.get('/ops/schedule', requirePerm('portcalls.view'), w(opsx.schedule));
 r.get('/ops/resources', requirePerm('portcalls.view'), w(opsx.resources));
 r.put('/ops/resources/:id', requirePerm('portcalls.edit'), w(opsx.setResourceStatus));
 
+// port companies directory
+r.get('/companies', requirePerm('facilities.view'), w(companies.list));
+r.post('/companies', requirePerm('facilities.manage'), w(companies.create));
+r.get('/companies/:id', requirePerm('facilities.view'), w(companies.get));
+r.put('/companies/:id', requirePerm('facilities.manage'), w(companies.update));
+r.delete('/companies/:id', requirePerm('facilities.manage'), w(companies.remove));
+
 // entity hover-cards (any signed-in user)
 r.get('/cards/:type/:id', w(cards.get));
 
@@ -185,8 +197,10 @@ r.get('/stats/:scope', (req, _res, next) => {
   return requirePerm(sc.perm)(req, _res, next);
 }, w(stats.get));
 
-// MIS reports
+// MIS reports + report library
 r.get('/reports/mis', requirePerm('reports.view'), w(reports.mis));
+r.get('/reports/catalog', requirePerm('reports.view'), w(reportLib.catalog));
+r.get('/reports/run/:key', requirePerm('reports.view'), w(reportLib.run));
 
 // AI assistant
 r.post('/ai/chat', requirePerm('ai.use'), w(ai.chat));
@@ -196,7 +210,10 @@ r.get('/notifications', w(misc.notifications));
 r.post('/notifications/:id/read', w(misc.markRead));
 r.post('/notifications/read-all', w(misc.markAllRead));
 
-r.get('/settings', requirePerm('settings.view'), w(misc.getSettings));
-r.put('/settings', requirePerm('settings.manage'), w(misc.updateSettings));
+r.get('/settings', requirePerm('settings.view'), w(settingsCtl.getAll));
+r.put('/settings/:section', requirePerm('settings.manage'), w(settingsCtl.updateSection));
+r.post('/settings/smtp/test', requirePerm('settings.manage'), w(settingsCtl.smtpTest));
+r.get('/module-settings/:key', w(settingsCtl.getModule));
+r.put('/module-settings/:key', requirePerm('settings.manage'), w(settingsCtl.updateModule));
 
 module.exports = r;

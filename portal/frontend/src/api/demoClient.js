@@ -418,6 +418,7 @@ const LISTS = {
     vessel: i.vessel ? pickFields(maps.vessels.get(String(i.vessel)), ['name', 'imo']) : null,
     berth: i.berth ? pickFields(maps.berths.get(String(i.berth)), ['code', 'terminal']) : null,
   })), p, { search: ['number', 'title', 'vesselName', 'reportedBy'], filters: ['status', 'type', 'severity', 'category', 'priority'], sort: '-reportedAt' }),
+  '/companies': (p) => listOf(D.companies || [], p, { search: ['code', 'name', 'contactPerson', 'gstin'], filters: ['category', 'status', 'city'], sort: 'name' }),
 };
 
 function detail(url) {
@@ -484,6 +485,13 @@ function detail(url) {
     return { ...clone(inc),
       vessel: inc.vessel ? pickFields(maps.vessels.get(String(inc.vessel)), ['name', 'imo', 'type', 'flag']) : null,
       berth: inc.berth ? pickFields(maps.berths.get(String(inc.berth)), ['code', 'name', 'terminal']) : null };
+  }
+  if ((m = url.match(/^\/companies\/([a-f0-9]{24})$/))) {
+    const co = (D.companies || []).find((x) => String(x._id) === m[1]);
+    if (!co) throw new Error('Company not found');
+    return { ...clone(co),
+      licences: (D.licenses || []).filter((l) => l.entityName === co.name).sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate)),
+      activeCalls: D.portcalls.filter((c) => c.agentCode === co.code && ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'].includes(c.status)).length };
   }
   if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/voyages$/))) return vesselVoyages(m[1]);
   if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/movements$/))) return vesselMovements(m[1]);
@@ -766,6 +774,438 @@ function cardFor(type, id) {
   throw new Error('Record not found');
 }
 
+/* ---- v6: report library, berthing report, settings, module settings, companies, audit dashboard ---- */
+const nfIN = new Intl.NumberFormat('en-IN');
+const rdt = (d) => (d ? new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }) : '—');
+const rdOnly = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
+const rInr = (p) => `₹${nfIN.format(Math.round(p))}`;
+
+function demoTideTable(from, days = 7) {
+  const rows = [];
+  const base = new Date(from); base.setHours(0, 0, 0, 0);
+  for (let d2 = 0; d2 < days; d2++) {
+    const day = new Date(base.getTime() + d2 * DAY);
+    const doy = Math.floor((day - new Date(day.getFullYear(), 0, 0)) / DAY);
+    const drift = (doy * 50) % (24 * 60);
+    const spring = 0.7 + 0.3 * Math.cos((doy % 14.7) / 14.7 * 2 * Math.PI);
+    const events = [];
+    for (let k = 0; k < 4; k++) {
+      const mins = (drift + k * 372) % (24 * 60);
+      const high = k % 2 === 1;
+      const height = high ? 4.0 + 1.4 * spring : 2.6 - 1.5 * spring;
+      events.push({ mins, type: high ? 'H' : 'L', height: Math.max(0.4, height) });
+    }
+    events.sort((a, b) => a.mins - b.mins);
+    rows.push({
+      date: day.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+      tides: events.map((e) => `${e.type} ${String(Math.floor(e.mins / 60)).padStart(2, '0')}${String(e.mins % 60).padStart(2, '0')} · ${e.height.toFixed(2)} m`).join('   '),
+    });
+  }
+  return rows;
+}
+
+const DEMO_REPORT_CATALOG = [
+  { key: 'berthing', module: 'ops', icon: 'Anchor', name: 'Daily Berthing Report', desc: 'Published marine format — tide table, vessels alongside (with vacant berths), sailed in 48 h, anchorage and expected line-up.' },
+  { key: 'vessel-lineup', module: 'ops', icon: 'EventNote', name: 'Vessel Line-up', desc: 'Expected arrivals with ETA, agent, LOA and purpose for the coming days.' },
+  { key: 'berth-occupancy', module: 'ops', icon: 'ViewTimeline', name: 'Berth Occupancy (30 days)', desc: 'Calls, occupied hours and utilisation percentage per berth.' },
+  { key: 'anchorage-waiting', module: 'ops', icon: 'HourglassBottom', name: 'Anchorage Waiting Time', desc: 'Pre-berthing waiting hours by vessel type over the trailing 90 days.' },
+  { key: 'marine-craft-log', module: 'ops', icon: 'DirectionsBoat', name: 'Marine Craft Status', desc: 'Tugs, launches and pilot roster with live status and current tasking.' },
+  { key: 'fleet-register', module: 'ships', icon: 'DirectionsBoatFilled', name: 'Vessel Register Extract', desc: 'The registered fleet with particulars, ownership, class and agent.' },
+  { key: 'cert-expiry', module: 'ships', icon: 'WorkspacePremium', name: 'Certificate Expiry (Fleet)', desc: 'Ship certificates expiring or expired, ordered by urgency.' },
+  { key: 'crew-cert-expiry', module: 'crew', icon: 'Badge', name: 'Crew Certificate Expiry', desc: 'Every expiring or expired seafarer document, ordered by urgency.' },
+  { key: 'crew-medical', module: 'crew', icon: 'MonitorHeart', name: 'Medical Fitness Register', desc: 'ILO/MLC medical fitness status for the whole roll, with days to expiry.' },
+  { key: 'crew-coc-register', module: 'crew', icon: 'WorkspacePremium', name: 'CoC / Licence Register', desc: 'Certificates of competency with grade, issuer and validity.' },
+  { key: 'crew-roster', module: 'crew', icon: 'Groups', name: 'Crew Roster Extract', desc: 'The full seafarer register — identity, rank, status and current vessel.' },
+  { key: 'crew-onboard', module: 'crew', icon: 'DirectionsBoat', name: 'Crew On Board (by vessel)', desc: 'Who is signed on which vessel right now, with document alerts.' },
+  { key: 'crew-sea-service', module: 'crew', icon: 'EventNote', name: 'Sea Service Summary', desc: 'Verified sea time per seafarer — totals, last vessel and verification rate.' },
+  { key: 'notice-ack', module: 'legis', icon: 'Gavel', name: 'Notice Acknowledgment Status', desc: 'Circulars and notices requiring acknowledgment, with acknowledgment counts.' },
+  { key: 'incident-register', module: 'incidents', icon: 'CrisisAlert', name: 'Incident Register Extract', desc: 'Case list for a period with severity, status, officer and resolution.' },
+  { key: 'hse-monthly', module: 'incidents', icon: 'MonitorHeart', name: 'HSE Monthly Summary', desc: 'Cases by category and severity with MTTA/MTTR against module targets.' },
+  { key: 'deficiency-analysis', module: 'inspect', icon: 'FactCheck', name: 'Deficiency Analysis', desc: 'Top deficiency codes from closed surveys with action-code mix.' },
+  { key: 'detention-register', module: 'inspect', icon: 'Block', name: 'Detention Register', desc: 'Every detention with vessel, grounds and release details.' },
+  { key: 'checklist-compliance', module: 'inspect', icon: 'Checklist', name: 'Checklist Compliance', desc: 'Per-template answer compliance across closed surveys.' },
+  { key: 'licence-register', module: 'facil', icon: 'CorporateFare', name: 'Licence Register', desc: 'Port company licences with status, validity and rating.' },
+  { key: 'outstanding-ageing', module: 'finance', icon: 'ReceiptLong', name: 'Outstanding Invoices — Ageing', desc: 'Issued invoices bucketed 0–30 / 31–60 / 61–90 / 90+ days.' },
+  { key: 'collections', module: 'finance', icon: 'Payments', name: 'Collections Report', desc: 'Payments received in the period with references.' },
+  { key: 'revenue-by-head', module: 'finance', icon: 'PriceChange', name: 'Revenue by Tariff Head', desc: 'Billed amounts per tariff line for the trailing 12 months.' },
+  { key: 'user-access', module: 'admin', icon: 'AdminPanelSettings', name: 'User Access Report', desc: 'Users by role and department with last sign-in.' },
+];
+
+const DEMO_MODULE_DEFAULTS = {
+  ops: { vcnPrefix: 'MUN', anchorageAlertHrs: 24, defaultTugsUnder250m: 2, defaultTugsOver250m: 3, scheduleWindowDays: 5, channelSpeedLimitKn: 8, aisGapAlertMin: 30, anchorDriftNm: 0.2, zoneEntryWatch: true },
+  ships: { certExpiringDays: 30, dryDockReminderDays: 60, riskRefreshMinutes: 30 },
+  crew: { medicalExpiringDays: 45, minRestHours: 10, cocVerifyOnSignOn: true },
+  legis: { ackRequiredDefault: false, ackReminderDays: 7, showSupersededDays: 365 },
+  incidents: { mttaTargetMin: 30, mttrTargetHrs: 24, autoNotifySeverity: 'HIGH', reopenWindowDays: 30, injuryReportHrs: 24 },
+  inspect: { findingDueDays: 14, detentionThreshold: 1, passScorePct: 80, requireEvidencePhotos: false },
+  facil: { licenceValidityYears: 2, auditIntervalMonths: 12, renewalReminderDays: 90 },
+  finance: { invoicePrefix: 'MUN/INV', paymentTermsDays: 30, overdueReminderDays: 7, roundTotalsToRupee: true },
+  mis: { defaultPeriodMonths: 12, exportFooter: 'Generated by Mundra Port Operations Portal' },
+  masters: { allowHardDelete: false },
+  admin: { sessionTimeoutMin: 60, passwordMinLength: 8, auditRetentionDays: 730 },
+};
+
+const DEMO_SETTINGS = {
+  _sections: { org: 'Organisation profile', operations: 'Operations', billing: 'Billing & tax', notifications: 'Notifications', smtp: 'SMTP (outbound mail)', ai: 'AI assistant' },
+  operations: { workingHours: '24×365', pilotBoardingGround: '3 NM SE of breakwaters', vhfWorkingChannel: 'Ch 12', marsecLevel: 1, monsoonMode: false },
+  billing: { gstRate: 18, placeOfSupply: 'Gujarat (24)', sacCode: '996751', roundToRupee: true, creditNoteApproval: true },
+  notifications: { certExpiryDigest: true, incidentPush: true, invoiceOverdueDigest: true, digestHourIst: 8 },
+  smtp: { host: 'smtp.mundraport.example.in', port: 587, secure: true, username: 'portal-mailer', password: '••••1234', fromName: 'Mundra Port Operations', fromEmail: 'noreply@mundraport.in', enabled: true },
+  ai: { enabled: true, provider: 'anthropic', model: 'claude-opus-5', apiKey: '••••demo', temperature: 0.2, groundedOnly: true, dailyTokenBudget: 500000 },
+};
+
+function demoRunReport(key) {
+  const sect = (heading, columns, rows) => ({ heading, columns, rows });
+  const col = (k, label, align) => ({ key: k, label, align });
+  const out = { key, title: (DEMO_REPORT_CATALOG.find((c) => c.key === key) || {}).name || key, generatedAt: new Date().toISOString() };
+  const active = D.portcalls.filter((c) => ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'].includes(c.status));
+  const vOf = (c) => maps.vessels.get(String(c.vessel));
+  const bOf = (c) => (c.berth ? maps.berths.get(String(c.berth)) : null);
+
+  if (key === 'berthing') {
+    const atBerth = new Map(active.filter((c) => c.status === 'BERTHED' && c.berth).map((c) => [bOf(c)?.code, c]));
+    const sailed48 = D.portcalls.filter((c) => c.status === 'SAILED' && c.atd && Date.now() - new Date(c.atd) <= 2 * DAY)
+      .sort((a, b) => new Date(b.atd) - new Date(a.atd));
+    out.subtitle = 'Daily marine report — tide, alongside, sailed and expected traffic';
+    out.sections = [
+      sect('Tidal predictions — Mundra (next 7 days)', [col('date', 'Date'), col('tides', 'Low / High water (IST · height)')], demoTideTable(new Date())),
+      sect('Vessels at berth', [col('berth', 'Berth'), col('terminal', 'Terminal'), col('vcn', 'VCN'), col('vessel', 'Vessel name'), col('loa', 'LOA (m)', 'right'), col('agent', 'Agent'), col('cargo', 'Cargo / service'), col('draft', 'Draft FWD/AFT'), col('atb', 'Actual berthing'), col('etd', 'ETS')],
+        D.berths.slice().sort((a, b) => (a.code < b.code ? -1 : 1)).map((b) => {
+          const c = atBerth.get(b.code);
+          if (!c) return { berth: b.code, terminal: b.terminal, vcn: '—', vessel: b.status === 'MAINTENANCE' ? 'UNDER MAINTENANCE' : 'VACANT', loa: '', agent: '', cargo: '', draft: '', atb: '', etd: '' };
+          const v = vOf(c);
+          return { berth: b.code, terminal: b.terminal, vcn: c.vcn, vessel: v?.name, loa: v?.loa || '', agent: c.agentCode || '',
+            cargo: (c.cargoOps || []).map((o) => `${o.operation === 'LOAD' ? 'L' : 'D'} ${nfIN.format(o.qty)} ${o.unit} ${o.cargoType}`).join('; '),
+            draft: c.draftArrival ? `${(c.draftArrival - 0.2).toFixed(1)} / ${c.draftArrival}` : '—', atb: rdt(c.atb), etd: rdt(c.etd) };
+        })),
+      sect('Vessels sailed (last 48 hours)', [col('berth', 'Berth'), col('vcn', 'VCN'), col('vessel', 'Vessel name'), col('loa', 'LOA (m)', 'right'), col('agent', 'Agent'), col('sd', 'Sailing draft (m)'), col('atb', 'Actual berthing'), col('atd', 'Actual sailing')],
+        sailed48.map((c) => ({ berth: bOf(c)?.code || '—', vcn: c.vcn, vessel: vOf(c)?.name, loa: vOf(c)?.loa || '', agent: c.agentCode || '', sd: c.draftDeparture || '—', atb: rdt(c.atb), atd: rdt(c.atd) }))),
+      sect('Vessels at anchorage', [col('vcn', 'VCN'), col('vessel', 'Vessel name'), col('loa', 'LOA (m)', 'right'), col('agent', 'Agent'), col('since', 'At anchor since'), col('etb', 'ETB')],
+        active.filter((c) => c.status === 'AT_ANCHORAGE').map((c) => ({ vcn: c.vcn, vessel: vOf(c)?.name, loa: vOf(c)?.loa || '', agent: c.agentCode || '', since: rdt(c.ata), etb: rdt(c.etb) }))),
+      sect('Expected vessels — line-up', [col('sr', 'Sr', 'right'), col('vcn', 'VCN'), col('vessel', 'Vessel name'), col('eta', 'ETA / ETB'), col('agent', 'Agent'), col('loa', 'LOA (m)', 'right'), col('purpose', 'Purpose'), col('status', 'Status')],
+        active.filter((c) => ['ANNOUNCED', 'CONFIRMED'].includes(c.status)).sort((a, b) => new Date(a.eta) - new Date(b.eta))
+          .map((c, i) => ({ sr: i + 1, vcn: c.vcn, vessel: vOf(c)?.name, eta: rdt(c.eta), agent: c.agentCode || '', loa: vOf(c)?.loa || '', purpose: c.purpose || '—', status: c.status }))),
+    ];
+    return out;
+  }
+  if (key === 'vessel-lineup') {
+    const rows = active.filter((c) => ['ANNOUNCED', 'CONFIRMED'].includes(c.status)).sort((a, b) => new Date(a.eta) - new Date(b.eta));
+    out.subtitle = `${rows.length} vessels expected`;
+    out.sections = [sect('Expected vessels', [col('sr', 'Sr', 'right'), col('vcn', 'VCN'), col('vessel', 'Vessel'), col('type', 'Type'), col('loa', 'LOA (m)', 'right'), col('eta', 'ETA'), col('agent', 'Agent'), col('purpose', 'Purpose'), col('prevPort', 'From')],
+      rows.map((c, i) => ({ sr: i + 1, vcn: c.vcn, vessel: vOf(c)?.name, type: vOf(c)?.type, loa: vOf(c)?.loa, eta: rdt(c.eta), agent: c.agentCode, purpose: c.purpose, prevPort: c.prevPort || '—' })))];
+    return out;
+  }
+  if (key === 'berth-occupancy') {
+    const since = Date.now() - 30 * DAY;
+    out.subtitle = 'Trailing 30 days';
+    out.sections = [sect('Berth utilisation', [col('berth', 'Berth'), col('terminal', 'Terminal'), col('type', 'Type'), col('calls', 'Calls', 'right'), col('hours', 'Occupied hrs', 'right'), col('util', 'Utilisation', 'right'), col('status', 'Status')],
+      D.berths.map((b) => {
+        const mine = D.portcalls.filter((c) => String(c.berth) === String(b._id) && c.atb && new Date(c.atb) >= since);
+        const hours = mine.reduce((s, c) => s + Math.max(0, ((c.atd ? new Date(c.atd) : new Date()) - new Date(c.atb)) / HOUR), 0);
+        return { berth: b.code, terminal: b.terminal, type: b.berthType, calls: mine.length, hours: Math.round(hours), util: `${Math.min(100, Math.round((hours / (30 * 24)) * 100))}%`, status: b.status };
+      }))];
+    return out;
+  }
+  if (key === 'anchorage-waiting') {
+    const since = Date.now() - 90 * DAY;
+    const byType = {};
+    for (const c of D.portcalls.filter((x) => x.status === 'SAILED' && x.atd && new Date(x.atd) >= since && x.ata && x.atb)) {
+      const t = vOf(c)?.type || 'OTHER';
+      byType[t] = byType[t] || { type: t, calls: 0, total: 0, max: 0 };
+      const w = (new Date(c.atb) - new Date(c.ata)) / HOUR;
+      byType[t].calls += 1; byType[t].total += w; byType[t].max = Math.max(byType[t].max, w);
+    }
+    out.subtitle = 'Trailing 90 days — hours between arrival and berthing';
+    out.sections = [sect('Waiting time by vessel type', [col('type', 'Vessel type'), col('calls', 'Calls', 'right'), col('avg', 'Avg wait (h)', 'right'), col('max', 'Max wait (h)', 'right')],
+      Object.values(byType).map((r) => ({ type: r.type, calls: r.calls, avg: (r.total / r.calls).toFixed(1), max: r.max.toFixed(1) })).sort((a, b) => b.calls - a.calls))];
+    return out;
+  }
+  if (key === 'marine-craft-log') {
+    const rows = (D.resources || []);
+    out.subtitle = `${rows.length} craft & pilots on strength`;
+    out.sections = [sect('Marine resources', [col('code', 'Code'), col('name', 'Name'), col('type', 'Type'), col('spec', 'Specification'), col('status', 'Status'), col('task', 'Current tasking'), col('master', 'Master / holder'), col('contact', 'Contact')],
+      rows.map((r) => ({ code: r.code, name: r.name, type: r.type.replace(/_/g, ' '), spec: r.spec, status: r.status, task: r.currentTask || '—', master: r.master || '—', contact: r.contact })))];
+    return out;
+  }
+  if (key === 'fleet-register') {
+    const rows = D.vessels.filter((v) => v.status === 'ACTIVE');
+    out.subtitle = `${rows.length} active vessels`;
+    out.sections = [sect('Vessel register', [col('name', 'Vessel'), col('imo', 'IMO'), col('type', 'Type'), col('flag', 'Flag'), col('built', 'Built', 'right'), col('dwt', 'DWT', 'right'), col('loa', 'LOA', 'right'), col('owner', 'Owner / operator'), col('cls', 'Class'), col('agent', 'Agent')],
+      rows.map((v) => ({ name: v.name, imo: v.imo, type: v.type, flag: v.flag, built: v.built, dwt: nfIN.format(v.dwt || 0), loa: v.loa, owner: v.operator || v.owner, cls: v.classSociety, agent: v.agent })))];
+    return out;
+  }
+  if (key === 'cert-expiry' || key === 'crew-cert-expiry') {
+    const src = key === 'cert-expiry' ? D.vessels.filter((v) => v.status === 'ACTIVE') : (D.seafarers || []);
+    const rows = src.flatMap((v) => (v.certificates || []).map((c) => ({ who: v.name, id2: key === 'cert-expiry' ? v.imo : v.cdcNo, extra: key === 'cert-expiry' ? '' : v.rank, cert: c.certType, number: c.number, issuer: c.issuer, expiry: c.expiryDate, st: certStatus(c.expiryDate) })))
+      .filter((c) => c.st !== 'VALID').sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+    out.subtitle = `${rows.length} documents flagged`;
+    out.sections = [sect(key === 'cert-expiry' ? 'Expiring / expired ship certificates' : 'Expiring / expired crew documents',
+      [col('who', key === 'cert-expiry' ? 'Vessel' : 'Seafarer'), col('id2', key === 'cert-expiry' ? 'IMO' : 'CDC'), ...(key === 'cert-expiry' ? [] : [col('extra', 'Rank')]), col('cert', 'Document'), col('expiry', 'Expiry'), col('st', 'Status')],
+      rows.map((c) => ({ ...c, expiry: rdOnly(c.expiry) })))];
+    return out;
+  }
+  if (key === 'notice-ack') {
+    const ins = (D.instruments || []).filter((i) => i.ackRequired);
+    const userCount = D.users.filter((u) => u.active !== false).length;
+    out.subtitle = `${ins.length} instruments require acknowledgment · ${userCount} active users`;
+    out.sections = [sect('Acknowledgment status', [col('ref', 'Reference'), col('title', 'Title'), col('issued', 'Issued'), col('status', 'Status'), col('acks', 'Acknowledged by', 'right'), col('pct', '% of users', 'right')],
+      ins.map((i) => ({ ref: i.refNo, title: i.title, issued: rdOnly(i.issuedDate), status: i.status, acks: (i.acknowledgedBy || []).length, pct: userCount ? `${Math.round(((i.acknowledgedBy || []).length / userCount) * 100)}%` : '—' })))];
+    return out;
+  }
+  if (key === 'incident-register') {
+    const from = Date.now() - 90 * DAY;
+    const rows = (D.incidents || []).filter((i) => new Date(i.reportedAt) >= from).sort((a, b) => new Date(b.reportedAt) - new Date(a.reportedAt));
+    out.subtitle = `${rows.length} cases in the trailing 90 days`;
+    out.sections = [sect('Incident register', [col('number', 'Case'), col('title', 'Title'), col('cat', 'Category'), col('sev', 'Severity'), col('status', 'Status'), col('officer', 'Case officer'), col('reported', 'Reported'), col('resolved', 'Resolved')],
+      rows.map((i) => ({ number: i.number, title: i.title, cat: i.category, sev: i.severity, status: i.status, officer: i.assignedTo?.name || '—', reported: rdt(i.reportedAt), resolved: i.resolvedAt ? rdt(i.resolvedAt) : '—' })))];
+    return out;
+  }
+  if (key === 'hse-monthly') {
+    const from = new Date(); from.setDate(1); from.setHours(0, 0, 0, 0);
+    const prev = new Date(from.getFullYear(), from.getMonth() - 1, 1);
+    const rows = (D.incidents || []).filter((i) => new Date(i.reportedAt) >= prev);
+    const bucket = (list) => {
+      const o = {};
+      for (const i of list) {
+        o[i.category] = o[i.category] || { category: i.category, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0, total: 0, injuries: 0 };
+        o[i.category][i.severity] += 1; o[i.category].total += 1; o[i.category].injuries += i.injuries || 0;
+      }
+      return Object.values(o).sort((a, b) => b.total - a.total);
+    };
+    const cols = [col('category', 'Category'), col('LOW', 'Low', 'right'), col('MEDIUM', 'Medium', 'right'), col('HIGH', 'High', 'right'), col('CRITICAL', 'Critical', 'right'), col('total', 'Total', 'right'), col('injuries', 'Injuries', 'right')];
+    const sla = DEMO_MODULE_DEFAULTS.incidents;
+    out.subtitle = `Targets — MTTA ${sla.mttaTargetMin} min · MTTR ${sla.mttrTargetHrs} h`;
+    out.sections = [
+      sect(`This month (${from.toLocaleString('en-IN', { month: 'long' })})`, cols, bucket(rows.filter((i) => new Date(i.reportedAt) >= from))),
+      sect(`Previous month (${prev.toLocaleString('en-IN', { month: 'long' })})`, cols, bucket(rows.filter((i) => new Date(i.reportedAt) < from))),
+    ];
+    return out;
+  }
+  if (key === 'deficiency-analysis') {
+    const label = Object.fromEntries(D.lookups.filter((l) => l.category === 'deficiencyCode').map((c) => [c.code, c.label]));
+    const agg = {};
+    for (const i of D.inspections.filter((x) => x.status === 'CLOSED')) for (const f of i.findings || []) {
+      agg[f.deficiencyCode] = agg[f.deficiencyCode] || { code: f.deficiencyCode, count: 0, open: 0, det: 0 };
+      agg[f.deficiencyCode].count += 1;
+      if (f.status === 'OPEN') agg[f.deficiencyCode].open += 1;
+      if (f.actionCode === '30') agg[f.deficiencyCode].det += 1;
+    }
+    out.subtitle = 'All closed surveys';
+    out.sections = [sect('Deficiency codes by frequency', [col('code', 'Code'), col('label', 'Deficiency'), col('count', 'Occurrences', 'right'), col('open', 'Still open', 'right'), col('det', 'Detainable', 'right')],
+      Object.values(agg).sort((a, b) => b.count - a.count).map((r) => ({ ...r, label: label[r.code] || '—' })))];
+    return out;
+  }
+  if (key === 'detention-register') {
+    const rows = D.inspections.filter((i) => i.detention);
+    out.subtitle = `${rows.length} detentions on record`;
+    out.sections = [sect('Detention register', [col('number', 'Survey'), col('vessel', 'Vessel'), col('imo', 'IMO'), col('type', 'Type'), col('grounds', 'Detainable grounds'), col('date', 'Closed')],
+      rows.map((i) => { const v = maps.vessels.get(String(i.vessel)); return { number: i.number, vessel: v?.name, imo: v?.imo, type: i.type, grounds: (i.findings || []).filter((f) => f.actionCode === '30').map((f) => f.deficiencyCode).join(', ') || '—', date: rdOnly(i.closedAt) }; }))];
+    return out;
+  }
+  if (key === 'checklist-compliance') {
+    const agg = {};
+    for (const i of D.inspections.filter((x) => x.status === 'CLOSED')) {
+      const total = (i.checklist || []).length;
+      if (!total) continue;
+      const yes = (i.checklist || []).filter((c) => c.answer === 'YES').length;
+      agg[i.type] = agg[i.type] || { type: i.type, surveys: 0, items: 0, yes: 0 };
+      agg[i.type].surveys += 1; agg[i.type].items += total; agg[i.type].yes += yes;
+    }
+    out.subtitle = 'Answer compliance across closed surveys';
+    out.sections = [sect('Checklist compliance by survey type', [col('type', 'Survey type'), col('surveys', 'Surveys', 'right'), col('items', 'Items answered', 'right'), col('pct', 'Compliance', 'right')],
+      Object.values(agg).map((r) => ({ type: r.type, surveys: r.surveys, items: r.items, pct: `${Math.round((r.yes / r.items) * 100)}%` })))];
+    return out;
+  }
+  if (key === 'licence-register') {
+    const rows = D.licenses || [];
+    out.subtitle = `${rows.length} licences`;
+    out.sections = [sect('Licence register', [col('no', 'Licence no.'), col('entity', 'Company'), col('type', 'Type'), col('status', 'Status'), col('issued', 'Issued'), col('expiry', 'Valid till'), col('rating', 'Rating', 'right')],
+      rows.map((l) => ({ no: l.licenseNo, entity: l.entityName, type: l.entityType.replace(/_/g, ' '), status: l.status, issued: rdOnly(l.issueDate), expiry: rdOnly(l.expiryDate), rating: l.performanceRating || '—' })))];
+    return out;
+  }
+  if (key === 'outstanding-ageing') {
+    const rows = D.invoices.filter((i) => i.status === 'ISSUED');
+    const bucketOf = (d2) => (d2 <= 30 ? '0-30' : d2 <= 60 ? '31-60' : d2 <= 90 ? '61-90' : '90+');
+    const totals = { '0-30': 0, '31-60': 0, '61-90': 0, '90+': 0 };
+    const detail = rows.map((i) => {
+      const age = Math.floor((Date.now() - new Date(i.issuedAt)) / DAY);
+      totals[bucketOf(age)] += i.total;
+      return { number: i.number, vessel: maps.vessels.get(String(i.vessel))?.name, billTo: i.billTo?.name, issued: rdOnly(i.issuedAt), age, bucket: bucketOf(age), amount: rInr(i.total) };
+    });
+    out.subtitle = `${rows.length} unpaid invoices · ${rInr(Object.values(totals).reduce((a, b2) => a + b2, 0))} outstanding`;
+    out.sections = [
+      sect('Ageing summary', [col('bucket', 'Bucket (days)'), col('amount', 'Outstanding', 'right')], Object.entries(totals).map(([bucket, amt]) => ({ bucket, amount: rInr(amt) }))),
+      sect('Invoice detail', [col('number', 'Invoice'), col('vessel', 'Vessel'), col('billTo', 'Billed to'), col('issued', 'Issued'), col('age', 'Age (days)', 'right'), col('bucket', 'Bucket'), col('amount', 'Amount', 'right')], detail),
+    ];
+    return out;
+  }
+  if (key === 'collections') {
+    const from = Date.now() - 30 * DAY;
+    const rows = D.invoices.filter((i) => i.paidAt && new Date(i.paidAt) >= from).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+    out.subtitle = `${rows.length} receipts in 30 days · ${rInr(rows.reduce((s, i) => s + i.total, 0))} collected`;
+    out.sections = [sect('Collections', [col('paid', 'Received on'), col('number', 'Invoice'), col('vessel', 'Vessel'), col('billTo', 'Paid by'), col('ref', 'Payment ref'), col('amount', 'Amount', 'right')],
+      rows.map((i) => ({ paid: rdOnly(i.paidAt), number: i.number, vessel: maps.vessels.get(String(i.vessel))?.name, billTo: i.billTo?.name, ref: i.paymentRef || '—', amount: rInr(i.total) })))];
+    return out;
+  }
+  if (key === 'revenue-by-head') {
+    const from = new Date(); from.setMonth(from.getMonth() - 11); from.setDate(1);
+    const agg = {};
+    for (const i of D.invoices.filter((x) => x.issuedAt && new Date(x.issuedAt) >= from && ['ISSUED', 'PAID'].includes(x.status))) {
+      for (const l of i.lines || []) {
+        agg[l.code] = agg[l.code] || { code: l.code, head: l.description.split(' — ')[0], qty: 0, amount: 0 };
+        agg[l.code].qty += l.qty; agg[l.code].amount += l.amount;
+      }
+    }
+    out.subtitle = 'Trailing 12 months — billed (issued + paid)';
+    out.sections = [sect('Revenue by tariff head', [col('code', 'Code'), col('head', 'Tariff head'), col('qty', 'Billed qty', 'right'), col('amount', 'Amount', 'right')],
+      Object.values(agg).sort((a, b) => b.amount - a.amount).map((r) => ({ ...r, qty: nfIN.format(Math.round(r.qty)), amount: rInr(r.amount) })))];
+    return out;
+  }
+  if (key === 'user-access') {
+    out.subtitle = `${D.users.length} accounts`;
+    out.sections = [sect('User access', [col('name', 'Name'), col('designation', 'Designation'), col('department', 'Department'), col('role', 'Role'), col('email', 'Email'), col('status', 'Status'), col('last', 'Last sign-in')],
+      D.users.slice().sort((a, b) => (a.name < b.name ? -1 : 1)).map((u) => ({ name: u.name, designation: u.designation, department: u.department || '—', role: maps.roles.get(String(u.role))?.name, email: u.email, status: u.active === false ? 'Disabled' : 'Active', last: u.lastLoginAt ? rdt(u.lastLoginAt) : 'Never' })))];
+    return out;
+  }
+
+  if (key === 'crew-medical') {
+    const win = DEMO_MODULE_DEFAULTS.crew.medicalExpiringDays;
+    const rows = (D.seafarers || []).map((s2) => {
+      const med = (s2.certificates || []).find((c) => /medical/i.test(c.certType));
+      const days = med ? Math.floor((new Date(med.expiryDate) - Date.now()) / DAY) : null;
+      return { name: s2.name, rank: s2.rank, cdc: s2.cdcNo, status: s2.status.replace(/_/g, ' '),
+        expiry: med ? rdOnly(med.expiryDate) : 'NO MEDICAL ON FILE', days: days ?? '—',
+        st: !med ? 'MISSING' : days < 0 ? 'EXPIRED' : days <= win ? 'EXPIRING' : 'VALID' };
+    }).sort((a, b) => (a.days === '—' ? -1 : b.days === '—' ? 1 : a.days - b.days));
+    out.subtitle = `Warning window ${win} days (crew module settings)`;
+    out.sections = [sect('Medical fitness — whole roll',
+      [col('name', 'Seafarer'), col('rank', 'Rank'), col('cdc', 'CDC'), col('status', 'Status'), col('expiry', 'Medical expiry'), col('days', 'Days left', 'right'), col('st', 'Fitness')], rows)];
+    return out;
+  }
+  if (key === 'crew-coc-register') {
+    const rows = (D.seafarers || []).flatMap((s2) => (s2.certificates || []).filter((c) => /competency/i.test(c.certType))
+      .map((c) => ({ name: s2.name, rank: s2.rank, grade: c.grade || '—', number: c.number, issuer: c.issuer, cdc: s2.cdcNo, indos: s2.indosNo, expiry: rdOnly(c.expiryDate), st: certStatus(c.expiryDate) })));
+    out.subtitle = `${rows.length} certificates of competency on file`;
+    out.sections = [sect('CoC / licence register',
+      [col('name', 'Seafarer'), col('rank', 'Rank'), col('grade', 'Grade'), col('number', 'CoC number'), col('issuer', 'Issuer'), col('cdc', 'CDC'), col('indos', 'INDoS'), col('expiry', 'Valid till'), col('st', 'Status')], rows)];
+    return out;
+  }
+  if (key === 'crew-roster') {
+    const rows = (D.seafarers || []).slice().sort((a, b) => (a.name < b.name ? -1 : 1));
+    out.subtitle = `${rows.length} seafarers on the roll`;
+    out.sections = [sect('Crew roster',
+      [col('name', 'Name'), col('rank', 'Rank'), col('cdc', 'CDC'), col('indos', 'INDoS'), col('nat', 'Nationality'), col('status', 'Status'), col('vessel', 'Current vessel'), col('phone', 'Phone'), col('alerts', 'Doc alerts', 'right')],
+      rows.map((s2) => ({ name: s2.name, rank: s2.rank, cdc: s2.cdcNo, indos: s2.indosNo, nat: s2.nationality, status: s2.status.replace(/_/g, ' '),
+        vessel: s2.currentVessel ? (maps.vessels.get(String(s2.currentVessel))?.name || '—') : 'Ashore', phone: s2.phone || '—',
+        alerts: (s2.certificates || []).filter((c) => certStatus(c.expiryDate) !== 'VALID').length || '—' })))];
+    return out;
+  }
+  if (key === 'crew-onboard') {
+    const onb = (D.seafarers || []).filter((s2) => s2.currentVessel);
+    const byVessel = {};
+    for (const s2 of onb) {
+      const k2 = maps.vessels.get(String(s2.currentVessel))?.name || '—';
+      byVessel[k2] = byVessel[k2] || []; byVessel[k2].push(s2);
+    }
+    out.subtitle = `${onb.length} crew signed on across ${Object.keys(byVessel).length} vessels`;
+    out.sections = Object.entries(byVessel).map(([vesselName, list]) => sect(`${vesselName} — ${list.length} on board`,
+      [col('name', 'Name'), col('rank', 'Rank'), col('cdc', 'CDC'), col('nat', 'Nationality'), col('alerts', 'Doc alerts', 'right')],
+      list.map((s2) => ({ name: s2.name, rank: s2.rank, cdc: s2.cdcNo, nat: s2.nationality, alerts: (s2.certificates || []).filter((c) => certStatus(c.expiryDate) !== 'VALID').length || '—' }))));
+    return out;
+  }
+  if (key === 'crew-sea-service') {
+    const rows = (D.seafarers || []).map((s2) => {
+      const svc = s2.seaService || [];
+      const days = svc.reduce((t, x) => t + Math.max(0, Math.round((new Date(x.to) - new Date(x.from)) / DAY)), 0);
+      const verified = svc.filter((x) => x.verified).length;
+      const last = svc.slice().sort((a, b) => new Date(b.to) - new Date(a.to))[0];
+      return { name: s2.name, rank: s2.rank, stints: svc.length, days: nfIN.format(days),
+        lastVessel: last ? last.vesselName : '—', lastTo: last ? rdOnly(last.to) : '—',
+        verified: svc.length ? `${Math.round((verified / svc.length) * 100)}%` : '—' };
+    });
+    out.subtitle = 'Aggregated from verified sea-service records';
+    out.sections = [sect('Sea service summary',
+      [col('name', 'Seafarer'), col('rank', 'Rank'), col('stints', 'Stints', 'right'), col('days', 'Total days', 'right'), col('lastVessel', 'Last vessel'), col('lastTo', 'Signed off'), col('verified', 'Verified', 'right')], rows)];
+    return out;
+  }
+  throw new Error(`Not in the demo snapshot: report ${key}`);
+}
+
+function demoAuditDashboard() {
+  const now = new Date();
+  const from = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const all = D.inspections;
+  const closed = all.filter((i) => i.status === 'CLOSED');
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const months = [];
+  const cur = new Date(from);
+  while (cur <= now) {
+    months.push({ key: monthKey(cur), month: cur.toLocaleString('en-IN', { month: 'short', year: '2-digit' }), SATISFACTORY: 0, DEFICIENCIES: 0, DETAINED: 0 });
+    cur.setMonth(cur.getMonth() + 1);
+  }
+  const byType = {};
+  let findingsTotal = 0; let findingsOpen = 0; let checklistYes = 0; let checklistItems = 0;
+  for (const i of all) {
+    byType[i.type] = byType[i.type] || { type: i.type, total: 0, closed: 0, detained: 0 };
+    byType[i.type].total += 1;
+    if (i.status === 'CLOSED') byType[i.type].closed += 1;
+    if (i.detention) byType[i.type].detained += 1;
+    findingsTotal += (i.findings || []).length;
+    findingsOpen += (i.findings || []).filter((f) => f.status === 'OPEN').length;
+    checklistItems += (i.checklist || []).filter((c) => c.answer).length;
+    checklistYes += (i.checklist || []).filter((c) => c.answer === 'YES').length;
+  }
+  for (const i of closed) {
+    if (!i.closedAt || !i.result) continue;
+    const row = months.find((m) => m.key === monthKey(new Date(i.closedAt)));
+    if (row) row[i.result] += 1;
+  }
+  return {
+    kpis: {
+      open: all.filter((i) => i.status !== 'CLOSED').length,
+      closedYtd: closed.filter((i) => i.closedAt && new Date(i.closedAt) >= new Date(now.getFullYear(), 0, 1)).length,
+      satisfactionPct: closed.length ? Math.round((closed.filter((i) => i.result === 'SATISFACTORY').length / closed.length) * 100) : 0,
+      detentionRatePct: closed.length ? Math.round((closed.filter((i) => i.detention).length / closed.length) * 1000) / 10 : 0,
+      avgFindings: closed.length ? Math.round((findingsTotal / closed.length) * 10) / 10 : 0,
+      openFindings: findingsOpen,
+      checklistCompliancePct: checklistItems ? Math.round((checklistYes / checklistItems) * 100) : 0,
+    },
+    byMonth: months.map(({ key, ...m }) => m),
+    byType: Object.values(byType),
+  };
+}
+
+
+function demoCrewDashboard() {
+  const win = DEMO_MODULE_DEFAULTS.crew.medicalExpiringDays;
+  const crew = D.seafarers || [];
+  const byRank = {}; const funnel = { expired: 0, d30: 0, d90: 0, valid: 0 };
+  let onboard = 0; let medicalIssues = 0; let seaDays = 0;
+  const alertList = [];
+  for (const s2 of crew) {
+    byRank[s2.rank] = (byRank[s2.rank] || 0) + 1;
+    if (s2.currentVessel) onboard += 1;
+    seaDays += (s2.seaService || []).reduce((t, x) => t + Math.max(0, Math.round((new Date(x.to) - new Date(x.from)) / DAY)), 0);
+    let alerts = 0;
+    for (const c of s2.certificates || []) {
+      const days = Math.floor((new Date(c.expiryDate) - Date.now()) / DAY);
+      if (days < 0) { funnel.expired += 1; alerts += 1; }
+      else if (days <= 30) { funnel.d30 += 1; alerts += 1; }
+      else if (days <= 90) funnel.d90 += 1;
+      else funnel.valid += 1;
+      if (/medical/i.test(c.certType) && certStatus(c.expiryDate) !== 'VALID') medicalIssues += 1;
+    }
+    if (alerts) alertList.push({ _id: s2._id, name: s2.name, rank: s2.rank, vessel: s2.currentVessel ? (maps.vessels.get(String(s2.currentVessel))?.name || '—') : 'Ashore', alerts });
+  }
+  alertList.sort((a, b) => b.alerts - a.alerts);
+  return {
+    kpis: { roll: crew.length, onboard, ashore: crew.length - onboard, medicalIssues,
+      avgSeaDays: crew.length ? Math.round(seaDays / crew.length) : 0, medicalWindow: win },
+    byRank: Object.entries(byRank).map(([rank, count]) => ({ rank, count })).sort((a, b) => b.count - a.count),
+    funnel, alertList: alertList.slice(0, 10),
+  };
+}
+
 const READ_ONLY = 'Read-only demo — CRUD, workflow transitions and billing run in the full portal (see the repository README)';
 
 const demo = {
@@ -783,7 +1223,7 @@ const demo = {
     if (url === '/ai/suggestions') return { success: true, data: SUGGESTIONS };
     if (url === '/meta') return { success: true, data: { org: snap.org, ...snap.meta } };
     if (url === '/dashboard') return { success: true, data: clone(snap.dashboard) };
-    if (url === '/settings') return { success: true, data: clone(snap.org) };
+    if (url === '/settings') return { success: true, data: { org: clone(snap.org), ...clone(DEMO_SETTINGS) } };
     if (url === '/roles') {
       const counts = D.users.reduce((mm, u) => { const k = String(u.role); mm[k] = (mm[k] || 0) + 1; return mm; }, {});
       return { success: true, data: D.roles.map((r) => ({ ...clone(r), userCount: counts[String(r._id)] || 0 })) };
@@ -819,6 +1259,16 @@ const demo = {
     if (url === '/ops/twin') return { success: true, data: opsTwin() };
     if (url === '/ops/schedule') return { success: true, data: opsSchedule(params) };
     if (url === '/ops/resources') return { success: true, data: clone(D.resources || []) };
+    if (url === '/reports/catalog') return { success: true, data: clone(DEMO_REPORT_CATALOG) };
+    if (url.startsWith('/reports/run/')) return { success: true, data: demoRunReport(url.slice('/reports/run/'.length)) };
+    if (url.startsWith('/module-settings/')) {
+      const mk = url.slice('/module-settings/'.length);
+      const dft = DEMO_MODULE_DEFAULTS[mk];
+      if (!dft) throw new Error(`No settings for module ${mk}`);
+      return { success: true, data: clone(dft), meta: { defaults: clone(dft) } };
+    }
+    if (url === '/inspections/dashboard') return { success: true, data: demoAuditDashboard() };
+    if (url === '/seafarers/dashboard') return { success: true, data: demoCrewDashboard() };
     const d = detail(url);
     if (d !== undefined) return { success: true, data: d };
     if (LISTS[url]) { const r = LISTS[url](params); return { success: true, ...r }; }
@@ -851,6 +1301,13 @@ const demo = {
     }
     if ((m = url.match(/^\/tracking\/alerts\/([a-f0-9]{24})\/ack$/))) { ackedAlerts.add(m[1]); return { success: true, data: { acknowledged: true } }; }
     if ((m = url.match(/^\/notifications\/([a-f0-9]{24})\/read$/))) { readBy.add(m[1]); return { success: true, data: { read: true } }; }
+    if (url === '/settings/smtp/test') {
+      const s3 = { ...DEMO_SETTINGS.smtp, ...body };
+      if (!s3.host) throw new Error('SMTP host is required');
+      return { success: true, data: { status: 'SIMULATED_OK',
+        detail: `Would connect to ${s3.host}:${s3.port} (${s3.secure ? 'TLS' : 'plain'}) as ${s3.username} and send from "${s3.fromName}" <${s3.fromEmail}>. Outbound relay is disabled in the demo.`,
+        checkedAt: new Date().toISOString() } };
+    }
     if (url === '/notifications/read-all') { D.notifications.forEach((n) => readBy.add(String(n._id))); return { success: true, data: { read: true } }; }
     throw new Error(READ_ONLY);
   },

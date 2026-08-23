@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -56,7 +57,7 @@ export default function RolesPage() {
   return (
     <>
       <PageHeader
-        title="Roles & permissions" sub="What each role can see and do — changes apply on the user's next request"
+        icon={AdminPanelSettingsRoundedIcon} iconColor="#0A2239" title="Roles & permissions" sub="What each role can see and do — changes apply on the user's next request"
         actions={canManage && <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={() => { setNewVals({ name: '', description: '' }); setCreating(true); }}>New role</Button>}
       />
       <Grid container spacing={2}>

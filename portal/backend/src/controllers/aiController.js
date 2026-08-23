@@ -126,13 +126,16 @@ function buildAccessors() {
 }
 
 async function polishWithClaude(message, grounded) {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
+  const aiCfg = require('../config/settingsCache').get('ai', {});
+  if (aiCfg.enabled === false || aiCfg.groundedOnly === true) return null;
+  const apiKey = aiCfg.apiKey || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
   try {
     // eslint-disable-next-line global-require
     const Anthropic = require('@anthropic-ai/sdk');
-    const client = new Anthropic();
+    const client = new Anthropic({ apiKey });
     const response = await client.messages.create({
-      model: 'claude-opus-5',
+      model: aiCfg.model || 'claude-opus-5',
       max_tokens: 1024,
       system: 'You are the Mundra Port operations assistant inside a port management system. '
         + 'Answer ONLY from the grounded facts provided — never invent vessels, numbers or records. '

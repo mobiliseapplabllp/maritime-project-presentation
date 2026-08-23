@@ -13,6 +13,7 @@ import FormFields from './FormFields';
 import ConfirmDialog from './ConfirmDialog';
 import FormDrawer from './FormDrawer';
 import PageStats from './PageStats';
+import ExportMenu from './ExportMenu';
 
 /**
  * Full server-side CRUD page driven by config.
@@ -98,9 +99,19 @@ export default function CrudPage(cfg) {
   return (
     <>
       <PageHeader
-        title={cfg.title} sub={cfg.sub}
+        title={cfg.title} sub={cfg.sub} icon={cfg.icon} iconColor={cfg.iconColor}
         actions={
           <>
+            {cfg.exportName && (
+              <ExportMenu
+                name={cfg.exportName} title={cfg.title}
+                columns={cfg.exportColumns || cfg.columns.filter((c) => c.key !== '__actions').map((c) => ({
+                  label: c.label || c.key,
+                  value: c.exportValue || ((r) => { const v = r[c.key]; return v && typeof v === 'object' ? (v.name || v.code || '') : (v ?? ''); }),
+                }))}
+                getRows={() => api.get(cfg.endpoint, { params: { limit: 1000, sort: state.sort, q: state.q || undefined, ...filterVals, ...(cfg.staticParams || {}) } }).then((r) => r.data)}
+              />
+            )}
             {cfg.headerActions}
             {hasPerm(user, perms.create) && (
               <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openNew}>
