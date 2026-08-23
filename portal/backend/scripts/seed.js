@@ -24,8 +24,8 @@ async function run() {
 
   // ---------- settings ----------
   await M.Setting.create({ key: 'org', value: {
-    portName: 'Mundra Port', operator: 'Adani Ports & SEZ Ltd (demo)', unlocode: 'INMUN',
-    address: 'Mundra, Kutch District, Gujarat 370421, India',
+    portName: 'Mundra Port', operator: 'Adani Ports and Special Economic Zone Ltd (APSEZ) — demo instance', unlocode: 'INMUN',
+    address: 'Navinal Island, Mundra, Kutch District, Gujarat 370421, India',
     gstin: '24XXXXX0000X1Z5 (sample)', currency: 'INR', timezone: 'Asia/Kolkata',
     contactEmail: 'ops@mundraport.example.in', contactPhone: '+91 2838 000000',
   }});
@@ -77,7 +77,7 @@ async function run() {
     lk('port','CNSHA','Shanghai', { country: 'China' }), lk('port','SGSIN','Singapore', { country: 'Singapore' }),
     lk('port','AEJEA','Jebel Ali', { country: 'UAE' }), lk('port','SAJED','Jeddah', { country: 'Saudi Arabia' }),
     lk('port','MYPKG','Port Klang', { country: 'Malaysia' }), lk('port','LKCMB','Colombo', { country: 'Sri Lanka' }),
-    lk('port','NLRTM','Rotterdam', { country: 'Netherlands' }), lk('port','KWKWI','Kuwait', { country: 'Kuwait' }),
+    lk('port','NLRTM','Rotterdam', { country: 'Netherlands' }), lk('port','KWKWI','Mina Al Ahmadi', { country: 'Kuwait' }), lk('port','SARTA','Ras Tanura', { country: 'Saudi Arabia' }), lk('port','AEFJR','Fujairah', { country: 'UAE' }), lk('port','IDSMD','Samarinda', { country: 'Indonesia' }), lk('port','ZARCB','Richards Bay', { country: 'South Africa' }), lk('port','ARROS','Rosario', { country: 'Argentina' }),
     lk('port','IQBSR','Basrah', { country: 'Iraq' }), lk('port','IDJKT','Jakarta', { country: 'Indonesia' }),
     lk('port','AUHPT','Hay Point', { country: 'Australia' }), lk('port','ZADUR','Durban', { country: 'South Africa' }),
     lk('port','INNSA','Nhava Sheva', { country: 'India' }), lk('port','INCOK','Kochi', { country: 'India' }),
@@ -136,22 +136,35 @@ async function run() {
 
   // ---------- berths ----------
   const berthDefs = [
-    ['CT1-A','Container Terminal 1 — Berth A','Container Terminal 1','CONTAINER',350,16],
-    ['CT1-B','Container Terminal 1 — Berth B','Container Terminal 1','CONTAINER',350,16],
-    ['CT2-A','Container Terminal 2 — Berth A','Container Terminal 2','CONTAINER',360,16.5],
-    ['CT2-B','Container Terminal 2 — Berth B','Container Terminal 2','CONTAINER',360,16.5],
-    ['CT3-A','Container Terminal 3 — Berth A','Container Terminal 3','CONTAINER',380,17],
-    ['CT3-B','Container Terminal 3 — Berth B','Container Terminal 3','CONTAINER',380,17],
-    ['CT4-A','Container Terminal 4 — Berth A','Container Terminal 4','CONTAINER',400,17.5],
-    ['MP-1','Multipurpose Berth 1','Multipurpose Terminal','MULTIPURPOSE',250,14],
-    ['MP-2','Multipurpose Berth 2','Multipurpose Terminal','MULTIPURPOSE',250,14],
-    ['MP-3','Multipurpose Berth 3','Multipurpose Terminal','MULTIPURPOSE',250,14],
-    ['MP-4','Multipurpose Berth 4','Multipurpose Terminal','MULTIPURPOSE',250,14],
-    ['CB-1','Coal Berth 1 (West Basin)','Coal Terminal','COAL',300,17],
-    ['CB-2','Coal Berth 2 (West Basin)','Coal Terminal','COAL',300,17],
-    ['LB-1','Liquid Berth 1','Liquid Terminal','LIQUID',280,15],
-    ['LB-2','Liquid Berth 2','Liquid Terminal','LIQUID',280,15],
-    ['SPM-1','Single Point Mooring 1','SPM','SPM',340,32],
+    // 12 container berths across the five researched facilities (~7.5M TEU capacity)
+    ['MICT-1','MICT Berth 1','MICT (DP World)','CONTAINER',350,15.5],
+    ['MICT-2','MICT Berth 2','MICT (DP World)','CONTAINER',350,15.5],
+    ['AMCT-1','AMCT Berth 1','AMCT (Adani)','CONTAINER',315,15],
+    ['AMCT-2','AMCT Berth 2','AMCT (Adani)','CONTAINER',316,15],
+    ['AMC2-1','AMCT-2 Berth 1','AMCT-2 (Adani)','CONTAINER',392,16.5],
+    ['AMC2-2','AMCT-2 Berth 2','AMCT-2 (Adani)','CONTAINER',393,16.5],
+    ['CT3-1','CT-3 Berth 1','CT-3 AICTPL (Adani–MSC JV)','CONTAINER',365,17.5],
+    ['CT3-2','CT-3 Berth 2','CT-3 AICTPL (Adani–MSC JV)','CONTAINER',365,17.5],
+    ['CT3-3','CT-3 Berth 3','CT-3 AICTPL (Adani–MSC JV)','CONTAINER',365,17.5],
+    ['CT3-4','CT-3 Berth 4','CT-3 AICTPL (Adani–MSC JV)','CONTAINER',365,17.5],
+    ['CT4-1','CT-4 Berth 1','CT-4 ACMTPL (Adani–CMA CGM JV)','CONTAINER',325,16.5],
+    ['CT4-2','CT-4 Berth 2','CT-4 ACMTPL (Adani–CMA CGM JV)','CONTAINER',325,16.5],
+    // West Basin — world's largest fully mechanised coal import terminal (60 MTPA)
+    ['WB-1','West Basin Coal Berth 1','West Basin Coal Terminal','COAL',330,18],
+    ['WB-2','West Basin Coal Berth 2','West Basin Coal Terminal','COAL',330,18],
+    // multipurpose / break-bulk (fertilizer, steel, project, grain)
+    ['MP-1','Multipurpose Berth 1','Multipurpose Terminal','MULTIPURPOSE',260,14],
+    ['MP-2','Multipurpose Berth 2','Multipurpose Terminal','MULTIPURPOSE',260,14],
+    ['MP-3','Multipurpose Berth 3','Multipurpose Terminal','MULTIPURPOSE',260,14],
+    ['MP-4','Multipurpose Berth 4','Multipurpose Terminal','MULTIPURPOSE',260,14],
+    // liquid terminal — edible oil, POL, chemicals (tank farms + pipelines)
+    ['LB-1','Liquid Berth 1','Liquid Terminal','LIQUID',290,15],
+    ['LB-2','Liquid Berth 2','Liquid Terminal','LIQUID',290,15],
+    ['LB-3','Liquid Berth 3','Liquid Terminal','LIQUID',290,15],
+    // single point moorings — crude for refinery pipelines; VLCC-capable
+    ['SPM-1','Single Point Mooring 1 (crude)','SPM Crude','SPM',345,24],
+    ['SPM-2','Single Point Mooring 2 (crude)','SPM Crude','SPM',345,24],
+    // dedicated Ro-Ro — India's largest automobile export hub
     ['RR-1','Ro-Ro Berth 1','Ro-Ro Terminal','RORO',230,12],
   ];
   const berths = await M.Berth.insertMany(berthDefs.map(([code, name, terminal, berthType, loaMax, draftMax]) => ({
@@ -167,16 +180,23 @@ async function run() {
   const agents = ['KSA','BMS','OAP','WCM','SSL','TMA'];
   const agentNames = { KSA: 'Kutch Shipping Agency', BMS: 'Bharat Marine Services', OAP: 'Oceanic Agencies Pvt Ltd', WCM: 'WestCoast Maritime Services', SSL: 'Seven Seas Logistics', TMA: 'Trident Marine Agencies' };
   const vdefs = [
-    ['MV Kutch Emerald','CONT',48000,52000,334],['MV Saurashtra Glory','CONT',52000,58000,347],
-    ['MV Mundra Express','CONT',41000,45000,300],['MV Arabian Crest','CONT',95000,101000,366],
+    // container (calls MICT/AMCT/CT-3/CT-4) — parcel sizes 2.5k–14k TEU
+    ['MV Kutch Emerald','CONT',48000,52000,334],['MV Saurashtra Glory','CONT',95000,101000,366],
+    ['MV Mundra Express','CONT',41000,45000,300],['MV Arabian Crest','CONT',141000,148000,397],
     ['MV Malabar Horizon','CONT',68000,74000,352],['MV Indus Fortune','CONT',36000,40000,285],
-    ['MV Gulf of Kutch','BULK',33000,58000,229],['MV Konkan Breeze','BULK',36000,63000,235],
-    ['MV Coromandel Trader','BULK',31000,55000,225],['MV Vindhya Pride','BULK',44000,82000,289],
-    ['MV Narmada Spirit','BULK',34000,61000,229],['MV Deccan Voyager','BULK',42000,76000,275],
-    ['MT Kandla Jyoti','TANK',62000,113000,250],['MT Gujarat Star','TANK',81000,150000,274],
-    ['MT Bhuj Radiance','TANK',30000,47000,183],['MT Sagar Ratna','TANK',160000,300000,333],
+    ['MV Gulf Pearl','CONT',110000,118000,366],['MV Kandla Spirit','CONT',52000,58000,347],
+    // dry bulk — capesize/panamax coal into West Basin, fertilizer/grain at MP
+    ['MV Gulf of Kutch','BULK',92000,180000,289],['MV Konkan Breeze','BULK',36000,63000,225],
+    ['MV Coromandel Trader','BULK',44000,82000,229],['MV Vindhya Pride','BULK',88000,176000,292],
+    ['MV Narmada Spirit','BULK',34000,61000,225],['MV Deccan Voyager','BULK',42000,76000,235],
+    // tankers — VLCC crude at SPM, product/edible at LB (MT Bangus: real record parcel)
+    ['MT Kandla Jyoti','TANK',160000,300000,333],['MT Gujarat Star','TANK',157000,299000,330],
+    ['MT Bhuj Radiance','TANK',30000,47000,183],['MT Sagar Ratna','TANK',62000,113000,250],
+    ['MT Bangus','TANK',42000,73000,228],
+    // general / project
     ['MV Coastal Karavan','GEN',19000,28000,180],['MV Porbandar Breeze','GEN',22000,32000,190],
-    ['MV Dwarka Wave','RORO',56000,21000,200],['MV Somnath Carrier','RORO',60000,22500,200],
+    // car carriers — Maruti Suzuki / Toyota exports via dedicated Ro-Ro
+    ['MV Dwarka Wave','RORO',59000,21000,200],['MV Somnath Carrier','RORO',61000,22500,200],
   ];
   const certTypes = ['Certificate of Registry','Classification Certificate','Safety Management Certificate',
     'International Ship Security Certificate','IOPP Certificate','Load Line Certificate','Maritime Labour Certificate'];
@@ -205,12 +225,24 @@ async function run() {
   const vByType = (t) => vessels.filter((v) => v.type === t);
 
   // ---------- port call history (12 months, SAILED) ----------
-  const cargoFor = (vt) => {
-    if (vt === 'CONT') return { cargoType: 'CONTAINERS', unit: 'TEU', qty: ri(900, 3600), mtFactor: 12 };
-    if (vt === 'BULK') { const c = pick(['COAL','COAL','FERT','GRAIN','STEEL']); return { cargoType: c, unit: 'MT', qty: c === 'COAL' ? ri(30000, 85000) : ri(12000, 45000), mtFactor: 1 }; }
-    if (vt === 'TANK') { const c = pick(['CRUDE','POL','EDIBLE']); return { cargoType: c, unit: 'MT', qty: c === 'CRUDE' ? ri(80000, 140000) : ri(15000, 45000), mtFactor: 1 }; }
-    if (vt === 'RORO') return { cargoType: 'AUTO', unit: 'UNITS', qty: ri(700, 2400), mtFactor: 1.5 };
-    return { cargoType: pick(['STEEL','PROJ','GRAIN']), unit: 'MT', qty: ri(8000, 26000), mtFactor: 1 };
+  const cargoFor = (vt, vessel) => {
+    if (vt === 'CONT') { // 2.5k–9.5k TEU exchanges; CT-3 marquee calls to 14k
+      const big = vessel && vessel.grt > 100000;
+      return { cargoType: 'CONTAINERS', unit: 'TEU', qty: big ? ri(7000, 14000) : ri(2500, 7500), mtFactor: 12 };
+    }
+    if (vt === 'BULK') {
+      const cape = vessel && vessel.dwt > 120000;
+      const c = cape ? 'COAL' : pick(['COAL','FERT','GRAIN','STEEL']);
+      return { cargoType: c, unit: 'MT', qty: c === 'COAL' ? (cape ? ri(120000, 165000) : ri(55000, 75000)) : ri(28000, 55000), mtFactor: 1 };
+    }
+    if (vt === 'TANK') {
+      const vlcc = vessel && vessel.dwt > 200000;
+      if (vlcc) return { cargoType: 'CRUDE', unit: 'MT', qty: ri(180000, 265000), mtFactor: 1 };
+      const c = pick(['POL','EDIBLE','POL']);
+      return { cargoType: c, unit: 'MT', qty: c === 'EDIBLE' ? ri(18000, 52000) : ri(25000, 45000), mtFactor: 1 };
+    }
+    if (vt === 'RORO') return { cargoType: 'AUTO', unit: 'UNITS', qty: ri(1800, 4800), mtFactor: 1.5 };
+    return { cargoType: pick(['STEEL','PROJ','GRAIN']), unit: 'MT', qty: ri(9000, 28000), mtFactor: 1 };
   };
   const berthFor = (vt, cargo) => {
     if (vt === 'CONT') return pick(berthsByType('CONTAINER'));
@@ -219,8 +251,18 @@ async function run() {
     if (cargo === 'COAL') return pick(berthsByType('COAL'));
     return pick(berthsByType('MULTIPURPOSE'));
   };
-  const durFor = (vt) => (vt === 'CONT' ? ri(20, 40) : vt === 'TANK' ? ri(30, 60) : vt === 'RORO' ? ri(16, 30) : ri(48, 92));
-  const portsArr = ['CNSHA — Shanghai','SGSIN — Singapore','AEJEA — Jebel Ali','SAJED — Jeddah','MYPKG — Port Klang','LKCMB — Colombo','KWKWI — Kuwait','IQBSR — Basrah','AUHPT — Hay Point','ZADUR — Durban','INNSA — Nhava Sheva','INCOK — Kochi'];
+  const durFor = (vt) => (vt === 'CONT' ? ri(14, 30) : vt === 'TANK' ? ri(28, 56) : vt === 'RORO' ? ri(14, 26) : ri(55, 110));
+  const portsArr = ['CNSHA — Shanghai','SGSIN — Singapore','AEJEA — Jebel Ali','SAJED — Jeddah','MYPKG — Port Klang','LKCMB — Colombo','NLRTM — Rotterdam','IQBSR — Basrah','SARTA — Ras Tanura','AEFJR — Fujairah','IDSMD — Samarinda','AUHPT — Hay Point','ZARCB — Richards Bay','IDDUM — Dumai','ARROS — Rosario','INNSA — Nhava Sheva'];
+  const lanesFor = { CONT: ['CNSHA — Shanghai','SGSIN — Singapore','AEJEA — Jebel Ali','MYPKG — Port Klang','LKCMB — Colombo','NLRTM — Rotterdam','SAJED — Jeddah'],
+    COAL: ['IDSMD — Samarinda','AUHPT — Hay Point','ZARCB — Richards Bay'],
+    CRUDE: ['SARTA — Ras Tanura','IQBSR — Basrah','AEFJR — Fujairah','KWKWI — Kuwait'],
+    LIQ: ['IDDUM — Dumai','ARROS — Rosario','AEFJR — Fujairah','MYPKG — Port Klang'],
+    OTHER: ['AEJEA — Jebel Ali','SGSIN — Singapore','SAJED — Jeddah','ZARCB — Richards Bay','INNSA — Nhava Sheva'] };
+  const laneFor = (vt, cargo) => {
+    const list = vt === 'CONT' ? lanesFor.CONT : cargo === 'COAL' ? lanesFor.COAL
+      : cargo === 'CRUDE' ? lanesFor.CRUDE : ['POL','EDIBLE'].includes(cargo) ? lanesFor.LIQ : lanesFor.OTHER;
+    return list[Math.floor(rnd() * list.length)];
+  };
 
   const seq = { 2025: 0, 2026: 0 };
   const vcnFor = (d) => { const y = yearOf(d); seq[y] = (seq[y] || 0) + 1; return `MUN-${y}-${String(seq[y]).padStart(4, '0')}`; };
@@ -239,11 +281,11 @@ async function run() {
   for (let mBack = 11; mBack >= 0; mBack--) {
     const mStart = new Date(NOW.getFullYear(), NOW.getMonth() - mBack, 1);
     const daysInM = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 0).getDate();
-    const n = ri(9, 12);
+    const n = ri(30, 36);
     const monthCalls = [];
     for (let k = 0; k < n; k++) {
       const v = pick(vessels);
-      const cargo = cargoFor(v.type);
+      const cargo = cargoFor(v.type, v);
       const berth = berthFor(v.type, cargo.cargoType);
       const ata = new Date(mStart.getTime() + (rnd() * (daysInM - 5) + 1) * D + ri(0, 23) * H);
       if (ata > new Date(NOW.getTime() - 3 * D)) continue;              // keep history clear of "now"
@@ -266,7 +308,7 @@ async function run() {
         purpose: c.ops[0].operation === 'LOAD' ? 'Loading' : 'Discharge', status: 'SAILED',
         eta: new Date(c.ata.getTime() - 6 * H), etb: c.atb, etd: c.atd,
         ata: c.ata, atb: c.atb, atd: c.atd, berth: c.berth._id,
-        prevPort: pick(portsArr), nextPort: pick(portsArr),
+        prevPort: laneFor(c.v.type, c.ops[0].cargoType), nextPort: laneFor(c.v.type, c.ops[0].cargoType),
         draftArrival: Math.round((c.v.maxDraft - rnd() * 3) * 10) / 10,
         draftDeparture: Math.round((c.v.maxDraft - rnd() * 4) * 10) / 10,
         crew: { count: ri(18, 26), master: pick(['Capt. A. Singh','Capt. J. Fernandes','Capt. L. Chen','Capt. M. Rao','Capt. O. Petrov','Capt. T. Nguyen']) },
@@ -291,12 +333,12 @@ async function run() {
     used.add(String(v._id)); return v;
   };
   const berthedPlan = [
-    ['CONT','CT1-A'],['CONT','CT2-B'],['CONT','CT4-A'],['BULK','CB-1'],['TANK','LB-1'],['TANK','SPM-1'],
+    ['CONT','CT3-1'],['CONT','MICT-1'],['CONT','CT4-1'],['CONT','AMC2-1'],['BULK','WB-1'],['TANK','LB-1'],['TANK','SPM-1'],['RORO','RR-1'],
   ];
   for (const [vt, bcode] of berthedPlan) {
     const v = pickVessel(vt);
     const b = berths.find((x) => x.code === bcode);
-    const cargo = cargoFor(vt);
+    const cargo = cargoFor(vt, v);
     const atb = new Date(NOW.getTime() - ri(8, 30) * H);
     const ata = new Date(atb.getTime() - ri(4, 18) * H);
     const etd = new Date(NOW.getTime() + ri(10, 34) * H);
@@ -371,6 +413,34 @@ async function run() {
       createdAt: at, updatedAt: at,
     });
   }
+  { // MT Bangus — India's largest single edible-oil discharge (66,800 MT DSBO), kept as a marquee historical record
+    const v = vessels.find((x) => x.name === 'MT Bangus');
+    const b = berths.find((x) => x.code === 'LB-2');
+    const ata = new Date(NOW.getFullYear(), NOW.getMonth() - 5, 9, 4, 0);
+    const atb = new Date(ata.getTime() + 9 * H);
+    const atd = new Date(atb.getTime() + 88 * H);
+    callDocs.push({
+      vcn: vcnFor(ata), vessel: v._id, agentCode: v.agent, agentName: agentNames[v.agent],
+      purpose: 'Discharge', status: 'SAILED', eta: new Date(ata.getTime() - 6 * H), etb: atb, etd: atd,
+      ata, atb, atd, berth: b._id, prevPort: 'ARROS — Rosario', nextPort: 'SGSIN — Singapore',
+      draftArrival: 12.8, draftDeparture: 8.2,
+      crew: { count: 24, master: 'Capt. on file' },
+      services: mkServices('TANK', 9),
+      cargoOps: [{ cargoType: 'EDIBLE', operation: 'DISCHARGE', qty: 66800, unit: 'MT', qtyMT: 66800, gangs: 2,
+        startedAt: new Date(atb.getTime() + 2 * H), completedAt: new Date(atd.getTime() - 3 * H),
+        remarks: "India's largest-ever single-vessel edible oil parcel — 66,800 MT degummed soybean oil" }],
+      remarks: 'Record parcel: largest single edible-oil discharge handled at an Indian port.',
+      statusHistory: [
+        { from: '', to: 'ANNOUNCED', at: new Date(ata.getTime() - 4 * D), by: 'seed', note: '' },
+        { from: 'ANNOUNCED', to: 'CONFIRMED', at: new Date(ata.getTime() - 2 * D), by: 'seed', note: '' },
+        { from: 'CONFIRMED', to: 'AT_ANCHORAGE', at: ata, by: 'seed', note: '' },
+        { from: 'AT_ANCHORAGE', to: 'BERTHED', at: atb, by: 'seed', note: '' },
+        { from: 'BERTHED', to: 'SAILED', at: atd, by: 'seed', note: '' },
+      ],
+      createdAt: new Date(ata.getTime() - 4 * D), updatedAt: atd,
+    });
+  }
+
   const allCalls = await M.PortCall.insertMany([...callDocs, ...activeDocs], { timestamps: false });
   const sailed = allCalls.filter((c) => c.status === 'SAILED');
   console.log(`port calls: ${allCalls.length} (${sailed.length} sailed)`);

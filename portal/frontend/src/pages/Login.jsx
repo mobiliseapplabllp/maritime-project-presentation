@@ -1,104 +1,158 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Box, Card, TextField, Button, Typography, Alert, Chip, Stack, InputAdornment, IconButton } from '@mui/material';
+import {
+  Box, Card, TextField, Button, Typography, Alert, Stack, InputAdornment, IconButton,
+  ButtonBase, Divider, Chip, CircularProgress,
+} from '@mui/material';
 import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import api from '../api/client';
 import { setSession } from '../store/authSlice';
+import { ADANI_GRADIENT } from '../theme';
+import PortScene from '../components/PortScene';
 
-const SAMPLE = [
-  ['admin@mundraport.in', 'Super Admin'],
-  ['harbour@mundraport.in', 'Harbour Master'],
-  ['surveyor@mundraport.in', 'Marine Surveyor'],
-  ['finance@mundraport.in', 'Finance Officer'],
-  ['agent@mundraport.in', 'Shipping Agent'],
+const ROLES = [
+  { email: 'admin@mundraport.in', role: 'Super Admin', who: 'Port administrator — every module' },
+  { email: 'harbour@mundraport.in', role: 'Harbour Master', who: 'Port calls, berthing, cargo operations' },
+  { email: 'surveyor@mundraport.in', role: 'Marine Surveyor', who: 'Inspections, certificates, compliance' },
+  { email: 'finance@mundraport.in', role: 'Finance Officer', who: 'Tariffs, invoicing, collections' },
+  { email: 'agent@mundraport.in', role: 'Shipping Agent', who: 'Announce calls, track invoices' },
+];
+
+const FACTS = [
+  '200+ MMT handled FY 2024-25 — first Indian port ever',
+  '12 container berths · ~7.5M TEU capacity',
+  "World's largest mechanised coal import terminal",
+  "India's largest automobile export hub",
 ];
 
 export default function Login() {
   const dispatch = useDispatch();
-  const [email, setEmail] = useState('admin@mundraport.in');
-  const [password, setPassword] = useState('Mundra@2026');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [busyAs, setBusyAs] = useState('');   // email being signed in
 
-  const submit = (e) => {
-    e.preventDefault();
-    setBusy(true); setError('');
-    api.post('/auth/login', { email, password })
+  const signIn = (mail, pass) => {
+    setBusyAs(mail); setError('');
+    api.post('/auth/login', { email: mail, password: pass })
       .then((r) => dispatch(setSession(r.data)))
-      .catch((err) => setError(err.message))
-      .finally(() => setBusy(false));
+      .catch((err) => { setError(err.message); setBusyAs(''); });
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '5fr 4fr' } }}>
-      <Box sx={{
-        display: { xs: 'none', md: 'flex' }, flexDirection: 'column', justifyContent: 'space-between',
-        p: 6, color: '#DCE7EA', bgcolor: '#0B1F2A',
-        backgroundImage: 'radial-gradient(ellipse at 20% 110%, rgba(14,124,134,0.35), transparent 55%), radial-gradient(ellipse at 95% -10%, rgba(169,111,18,0.18), transparent 45%)',
-      }}>
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-          <Box sx={{ width: 42, height: 42, borderRadius: '11px', bgcolor: '#0E7C86', display: 'grid', placeItems: 'center' }}>
-            <AnchorRoundedIcon sx={{ color: '#fff' }} />
+    <Box sx={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.15fr 1fr' } }}>
+      {/* left — port panorama */}
+      <Box sx={{ position: 'relative', display: { xs: 'none', md: 'block' }, overflow: 'hidden', minHeight: '100vh' }}>
+        <PortScene style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(4,12,26,0.55) 0%, rgba(4,12,26,0.05) 34%, rgba(3,9,20,0.72) 100%)' }} />
+        <Box sx={{ position: 'absolute', inset: 0, p: 5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#EAF2FA' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: '12px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center', boxShadow: '0 4px 18px rgba(0,0,0,0.4)' }}>
+              <AnchorRoundedIcon sx={{ color: '#fff' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 19, color: '#fff', lineHeight: 1.1 }}>Mundra Port</Typography>
+              <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, letterSpacing: '0.18em', color: 'rgba(234,242,250,0.75)' }}>
+                OPERATIONS PORTAL · IN MUN · GULF OF KUTCH
+              </Typography>
+            </Box>
           </Box>
+
           <Box>
-            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 18, color: '#fff' }}>Mundra Port</Typography>
-            <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, letterSpacing: '0.16em', color: '#7FA0AC' }}>
-              OPERATIONS PORTAL · IN MUN
+            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 44, lineHeight: 1.04, letterSpacing: '-0.02em', color: '#fff', maxWidth: 480, textShadow: '0 2px 24px rgba(0,0,0,0.45)' }}>
+              India's largest<br />commercial port.<br />One operating picture.
             </Typography>
+            <Stack spacing={0.9} sx={{ mt: 3 }}>
+              {FACTS.map((f) => (
+                <Stack key={f} direction="row" spacing={1.25} alignItems="center">
+                  <Box sx={{ width: 22, height: 3.5, borderRadius: 2, background: ADANI_GRADIENT, flexShrink: 0 }} />
+                  <Typography sx={{ fontSize: 14.5, color: 'rgba(234,242,250,0.95)', textShadow: '0 1px 10px rgba(0,0,0,0.5)' }}>{f}</Typography>
+                </Stack>
+              ))}
+            </Stack>
           </Box>
-        </Box>
-        <Box>
-          <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 42, lineHeight: 1.05, color: '#fff', letterSpacing: '-0.02em', maxWidth: 460 }}>
-            One port.<br />One operating picture.
-          </Typography>
-          <Typography sx={{ mt: 2, maxWidth: 440, color: '#AAC1C7', fontSize: 15, lineHeight: 1.6 }}>
-            Port calls, berthing, cargo, inspections and billing on a single registry —
-            with every action on the record.
+
+          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: 'rgba(234,242,250,0.55)', letterSpacing: '0.06em' }}>
+            DEMONSTRATION SYSTEM · PORT FACTS RESEARCHED, TRANSACTIONS FICTIONAL · MOBILISE APP LAB
           </Typography>
         </Box>
-        <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 10.5, color: '#5F8291', letterSpacing: '0.06em' }}>
-          DEMONSTRATION SYSTEM — ALL DATA FICTIONAL · MOBILISE APP LAB
-        </Typography>
       </Box>
+
+      {/* right — sign in */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, bgcolor: 'background.default' }}>
-        <Card sx={{ p: 4, width: 420, maxWidth: '100%' }}>
-          <Typography variant="h5" gutterBottom>Sign in</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Use a sample account below — password is <b>Mundra@2026</b> for all of them.
+        <Box sx={{ width: 440, maxWidth: '100%' }}>
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1.25, alignItems: 'center', mb: 3 }}>
+            <Box sx={{ width: 38, height: 38, borderRadius: '10px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center' }}>
+              <AnchorRoundedIcon sx={{ color: '#fff', fontSize: 21 }} />
+            </Box>
+            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 18 }}>Mundra Port Operations</Typography>
+          </Box>
+
+          <Typography variant="h5">Welcome aboard</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>
+            Pick a role to sign in — its permissions are applied automatically.
           </Typography>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          <form onSubmit={submit}>
-            <Stack spacing={2}>
-              <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus fullWidth />
-              <TextField
-                label="Password" type={show ? 'text' : 'password'} value={password}
-                onChange={(e) => setPassword(e.target.value)} fullWidth
-                InputProps={{ endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShow(!show)} edge="end" size="small">
-                      {show ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                    </IconButton>
-                  </InputAdornment>
-                ) }}
-              />
-              <Button type="submit" variant="contained" size="large" disabled={busy}>
-                {busy ? 'Signing in…' : 'Sign in'}
-              </Button>
-            </Stack>
-          </form>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 3, mb: 1 }}>
-            Sample accounts (click to fill)
-          </Typography>
-          <Stack direction="row" flexWrap="wrap" gap={0.75}>
-            {SAMPLE.map(([mail, role]) => (
-              <Chip key={mail} size="small" label={role} variant={email === mail ? 'filled' : 'outlined'}
-                color={email === mail ? 'primary' : 'default'} onClick={() => setEmail(mail)} />
+
+          <Stack spacing={1}>
+            {ROLES.map((r) => (
+              <ButtonBase
+                key={r.email} disabled={!!busyAs}
+                onClick={() => signIn(r.email, 'Mundra@2026')}
+                sx={{
+                  borderRadius: 2.5, textAlign: 'left', justifyContent: 'flex-start',
+                  border: 1, borderColor: 'divider', bgcolor: 'background.paper',
+                  p: 1.5, pl: 1.75, gap: 1.5, display: 'flex', alignItems: 'center', width: '100%',
+                  transition: 'all .15s',
+                  '&:hover': { borderColor: 'primary.main', transform: 'translateX(2px)' },
+                }}
+              >
+                <Box sx={{ width: 38, height: 38, borderRadius: '10px', flexShrink: 0, background: ADANI_GRADIENT, display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'Archivo', fontWeight: 800, fontSize: 14 }}>
+                  {r.role.split(' ').map((w) => w[0]).slice(0, 2).join('')}
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: 14.5 }}>{r.role}</Typography>
+                  <Typography noWrap sx={{ fontSize: 12, color: 'text.secondary' }}>{r.who}</Typography>
+                </Box>
+                {busyAs === r.email
+                  ? <CircularProgress size={18} />
+                  : <ArrowForwardRoundedIcon sx={{ color: 'text.secondary', fontSize: 19 }} />}
+              </ButtonBase>
             ))}
           </Stack>
-        </Card>
+
+          <Divider sx={{ my: 2.5 }}>
+            <Typography variant="caption" color="text.secondary">or sign in manually</Typography>
+          </Divider>
+
+          <Card sx={{ p: 2 }}>
+            <form onSubmit={(e) => { e.preventDefault(); signIn(email, password); }}>
+              <Stack spacing={1.5}>
+                <TextField label="Email" size="small" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth />
+                <TextField
+                  label="Password" size="small" type={show ? 'text' : 'password'} value={password}
+                  onChange={(e) => setPassword(e.target.value)} fullWidth
+                  InputProps={{ endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShow(!show)} edge="end" size="small">
+                        {show ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ) }}
+                />
+                <Button type="submit" variant="contained" disabled={!!busyAs || !email || !password}>Sign in</Button>
+              </Stack>
+            </form>
+          </Card>
+          <Stack direction="row" spacing={1} sx={{ mt: 2 }} alignItems="center">
+            <Chip size="small" variant="outlined" color="warning" label="DEMO" sx={{ fontSize: 10, fontWeight: 700 }} />
+            <Typography variant="caption" color="text.secondary">Shared demo password: Mundra@2026</Typography>
+          </Stack>
+        </Box>
       </Box>
     </Box>
   );

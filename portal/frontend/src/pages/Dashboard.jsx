@@ -127,7 +127,7 @@ export default function Dashboard() {
                 <XAxis dataKey="month" tick={{ fill: axis, fontSize: 11 }} axisLine={{ stroke: grid }} tickLine={false} />
                 <YAxis tickFormatter={(v) => `${(v / 1e7).toFixed(1)}Cr`} tick={{ fill: axis, fontSize: 11 }} axisLine={false} tickLine={false} width={44} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [fmtINRShort(v), 'Billed']} />
-                <Line type="monotone" dataKey="revenue" stroke={C.container} strokeWidth={2}
+                <Line type="monotone" dataKey="revenue" stroke={C.liquid} strokeWidth={2}
                   dot={false} activeDot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>

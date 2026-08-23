@@ -29,6 +29,7 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import api from '../../api/client';
 import { hasPerm } from '../../utils/perms';
+import { ADANI_GRADIENT } from '../../theme';
 import { toggleMode } from '../../store/uiSlice';
 import { clearSession } from '../../store/authSlice';
 import { fromNow } from '../../utils/format';
@@ -124,14 +125,14 @@ export default function AppShell() {
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   const drawer = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: mode === 'dark' ? '#081B26' : '#0B1F2A', color: '#DCE7EA' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: mode === 'dark' ? '#071A2E' : '#0A2239', color: '#D8E4EE' }}>
       <Box sx={{ px: 2.25, py: 2, display: 'flex', gap: 1.25, alignItems: 'center' }}>
-        <Box sx={{ width: 34, height: 34, borderRadius: '9px', bgcolor: '#0E7C86', display: 'grid', placeItems: 'center' }}>
+        <Box sx={{ width: 34, height: 34, borderRadius: '9px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center' }}>
           <AnchorRoundedIcon sx={{ fontSize: 20, color: '#fff' }} />
         </Box>
         <Box>
           <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 15, lineHeight: 1.1, color: '#fff' }}>Mundra Port</Typography>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 9.5, letterSpacing: '0.14em', color: '#7FA0AC' }}>OPERATIONS · INMUN</Typography>
+          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 9.5, letterSpacing: '0.14em', color: '#7C9BB5' }}>OPERATIONS · INMUN</Typography>
         </Box>
       </Box>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
@@ -141,7 +142,7 @@ export default function AppShell() {
             const next = NAV.slice(i + 1, NAV.findIndex((x, j) => j > i && x.header) === -1 ? undefined : NAV.findIndex((x, j) => j > i && x.header));
             if (!next.some((x) => hasPerm(user, x.perm))) return null;
             return (
-              <ListSubheader key={item.header} disableSticky sx={{ bgcolor: 'transparent', color: '#5F8291', fontFamily: '"IBM Plex Mono",monospace', fontSize: 9.5, letterSpacing: '0.15em', textTransform: 'uppercase', lineHeight: '30px', mt: 0.5 }}>
+              <ListSubheader key={item.header} disableSticky sx={{ bgcolor: 'transparent', color: '#5B7C99', fontFamily: '"IBM Plex Mono",monospace', fontSize: 9.5, letterSpacing: '0.15em', textTransform: 'uppercase', lineHeight: '30px', mt: 0.5 }}>
                 {item.header}
               </ListSubheader>
             );
@@ -151,9 +152,9 @@ export default function AppShell() {
             <ListItemButton
               key={item.to} component={NavLink} to={item.to} end={item.end}
               sx={{
-                borderRadius: '8px', mb: 0.25, color: '#B9CCD3', minHeight: 36,
-                '& .MuiListItemIcon-root': { color: '#7FA0AC', minWidth: 34 },
-                '&.active': { bgcolor: 'rgba(14,124,134,0.28)', color: '#fff', '& .MuiListItemIcon-root': { color: '#5FD0D8' } },
+                borderRadius: '8px', mb: 0.25, color: '#B7C9DA', minHeight: 36,
+                '& .MuiListItemIcon-root': { color: '#7C9BB5', minWidth: 34 },
+                '&.active': { bgcolor: 'rgba(11,116,176,0.32)', color: '#fff', '& .MuiListItemIcon-root': { color: '#6EC1EF' } },
                 '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
               }}
             >
@@ -165,12 +166,12 @@ export default function AppShell() {
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
       <Box sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 1.25 }}>
-        <Avatar sx={{ width: 32, height: 32, bgcolor: '#0E7C86', fontSize: 14, fontWeight: 700 }}>
+        <Avatar sx={{ width: 32, height: 32, background: ADANI_GRADIENT, fontSize: 14, fontWeight: 700 }}>
           {user?.name?.split(' ').map((w) => w[0]).slice(0, 2).join('')}
         </Avatar>
         <Box sx={{ minWidth: 0 }}>
           <Typography noWrap sx={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{user?.name}</Typography>
-          <Typography noWrap sx={{ fontSize: 11, color: '#7FA0AC' }}>{user?.role?.name}</Typography>
+          <Typography noWrap sx={{ fontSize: 11, color: '#7C9BB5' }}>{user?.role?.name}</Typography>
         </Box>
       </Box>
     </Box>

@@ -87,12 +87,14 @@ test('port call lifecycle: create -> illegal jump 409 -> confirm -> berth confli
   assert.equal(sailed.body.data.status, 'SAILED');
 
   // invoice for the sailed test call: port dues only (no cargo/services)
+  const tariffRes = await request(app).get('/api/tariffs?limit=100').set(auth(finance));
+  const pdRate = tariffRes.body.data.find((t) => t.code === 'PD').rate;
   const inv = await request(app).post('/api/invoices/generate').set(auth(finance)).send({ portCallId: id });
   assert.equal(inv.status, 201, inv.text);
   const d = inv.body.data;
   assert.equal(d.lines.length, 1);
   assert.equal(d.lines[0].code, 'PD');
-  assert.equal(d.lines[0].amount, inactiveSafe.grt * 12.5);
+  assert.equal(d.lines[0].amount, Math.round(inactiveSafe.grt * pdRate * 100) / 100);
   assert.equal(d.total, Math.round(d.subtotal * 1.18 * 100) / 100);
 
   const dup = await request(app).post('/api/invoices/generate').set(auth(finance)).send({ portCallId: id });
