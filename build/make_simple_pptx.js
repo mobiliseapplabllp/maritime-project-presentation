@@ -21,7 +21,7 @@ const BODY = 'Calibri';
 const SHOTS = (f) => path.join(__dirname, '..', 'portal', '.dev', 'shots', f);
 
 // screenshots are 2160x1350 (aspect 1.6)
-const IMG_H = 6.0, IMG_W = IMG_H * 1.6, IMG_X = (W - IMG_W) / 2, IMG_Y = 1.25;
+const IMG_H = 5.9, IMG_W = IMG_H * 1.6, IMG_X = (W - IMG_W) / 2, IMG_Y = 1.38;
 
 function shotSlide(n, caption, img, notes) {
   const s = pres.addSlide();
@@ -32,10 +32,10 @@ function shotSlide(n, caption, img, notes) {
     fill: { color: NAVY }, shape: pres.ShapeType.roundRect, rectRadius: 0.09,
   });
   s.addText(caption, {
-    x: 1.38, y: 0.36, w: W - 1.38 - 0.55, h: 0.74, fontFace: BODY, fontSize: 21,
+    x: 1.38, y: 0.3, w: W - 1.38 - 0.55, h: 0.88, fontFace: BODY, fontSize: 23,
     bold: true, color: INKTX, valign: 'middle', margin: 0,
   });
-  s.addShape(pres.ShapeType.rect, { x: 1.4, y: 1.08, w: 2.2, h: 0.045, fill: { color: TEAL } });
+  s.addShape(pres.ShapeType.rect, { x: 1.4, y: 1.2, w: 2.2, h: 0.045, fill: { color: TEAL } });
   s.addImage({
     path: img, x: IMG_X, y: IMG_Y, w: IMG_W, h: IMG_H, rounding: true,
     shadow: { type: 'outer', angle: 90, blur: 10, offset: 2, color: '0A2239', opacity: 0.28 },
@@ -48,13 +48,13 @@ function statementSlide(title, lines, notes, darkBg) {
   const s = pres.addSlide();
   s.background = { color: darkBg ? NAVY : WHITE };
   s.addText(title, {
-    x: 0.9, y: 0.85, w: W - 1.8, h: 1.0, fontFace: BODY, fontSize: 34, bold: true,
+    x: 0.9, y: 0.85, w: W - 1.8, h: 1.0, fontFace: BODY, fontSize: 38, bold: true,
     color: darkBg ? WHITE : INKTX, margin: 0,
   });
   s.addShape(pres.ShapeType.rect, { x: 0.95, y: 1.85, w: 2.2, h: 0.05, fill: { color: TEAL } });
   s.addText(lines.map((t, i) => ({
     text: t,
-    options: { fontSize: 20, color: darkBg ? 'D9E4E8' : '2E4450', breakLine: true,
+    options: { fontSize: 22, color: darkBg ? 'D9E4E8' : '2E4450', breakLine: true,
       paraSpaceAfter: i === lines.length - 1 ? 0 : 18, bullet: { code: '2022', indent: 22 } },
   })), { x: 1.0, y: 2.45, w: W - 2.3, h: 4.2, fontFace: BODY, valign: 'top', lineSpacingMultiple: 1.12 });
   s.addNotes(notes);

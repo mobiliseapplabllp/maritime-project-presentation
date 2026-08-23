@@ -26,11 +26,11 @@ function header(s, kicker, title, color) {
   s.background = { color: WHITE };
   s.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: W, h: 0.16, fill: { color: color || NAVY } });
   s.addText(kicker.toUpperCase(), {
-    x: 0.65, y: 0.4, w: W - 1.3, h: 0.32, fontFace: BODY, fontSize: 11.5, bold: true,
+    x: 0.65, y: 0.4, w: W - 1.3, h: 0.32, fontFace: BODY, fontSize: 13, bold: true,
     color: color || TEAL, charSpacing: 3, margin: 0,
   });
   s.addText(title, {
-    x: 0.62, y: 0.72, w: W - 1.3, h: 0.62, fontFace: BODY, fontSize: 26, bold: true,
+    x: 0.62, y: 0.72, w: W - 1.3, h: 0.62, fontFace: BODY, fontSize: 30, bold: true,
     color: INK, margin: 0,
   });
 }
@@ -39,7 +39,7 @@ function bullets(s, items, x, y, w, h, opts = {}) {
   s.addText(items.map((t, i) => ({
     text: t,
     options: {
-      fontSize: opts.fontSize || 13.5, color: opts.color || '2E4450', breakLine: true,
+      fontSize: opts.fontSize || 15, color: opts.color || '2E4450', breakLine: true,
       bullet: { code: '2022', indent: 14 },
       paraSpaceAfter: i === items.length - 1 ? 0 : (opts.gap ?? 8),
     },
@@ -67,7 +67,7 @@ function flow(s, nodes, opts = {}) {
     s.addText(n.t, {
       shape: pres.ShapeType.roundRect, rectRadius: 0.07,
       x, y, w: bw, h: bh, align: 'center', valign: 'middle',
-      fontFace: BODY, fontSize: 12, bold: n.kind !== 'step', color: txtOf[n.kind] || INK,
+      fontFace: BODY, fontSize: 13.5, bold: n.kind !== 'step', color: txtOf[n.kind] || INK,
       fill: { color: fillOf[n.kind] || WHITE },
       line: { color: lineOf[n.kind] || '9FB4BC', width: n.kind === 'step' ? 1.25 : 0 },
       shadow: { type: 'outer', angle: 90, blur: 5, offset: 1, color: '0A2239', opacity: 0.14 },
@@ -96,7 +96,7 @@ function flow(s, nodes, opts = {}) {
     let lx = 0.72;
     leg.forEach(([c, label]) => {
       s.addShape(pres.ShapeType.roundRect, { x: lx, y: ly, w: 0.3, h: 0.2, rectRadius: 0.04, fill: { color: c }, line: { color: '9FB4BC', width: 0.75 } });
-      s.addText(label, { x: lx + 0.36, y: ly - 0.05, w: 1.6, h: 0.3, fontFace: BODY, fontSize: 10.5, color: MUTE, margin: 0 });
+      s.addText(label, { x: lx + 0.36, y: ly - 0.05, w: 1.6, h: 0.3, fontFace: BODY, fontSize: 12, color: MUTE, margin: 0 });
       lx += 2.0;
     });
   }
@@ -105,10 +105,10 @@ function flow(s, nodes, opts = {}) {
 function chips(s, items, y, color) {
   let x = 0.68;
   items.forEach((t) => {
-    const w = 0.32 + t.length * 0.082;
+    const w = 0.36 + t.length * 0.094;
     s.addText(t, {
       shape: pres.ShapeType.roundRect, rectRadius: 0.09, x, y, w, h: 0.4,
-      align: 'center', valign: 'middle', fontFace: BODY, fontSize: 11.5, bold: true,
+      align: 'center', valign: 'middle', fontFace: BODY, fontSize: 13, bold: true,
       color: color || NAVY, fill: { color: PAPER }, line: { color: LINE, width: 1 }, margin: 2,
     });
     x += w + 0.22;
@@ -149,7 +149,7 @@ const ASSETS = path.join(__dirname, 'assets');
     'Standardise statutory routine — the daily berthing report, notices with acknowledgments, survey checklists, GST invoices.',
     'Keep the port in control of its own system: masters, settings, roles and reports are managed by port staff, not the vendor.',
     'Provide a grounded AI assistant that answers from the port’s own records.',
-  ], 0.75, 1.75, W - 1.6, 4.6, { fontSize: 16, gap: 14 });
+  ], 0.75, 1.75, W - 1.6, 4.8, { fontSize: 18, gap: 16 });
   s.addNotes('SAY: One system for the whole port, replacing scattered registers and calls; live visibility for management; statutory routine standardised; and the port stays in control of its own configuration.');
 }
 
@@ -171,14 +171,14 @@ const MODULES = [
 {
   const s = pres.addSlide();
   header(s, 'One portal · twelve applications', 'Modules delivered');
-  const cw = (W - 1.3 - 0.4 * 2) / 3, ch = 1.28, gy = 0.18;
+  const cw = (W - 1.3 - 0.4 * 2) / 3, ch = 1.38, gy = 0.16;
   MODULES.forEach(([name, color, desc], i) => {
     const col = i % 3, row = Math.floor(i / 3);
     const x = 0.65 + col * (cw + 0.4), y = 1.62 + row * (ch + gy);
     s.addShape(pres.ShapeType.roundRect, { x, y, w: cw, h: ch, rectRadius: 0.06, fill: { color: WHITE }, line: { color: LINE, width: 1 }, shadow: { type: 'outer', angle: 90, blur: 4, offset: 1, color: '0A2239', opacity: 0.10 } });
     s.addShape(pres.ShapeType.rect, { x, y, w: 0.09, h: ch, fill: { color } });
-    s.addText(name, { x: x + 0.22, y: y + 0.12, w: cw - 0.35, h: 0.34, fontFace: BODY, fontSize: 14.5, bold: true, color: INK, margin: 0 });
-    s.addText(desc, { x: x + 0.22, y: y + 0.47, w: cw - 0.35, h: 0.75, fontFace: BODY, fontSize: 10.8, color: MUTE, margin: 0, valign: 'top' });
+    s.addText(name, { x: x + 0.22, y: y + 0.12, w: cw - 0.35, h: 0.38, fontFace: BODY, fontSize: 16, bold: true, color: INK, margin: 0 });
+    s.addText(desc, { x: x + 0.22, y: y + 0.52, w: cw - 0.35, h: 0.8, fontFace: BODY, fontSize: 12, color: MUTE, margin: 0, valign: 'top' });
   });
   s.addNotes('SAY: Twelve applications behind one launcher. Each person sees only the ones their role allows. The next slides take each module — what is delivered, then its process flow.');
 }
@@ -456,7 +456,7 @@ MOD_PAGES.forEach((m, idx) => {
   /* page A — functionality delivered */
   const a = pres.addSlide();
   header(a, `Module ${idx + 1} of 12`, `${m.name} — delivered functionality`, m.color);
-  bullets(a, m.fn, 0.75, 1.66, W - 1.5, 4.7, { fontSize: 13.5, gap: 9 });
+  bullets(a, m.fn, 0.75, 1.72, W - 1.5, 4.75, { fontSize: 15.5, gap: 10 });
   a.addShape(pres.ShapeType.rect, { x: 0, y: 6.62, w: W, h: 0.02, fill: { color: LINE } });
   chips(a, m.facts, 6.85, m.color);
   a.addNotes(`SAY: ${m.name} — read two or three bullets that matter to this audience, then move to the flow. All of this is delivered and working in the portal today.`);
@@ -466,7 +466,7 @@ MOD_PAGES.forEach((m, idx) => {
   header(b, `Module ${idx + 1} of 12 · process flow`, `${m.name} — how it works`, m.color);
   flow(b, m.flow);
   b.addText(m.note, {
-    x: 0.72, y: 6.28, w: W - 1.5, h: 0.5, fontFace: BODY, fontSize: 11.5, italic: true, color: MUTE, margin: 0,
+    x: 0.72, y: 6.28, w: W - 1.5, h: 0.5, fontFace: BODY, fontSize: 13, italic: true, color: MUTE, margin: 0,
   });
   b.addNotes(`SAY: Walk the boxes left to right. Amber boxes are the checks or alerts the system raises on its own; the dark box is the outcome.`);
 });
@@ -488,8 +488,8 @@ MOD_PAGES.forEach((m, idx) => {
     const x = 0.65 + i * (cw + 0.35);
     s.addShape(pres.ShapeType.roundRect, { x, y: 1.75, w: cw, h: 4.6, rectRadius: 0.07, fill: { color: WHITE }, line: { color: LINE, width: 1 }, shadow: { type: 'outer', angle: 90, blur: 5, offset: 1, color: '0A2239', opacity: 0.10 } });
     s.addShape(pres.ShapeType.rect, { x, y: 1.75, w: cw, h: 0.5, fill: { color } });
-    s.addText(title, { x, y: 1.75, w: cw, h: 0.5, align: 'center', valign: 'middle', fontFace: BODY, fontSize: 14, bold: true, color: WHITE, margin: 0 });
-    bullets(s, items, x + 0.22, 2.45, cw - 0.4, 3.7, { fontSize: 12, gap: 8 });
+    s.addText(title, { x, y: 1.75, w: cw, h: 0.5, align: 'center', valign: 'middle', fontFace: BODY, fontSize: 15.5, bold: true, color: WHITE, margin: 0 });
+    bullets(s, items, x + 0.22, 2.45, cw - 0.4, 3.75, { fontSize: 13.5, gap: 10 });
   });
   s.addNotes('SAY: A mainstream, hiring-friendly stack — React with Material UI in front, Node and Express APIs, MongoDB behind, all containerised with Docker. The AI assistant uses Anthropic Claude, and the model is switchable from admin settings.');
 }
@@ -507,8 +507,8 @@ MOD_PAGES.forEach((m, idx) => {
     const y = 1.8 + i * 1.72;
     s.addShape(pres.ShapeType.roundRect, { x: 1.5, y, w: W - 5.2, h: 1.3, rectRadius: 0.07, fill: { color: WHITE }, line: { color: c, width: 1.75 }, shadow: { type: 'outer', angle: 90, blur: 5, offset: 1, color: '0A2239', opacity: 0.12 } });
     s.addShape(pres.ShapeType.rect, { x: 1.5, y, w: 0.12, h: 1.3, fill: { color: c } });
-    s.addText(t, { x: 1.78, y: y + 0.12, w: 6, h: 0.32, fontFace: BODY, fontSize: 13, bold: true, color: c, charSpacing: 1.5, margin: 0 });
-    s.addText(d, { x: 1.78, y: y + 0.45, w: W - 5.7, h: 0.8, fontFace: BODY, fontSize: 12, color: '2E4450', margin: 0, valign: 'top' });
+    s.addText(t, { x: 1.78, y: y + 0.12, w: 6, h: 0.34, fontFace: BODY, fontSize: 14.5, bold: true, color: c, charSpacing: 1.5, margin: 0 });
+    s.addText(d, { x: 1.78, y: y + 0.48, w: W - 5.7, h: 0.8, fontFace: BODY, fontSize: 13.5, color: '2E4450', margin: 0, valign: 'top' });
     if (i < 2) s.addShape(pres.ShapeType.line, { x: (W - 5.2) / 2 + 1.5, y: y + 1.34, w: 0, h: 0.34, line: { color: '76909B', width: 2.2, endArrowType: 'triangle', beginArrowType: 'triangle' } });
   });
   const notes = [
@@ -518,7 +518,7 @@ MOD_PAGES.forEach((m, idx) => {
   ];
   notes.forEach(([t, d], i) => {
     const y = 1.85 + i * 1.72;
-    s.addText([{ text: t + '\n', options: { bold: true, fontSize: 12, color: INK } }, { text: d, options: { fontSize: 10.5, color: MUTE } }],
+    s.addText([{ text: t + '\n', options: { bold: true, fontSize: 13.5, color: INK } }, { text: d, options: { fontSize: 12, color: MUTE } }],
       { x: W - 3.45, y, w: 2.9, h: 1.2, fontFace: BODY, valign: 'top', margin: 0 });
   });
   s.addNotes('SAY: A clean three-tier separation. The browser talks only to the API; the API enforces identity and permissions on every request; only the API touches the database. Each tier scales and is secured independently.');
@@ -539,11 +539,11 @@ MOD_PAGES.forEach((m, idx) => {
     s.addShape(pres.ShapeType.roundRect, { x, y: 1.95, w: cw, h: 3.9, rectRadius: 0.08, fill: { color: WHITE }, line: { color: LINE, width: 1 }, shadow: { type: 'outer', angle: 90, blur: 5, offset: 1, color: '0A2239', opacity: 0.10 } });
     s.addShape(pres.ShapeType.rect, { x, y: 1.95, w: cw, h: 0.62, fill: { color: c } });
     s.addText(t, { x, y: 1.95, w: cw, h: 0.62, align: 'center', valign: 'middle', fontFace: BODY, fontSize: 17, bold: true, color: WHITE, charSpacing: 3, margin: 0 });
-    bullets(s, items, x + 0.25, 2.8, cw - 0.45, 2.9, { fontSize: 12, gap: 9 });
+    bullets(s, items, x + 0.25, 2.78, cw - 0.45, 3.0, { fontSize: 13.5, gap: 10 });
     if (i < 2) s.addShape(pres.ShapeType.line, { x: x + cw + 0.08, y: 3.9, w: 0.6, h: 0, line: { color: '76909B', width: 2.5, endArrowType: 'triangle' } });
   });
   s.addText('Identical Docker images promoted Dev → UAT → Production; only environment variables differ. What is accepted in UAT is exactly what runs in production.', {
-    x: 0.85, y: 6.15, w: W - 1.7, h: 0.6, fontFace: BODY, fontSize: 12.5, italic: true, color: MUTE, margin: 0, align: 'center',
+    x: 0.85, y: 6.15, w: W - 1.7, h: 0.6, fontFace: BODY, fontSize: 14, italic: true, color: MUTE, margin: 0, align: 'center',
   });
   s.addNotes('SAY: Three separated environments. Work happens in Dev, the port accepts releases in UAT, and only signed-off builds are promoted to Production. The same container image moves through all three, so there are no surprises at go-live.');
 }
@@ -552,7 +552,7 @@ MOD_PAGES.forEach((m, idx) => {
 {
   const s = pres.addSlide();
   header(s, 'Technical section', 'Security & VAPT');
-  s.addText('Security built into the platform', { x: 0.75, y: 1.62, w: 6.4, h: 0.4, fontFace: BODY, fontSize: 15, bold: true, color: INK, margin: 0 });
+  s.addText('Security built into the platform', { x: 0.75, y: 1.62, w: 6.6, h: 0.42, fontFace: BODY, fontSize: 17, bold: true, color: INK, margin: 0 });
   bullets(s, [
     'Role-based access control — 21 permission groups, deny by default',
     'JWT authentication with short-lived access + refresh tokens',
@@ -561,19 +561,19 @@ MOD_PAGES.forEach((m, idx) => {
     'Complete audit trail of user actions with timestamps',
     'Secrets masked in the UI and never re-echoed (SMTP, AI keys)',
     'TLS termination and rotated secrets in production (Nginx)',
-  ], 0.75, 2.15, 6.5, 4.3, { fontSize: 12.5, gap: 9 });
+  ], 0.75, 2.2, 6.6, 4.4, { fontSize: 14, gap: 11 });
 
   const px = 7.7, pw = W - px - 0.65;
   s.addShape(pres.ShapeType.roundRect, { x: px, y: 1.62, w: pw, h: 4.95, rectRadius: 0.08, fill: { color: '0E3A2C' }, shadow: { type: 'outer', angle: 90, blur: 6, offset: 1, color: '0A2239', opacity: 0.2 } });
-  s.addText('VAPT ASSESSMENT', { x: px + 0.35, y: 1.92, w: pw - 0.7, h: 0.32, fontFace: BODY, fontSize: 12, bold: true, color: '9AD8B9', charSpacing: 3, margin: 0 });
+  s.addText('VAPT ASSESSMENT', { x: px + 0.35, y: 1.92, w: pw - 0.7, h: 0.32, fontFace: BODY, fontSize: 13, bold: true, color: '9AD8B9', charSpacing: 3, margin: 0 });
   s.addText('0', { x: px + 0.35, y: 2.2, w: pw - 0.7, h: 1.15, fontFace: BODY, fontSize: 64, bold: true, color: WHITE, margin: 0 });
-  s.addText('open vulnerabilities', { x: px + 0.37, y: 3.38, w: pw - 0.7, h: 0.35, fontFace: BODY, fontSize: 15, bold: true, color: 'D8EFE2', margin: 0 });
+  s.addText('open vulnerabilities', { x: px + 0.37, y: 3.38, w: pw - 0.7, h: 0.35, fontFace: BODY, fontSize: 16.5, bold: true, color: 'D8EFE2', margin: 0 });
   bullets(s, [
     'Assessed against OWASP Top 10',
     'Injection, XSS, broken auth & access control: no findings',
     'Sensitive-data exposure: none — secrets masked & hashed',
     'Re-tested after fixes; clean report at delivery',
-  ], px + 0.37, 3.95, pw - 0.7, 2.4, { fontSize: 11.5, gap: 7, color: 'C9E6D6' });
+  ], px + 0.37, 3.95, pw - 0.7, 2.5, { fontSize: 13, gap: 8, color: 'C9E6D6' });
   s.addNotes('SAY: Security is designed in, not added later — deny-by-default permissions, hashed credentials, audited actions. Vulnerability assessment and penetration testing against the OWASP Top 10 closed with zero open vulnerabilities.');
 }
 
@@ -588,7 +588,7 @@ MOD_PAGES.forEach((m, idx) => {
     'Model selectable from Admin settings: Claude Opus 5 / Sonnet 5 / Haiku 4.5',
     'Grounded-only mode, temperature and daily token budget are admin-controlled',
     'API key stored masked; assistant can be disabled centrally at any time',
-  ], 0.75, 1.75, W - 1.5, 3.4, { fontSize: 14.5, gap: 12 });
+  ], 0.75, 1.75, W - 1.5, 3.5, { fontSize: 16, gap: 13 });
   flow(s, [
     { t: 'User asks in plain language', kind: 'start' },
     { t: 'Query grounded on live port records', kind: 'step' },
@@ -617,11 +617,11 @@ MOD_PAGES.forEach((m, idx) => {
     const col = i % 4, row = Math.floor(i / 4);
     const x = 0.65 + col * (cw + 0.35), y = 1.85 + row * 2.3;
     s.addShape(pres.ShapeType.roundRect, { x, y, w: cw, h: 2.0, rectRadius: 0.08, fill: { color: WHITE }, line: { color: LINE, width: 1 }, shadow: { type: 'outer', angle: 90, blur: 5, offset: 1, color: '0A2239', opacity: 0.10 } });
-    s.addText(n, { x, y: y + 0.25, w: cw, h: 0.9, align: 'center', fontFace: BODY, fontSize: 34, bold: true, color: TEAL, margin: 0 });
-    s.addText(d, { x: x + 0.15, y: y + 1.15, w: cw - 0.3, h: 0.75, align: 'center', fontFace: BODY, fontSize: 11.5, color: '2E4450', margin: 0, valign: 'top' });
+    s.addText(n, { x, y: y + 0.22, w: cw, h: 0.92, align: 'center', fontFace: BODY, fontSize: 37, bold: true, color: TEAL, margin: 0 });
+    s.addText(d, { x: x + 0.15, y: y + 1.16, w: cw - 0.3, h: 0.78, align: 'center', fontFace: BODY, fontSize: 13, color: '2E4450', margin: 0, valign: 'top' });
   });
   s.addText('Excel + PDF export across masters, registers and reports · settings loop back into behaviour without restarts · full audit trail', {
-    x: 0.7, y: 6.5, w: W - 1.4, h: 0.4, align: 'center', fontFace: BODY, fontSize: 12.5, italic: true, color: MUTE, margin: 0,
+    x: 0.7, y: 6.5, w: W - 1.4, h: 0.45, align: 'center', fontFace: BODY, fontSize: 14, italic: true, color: MUTE, margin: 0,
   });
   s.addNotes('SAY: The delivery in numbers — twelve modules, forty-eight-plus screens, twenty-four reports, nineteen masters, RBAC with twelve roles, and a hundred and twenty-eight seeded users. Everything exportable, everything audited.');
 }
