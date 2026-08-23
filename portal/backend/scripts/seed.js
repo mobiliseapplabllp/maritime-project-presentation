@@ -479,6 +479,34 @@ async function run() {
   ];
   await M.Notification.insertMany(nDocs);
 
+  // ---------- synthesized audit trail ----------
+  const actors = [
+    { id: 'seed1', name: 'Capt. R. Nair', email: 'harbour@mundraport.in' },
+    { id: 'seed2', name: 'Cdr. S. Patel', email: 'surveyor@mundraport.in' },
+    { id: 'seed3', name: 'M. Iyer', email: 'finance@mundraport.in' },
+    { id: 'seed4', name: 'Ashish Sharma', email: 'admin@mundraport.in' },
+  ];
+  const auditDocs = [];
+  const recent = allCalls.filter((c) => ['BERTHED', 'AT_ANCHORAGE', 'CONFIRMED', 'ANNOUNCED'].includes(c.status));
+  recent.slice(0, 8).forEach((c, i) => {
+    const last = c.statusHistory[c.statusHistory.length - 1];
+    auditDocs.push({ actor: actors[i % 2], action: last.from ? 'TRANSITION' : 'CREATE', entity: 'PortCall',
+      entityId: String(c._id), entityLabel: last.from ? `${c.vcn}: ${last.from} -> ${last.to}` : c.vcn,
+      at: last.at, ip: '10.20.4.11' });
+  });
+  const recentInv = invDocs.filter((x) => x.status === 'ISSUED').slice(-4);
+  recentInv.forEach((x, i) => auditDocs.push({ actor: actors[2], action: 'ISSUE', entity: 'Invoice',
+    entityId: '', entityLabel: x.number, at: new Date(NOW.getTime() - (i + 2) * 3 * H), ip: '10.20.4.31' }));
+  auditDocs.push(
+    { actor: actors[1], action: 'FINDING_ADD', entity: 'Inspection', entityLabel: 'INS-2026-012 — 10111', at: new Date(NOW.getTime() - 3 * H), ip: '10.20.4.22' },
+    { actor: actors[3], action: 'UPDATE', entity: 'Berth', entityLabel: 'MP-4', at: new Date(NOW.getTime() - 26 * H),
+      before: { status: 'OPERATIONAL' }, after: { status: 'MAINTENANCE', remarks: 'Fender replacement' }, ip: '10.20.4.2' },
+    { actor: actors[3], action: 'UPDATE', entity: 'Role', entityLabel: 'Shipping Agent', at: new Date(NOW.getTime() - 50 * H), ip: '10.20.4.2' },
+    { actor: actors[0], action: 'LOGIN', entity: 'User', entityLabel: 'harbour@mundraport.in', at: new Date(NOW.getTime() - 1 * H), ip: '10.20.4.11' },
+  );
+  auditDocs.sort((a, b) => a.at - b.at);
+  await M.AuditLog.insertMany(auditDocs);
+
   const counts = {
     roles: await M.Role.countDocuments(), users: await M.User.countDocuments(),
     berths: await M.Berth.countDocuments(), lookups: await M.Lookup.countDocuments(),

@@ -78,3 +78,12 @@ escaping, login throttling (10 fails / 15 min), audit trail, `x-powered-by` disa
 generic 500 messages. **Before any real deployment:** rotate `.env` secrets, put TLS in
 front, move refresh tokens to httpOnly cookies, add helmet + CSP, external rate limiting,
 and structured log shipping.
+
+## Read-only demo build
+
+`VITE_DEMO=1 npx vite build --outDir dist-demo` compiles the same UI against
+`src/api/demoClient.js` — an in-browser read-only backend serving
+`src/demo/snapshot.json` (regenerate with `node backend/scripts/export-demo.js`
+while the dev DB is up). Lists, search, filters, pagination, details, dashboards
+and RBAC all work from the snapshot; writes are refused with a friendly message.
+Used to publish the zero-install shareable demo.

@@ -192,7 +192,7 @@ export default function AppShell() {
             {!wide && <IconButton edge="start" onClick={() => setMobileOpen(true)}><MenuRoundedIcon /></IconButton>}
             <Chip size="small" label="Adani Mundra Port · IN MUN" variant="outlined"
               sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 11, letterSpacing: '0.05em' }} />
-            <Chip size="small" label="DEMO DATA" color="warning" variant="outlined" sx={{ fontSize: 10, fontWeight: 700 }} />
+            <Chip size="small" label={import.meta.env.VITE_DEMO === '1' ? 'READ-ONLY DEMO · SAMPLE DATA' : 'DEMO DATA'} color="warning" variant="outlined" sx={{ fontSize: 10, fontWeight: 700 }} />
             <Box sx={{ flex: 1 }} />
             <Tooltip title={mode === 'dark' ? 'Light mode' : 'Dark mode'}>
               <IconButton color="inherit" onClick={() => dispatch(toggleMode())}>
