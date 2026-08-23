@@ -6,27 +6,39 @@ import { buildTheme } from './theme';
 import { clearSnackbar } from './store/uiSlice';
 import { hasPerm } from './utils/perms';
 import AppShell from './components/shell/AppShell';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import PortCallsList from './pages/portcalls/PortCallsList';
-import PortCallDetail from './pages/portcalls/PortCallDetail';
-import BerthBoard from './pages/BerthBoard';
-import VesselsList from './pages/vessels/VesselsList';
-import VesselDetail from './pages/vessels/VesselDetail';
-import CertificatesPage from './pages/CertificatesPage';
-import InspectionsList from './pages/inspections/InspectionsList';
-import InspectionDetail from './pages/inspections/InspectionDetail';
-import InvoicesList from './pages/invoices/InvoicesList';
-import InvoiceDetail from './pages/invoices/InvoiceDetail';
-import BerthsPage from './pages/masters/BerthsPage';
-import LookupsPage from './pages/masters/LookupsPage';
-import TariffsPage from './pages/masters/TariffsPage';
-import ChecklistsPage from './pages/masters/ChecklistsPage';
-import UsersPage from './pages/admin/UsersPage';
-import RolesPage from './pages/admin/RolesPage';
-import AuditPage from './pages/admin/AuditPage';
-import SettingsPage from './pages/admin/SettingsPage';
-import ProfilePage from './pages/ProfilePage';
+import { PageLoader } from './components/common/Loaders';
+import { lazy, Suspense } from 'react';
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const PortCallsList = lazy(() => import('./pages/portcalls/PortCallsList'));
+const PortCallDetail = lazy(() => import('./pages/portcalls/PortCallDetail'));
+const BerthBoard = lazy(() => import('./pages/BerthBoard'));
+const VesselsList = lazy(() => import('./pages/vessels/VesselsList'));
+const VesselDetail = lazy(() => import('./pages/vessels/VesselDetail'));
+const CertificatesPage = lazy(() => import('./pages/CertificatesPage'));
+const InspectionsList = lazy(() => import('./pages/inspections/InspectionsList'));
+const InspectionDetail = lazy(() => import('./pages/inspections/InspectionDetail'));
+const InvoicesList = lazy(() => import('./pages/invoices/InvoicesList'));
+const InvoiceDetail = lazy(() => import('./pages/invoices/InvoiceDetail'));
+const BerthsPage = lazy(() => import('./pages/masters/BerthsPage'));
+const LookupsPage = lazy(() => import('./pages/masters/LookupsPage'));
+const TariffsPage = lazy(() => import('./pages/masters/TariffsPage'));
+const ChecklistsPage = lazy(() => import('./pages/masters/ChecklistsPage'));
+const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
+const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
+const AuditPage = lazy(() => import('./pages/admin/AuditPage'));
+const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const SeafarersList = lazy(() => import('./pages/seafarers/SeafarersList'));
+const SeafarerDetail = lazy(() => import('./pages/seafarers/SeafarerDetail'));
+const LegislationPage = lazy(() => import('./pages/legislation/LegislationPage'));
+const FacilitiesList = lazy(() => import('./pages/facilities/FacilitiesList'));
+const FacilityDetail = lazy(() => import('./pages/facilities/FacilityDetail'));
+const TrafficMap = lazy(() => import('./pages/nmc/TrafficMap'));
+const IncidentsList = lazy(() => import('./pages/nmc/IncidentsList'));
+const IncidentDetail = lazy(() => import('./pages/nmc/IncidentDetail'));
+const RiskRegister = lazy(() => import('./pages/risk/RiskRegister'));
+const TargetingPage = lazy(() => import('./pages/risk/TargetingPage'));
 import { StatePage } from './components/common/StatePage';
 
 function Guard({ perm, children }) {
@@ -49,6 +61,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
         <Route element={user ? <AppShell /> : <Navigate to="/login" replace state={{ from: location }} />}>
@@ -71,10 +84,21 @@ export default function App() {
           <Route path="/admin/roles" element={<Guard perm="roles.view"><RolesPage /></Guard>} />
           <Route path="/admin/audit" element={<Guard perm="audit.view"><AuditPage /></Guard>} />
           <Route path="/admin/settings" element={<Guard perm="settings.view"><SettingsPage /></Guard>} />
+          <Route path="/seafarers" element={<Guard perm="seafarers.view"><SeafarersList /></Guard>} />
+          <Route path="/seafarers/:id" element={<Guard perm="seafarers.view"><SeafarerDetail /></Guard>} />
+          <Route path="/legislation" element={<Guard perm="legislation.view"><LegislationPage /></Guard>} />
+          <Route path="/facilities" element={<Guard perm="facilities.view"><FacilitiesList /></Guard>} />
+          <Route path="/facilities/:id" element={<Guard perm="facilities.view"><FacilityDetail /></Guard>} />
+          <Route path="/nmc/map" element={<Guard perm="nmc.view"><TrafficMap /></Guard>} />
+          <Route path="/nmc/incidents" element={<Guard perm="nmc.view"><IncidentsList /></Guard>} />
+          <Route path="/nmc/incidents/:id" element={<Guard perm="nmc.view"><IncidentDetail /></Guard>} />
+          <Route path="/risk" element={<Guard perm="risk.view"><RiskRegister /></Guard>} />
+          <Route path="/risk/targeting" element={<Guard perm="risk.view"><TargetingPage /></Guard>} />
           <Route path="/profile" element={<Guard><ProfilePage /></Guard>} />
           <Route path="*" element={<StatePage code="404" title="Page not found" message="The page you're looking for doesn't exist." />} />
         </Route>
       </Routes>
+      </Suspense>
       <Snackbar
         open={!!snackbar} autoHideDuration={3500}
         onClose={() => dispatch(clearSnackbar())}

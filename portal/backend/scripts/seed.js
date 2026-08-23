@@ -37,15 +37,20 @@ async function run() {
     { name: 'Harbour Master', description: 'Marine operations — port calls, berthing, cargo', system: true,
       permissions: P('dashboard.view','vessels.view','vessels.create','vessels.edit','certificates.view',
         'portcalls.view','portcalls.create','portcalls.edit','portcalls.delete','portcalls.transition',
-        'cargo.manage','inspections.view','invoices.view','tariffs.view','masters.view') },
+        'cargo.manage','inspections.view','invoices.view','tariffs.view','masters.view',
+        'nmc.view','risk.view','seafarers.view','legislation.view','facilities.view','ai.use') },
     { name: 'Marine Surveyor', description: 'Inspections, certificates and vessel compliance', system: true,
       permissions: P('dashboard.view','vessels.view','certificates.view','certificates.manage',
-        'portcalls.view','inspections.view','inspections.create','inspections.edit','inspections.close','masters.view') },
+        'portcalls.view','inspections.view','inspections.create','inspections.edit','inspections.close','masters.view',
+        'seafarers.view','seafarers.create','seafarers.edit','risk.view','legislation.view','legislation.manage','facilities.view','ai.use') },
     { name: 'Finance Officer', description: 'Tariffs, invoicing and collections', system: true,
       permissions: P('dashboard.view','portcalls.view','vessels.view','invoices.view','invoices.create',
-        'invoices.issue','invoices.pay','invoices.delete','tariffs.view','tariffs.manage','masters.view') },
+        'invoices.issue','invoices.pay','invoices.delete','tariffs.view','tariffs.manage','masters.view',
+        'legislation.view','facilities.view','ai.use') },
     { name: 'Shipping Agent', description: 'External agent — announce calls, track invoices', system: true,
-      permissions: P('dashboard.view','vessels.view','portcalls.view','portcalls.create','invoices.view') },
+      permissions: P('dashboard.view','vessels.view','portcalls.view','portcalls.create','invoices.view','legislation.view','ai.use') },
+    { name: 'NMC Duty Officer', description: 'Maritime centre — traffic picture, incidents, SAR', system: true,
+      permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use') },
   ]);
   const roleByName = Object.fromEntries(roles.map((r) => [r.name, r._id]));
   const hash = await bcrypt.hash('Mundra@2026', 10);
@@ -56,6 +61,7 @@ async function run() {
     { name: 'M. Iyer', email: 'finance@mundraport.in', passwordHash: hash, role: roleByName['Finance Officer'], designation: 'Manager — Billing' },
     { name: 'K. Bhatt (Kutch Shipping)', email: 'agent@mundraport.in', passwordHash: hash, role: roleByName['Shipping Agent'], designation: 'Boarding Agent' },
     { name: 'V. Menon', email: 'ops2@mundraport.in', passwordHash: hash, role: roleByName['Harbour Master'], designation: 'Dy. Harbour Master' },
+    { name: 'Lt. A. Rathore', email: 'nmc@mundraport.in', passwordHash: hash, role: roleByName['NMC Duty Officer'], designation: 'Duty Officer — Maritime Centre' },
   ]);
 
   // ---------- lookups ----------
@@ -548,6 +554,184 @@ async function run() {
     { title: 'Overdue invoices pending collection', body: 'Issued invoices older than 30 days need follow-up with agents.', severity: 'warning', link: '/invoices', audiencePerm: 'invoices.view' },
   ];
   await M.Notification.insertMany(nDocs);
+
+  // ---------- seafarers ----------
+  const sfNames = [['Rajesh Verma','Master'],['Anil Deshmukh','Chief Officer'],['S. Krishnan','Chief Engineer'],
+    ['Mohammed Rafi','Second Engineer'],['P. Chakraborty','Second Officer'],['Gurpreet Singh','Third Officer'],
+    ['Vikas Yadav','Electro-Technical Officer'],['Ramesh Solanki','Bosun'],['Dinesh Kumar','Able Seaman'],
+    ['Suresh Nair','Able Seaman'],['Manoj Tiwari','Oiler'],['Arjun Pillai','Fitter'],['Joseph D\'Souza','Cook'],
+    ['Rahul Meena','Deck Cadet'],['Sandeep Rana','Engine Cadet'],['K. Balasubramanian','Chief Engineer'],
+    ['Imran Shaikh','Second Officer'],['Tenzin Dorjee','Ordinary Seaman']];
+  const sfCertPlan = ['Certificate of Competency','GMDSS GOC','Medical Fitness (ILO/MLC)','STCW Basic Safety Training','Advanced Fire Fighting'];
+  const seafarers = await M.Seafarer.insertMany(sfNames.map(([name, rank], i) => {
+    const certs = sfCertPlan.slice(0, rank.includes('Cadet') || rank.includes('Seaman') ? 3 : 5).map((certType, j) => {
+      let expiry = new Date(NOW.getTime() + (90 + ((i * 11 + j * 71) % 900)) * D);
+      if (i === 3 && j === 2) expiry = new Date(NOW.getTime() + 14 * D);   // medical expiring
+      if (i === 7 && j === 3) expiry = new Date(NOW.getTime() - 20 * D);   // BST expired
+      return { certType, grade: certType === 'Certificate of Competency' ? (rank.includes('Engineer') ? 'MEO Class ' + (rank.startsWith('Chief') ? '1' : '2') : rank === 'Master' ? 'Master (FG)' : 'Class ' + (2 + (i % 2))) : '',
+        number: `${certType.split(' ').map((w) => w[0]).join('')}-${20100 + i * 17 + j}`, issuer: 'DG Shipping, India',
+        issueDate: new Date(expiry.getTime() - 5 * 365 * D), expiryDate: expiry };
+    });
+    const svc = Array.from({ length: ri(2, 4) }, (_, k) => {
+      const to = new Date(NOW.getTime() - (30 + k * 300 + ri(0, 60)) * D);
+      const from = new Date(to.getTime() - ri(120, 260) * D);
+      return { vesselName: pick(vessels).name, imo: String(9700001 + ri(0, 22)), rank, from, to, verified: rnd() < 0.7,
+        remarks: k === 0 ? 'Verified against crew list and movement records' : '' };
+    });
+    return {
+      cdcNo: `MUM-${String(52000 + i * 37)}`, indosNo: `${8}INL${3200 + i * 13}`, name, rank,
+      dob: new Date(1968 + (i % 30), (i * 5) % 12, 3 + (i % 25)), nationality: i === 17 ? 'Nepal' : 'India',
+      phone: `+91 98${String(20000000 + i * 991177).slice(0, 8)}`,
+      email: `${name.toLowerCase().replace(/[^a-z]+/g, '.')}@crew.example.in`,
+      status: i % 6 === 5 ? 'SHORE_LEAVE' : i % 9 === 8 ? 'SIGNED_OFF' : 'ACTIVE',
+      currentVessel: i % 3 === 0 ? pick(vessels)._id : undefined,
+      certificates: certs, seaService: svc,
+    };
+  }));
+  console.log(`seafarers: ${seafarers.length}`);
+
+  // ---------- legislation & circulars (real instruments + demo circulars) ----------
+  await M.Instrument.insertMany([
+    { refNo: 'MSA-1958', title: 'Merchant Shipping Act, 1958 (as amended)', type: 'ACT', category: 'Principal legislation',
+      status: 'IN_FORCE', issuedBy: 'Parliament of India', issuedDate: new Date('1958-10-30'), effectiveDate: new Date('1960-01-01'),
+      summary: 'Principal Indian statute governing merchant shipping — registration, certification, safety, crew and liability.',
+      tags: ['statute', 'registration', 'crew'] },
+    { refNo: 'SOLAS-74', title: 'International Convention for the Safety of Life at Sea (SOLAS), 1974', type: 'CONVENTION', category: 'Safety',
+      status: 'IN_FORCE', issuedBy: 'IMO', issuedDate: new Date('1974-11-01'), effectiveDate: new Date('1980-05-25'),
+      summary: 'Core IMO convention on ship safety — construction, fire protection, life-saving, radio, navigation.', tags: ['imo', 'safety'] },
+    { refNo: 'MARPOL-73/78', title: 'International Convention for the Prevention of Pollution from Ships (MARPOL)', type: 'CONVENTION', category: 'Environment',
+      status: 'IN_FORCE', issuedBy: 'IMO', issuedDate: new Date('1973-11-02'), effectiveDate: new Date('1983-10-02'),
+      summary: 'Annexes I–VI: oil, chemicals, packaged goods, sewage, garbage and air emissions from ships.', tags: ['imo', 'environment'] },
+    { refNo: 'MS-STCW-2014', title: 'Merchant Shipping (Standards of Training, Certification and Watchkeeping) Rules, 2014', type: 'RULES', category: 'Crew',
+      status: 'IN_FORCE', issuedBy: 'Ministry of Ports, Shipping and Waterways', issuedDate: new Date('2014-06-20'),
+      summary: 'Indian implementation of STCW 2010 (Manila amendments) — competency, certification and watchkeeping.', tags: ['stcw', 'crew'] },
+    { refNo: 'PORT-N-07/2026', title: 'Monsoon working restrictions — West Basin and outer anchorage', type: 'NOTICE', category: 'Port operations',
+      status: 'IN_FORCE', issuedBy: 'Harbour Master, Mundra', issuedDate: new Date(NOW.getTime() - 70 * D), effectiveDate: new Date(NOW.getTime() - 60 * D),
+      summary: 'Cape vessels to maintain 20% additional UKC at WB berths during SW monsoon; bunkering suspended at outer anchorage above sea state 5.',
+      body: 'During the South-West monsoon period, all capesize vessels berthing at WB-1/WB-2 shall maintain an additional 20% under-keel clearance over the declared minimum. Bunker barge operations at the outer anchorage stand suspended whenever sea state exceeds 5 or wind exceeds 25 knots sustained. Masters shall confirm compliance on the pre-arrival checklist.',
+      tags: ['monsoon', 'ukc', 'bunkering'], ackRequired: true },
+    { refNo: 'CIRC-12/2026', title: 'Electronic port clearance — mandatory FAL declarations via portal', type: 'CIRCULAR', category: 'Port operations',
+      status: 'IN_FORCE', issuedBy: 'Port Operations, Mundra', issuedDate: new Date(NOW.getTime() - 40 * D), effectiveDate: new Date(NOW.getTime() - 10 * D),
+      summary: 'All agents to submit FAL 1–7 declarations electronically; paper submissions cease from effective date.',
+      body: 'Pursuant to the FAL Convention (2022 amendments), all shipping agents shall lodge General Declaration, Cargo Declaration, Ship Stores, Crew Effects, Crew List, Passenger List and Dangerous Goods declarations through the port community interface. Paper declarations will not be accepted after the effective date except for declared system outages.',
+      tags: ['fal', 'single-window'], ackRequired: true },
+    { refNo: 'CIRC-09/2026', title: 'Revised garbage reception fees under MARPOL Annex V', type: 'CIRCULAR', category: 'Tariff',
+      status: 'IN_FORCE', issuedBy: 'Finance, Mundra', issuedDate: new Date(NOW.getTime() - 120 * D),
+      summary: 'Garbage reception charge revised; segregation certificate required from vessels landing >2 m³.', tags: ['marpol', 'tariff'] },
+    { refNo: 'CIRC-04/2025', title: 'Anchorage allocation policy — priority matrix', type: 'CIRCULAR', category: 'Port operations',
+      status: 'SUPERSEDED', issuedBy: 'Harbour Master, Mundra', issuedDate: new Date(NOW.getTime() - 400 * D),
+      summary: 'Superseded by PORT-N-07/2026 for monsoon months.', supersedes: '', tags: ['anchorage'] },
+    { refNo: 'ISPS-ADV-02/2026', title: 'Security level 1 in force — access control reminders', type: 'ORDER', category: 'Security',
+      status: 'IN_FORCE', issuedBy: 'PFSO, Mundra', issuedDate: new Date(NOW.getTime() - 15 * D),
+      summary: 'MARSEC Level 1 continues; dock passes to be displayed; crew shore leave via Gate 3 only.', tags: ['isps', 'security'], ackRequired: false },
+  ]);
+  console.log('instruments: 9');
+
+  // ---------- facilities & companies (licences) ----------
+  const licDefs = [
+    ['Kutch Shipping Agency', 'SHIPPING_AGENCY', 'ISSUED', 4.5], ['Bharat Marine Services', 'SHIPPING_AGENCY', 'ISSUED', 4],
+    ['Oceanic Agencies Pvt Ltd', 'SHIPPING_AGENCY', 'ISSUED', 3.5], ['Saurashtra Bunkers LLP', 'BUNKER_SUPPLIER', 'ISSUED', 3],
+    ['Gulf Marine Repairs', 'REPAIR_YARD', 'ISSUED', 4], ['Navinal Ship Chandlers', 'SHIP_CHANDLER', 'ISSUED', 3.5],
+    ['WestCoast Manning Services', 'MANNING_AGENCY', 'ISSUED', 4], ['Kandla Marine Surveyors', 'MARINE_SURVEYOR', 'ISSUED', 4.5],
+    ['Mundra Maritime Academy', 'TRAINING_INSTITUTE', 'ISSUED', 4], ['Adipur Stevedores Co-op', 'STEVEDORE', 'SUSPENDED', 2],
+    ['BlueDepth Diving Works', 'DIVING_CONTRACTOR', 'UNDER_REVIEW', 0], ['Seven Seas Logistics', 'SHIPPING_AGENCY', 'APPLIED', 0],
+  ];
+  let licSeq = 0;
+  await M.License.insertMany(licDefs.map(([entityName, entityType, status, rating], i) => {
+    licSeq += 1;
+    const applied = new Date(NOW.getTime() - (120 + i * 40) * D);
+    const issued = ['ISSUED', 'SUSPENDED'].includes(status) ? new Date(applied.getTime() + 30 * D) : undefined;
+    const history = [{ from: '', to: 'APPLIED', at: applied, by: 'seed', note: 'Application received' }];
+    if (status !== 'APPLIED') history.push({ from: 'APPLIED', to: 'UNDER_REVIEW', at: new Date(applied.getTime() + 10 * D), by: 'seed', note: '' });
+    if (issued) history.push({ from: 'UNDER_REVIEW', to: 'ISSUED', at: issued, by: 'seed', note: 'Licence issued' });
+    if (status === 'SUSPENDED') history.push({ from: 'ISSUED', to: 'SUSPENDED', at: new Date(NOW.getTime() - 20 * D), by: 'seed', note: 'Repeated stevedoring safety violations — gear certification lapsed' });
+    return {
+      licenseNo: `LIC-${yearOf(applied)}-${String(licSeq).padStart(4, '0')}`,
+      entityName, entityType, status,
+      contactPerson: pick(['R. Shah', 'M. Khan', 'P. Joshi', 'S. Ahuja', 'D. Chauhan']),
+      phone: '+91 2838 2' + String(10000 + i * 731).slice(0, 5), email: `office@${entityName.toLowerCase().replace(/[^a-z]+/g, '')}.example.in`,
+      address: pick(['Port User Complex, Mundra', 'Adipur 370205', 'Gandhidham 370201', 'SEZ Zone-2, Mundra']),
+      gstin: `24XXXXX${1000 + i}X1Z${i % 10} (sample)`,
+      appliedDate: applied, issueDate: issued,
+      expiryDate: issued ? new Date(issued.getTime() + 2 * 365 * D) : undefined,
+      conditions: status === 'ISSUED' ? 'Valid for Mundra port limits; subject to annual safety audit.' : '',
+      performanceRating: rating,
+      audits: issued ? [{ date: new Date(NOW.getTime() - 90 * D), auditor: 'Cdr. S. Patel', result: rating >= 4 ? 'SATISFACTORY' : rating >= 3 ? 'OBSERVATIONS' : 'NON_CONFORMITY', remarks: 'Annual audit' }] : [],
+      history,
+    };
+  }));
+  console.log('licenses: 12');
+
+  // ---------- maritime centre: incidents ----------
+  const berthedNowCalls = allCalls.filter((c) => c.status === 'BERTHED');
+  let incSeq = 0;
+  const mkInc = (over) => { incSeq += 1; return { number: `MRCC-${yearOf(over.reportedAt)}-${String(incSeq).padStart(3, '0')}`, ...over }; };
+  await M.Incident.insertMany([
+    mkInc({ type: 'SAR', severity: 'HIGH', status: 'RESPONDING', title: 'Fishing vessel adrift with fouled propeller, 6 nm SW of fairway buoy',
+      vesselName: 'FV Jal Pari (IND-GJ-04-MM-1287)', position: { lat: 22.62, lon: 69.58 }, reportedAt: new Date(NOW.getTime() - 5 * H),
+      reportedBy: 'VHF Ch 16 distress relay', assets: ['Pilot boat Mundra-2', 'Tug Ocean Turmeric'],
+      log: [
+        { at: new Date(NOW.getTime() - 5 * H), by: 'Lt. A. Rathore', entry: 'Distress relay received; position plotted; FV drifting SW at 1.2 kn' },
+        { at: new Date(NOW.getTime() - 4 * H), by: 'Lt. A. Rathore', entry: 'Tug Ocean Turmeric tasked; ETA 45 min; Coast Guard station Okha informed' },
+        { at: new Date(NOW.getTime() - 2 * H), by: 'Lt. A. Rathore', entry: 'Tow connected; proceeding to fishing harbour; 6 crew safe' },
+      ] }),
+    mkInc({ type: 'POLLUTION', severity: 'MEDIUM', status: 'OPEN', title: 'Light sheen observed near LB-2 during edible oil hose disconnection',
+      vessel: berthedNowCalls[5] ? berthedNowCalls[5].vessel : undefined, position: { lat: 22.741, lon: 69.712 }, reportedAt: new Date(NOW.getTime() - 90 * 60000),
+      reportedBy: 'Jetty supervisor', assets: ['Boom crew A'],
+      log: [{ at: new Date(NOW.getTime() - 85 * 60000), by: 'Duty Officer', entry: 'Tier-1 response activated; boom deployed as precaution; sample taken' }] }),
+    mkInc({ type: 'SECURITY', severity: 'LOW', status: 'CLOSED', title: 'Unauthorised drone sighting over container yard CT-3',
+      position: { lat: 22.75, lon: 69.71 }, reportedAt: new Date(NOW.getTime() - 6 * D), closedAt: new Date(NOW.getTime() - 6 * D + 3 * H),
+      reportedBy: 'ISPS patrol', outcome: 'Operator traced to survey contractor; permit verified; advisory issued.',
+      log: [{ at: new Date(NOW.getTime() - 6 * D), by: 'PFSO', entry: 'Drone tracked; operator located at Gate 4 laydown' }] }),
+    mkInc({ type: 'MEDICAL_EVAC', severity: 'HIGH', status: 'CLOSED', title: 'Crew medical evacuation — suspected appendicitis, bulk carrier at anchorage',
+      reportedAt: new Date(NOW.getTime() - 18 * D), closedAt: new Date(NOW.getTime() - 18 * D + 6 * H),
+      reportedBy: 'Master via agent', outcome: 'Crewman evacuated by pilot launch, admitted G.K. General Hospital, stable.',
+      log: [{ at: new Date(NOW.getTime() - 18 * D), by: 'Duty Officer', entry: 'Port health notified; launch dispatched with paramedic' }] }),
+    mkInc({ type: 'CASUALTY', severity: 'MEDIUM', status: 'CLOSED', title: 'Mooring line parted during squall at MP-2 — no injuries',
+      reportedAt: new Date(NOW.getTime() - 45 * D), closedAt: new Date(NOW.getTime() - 44 * D),
+      reportedBy: 'Berth foreman', outcome: 'Vessel re-secured; line failure analysis shared; MP berth mooring SOP amended.',
+      log: [{ at: new Date(NOW.getTime() - 45 * D), by: 'Duty Officer', entry: 'Tug standby ordered; additional lines run' }] }),
+  ]);
+  console.log('incidents: 5');
+
+  // ---------- simulated AIS picture ----------
+  const BERTH_POS = {
+    'MICT-1': [22.7495, 69.7065], 'MICT-2': [22.7502, 69.7085], 'AMCT-1': [22.7511, 69.7105], 'AMCT-2': [22.7518, 69.7124],
+    'AMC2-1': [22.7526, 69.7145], 'AMC2-2': [22.7533, 69.7165], 'CT3-1': [22.7541, 69.7188], 'CT3-2': [22.7548, 69.7208],
+    'CT3-3': [22.7555, 69.7228], 'CT3-4': [22.7562, 69.7248], 'CT4-1': [22.7570, 69.7270], 'CT4-2': [22.7577, 69.7290],
+    'WB-1': [22.7370, 69.6870], 'WB-2': [22.7360, 69.6895],
+    'MP-1': [22.7435, 69.6990], 'MP-2': [22.7442, 69.7008], 'MP-3': [22.7449, 69.7026], 'MP-4': [22.7456, 69.7044],
+    'LB-1': [22.7405, 69.6940], 'LB-2': [22.7412, 69.6958], 'LB-3': [22.7419, 69.6976],
+    'SPM-1': [22.6350, 69.6250], 'SPM-2': [22.6280, 69.6420], 'RR-1': [22.7480, 69.7315],
+  };
+  const posDocs = [];
+  const berthByIdPos = Object.fromEntries(berths.map((b) => [String(b._id), BERTH_POS[b.code]]));
+  for (const c of allCalls.filter((x) => x.status === 'BERTHED')) {
+    const p = berthByIdPos[String(c.berth)] || [22.745, 69.705];
+    posDocs.push({ vessel: c.vessel, lat: p[0], lon: p[1], course: 210, speed: 0, navStatus: 'MOORED', destination: 'INMUN', receivedAt: new Date(NOW.getTime() - ri(1, 4) * 60000) });
+  }
+  allCalls.filter((x) => x.status === 'AT_ANCHORAGE').forEach((c, i) => {
+    posDocs.push({ vessel: c.vessel, lat: 22.648 + (i % 3) * 0.014, lon: 69.760 + Math.floor(i / 3) * 0.02, course: 320, speed: 0.1, navStatus: 'AT_ANCHOR', destination: 'INMUN', receivedAt: new Date(NOW.getTime() - ri(2, 6) * 60000) });
+  });
+  allCalls.filter((x) => x.status === 'CONFIRMED').forEach((c, i) => {
+    posDocs.push({ vessel: c.vessel, lat: 22.520 - i * 0.05, lon: 69.520 - i * 0.06, course: 38, speed: ri(9, 13), navStatus: 'UNDERWAY', destination: 'INMUN', receivedAt: new Date(NOW.getTime() - ri(1, 3) * 60000) });
+  });
+  // transiting traffic not bound for Mundra
+  const others = vessels.filter((v) => !posDocs.some((p) => String(p.vessel) === String(v._id))).slice(0, 3);
+  others.forEach((v, i) => {
+    posDocs.push({ vessel: v._id, lat: 22.44 + i * 0.06, lon: 69.30 + i * 0.11, course: i === 1 ? 255 : 82, speed: ri(10, 14), navStatus: 'UNDERWAY', destination: i === 1 ? 'AEJEA' : 'INNSA', receivedAt: new Date(NOW.getTime() - ri(1, 5) * 60000) });
+  });
+  await M.Position.insertMany(posDocs);
+  const gapVessel = others[0];
+  await M.MdaAlert.insertMany([
+    { type: 'AIS_GAP', severity: 'warning', vessel: gapVessel._id, vesselName: gapVessel.name, note: 'No AIS transmission for 42 min in covered sector; last SOG 11.5 kn', at: new Date(NOW.getTime() - 40 * 60000) },
+    { type: 'SPEED_IN_CHANNEL', severity: 'warning', vesselName: posDocs.length ? vessels[2].name : 'Unknown', vessel: vessels[2]._id, note: '11.8 kn in approach channel (limit 8 kn)', at: new Date(NOW.getTime() - 3 * H) },
+    { type: 'ANCHOR_DRIFT', severity: 'error', vessel: allCalls.find((x) => x.status === 'AT_ANCHORAGE') ? allCalls.find((x) => x.status === 'AT_ANCHORAGE').vessel : vessels[8]._id, vesselName: '', note: 'Position moved 0.28 nm from anchor drop point; wind 22 kn', at: new Date(NOW.getTime() - 55 * 60000) },
+    { type: 'ZONE_ENTRY', severity: 'info', vessel: others[1] ? others[1]._id : vessels[10]._id, vesselName: others[1] ? others[1].name : '', note: 'Entered port limits without pre-arrival notification on file', at: new Date(NOW.getTime() - 6 * H) },
+  ]);
+  console.log(`positions: ${posDocs.length}, alerts: 4`);
+
+  await M.Setting.create({ key: 'riskWeights', value: {} });
 
   // ---------- synthesized audit trail ----------
   const actors = [

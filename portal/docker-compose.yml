@@ -1,0 +1,27 @@
+# One-command local deploy:  docker compose up --build
+# Portal (UI + API) on http://localhost:5200 — seeds Mundra sample data on first run.
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes: [mundra-mongo:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  portal:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mongo: { condition: service_healthy }
+    environment:
+      MONGO_URI: mongodb://mongo:27017/mundra_portal
+      JWT_SECRET: change_me_before_hosting
+      JWT_REFRESH_SECRET: change_me_too_before_hosting
+      SEED_IF_EMPTY: "1"
+    ports: ["5200:5200"]
+
+volumes:
+  mundra-mongo:

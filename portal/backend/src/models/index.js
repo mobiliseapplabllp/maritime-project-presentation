@@ -12,4 +12,10 @@ module.exports = {
   Invoice: require('./Invoice'),
   AuditLog: require('./AuditLog'),
   Notification: require('./Notification'),
+  Seafarer: require('./Seafarer'),
+  Instrument: require('./Instrument'),
+  License: require('./License'),
+  Incident: require('./Incident'),
+  MdaAlert: require('./MdaAlert'),
+  Position: require('./Position'),
 };

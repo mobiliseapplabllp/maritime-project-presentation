@@ -11,6 +11,13 @@ const inspections = require('../controllers/inspectionController');
 const invoices = require('../controllers/invoiceController');
 const dashboard = require('../controllers/dashboardController');
 const misc = require('../controllers/miscController');
+const seafarers = require('../controllers/seafarerController');
+const legislation = require('../controllers/legislationController');
+const licenses = require('../controllers/licenseController');
+const incidents = require('../controllers/incidentController');
+const tracking = require('../controllers/trackingController');
+const risk = require('../controllers/riskController');
+const ai = require('../controllers/aiController');
 
 // express 4 doesn't catch async rejections — wrap every handler
 const w = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -101,6 +108,55 @@ r.put('/roles/:id', requirePerm('roles.manage'), w(roles.update));
 r.delete('/roles/:id', requirePerm('roles.manage'), w(roles.remove));
 
 r.get('/audit', requirePerm('audit.view'), w(misc.auditList));
+
+// seafarers
+r.get('/seafarers', requirePerm('seafarers.view'), w(seafarers.list));
+r.post('/seafarers', requirePerm('seafarers.create'), w(seafarers.create));
+r.get('/seafarers/:id', requirePerm('seafarers.view'), w(seafarers.get));
+r.put('/seafarers/:id', requirePerm('seafarers.edit'), w(seafarers.update));
+r.delete('/seafarers/:id', requirePerm('seafarers.delete'), w(seafarers.remove));
+r.post('/seafarers/:id/certificates', requirePerm('seafarers.edit'), w(seafarers.addCert));
+r.put('/seafarers/:id/certificates/:certId', requirePerm('seafarers.edit'), w(seafarers.updateCert));
+r.delete('/seafarers/:id/certificates/:certId', requirePerm('seafarers.edit'), w(seafarers.removeCert));
+r.post('/seafarers/:id/service', requirePerm('seafarers.edit'), w(seafarers.addService));
+r.delete('/seafarers/:id/service/:serviceId', requirePerm('seafarers.edit'), w(seafarers.removeService));
+
+// legislation & circulars
+r.get('/instruments', requirePerm('legislation.view'), w(legislation.list));
+r.post('/instruments', requirePerm('legislation.manage'), w(legislation.create));
+r.get('/instruments/:id', requirePerm('legislation.view'), w(legislation.get));
+r.put('/instruments/:id', requirePerm('legislation.manage'), w(legislation.update));
+r.delete('/instruments/:id', requirePerm('legislation.manage'), w(legislation.remove));
+r.post('/instruments/:id/acknowledge', requirePerm('legislation.view'), w(legislation.acknowledge));
+
+// facilities & companies
+r.get('/licenses', requirePerm('facilities.view'), w(licenses.list));
+r.post('/licenses', requirePerm('facilities.manage'), w(licenses.create));
+r.get('/licenses/:id', requirePerm('facilities.view'), w(licenses.get));
+r.put('/licenses/:id', requirePerm('facilities.manage'), w(licenses.update));
+r.delete('/licenses/:id', requirePerm('facilities.manage'), w(licenses.remove));
+r.post('/licenses/:id/transition', requirePerm('facilities.approve'), w(licenses.transition));
+r.post('/licenses/:id/audits', requirePerm('facilities.manage'), w(licenses.addAudit));
+
+// maritime centre — incidents + traffic picture
+r.get('/incidents', requirePerm('nmc.view'), w(incidents.list));
+r.post('/incidents', requirePerm('nmc.manage'), w(incidents.create));
+r.get('/incidents/:id', requirePerm('nmc.view'), w(incidents.get));
+r.put('/incidents/:id', requirePerm('nmc.manage'), w(incidents.update));
+r.post('/incidents/:id/log', requirePerm('nmc.manage'), w(incidents.addLog));
+r.post('/incidents/:id/close', requirePerm('nmc.manage'), w(incidents.close));
+r.get('/tracking', requirePerm('nmc.view'), w(tracking.picture));
+r.post('/tracking/alerts/:id/ack', requirePerm('nmc.manage'), w(tracking.ackAlert));
+
+// compliance & risk engine
+r.get('/risk/scores', requirePerm('risk.view'), w(risk.scores));
+r.get('/risk/targeting', requirePerm('risk.view'), w(risk.targeting));
+r.get('/risk/weights', requirePerm('risk.view'), w(risk.getWeights));
+r.put('/risk/weights', requirePerm('risk.manage'), w(risk.updateWeights));
+
+// AI assistant
+r.post('/ai/chat', requirePerm('ai.use'), w(ai.chat));
+r.get('/ai/suggestions', requirePerm('ai.use'), w(ai.suggestions));
 
 r.get('/notifications', w(misc.notifications));
 r.post('/notifications/:id/read', w(misc.markRead));

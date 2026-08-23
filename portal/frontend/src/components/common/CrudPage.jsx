@@ -127,7 +127,7 @@ export default function CrudPage(cfg) {
         ))}
       />
       <Drawer anchor="right" open={!!editing} onClose={() => !busy && setEditing(null)}
-        slotProps={{ paper: { sx: { width: cfg.drawerWidth || 440, maxWidth: '100vw' } } }}>
+        slotProps={{ paper: { sx: { width: cfg.drawerWidth || '75vw', maxWidth: 'calc(100vw - 236px)', minWidth: 340 } } }}>
         <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h6">{editing?._id ? `Edit ${cfg.entityName || ''}` : `New ${cfg.entityName || ''}`}</Typography>
           <IconButton onClick={() => setEditing(null)}><CloseRoundedIcon /></IconButton>

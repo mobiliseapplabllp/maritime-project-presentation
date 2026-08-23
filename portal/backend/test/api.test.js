@@ -119,3 +119,68 @@ test('certificates register derives statuses and audit log records actions', asy
   assert.ok(audit.body.data.length >= 1);
   assert.ok(audit.body.data[0].actor.email);
 });
+
+test('v3 rbac: nmc officer sees incidents; agent does not; finance cannot create seafarers', async () => {
+  const nmc = await login('nmc@mundraport.in');
+  const inc = await request(app).get('/api/incidents').set(auth(nmc));
+  assert.equal(inc.status, 200);
+  assert.ok(inc.body.data.length >= 4);
+  assert.equal((await request(app).get('/api/incidents').set(auth(agent))).status, 403);
+  assert.equal((await request(app).post('/api/seafarers').set(auth(finance)).send({})).status, 403);
+});
+
+test('v3 licenses: lifecycle transitions enforced', async () => {
+  const created = await request(app).post('/api/licenses').set(auth(admin))
+    .send({ entityName: 'Test Marine Co', entityType: 'MARINE_SURVEYOR' });
+  assert.equal(created.status, 201);
+  const id = created.body.data._id;
+  assert.equal(created.body.data.status, 'APPLIED');
+  const illegal = await request(app).post(`/api/licenses/${id}/transition`).set(auth(admin)).send({ to: 'SUSPENDED', note: 'x' });
+  assert.equal(illegal.status, 409);
+  const review = await request(app).post(`/api/licenses/${id}/transition`).set(auth(admin)).send({ to: 'UNDER_REVIEW' });
+  assert.equal(review.status, 200);
+  const issued = await request(app).post(`/api/licenses/${id}/transition`).set(auth(admin)).send({ to: 'ISSUED' });
+  assert.equal(issued.status, 200);
+  assert.ok(issued.body.data.expiryDate, 'issue must set an expiry');
+  assert.equal(issued.body.data.history.length, 3);
+});
+
+test('v3 risk engine: explainable scores with factor decomposition', async () => {
+  const surveyorTok = await login('surveyor@mundraport.in');
+  const res = await request(app).get('/api/risk/scores').set(auth(surveyorTok));
+  assert.equal(res.status, 200);
+  assert.ok(res.body.data.length >= 15);
+  for (const r of res.body.data.slice(0, 5)) {
+    assert.ok(r.score >= 0 && r.score <= 100);
+    assert.ok(['LOW', 'MEDIUM', 'HIGH'].includes(r.band));
+    assert.ok(r.factors.length >= 5, 'factors must decompose the score');
+    assert.ok(r.factors.every((f) => f.points <= f.max + 0.001), 'no factor may exceed its weight');
+  }
+  // weights guarded
+  assert.equal((await request(app).put('/api/risk/weights').set(auth(surveyorTok)).send({ age: 20 })).status, 403);
+  const upd = await request(app).put('/api/risk/weights').set(auth(admin)).send({ age: 20 });
+  assert.equal(upd.status, 200);
+  assert.equal(upd.body.data.age, 20);
+  await request(app).put('/api/risk/weights').set(auth(admin)).send({ age: 15 }); // restore
+});
+
+test('v3 ai chat: grounded answers with sources', async () => {
+  const res = await request(app).post('/api/ai/chat').set(auth(agent)).send({ message: 'What is the berth occupancy right now?' });
+  assert.equal(res.status, 200, res.text);
+  assert.match(res.body.data.reply, /berths are occupied/i);
+  assert.ok(res.body.data.sources.some((s) => s.link === '/berth-board'));
+  assert.ok(res.body.data.suggestions.length >= 2);
+  const vcnQ = await request(app).post('/api/ai/chat').set(auth(agent)).send({ message: 'status of MUN-2026-0002' });
+  assert.equal(vcnQ.status, 200);
+});
+
+test('v3 legislation: acknowledgment flow', async () => {
+  const list = await request(app).get('/api/instruments?q=PORT-N-07').set(auth(agent));
+  const inst = list.body.data[0];
+  assert.ok(inst && inst.ackRequired);
+  const ack = await request(app).post(`/api/instruments/${inst._id}/acknowledge`).set(auth(agent));
+  assert.equal(ack.status, 200);
+  assert.ok(ack.body.data.acknowledgedBy.length >= 1);
+  const again = await request(app).post(`/api/instruments/${inst._id}/acknowledge`).set(auth(agent));
+  assert.equal(again.body.data.acknowledgedBy.length, ack.body.data.acknowledgedBy.length); // idempotent
+});

@@ -15,6 +15,12 @@ const PERMISSION_GROUPS = [
   { module: 'roles',        label: 'Roles & Permissions',  actions: ['view', 'manage'] },
   { module: 'audit',        label: 'Audit Log',            actions: ['view'] },
   { module: 'settings',     label: 'Settings',             actions: ['view', 'manage'] },
+  { module: 'seafarers',    label: 'Seafarers',            actions: ['view', 'create', 'edit', 'delete'] },
+  { module: 'legislation',  label: 'Legislation & Circulars', actions: ['view', 'manage'] },
+  { module: 'facilities',   label: 'Facilities & Companies',  actions: ['view', 'manage', 'approve'] },
+  { module: 'nmc',          label: 'Maritime Centre (MDA)',   actions: ['view', 'manage'] },
+  { module: 'risk',         label: 'Compliance & Risk',       actions: ['view', 'manage'] },
+  { module: 'ai',           label: 'AI Assistant',            actions: ['use'] },
 ];
 
 const ALL_PERMISSIONS = PERMISSION_GROUPS.flatMap((g) => g.actions.map((a) => `${g.module}.${a}`));
@@ -49,8 +55,42 @@ const LOOKUP_CATEGORIES = [
 
 const CERT_EXPIRING_DAYS = 30;
 
+const SEAFARER_RANKS = ['Master', 'Chief Officer', 'Second Officer', 'Third Officer', 'Chief Engineer',
+  'Second Engineer', 'Third Engineer', 'Fourth Engineer', 'Electro-Technical Officer', 'Bosun', 'Able Seaman',
+  'Ordinary Seaman', 'Oiler', 'Fitter', 'Cook', 'Steward', 'Deck Cadet', 'Engine Cadet'];
+const SEAFARER_CERT_TYPES = ['Certificate of Competency', 'GMDSS GOC', 'Medical Fitness (ILO/MLC)',
+  'STCW Basic Safety Training', 'Advanced Fire Fighting', 'Medical First Aid', 'Ship Security Officer',
+  'Tanker Familiarisation', 'Certificate of Discharge (CDC)'];
+
+const INSTRUMENT_TYPES = ['ACT', 'RULES', 'CIRCULAR', 'NOTICE', 'ORDER', 'CONVENTION'];
+const INSTRUMENT_STATUS = ['DRAFT', 'IN_FORCE', 'SUPERSEDED', 'WITHDRAWN'];
+
+const LICENSE_TYPES = ['SHIPPING_AGENCY', 'BUNKER_SUPPLIER', 'SHIP_CHANDLER', 'REPAIR_YARD', 'MANNING_AGENCY',
+  'MARINE_SURVEYOR', 'TRAINING_INSTITUTE', 'PORT_FACILITY_ISPS', 'STEVEDORE', 'DIVING_CONTRACTOR'];
+const LICENSE_STATUS = ['APPLIED', 'UNDER_REVIEW', 'ISSUED', 'REJECTED', 'SUSPENDED', 'REVOKED'];
+const LICENSE_TRANSITIONS = {
+  APPLIED: ['UNDER_REVIEW', 'REJECTED'],
+  UNDER_REVIEW: ['ISSUED', 'REJECTED'],
+  ISSUED: ['SUSPENDED', 'REVOKED'],
+  SUSPENDED: ['ISSUED', 'REVOKED'],   // ISSUED here = reinstated
+  REJECTED: [], REVOKED: [],
+};
+
+const INCIDENT_TYPES = ['SAR', 'POLLUTION', 'SECURITY', 'CASUALTY', 'MEDICAL_EVAC', 'NEAR_MISS'];
+const INCIDENT_STATUS = ['OPEN', 'RESPONDING', 'CLOSED'];
+const INCIDENT_SEVERITY = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+
+// default weights for the explainable risk engine (0-100 scale contribution caps)
+const DEFAULT_RISK_WEIGHTS = {
+  age: 15, certificates: 25, deficiencies: 20, detentions: 20, inspectionGap: 10, agentPerformance: 10,
+};
+
 module.exports = {
   PERMISSION_GROUPS, ALL_PERMISSIONS,
+  SEAFARER_RANKS, SEAFARER_CERT_TYPES,
+  INSTRUMENT_TYPES, INSTRUMENT_STATUS,
+  LICENSE_TYPES, LICENSE_STATUS, LICENSE_TRANSITIONS,
+  INCIDENT_TYPES, INCIDENT_STATUS, INCIDENT_SEVERITY, DEFAULT_RISK_WEIGHTS,
   PORTCALL_STATUS, PORTCALL_TRANSITIONS,
   INSPECTION_TYPES, INSPECTION_STATUS, INSPECTION_RESULTS,
   INVOICE_STATUS, GST_RATE, LOOKUP_CATEGORIES, CERT_EXPIRING_DAYS,

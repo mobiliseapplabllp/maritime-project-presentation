@@ -1,5 +1,5 @@
 const { AuditLog, Notification, Setting } = require('../models');
-const { PERMISSION_GROUPS, PORTCALL_STATUS, PORTCALL_TRANSITIONS, INSPECTION_TYPES, INSPECTION_RESULTS, INVOICE_STATUS, LOOKUP_CATEGORIES, GST_RATE } = require('../config/constants');
+const { PERMISSION_GROUPS, PORTCALL_STATUS, PORTCALL_TRANSITIONS, INSPECTION_TYPES, INSPECTION_RESULTS, INVOICE_STATUS, LOOKUP_CATEGORIES, GST_RATE, SEAFARER_RANKS, SEAFARER_CERT_TYPES, INSTRUMENT_TYPES, INSTRUMENT_STATUS, LICENSE_TYPES, LICENSE_STATUS, LICENSE_TRANSITIONS, INCIDENT_TYPES, INCIDENT_STATUS, INCIDENT_SEVERITY } = require('../config/constants');
 const { ok } = require('../utils/respond');
 const { parseQuery, searchFilter } = require('../utils/paginate');
 const { audit } = require('../utils/audit');
@@ -18,6 +18,10 @@ exports.meta = async (_req, res) => {
     invoiceStatuses: INVOICE_STATUS,
     lookupCategories: LOOKUP_CATEGORIES,
     gstRate: GST_RATE,
+    seafarerRanks: SEAFARER_RANKS, seafarerCertTypes: SEAFARER_CERT_TYPES,
+    instrumentTypes: INSTRUMENT_TYPES, instrumentStatus: INSTRUMENT_STATUS,
+    licenseTypes: LICENSE_TYPES, licenseStatus: LICENSE_STATUS, licenseTransitions: LICENSE_TRANSITIONS,
+    incidentTypes: INCIDENT_TYPES, incidentStatus: INCIDENT_STATUS, incidentSeverity: INCIDENT_SEVERITY,
   });
 };
 

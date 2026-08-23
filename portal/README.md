@@ -6,7 +6,21 @@ audit and dashboards. **All sample data is fictional.**
 
 ![stack](https://img.shields.io/badge/stack-MongoDB%20·%20Express%20·%20React%2018%20·%20Node%2022-0E7C86)
 
-## Quick start
+## Deploy locally — one command
+
+With Docker Desktop installed:
+
+```bash
+cd portal
+docker compose up --build
+```
+
+Open **http://localhost:5200** — UI and API on one port, MongoDB in a container,
+sample data seeded automatically on first run. When you have a domain, the same
+compose file runs on any VPS; put nginx/Caddy with TLS in front of :5200 and set
+real `JWT_SECRET`s.
+
+## Quick start (dev, without Docker)
 
 ```bash
 # 1. database — MongoDB on mongodb://127.0.0.1:27017, or in a sandbox:
@@ -41,6 +55,14 @@ cd frontend && npm install && npm run dev         # http://localhost:5300 (proxi
 | **Inspections** | PSC/FSI/ISM/ISPS/MLC, checklist copied from templates, YES/NO/NA capture, findings with PSC-style deficiency + action codes, close workflow, detention notifications |
 | **Billing** | invoice generated from GRT + services + cargo via the tariff master, paise-exact totals with 18% GST, DRAFT → ISSUED → PAID, print view |
 | **Masters** | berths/terminals, lookups (vessel & cargo types, ports, agents, deficiency codes), tariffs, checklist templates — one config-driven CRUD engine |
+| **Modules** | App-launcher shell (header waffle + per-module icon strip); each module loads its own side menu: Dashboard, Port Operations, Ships Registry, Seafarers, Legislation & Circulars, Maritime Centre (live traffic + incidents/SAR), Inspection & Audit, Compliance & Risk, Facilities & Companies, Finance, Masters, Administration |
+| **Seafarers** | Crew register with STCW/CoC/medical certificates (derived expiry), verified sea-service ledger |
+| **Legislation** | Instrument library (acts, rules, circulars, notices) with supersession links and per-user acknowledgment tracking |
+| **Maritime Centre** | Stylised Gulf-of-Kutch traffic picture (simulated AIS), MDA alerts with acknowledge, MRCC incident log (SAR/pollution/security/medevac) with ops timeline and close-out |
+| **Risk engine** | Explainable factor-weighted vessel scores (age, certificates, deficiencies, detentions, inspection gap, agent fleet record), PSC targeting list, audited weight editor |
+| **Facilities** | Licence lifecycle APPLIED→UNDER_REVIEW→ISSUED with suspend/reinstate/revoke, audits and performance rating |
+| **AI assistant** | Grounded chatbot over live records (deterministic engine shared with the demo build; backend upgrades replies via claude-opus-5 when ANTHROPIC_API_KEY is set) — every answer cites the screen it came from |
+| **UX** | 75%-width slide-over add/edit drawers that keep the side menu visible, Adani-gradient network activity bar, branded module-switch and route loaders |
 | **RBAC** | `module.action` permission strings, matrix editor, role changes apply on the next request, nav + routes + buttons all permission-filtered |
 | **Audit** | every write logged with actor, before/after snapshots; viewer with JSON diff |
 | **Dashboard** | KPI cards, 12-month throughput by cargo group, ranked cargo mix, revenue trend, live berth board, arrivals, expiring certificates (chart palette validated for CVD safety in light + dark) |
