@@ -116,17 +116,25 @@ function chips(s, items, y, color) {
 }
 
 /* ---------------- 1. title ---------------- */
+const ASSETS = path.join(__dirname, 'assets');
 {
   const s = pres.addSlide();
   s.background = { color: NAVY };
   s.addShape(pres.ShapeType.rect, { x: 0, y: 5.0, w: W, h: 0.06, fill: { color: TEAL } });
-  s.addText('MOBILISE APP LAB · PROJECT PRESENTATION', {
+  s.addImage({ path: path.join(ASSETS, 'adani-white.png'), x: W - 2.6, y: 0.6, w: 1.89, h: 0.6 });
+  s.addText('PROJECT PRESENTATION', {
     x: 0.95, y: 1.4, w: 10, h: 0.4, fontFace: BODY, fontSize: 13, bold: true, color: '7FC7CC', charSpacing: 3, margin: 0 });
   s.addText('Mundra Port\nOperations Portal', {
     x: 0.9, y: 1.95, w: 11.5, h: 2.2, fontFace: BODY, fontSize: 46, bold: true, color: WHITE, margin: 0, lineSpacingMultiple: 1.02 });
   s.addText('Purpose · Modules & functionality delivered · Process flows · Technology, architecture & security', {
     x: 0.95, y: 4.3, w: 11.4, h: 0.5, fontFace: BODY, fontSize: 16, color: 'B9CBD3', margin: 0 });
   s.addText('August 2026', { x: 0.95, y: 5.3, w: 6, h: 0.4, fontFace: BODY, fontSize: 13, color: '7A93A0', margin: 0 });
+  s.addImage({ path: path.join(ASSETS, 'mobilise-badge-white.png'), x: 0.95, y: 6.35, w: 0.42, h: 0.42 });
+  s.addText([
+    { text: 'POWERED BY\n', options: { fontSize: 8.5, color: '7A93A0', charSpacing: 2 } },
+    { text: 'Mobilise App Lab', options: { fontSize: 13, bold: true, color: WHITE } },
+    { text: '  ·  mobilise.co.in', options: { fontSize: 10, color: '7FC7CC' } },
+  ], { x: 1.5, y: 6.3, w: 6, h: 0.55, fontFace: BODY, valign: 'middle', margin: 0 });
   s.addNotes('SAY: This presentation covers what the portal is for, the twelve modules and what each one delivers, a simple process flow for every module, and then the technical section — stack, architecture, environments and security.');
 }
 
@@ -622,11 +630,17 @@ MOD_PAGES.forEach((m, idx) => {
 {
   const s = pres.addSlide();
   s.background = { color: NAVY };
+  s.addImage({ path: path.join(ASSETS, 'adani-white.png'), x: W - 2.6, y: 0.6, w: 1.89, h: 0.6 });
   s.addText('Thank you', { x: 0.9, y: 2.5, w: 11.5, h: 1.1, fontFace: BODY, fontSize: 46, bold: true, color: WHITE, margin: 0 });
   s.addText('Mundra Port Operations Portal — ready for a live walkthrough on one laptop.', {
     x: 0.95, y: 3.75, w: 11, h: 0.5, fontFace: BODY, fontSize: 17, color: 'B9CBD3', margin: 0 });
   s.addShape(pres.ShapeType.rect, { x: 0.95, y: 4.55, w: 2.2, h: 0.05, fill: { color: TEAL } });
-  s.addText('Mobilise App Lab', { x: 0.95, y: 4.8, w: 8, h: 0.45, fontFace: BODY, fontSize: 15, bold: true, color: WHITE, margin: 0 });
+  s.addImage({ path: path.join(ASSETS, 'mobilise-badge-white.png'), x: 0.95, y: 4.85, w: 0.42, h: 0.42 });
+  s.addText([
+    { text: 'POWERED BY\n', options: { fontSize: 8.5, color: '7A93A0', charSpacing: 2 } },
+    { text: 'Mobilise App Lab', options: { fontSize: 13, bold: true, color: WHITE } },
+    { text: '  ·  mobilise.co.in', options: { fontSize: 10, color: '7FC7CC' } },
+  ], { x: 1.5, y: 4.8, w: 6, h: 0.55, fontFace: BODY, valign: 'middle', margin: 0 });
   s.addNotes('SAY: Thank you. The whole portal runs on one laptop — happy to do a live walkthrough with your team whenever convenient.');
 }
 

@@ -62,14 +62,12 @@ function statementSlide(title, lines, notes, darkBg) {
 }
 
 /* 1 — title */
+const ASSETS = path.join(__dirname, 'assets');
 {
   const s = pres.addSlide();
   s.background = { color: NAVY };
   s.addShape(pres.ShapeType.rect, { x: 0, y: 5.05, w: W, h: 0.06, fill: { color: TEAL } });
-  s.addText('MOBILISE APP LAB', {
-    x: 0.95, y: 1.5, w: 8, h: 0.4, fontFace: BODY, fontSize: 13, bold: true,
-    color: '7FC7CC', charSpacing: 4, margin: 0,
-  });
+  s.addImage({ path: path.join(ASSETS, 'adani-white.png'), x: W - 2.6, y: 0.6, w: 1.89, h: 0.6 });
   s.addText('Mundra Port\nOperations Portal', {
     x: 0.9, y: 2.05, w: 11.5, h: 2.2, fontFace: BODY, fontSize: 48, bold: true,
     color: WHITE, margin: 0, lineSpacingMultiple: 1.02,
@@ -80,6 +78,12 @@ function statementSlide(title, lines, notes, darkBg) {
   s.addText('August 2026', {
     x: 0.95, y: 5.35, w: 6, h: 0.4, fontFace: BODY, fontSize: 13, color: '7A93A0', margin: 0,
   });
+  s.addImage({ path: path.join(ASSETS, 'mobilise-badge-white.png'), x: 0.95, y: 6.4, w: 0.42, h: 0.42 });
+  s.addText([
+    { text: 'POWERED BY\n', options: { fontSize: 8.5, color: '7A93A0', charSpacing: 2 } },
+    { text: 'Mobilise App Lab', options: { fontSize: 13, bold: true, color: WHITE } },
+    { text: '  ·  mobilise.co.in', options: { fontSize: 10, color: '7FC7CC' } },
+  ], { x: 1.5, y: 6.35, w: 6, h: 0.55, fontFace: BODY, valign: 'middle', margin: 0 });
   s.addNotes(
     'SAY: Thank you for the time. I will keep this very simple — about ten pictures. ' +
     'Everything you will see is a real, running software we built for port operations, ' +
@@ -181,6 +185,7 @@ statementSlide(
 {
   const s = pres.addSlide();
   s.background = { color: NAVY };
+  s.addImage({ path: path.join(ASSETS, 'adani-white.png'), x: W - 2.6, y: 0.6, w: 1.89, h: 0.6 });
   s.addText('Next step', {
     x: 0.95, y: 1.7, w: 8, h: 0.5, fontFace: BODY, fontSize: 16, bold: true,
     color: '7FC7CC', charSpacing: 3, margin: 0,
@@ -192,9 +197,12 @@ statementSlide(
     x: 0.95, y: 3.5, w: 10.8, h: 0.6, fontFace: BODY, fontSize: 18, color: 'B9CBD3', margin: 0,
   });
   s.addShape(pres.ShapeType.rect, { x: 0.95, y: 4.5, w: 2.2, h: 0.05, fill: { color: TEAL } });
-  s.addText('Mobilise App Lab', {
-    x: 0.95, y: 4.75, w: 8, h: 0.45, fontFace: BODY, fontSize: 15, bold: true, color: WHITE, margin: 0,
-  });
+  s.addImage({ path: path.join(ASSETS, 'mobilise-badge-white.png'), x: 0.95, y: 4.8, w: 0.42, h: 0.42 });
+  s.addText([
+    { text: 'POWERED BY\n', options: { fontSize: 8.5, color: '7A93A0', charSpacing: 2 } },
+    { text: 'Mobilise App Lab', options: { fontSize: 13, bold: true, color: WHITE } },
+    { text: '  ·  mobilise.co.in', options: { fontSize: 10, color: '7FC7CC' } },
+  ], { x: 1.5, y: 4.75, w: 6, h: 0.55, fontFace: BODY, valign: 'middle', margin: 0 });
   s.addNotes(
     'SAY: The next step is simple — thirty minutes with the people who run these areas. The software ' +
     'runs on one laptop, no installation on your side. You click through it yourselves, and at the ' +
