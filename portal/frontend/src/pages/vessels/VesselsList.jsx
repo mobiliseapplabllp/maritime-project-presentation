@@ -12,7 +12,7 @@ export default function VesselsList() {
   const navigate = useNavigate();
   return (
     <CrudPage
-      title="Vessel registry" sub="Ships known to the port, with their particulars and certificates"
+      statsScope="vessels" title="Vessel registry" sub="Ships known to the port, with their particulars and certificates"
       entityName="vessel" endpoint="/vessels" permBase="vessels"
       perms={{ create: 'vessels.create', edit: 'vessels.edit', del: 'vessels.delete' }}
       defaultSort="name" searchPlaceholder="Search name, IMO, call sign…"

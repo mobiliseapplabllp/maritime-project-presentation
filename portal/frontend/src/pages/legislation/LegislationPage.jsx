@@ -33,7 +33,7 @@ export default function LegislationPage() {
     <>
       <CrudPage
         key={refresh}
-        title="Legislation & circulars" sub="Acts, rules, notices and circulars — the instrument base behind checklists and fees"
+        statsScope="legislation" title="Legislation & circulars" sub="Acts, rules, notices and circulars — the instrument base behind checklists and fees"
         entityName="instrument" endpoint="/instruments"
         perms={{ create: 'legislation.manage', edit: 'legislation.manage', del: 'legislation.manage' }}
         defaultSort="-issuedDate" searchPlaceholder="Search ref no, title…" drawerWidth="75vw"

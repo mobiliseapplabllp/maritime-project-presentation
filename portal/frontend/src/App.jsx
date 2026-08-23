@@ -39,6 +39,7 @@ const IncidentsList = lazy(() => import('./pages/nmc/IncidentsList'));
 const IncidentDetail = lazy(() => import('./pages/nmc/IncidentDetail'));
 const RiskRegister = lazy(() => import('./pages/risk/RiskRegister'));
 const TargetingPage = lazy(() => import('./pages/risk/TargetingPage'));
+const MisReport = lazy(() => import('./pages/mis/MisReport'));
 import { StatePage } from './components/common/StatePage';
 
 function Guard({ perm, children }) {
@@ -94,6 +95,7 @@ export default function App() {
           <Route path="/nmc/incidents/:id" element={<Guard perm="nmc.view"><IncidentDetail /></Guard>} />
           <Route path="/risk" element={<Guard perm="risk.view"><RiskRegister /></Guard>} />
           <Route path="/risk/targeting" element={<Guard perm="risk.view"><TargetingPage /></Guard>} />
+          <Route path="/mis" element={<Guard perm="reports.view"><MisReport /></Guard>} />
           <Route path="/profile" element={<Guard><ProfilePage /></Guard>} />
           <Route path="*" element={<StatePage code="404" title="Page not found" message="The page you're looking for doesn't exist." />} />
         </Route>

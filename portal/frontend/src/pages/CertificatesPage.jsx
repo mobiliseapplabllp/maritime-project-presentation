@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Chip, Stack } from '@mui/material';
 import api from '../api/client';
+import PageStats from '../components/common/PageStats';
 import PageHeader from '../components/common/PageHeader';
 import DataTable from '../components/common/DataTable';
 import StatusChip from '../components/common/StatusChip';
@@ -22,6 +23,7 @@ export default function CertificatesPage() {
   return (
     <>
       <PageHeader title="Fleet certificates" sub="Statutory certificates across all active vessels, ordered by expiry" />
+      <PageStats scope="certificates" />
       <DataTable
         columns={[
           { key: 'vesselName', label: 'Vessel', render: (r) => <b>{r.vesselName}</b> },

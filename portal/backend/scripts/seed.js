@@ -38,19 +38,19 @@ async function run() {
       permissions: P('dashboard.view','vessels.view','vessels.create','vessels.edit','certificates.view',
         'portcalls.view','portcalls.create','portcalls.edit','portcalls.delete','portcalls.transition',
         'cargo.manage','inspections.view','invoices.view','tariffs.view','masters.view',
-        'nmc.view','risk.view','seafarers.view','legislation.view','facilities.view','ai.use') },
+        'nmc.view','risk.view','seafarers.view','legislation.view','facilities.view','ai.use','reports.view') },
     { name: 'Marine Surveyor', description: 'Inspections, certificates and vessel compliance', system: true,
       permissions: P('dashboard.view','vessels.view','certificates.view','certificates.manage',
         'portcalls.view','inspections.view','inspections.create','inspections.edit','inspections.close','masters.view',
-        'seafarers.view','seafarers.create','seafarers.edit','risk.view','legislation.view','legislation.manage','facilities.view','ai.use') },
+        'seafarers.view','seafarers.create','seafarers.edit','risk.view','legislation.view','legislation.manage','facilities.view','ai.use','reports.view') },
     { name: 'Finance Officer', description: 'Tariffs, invoicing and collections', system: true,
       permissions: P('dashboard.view','portcalls.view','vessels.view','invoices.view','invoices.create',
         'invoices.issue','invoices.pay','invoices.delete','tariffs.view','tariffs.manage','masters.view',
-        'legislation.view','facilities.view','ai.use') },
+        'legislation.view','facilities.view','ai.use','reports.view') },
     { name: 'Shipping Agent', description: 'External agent — announce calls, track invoices', system: true,
       permissions: P('dashboard.view','vessels.view','portcalls.view','portcalls.create','invoices.view','legislation.view','ai.use') },
     { name: 'NMC Duty Officer', description: 'Maritime centre — traffic picture, incidents, SAR', system: true,
-      permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use') },
+      permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use','reports.view') },
   ]);
   const roleByName = Object.fromEntries(roles.map((r) => [r.name, r._id]));
   const hash = await bcrypt.hash('Mundra@2026', 10);

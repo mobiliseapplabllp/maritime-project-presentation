@@ -6,6 +6,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
+import PageStats from '../../components/common/PageStats';
 import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
@@ -66,6 +67,7 @@ export default function PortCallsList() {
           <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>Announce call</Button>
         )}
       />
+      <PageStats scope="portcalls" />
       <DataTable
         columns={columns} rows={state.rows} total={state.total} page={state.page} limit={state.limit}
         loading={state.loading} sort={state.sort}

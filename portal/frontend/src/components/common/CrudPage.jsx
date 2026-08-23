@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Drawer, Box, Typography, IconButton, Divider, Stack, TextField, MenuItem } from '@mui/material';
+import { Button, Box, Stack, TextField, MenuItem, IconButton } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -12,6 +11,8 @@ import PageHeader from './PageHeader';
 import DataTable from './DataTable';
 import FormFields from './FormFields';
 import ConfirmDialog from './ConfirmDialog';
+import FormDrawer from './FormDrawer';
+import PageStats from './PageStats';
 
 /**
  * Full server-side CRUD page driven by config.
@@ -31,6 +32,7 @@ export default function CrudPage(cfg) {
   const [values, setValues] = useState({});
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(null);
+  const [statsKey, setStatsKey] = useState(0);
 
   const load = useCallback((over = {}) => {
     const s = { ...state, ...over };
@@ -62,7 +64,7 @@ export default function CrudPage(cfg) {
     const req = editing?._id ? api.put(`${cfg.endpoint}/${editing._id}`, body) : api.post(cfg.endpoint, body);
     req.then(() => {
       dispatch(notify(editing?._id ? `${cfg.entityName || 'Record'} updated` : `${cfg.entityName || 'Record'} created`));
-      setEditing(null); load();
+      setEditing(null); load(); setStatsKey((k) => k + 1);
     }).catch((e) => dispatch(notify({ message: e.message, severity: 'error' })))
       .finally(() => setBusy(false));
   };
@@ -70,7 +72,7 @@ export default function CrudPage(cfg) {
   const doDelete = () => {
     setBusy(true);
     api.delete(`${cfg.endpoint}/${deleting._id}`)
-      .then(() => { dispatch(notify(`${cfg.entityName || 'Record'} deleted`)); setDeleting(null); load(); })
+      .then(() => { dispatch(notify(`${cfg.entityName || 'Record'} deleted`)); setDeleting(null); load(); setStatsKey((k) => k + 1); })
       .catch((e) => dispatch(notify({ message: e.message, severity: 'error' })))
       .finally(() => setBusy(false));
   };
@@ -108,6 +110,7 @@ export default function CrudPage(cfg) {
           </>
         }
       />
+      {cfg.statsScope && <PageStats scope={cfg.statsScope} refreshKey={statsKey} />}
       <DataTable
         columns={columns} rows={state.rows} total={state.total}
         page={state.page} limit={state.limit} loading={state.loading}
@@ -126,23 +129,16 @@ export default function CrudPage(cfg) {
           </TextField>
         ))}
       />
-      <Drawer anchor="right" open={!!editing} onClose={() => !busy && setEditing(null)}
-        slotProps={{ paper: { sx: { width: cfg.drawerWidth || '75vw', maxWidth: 'calc(100vw - 236px)', minWidth: 340 } } }}>
-        <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h6">{editing?._id ? `Edit ${cfg.entityName || ''}` : `New ${cfg.entityName || ''}`}</Typography>
-          <IconButton onClick={() => setEditing(null)}><CloseRoundedIcon /></IconButton>
-        </Box>
-        <Divider />
-        <Box sx={{ p: 2.5, flex: 1, overflowY: 'auto' }}>
-          {editing && <FormFields fields={fields} values={values} onChange={setValues} />}
-          {cfg.drawerExtra && editing && cfg.drawerExtra(editing, values, setValues)}
-        </Box>
-        <Divider />
-        <Box sx={{ p: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-          <Button color="inherit" onClick={() => setEditing(null)} disabled={busy}>Cancel</Button>
-          <Button variant="contained" onClick={save} disabled={busy}>{editing?._id ? 'Save changes' : 'Create'}</Button>
-        </Box>
-      </Drawer>
+      <FormDrawer
+        open={!!editing} busy={busy} width={cfg.drawerWidth || '75vw'}
+        title={editing?._id ? `Edit ${cfg.entityName || ''}` : `New ${cfg.entityName || ''}`}
+        subtitle={cfg.sub}
+        onClose={() => setEditing(null)} onSubmit={save}
+        submitLabel={editing?._id ? 'Save changes' : 'Create'}
+      >
+        {editing && <FormFields fields={fields} values={values} onChange={setValues} />}
+        {cfg.drawerExtra && editing && cfg.drawerExtra(editing, values, setValues)}
+      </FormDrawer>
       <ConfirmDialog
         open={!!deleting} busy={busy}
         title={`Delete ${cfg.entityName || 'record'}?`}

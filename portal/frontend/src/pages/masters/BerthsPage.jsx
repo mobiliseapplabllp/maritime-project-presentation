@@ -7,7 +7,7 @@ const TYPES = ['CONTAINER', 'BULK', 'MULTIPURPOSE', 'LIQUID', 'RORO', 'SPM', 'CO
 export default function BerthsPage() {
   return (
     <CrudPage
-      title="Berths & terminals" sub="Physical berth inventory — allocation checks run against these limits"
+      statsScope="masters" title="Berths & terminals" sub="Physical berth inventory — allocation checks run against these limits"
       entityName="berth" endpoint="/berths" permBase="masters" defaultSort="code"
       searchPlaceholder="Search code, name, terminal…"
       columns={[

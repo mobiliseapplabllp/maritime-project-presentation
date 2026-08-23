@@ -18,7 +18,7 @@ export default function FacilitiesList() {
 
   return (
     <CrudPage
-      title="Facilities & companies" sub="Licensed port ecosystem — agencies, suppliers, yards, institutes and ISPS facilities"
+      statsScope="facilities" title="Facilities & companies" sub="Licensed port ecosystem — agencies, suppliers, yards, institutes and ISPS facilities"
       entityName="licence" endpoint="/licenses"
       perms={{ create: 'facilities.manage', edit: 'facilities.manage', del: 'facilities.manage' }}
       searchPlaceholder="Search licence no, entity…"

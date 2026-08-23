@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
+import PageStats from '../../components/common/PageStats';
 import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
@@ -25,6 +26,7 @@ export default function InvoicesList() {
   return (
     <>
       <PageHeader title="Invoices" sub="Port charges billed per call — draft, issue, collect" />
+      <PageStats scope="invoices" />
       <DataTable
         columns={[
           { key: 'number', label: 'Invoice no.', mono: true, sortable: true },

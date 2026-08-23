@@ -12,6 +12,7 @@ import CorporateFareRoundedIcon from '@mui/icons-material/CorporateFareRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import HubRoundedIcon from '@mui/icons-material/HubRounded';
 import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
+import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
 import WorkspacePremiumRoundedIcon from '@mui/icons-material/WorkspacePremiumRounded';
 import ListAltRoundedIcon from '@mui/icons-material/ListAltRounded';
@@ -126,6 +127,15 @@ export const MODULES = [
         { to: '/invoices', label: 'Invoices', icon: ReceiptLongRoundedIcon, perm: 'invoices.view' },
         { to: '/masters/tariffs', label: 'Tariffs', icon: PriceChangeRoundedIcon, perm: 'tariffs.view' },
       ],
+    }],
+  },
+  {
+    key: 'mis', name: 'MIS Reports', short: 'MIS', color: '#0B5D8A',
+    desc: 'Management reports — cargo, traffic, revenue, compliance',
+    icon: AssessmentRoundedIcon, perm: 'reports.view', home: '/mis',
+    nav: [{
+      header: 'Reporting',
+      items: [{ to: '/mis', label: 'MIS Report', icon: AssessmentRoundedIcon, perm: 'reports.view' }],
     }],
   },
   {

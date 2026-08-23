@@ -13,6 +13,7 @@ import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
 import PageHeader from '../../components/common/PageHeader';
 import FormDrawer from '../../components/common/FormDrawer';
+import PageStats from '../../components/common/PageStats';
 
 export const BAND_META = { LOW: ['Low', 'success'], MEDIUM: ['Medium', 'warning'], HIGH: ['High', 'error'] };
 const WEIGHT_LABELS = {
@@ -96,7 +97,6 @@ export default function RiskRegister() {
   useEffect(() => { load(); }, []); // eslint-disable-line
 
   if (!rows) return <Skeleton variant="rounded" height={480} />;
-  const counts = { HIGH: rows.filter((r) => r.band === 'HIGH').length, MEDIUM: rows.filter((r) => r.band === 'MEDIUM').length, LOW: rows.filter((r) => r.band === 'LOW').length };
 
   return (
     <>
@@ -106,12 +106,7 @@ export default function RiskRegister() {
           <Button variant="outlined" startIcon={<TuneRoundedIcon />} onClick={() => { setDraft({ ...weights }); setWeightsDlg(true); }}>Model weights</Button>
         )}
       />
-      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-        {Object.entries(counts).map(([band, n]) => {
-          const [l, c] = BAND_META[band];
-          return <Chip key={band} label={`${l}: ${n}`} color={c} variant="outlined" sx={{ fontWeight: 700 }} />;
-        })}
-      </Stack>
+      <PageStats scope="risk" />
       <Card>
         <TableContainer sx={{ overflowX: 'auto' }}>
           <Table size="small">

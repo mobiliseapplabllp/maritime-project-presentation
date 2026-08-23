@@ -14,7 +14,7 @@ export default function SeafarersList() {
 
   return (
     <CrudPage
-      title="Seafarer register" sub="Crew identity, competency certificates and verified sea service"
+      statsScope="seafarers" title="Seafarer register" sub="Crew identity, competency certificates and verified sea service"
       entityName="seafarer" endpoint="/seafarers"
       perms={{ create: 'seafarers.create', edit: 'seafarers.edit', del: 'seafarers.delete' }}
       defaultSort="name" searchPlaceholder="Search name, CDC, INDoS…"

@@ -126,7 +126,6 @@ export default function AppShell() {
   const [aiOpen, setAiOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
   const wide = useMediaQuery('(min-width:1000px)');
-  const iconStrip = useMediaQuery('(min-width:1180px)');
 
   const activeModule = moduleOf(location.pathname);
   const prevModule = useRef(activeModule.key);
@@ -141,7 +140,6 @@ export default function AppShell() {
     return undefined;
   }, [activeModule.key]);
 
-  const visibleModules = MODULES.filter((m) => hasPerm(user, m.perm));
   const ActiveIcon = activeModule.icon;
 
   const drawer = (
@@ -226,27 +224,6 @@ export default function AppShell() {
                 <AppsRoundedIcon />
               </IconButton>
             </Tooltip>
-            {iconStrip && (
-              <Box sx={{ display: 'flex', gap: 0.25, ml: 0.5, mr: 1 }}>
-                {visibleModules.map((m) => {
-                  const Icon = m.icon;
-                  const active = m.key === activeModule.key;
-                  return (
-                    <Tooltip key={m.key} title={m.name}>
-                      <IconButton size="small" onClick={() => navigate(m.home)}
-                        sx={{
-                          borderRadius: 2, width: 36, height: 36,
-                          color: active ? '#fff' : 'text.secondary',
-                          bgcolor: active ? m.color : 'transparent',
-                          '&:hover': { bgcolor: active ? m.color : 'action.hover' },
-                        }}>
-                        <Icon sx={{ fontSize: 19 }} />
-                      </IconButton>
-                    </Tooltip>
-                  );
-                })}
-              </Box>
-            )}
             <Chip size="small" label={activeModule.name} sx={{ bgcolor: activeModule.color, color: '#fff', fontWeight: 700, fontSize: 11, display: { xs: 'none', sm: 'inline-flex' } }} />
             <Box sx={{ flex: 1 }} />
             <Chip size="small" label={import.meta.env.VITE_DEMO === '1' ? 'READ-ONLY DEMO' : 'DEMO DATA'} color="warning" variant="outlined"

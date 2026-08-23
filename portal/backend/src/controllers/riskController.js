@@ -85,6 +85,8 @@ async function computeScores() {
   return { rows, weights };
 }
 
+exports.computeScores = computeScores;
+
 exports.scores = async (_req, res) => {
   const { rows, weights } = await computeScores();
   ok(res, rows, { weights, computedAt: new Date().toISOString() });

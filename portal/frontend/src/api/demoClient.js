@@ -88,6 +88,259 @@ const certStatus = (expiry) => {
   return 'VALID';
 };
 
+/* ---- per-page stat cards + MIS report (mirrors the backend controllers over the snapshot) ---- */
+const HOUR = 3600 * 1000;
+const card = (label, value, sub, tone) => ({ label, value, sub: sub || '', tone: tone || 'default' });
+const inr = (n) => {
+  const abs = Math.abs(n || 0);
+  if (abs >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`;
+  if (abs >= 1e5) return `₹${(n / 1e5).toFixed(1)} L`;
+  return `₹${new Intl.NumberFormat('en-IN').format(Math.round(n || 0))}`;
+};
+
+function statsFor(scope) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  switch (scope) {
+    case 'portcalls': {
+      const active = D.portcalls.filter((c) => ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'].includes(c.status));
+      const sailed30 = D.portcalls.filter((c) => c.status === 'SAILED' && c.atd && c.ata && now - new Date(c.atd) <= 30 * DAY);
+      const turn = sailed30.length ? Math.round((sailed30.reduce((s, c) => s + (new Date(c.atd) - new Date(c.ata)), 0) / sailed30.length / HOUR) * 10) / 10 : 0;
+      return [
+        card('At berth', active.filter((c) => c.status === 'BERTHED').length, 'working cargo now', 'success'),
+        card('At anchorage', active.filter((c) => c.status === 'AT_ANCHORAGE').length, 'awaiting berth', 'warning'),
+        card('Expected 72 h', active.filter((c) => ['ANNOUNCED', 'CONFIRMED'].includes(c.status) && new Date(c.eta) > now && new Date(c.eta) < new Date(now.getTime() + 72 * HOUR)).length, 'announced + confirmed'),
+        card('Avg turnaround', `${turn} h`, 'sailed calls, 30 days'),
+      ];
+    }
+    case 'berths': {
+      const op = D.berths.filter((b) => b.status === 'OPERATIONAL');
+      const occ = new Set(D.portcalls.filter((c) => c.status === 'BERTHED').map((c) => String(c.berth))).size;
+      return [
+        card('Berths', D.berths.length, `${D.berths.length - op.length} under maintenance`),
+        card('Occupied now', occ, 'vessels alongside', 'success'),
+        card('Occupancy', `${op.length ? Math.round((occ / op.length) * 100) : 0}%`, 'of operational berths'),
+        card('Free & operational', op.length - occ, 'ready for allocation'),
+      ];
+    }
+    case 'vessels': {
+      const active = D.vessels.filter((v) => v.status === 'ACTIVE');
+      const alerts = active.filter((v) => (v.certificates || []).some((c) => certStatus(c.expiryDate) !== 'VALID')).length;
+      const avgAge = active.length ? Math.round(active.reduce((s, v) => s + (now.getFullYear() - (v.built || now.getFullYear())), 0) / active.length) : 0;
+      return [
+        card('Active vessels', active.length, `${D.vessels.length - active.length} inactive`),
+        card('Certificate alerts', alerts, 'vessels needing review', alerts ? 'warning' : 'success'),
+        card('Average age', `${avgAge} yrs`, 'active fleet'),
+        card('Vessel types', new Set(active.map((v) => v.type)).size, 'in the registry'),
+      ];
+    }
+    case 'certificates': {
+      const all = D.vessels.filter((v) => v.status === 'ACTIVE').flatMap((v) => (v.certificates || []).map((c) => certStatus(c.expiryDate)));
+      return [
+        card('Certificates', all.length, 'across active fleet'),
+        card('Valid', all.filter((x) => x === 'VALID').length, '', 'success'),
+        card('Expiring ≤30 d', all.filter((x) => x === 'EXPIRING').length, 'plan renewals', 'warning'),
+        card('Expired', all.filter((x) => x === 'EXPIRED').length, 'immediate action', 'error'),
+      ];
+    }
+    case 'seafarers': {
+      const sf = D.seafarers || [];
+      const alerts = sf.filter((x) => (x.certificates || []).some((c) => certStatus(c.expiryDate) !== 'VALID')).length;
+      const avgDays = sf.length ? Math.round(sf.reduce((s, x) => s + (x.seaService || []).reduce((a, y) => a + (new Date(y.to) - new Date(y.from)) / DAY, 0), 0) / sf.length) : 0;
+      return [
+        card('Registered', sf.length, 'seafarers on the roll'),
+        card('On board', sf.filter((x) => x.currentVessel).length, 'currently assigned', 'success'),
+        card('Certificate alerts', alerts, 'medical / STCW review', alerts ? 'warning' : 'success'),
+        card('Avg sea service', `${new Intl.NumberFormat('en-IN').format(avgDays)} d`, 'per seafarer'),
+      ];
+    }
+    case 'legislation': {
+      const ins = (D.instruments || []).map((i) => ({ ...i, acknowledgedBy: [...(i.acknowledgedBy || []), ...(ackedInstruments.get(String(i._id)) || [])] }));
+      const pendingMine = ins.filter((i) => i.ackRequired && i.status === 'IN_FORCE' && !i.acknowledgedBy.some((a) => String(a.userId) === String(currentUser.id))).length;
+      return [
+        card('In force', ins.filter((i) => i.status === 'IN_FORCE').length, 'instruments'),
+        card('Issued this year', ins.filter((i) => i.issuedDate && new Date(i.issuedDate) >= yearStart).length, 'circulars & notices'),
+        card('Need acknowledgment', ins.filter((i) => i.ackRequired && i.status === 'IN_FORCE').length, 'organisation-wide'),
+        card('Pending — you', pendingMine, 'awaiting your acknowledgment', pendingMine ? 'warning' : 'success'),
+      ];
+    }
+    case 'facilities': {
+      const lic = D.licenses || [];
+      const soon = lic.filter((l) => l.status === 'ISSUED' && l.expiryDate && new Date(l.expiryDate) < new Date(now.getTime() + 90 * DAY)).length;
+      return [
+        card('Issued', lic.filter((l) => l.status === 'ISSUED').length, 'active licences', 'success'),
+        card('In pipeline', lic.filter((l) => ['APPLIED', 'UNDER_REVIEW'].includes(l.status)).length, 'applied / under review'),
+        card('Suspended / revoked', lic.filter((l) => ['SUSPENDED', 'REVOKED'].includes(l.status)).length, 'enforcement actions', 'warning'),
+        card('Expiring ≤90 d', soon, 'renewals due', soon ? 'warning' : 'success'),
+      ];
+    }
+    case 'inspections': {
+      const openF = D.inspections.reduce((s, i) => s + (i.findings || []).filter((f) => f.status === 'OPEN').length, 0);
+      return [
+        card('Open inspections', D.inspections.filter((i) => i.status !== 'CLOSED').length, 'planned + in progress'),
+        card('Closed this month', D.inspections.filter((i) => i.closedAt && new Date(i.closedAt) >= monthStart).length, ''),
+        card('Open findings', openF, 'deficiencies to rectify', openF ? 'warning' : 'success'),
+        card('Detentions YTD', D.inspections.filter((i) => i.detention && i.closedAt && new Date(i.closedAt) >= yearStart).length, '', 'error'),
+      ];
+    }
+    case 'incidents': {
+      const inc = D.incidents || [];
+      return [
+        card('Open', inc.filter((i) => i.status === 'OPEN').length, 'awaiting response', 'error'),
+        card('Responding', inc.filter((i) => i.status === 'RESPONDING').length, 'assets tasked', 'warning'),
+        card('Closed this month', inc.filter((i) => i.closedAt && new Date(i.closedAt) >= monthStart).length, '', 'success'),
+        card('High severity YTD', inc.filter((i) => ['HIGH', 'CRITICAL'].includes(i.severity) && new Date(i.reportedAt) >= yearStart).length, 'high + critical'),
+      ];
+    }
+    case 'invoices': {
+      const out = D.invoices.filter((i) => i.status === 'ISSUED');
+      const overdue = out.filter((i) => i.issuedAt && now - new Date(i.issuedAt) > 30 * DAY);
+      return [
+        card('Outstanding', inr(out.reduce((s, i) => s + i.total, 0)), `${out.length} issued invoices`, 'warning'),
+        card('Overdue >30 d', overdue.length, inr(overdue.reduce((s, i) => s + i.total, 0)), overdue.length ? 'error' : 'success'),
+        card('Drafts', D.invoices.filter((i) => i.status === 'DRAFT').length, 'awaiting issue'),
+        card('Collected MTD', inr(D.invoices.filter((i) => i.paidAt && new Date(i.paidAt) >= monthStart).reduce((s, i) => s + i.total, 0)), '', 'success'),
+      ];
+    }
+    case 'risk': {
+      const rows = snap.risk?.scores || [];
+      const avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length) : 0;
+      return [
+        card('High risk', rows.filter((r) => r.band === 'HIGH').length, 'priority targets', 'error'),
+        card('Medium risk', rows.filter((r) => r.band === 'MEDIUM').length, '', 'warning'),
+        card('Low risk', rows.filter((r) => r.band === 'LOW').length, '', 'success'),
+        card('Fleet average', avg, 'score across active fleet'),
+      ];
+    }
+    case 'masters':
+      return [
+        card('Berths', D.berths.length),
+        card('Lookup entries', D.lookups.length),
+        card('Active tariffs', D.tariffs.filter((t) => t.active !== false).length),
+        card('Checklist templates', D.templates.length),
+      ];
+    case 'users':
+      return [
+        card('Users', D.users.length, 'accounts'),
+        card('Active', D.users.filter((u) => u.active).length, '', 'success'),
+        card('Disabled', D.users.filter((u) => !u.active).length, ''),
+        card('Signed in ≤7 d', D.users.filter((u) => u.lastLoginAt && now - new Date(u.lastLoginAt) < 7 * DAY).length, 'recent activity'),
+      ];
+    default:
+      return null;
+  }
+}
+
+function misReport(params = {}) {
+  const to = params.to ? new Date(`${params.to}T23:59:59`) : new Date();
+  const from = params.from ? new Date(params.from) : new Date(to.getFullYear(), to.getMonth() - 11, 1);
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const monthLabel = (d) => d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+  const GROUP_OF = { CONTAINERS: 'container', COAL: 'dryBulk', FERT: 'dryBulk', GRAIN: 'dryBulk', CRUDE: 'liquid', POL: 'liquid', EDIBLE: 'liquid' };
+
+  const months = [];
+  const cur = new Date(from.getFullYear(), from.getMonth(), 1);
+  while (cur <= to && months.length < 36) { months.push({ key: monthKey(cur), month: monthLabel(cur) }); cur.setMonth(cur.getMonth() + 1); }
+  const byMonth = months.map((mm) => ({ ...mm, container: 0, dryBulk: 0, liquid: 0, other: 0, total: 0, teu: 0, calls: 0 }));
+  const commodity = {}; const byTerminal = {}; const byVesselType = {};
+  let turnSum = 0, turnN = 0, waitSum = 0;
+  const sailed = D.portcalls.filter((c) => c.status === 'SAILED' && c.atd && new Date(c.atd) >= from && new Date(c.atd) <= to);
+  for (const c of sailed) {
+    const row = byMonth.find((r) => r.key === monthKey(new Date(c.atd)));
+    if (row) row.calls += 1;
+    if (c.ata && c.atd) { turnSum += (new Date(c.atd) - new Date(c.ata)) / HOUR; turnN += 1; }
+    if (c.ata && c.atb) waitSum += (new Date(c.atb) - new Date(c.ata)) / HOUR;
+    const berth = c.berth && maps.berths.get(String(c.berth));
+    const term = (berth && berth.terminal) || 'Unassigned';
+    byTerminal[term] = byTerminal[term] || { terminal: term, calls: 0, mt: 0 };
+    byTerminal[term].calls += 1;
+    const vt = maps.vessels.get(String(c.vessel))?.type || 'OTHER';
+    byVesselType[vt] = (byVesselType[vt] || 0) + 1;
+    for (const o of c.cargoOps || []) {
+      const mt = o.qtyMT || 0;
+      const grp = GROUP_OF[o.cargoType] || 'other';
+      if (row) { row[grp] += mt; row.total += mt; if (o.unit === 'TEU') row.teu += o.qty; }
+      commodity[o.cargoType] = (commodity[o.cargoType] || 0) + mt;
+      byTerminal[term].mt += mt;
+    }
+  }
+
+  const revMonth = months.map((mm) => ({ ...mm, billed: 0, collected: 0 }));
+  const byHead = {};
+  let billed = 0, collected = 0;
+  for (const i of D.invoices) {
+    const issuedAt = i.issuedAt && new Date(i.issuedAt);
+    const paidAt = i.paidAt && new Date(i.paidAt);
+    if (issuedAt && issuedAt >= from && issuedAt <= to && ['ISSUED', 'PAID'].includes(i.status)) {
+      billed += i.total;
+      const r = revMonth.find((x) => x.key === monthKey(issuedAt));
+      if (r) r.billed += i.total;
+      for (const l of i.lines || []) {
+        byHead[l.code] = byHead[l.code] || { code: l.code, name: l.description.split(' — ')[0], amount: 0 };
+        byHead[l.code].amount += l.amount;
+      }
+    }
+    if (paidAt && paidAt >= from && paidAt <= to) {
+      collected += i.total;
+      const r = revMonth.find((x) => x.key === monthKey(paidAt));
+      if (r) r.collected += i.total;
+    }
+  }
+
+  const inspections = D.inspections.filter((i) => i.closedAt && new Date(i.closedAt) >= from && new Date(i.closedAt) <= to);
+  const insByType = {}; const insByResult = {}; const defCount = {};
+  let detentions = 0;
+  for (const i of inspections) {
+    insByType[i.type] = (insByType[i.type] || 0) + 1;
+    if (i.result) insByResult[i.result] = (insByResult[i.result] || 0) + 1;
+    if (i.detention) detentions += 1;
+    for (const f of i.findings || []) defCount[f.deficiencyCode] = (defCount[f.deficiencyCode] || 0) + 1;
+  }
+  const defLabel = Object.fromEntries(D.lookups.filter((l) => l.category === 'deficiencyCode').map((d) => [d.code, d.label]));
+  const vesselCertStates = D.vessels.filter((v) => v.status === 'ACTIVE').flatMap((v) => (v.certificates || []).map((c) => certStatus(c.expiryDate)));
+  const seafarerCertStates = (D.seafarers || []).flatMap((v) => (v.certificates || []).map((c) => certStatus(c.expiryDate)));
+  const licenses = D.licenses || [];
+
+  return {
+    range: { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) },
+    cargo: {
+      byMonth: byMonth.map(({ key, ...r }) => r),
+      byCommodity: Object.entries(commodity).map(([name, mt]) => ({ name, mt })).sort((a, b) => b.mt - a.mt),
+      totalMT: Object.values(commodity).reduce((s, x) => s + x, 0),
+      totalTEU: byMonth.reduce((s, r) => s + r.teu, 0),
+      calls: sailed.length,
+      avgTurnaroundHrs: turnN ? Math.round((turnSum / turnN) * 10) / 10 : 0,
+      avgWaitingHrs: turnN ? Math.round((waitSum / turnN) * 10) / 10 : 0,
+    },
+    traffic: {
+      byTerminal: Object.values(byTerminal).sort((a, b) => b.mt - a.mt),
+      byVesselType: Object.entries(byVesselType).map(([type, calls]) => ({ type, calls })).sort((a, b) => b.calls - a.calls),
+      operationalBerths: D.berths.filter((b) => b.status === 'OPERATIONAL').length,
+    },
+    revenue: {
+      byMonth: revMonth.map(({ key, ...r }) => r),
+      byHead: Object.values(byHead).sort((a, b) => b.amount - a.amount),
+      billed, collected,
+      outstanding: D.invoices.filter((i) => i.status === 'ISSUED').reduce((s, i) => s + i.total, 0),
+    },
+    compliance: {
+      inspections: inspections.length,
+      byType: Object.entries(insByType).map(([type, count]) => ({ type, count })),
+      byResult: Object.entries(insByResult).map(([result, count]) => ({ result, count })),
+      topDeficiencies: Object.entries(defCount).map(([code, count]) => ({ code, label: defLabel[code] || code, count })).sort((a, b) => b.count - a.count).slice(0, 8),
+      detentions,
+      vesselCerts: { expired: vesselCertStates.filter((x) => x === 'EXPIRED').length, expiring: vesselCertStates.filter((x) => x === 'EXPIRING').length },
+      seafarerCerts: { expired: seafarerCertStates.filter((x) => x === 'EXPIRED').length, expiring: seafarerCertStates.filter((x) => x === 'EXPIRING').length },
+    },
+    licensing: {
+      byStatus: ['ISSUED', 'UNDER_REVIEW', 'APPLIED', 'SUSPENDED', 'REVOKED', 'REJECTED']
+        .map((status) => ({ status, count: licenses.filter((l) => l.status === status).length })).filter((x) => x.count),
+      expiring90: licenses.filter((l) => l.status === 'ISSUED' && l.expiryDate && new Date(l.expiryDate) < new Date(Date.now() + 90 * DAY)).length,
+    },
+  };
+}
+
 const pickFields = (row, fields) => {
   if (!row) return null;
   if (!fields) return clone(row);
@@ -263,6 +516,11 @@ const demo = {
       const limit = Math.min(100, parseInt(params.limit, 10) || 25);
       return { success: true, data: rows.slice((page - 1) * limit, page * limit), meta: { total, page, limit } };
     }
+    if (url.startsWith('/stats/')) {
+      const cards = statsFor(url.slice('/stats/'.length));
+      if (cards) return { success: true, data: { cards } };
+    }
+    if (url === '/reports/mis') return { success: true, data: misReport(params) };
     const d = detail(url);
     if (d !== undefined) return { success: true, data: d };
     if (LISTS[url]) { const r = LISTS[url](params); return { success: true, ...r }; }

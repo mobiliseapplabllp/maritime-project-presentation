@@ -6,6 +6,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
+import PageStats from '../../components/common/PageStats';
 import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
@@ -41,6 +42,7 @@ export default function IncidentsList() {
           <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={() => { setVals({ severity: 'MEDIUM' }); setCreating(true); }}>Open incident</Button>
         )}
       />
+      <PageStats scope="incidents" />
       <DataTable
         columns={[
           { key: 'number', label: 'Number', mono: true, render: (r) => <b>{r.number}</b> },

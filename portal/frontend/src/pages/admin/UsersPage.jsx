@@ -20,7 +20,7 @@ export default function UsersPage() {
   return (
     <>
       <CrudPage
-        title="Users" sub="Portal accounts and their roles"
+        statsScope="users" title="Users" sub="Portal accounts and their roles"
         entityName="user" endpoint="/users" defaultSort="name"
         perms={{ create: 'users.manage', edit: 'users.manage', del: 'users.manage' }}
         searchPlaceholder="Search name, email…"

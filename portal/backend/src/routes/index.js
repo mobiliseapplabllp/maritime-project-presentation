@@ -18,6 +18,8 @@ const incidents = require('../controllers/incidentController');
 const tracking = require('../controllers/trackingController');
 const risk = require('../controllers/riskController');
 const ai = require('../controllers/aiController');
+const stats = require('../controllers/statsController');
+const reports = require('../controllers/reportController');
 
 // express 4 doesn't catch async rejections — wrap every handler
 const w = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -153,6 +155,16 @@ r.get('/risk/scores', requirePerm('risk.view'), w(risk.scores));
 r.get('/risk/targeting', requirePerm('risk.view'), w(risk.targeting));
 r.get('/risk/weights', requirePerm('risk.view'), w(risk.getWeights));
 r.put('/risk/weights', requirePerm('risk.manage'), w(risk.updateWeights));
+
+// per-module stat cards (permission checked per scope inside a tiny gate)
+r.get('/stats/:scope', (req, _res, next) => {
+  const sc = stats.SCOPES[req.params.scope];
+  if (!sc) return next();
+  return requirePerm(sc.perm)(req, _res, next);
+}, w(stats.get));
+
+// MIS reports
+r.get('/reports/mis', requirePerm('reports.view'), w(reports.mis));
 
 // AI assistant
 r.post('/ai/chat', requirePerm('ai.use'), w(ai.chat));

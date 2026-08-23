@@ -6,6 +6,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
+import PageStats from '../../components/common/PageStats';
 import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
@@ -47,6 +48,7 @@ export default function InspectionsList() {
           }}>New inspection</Button>
         )}
       />
+      <PageStats scope="inspections" />
       <DataTable
         columns={[
           { key: 'number', label: 'Number', mono: true, sortable: true },

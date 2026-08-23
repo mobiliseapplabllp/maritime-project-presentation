@@ -21,6 +21,7 @@ const PERMISSION_GROUPS = [
   { module: 'nmc',          label: 'Maritime Centre (MDA)',   actions: ['view', 'manage'] },
   { module: 'risk',         label: 'Compliance & Risk',       actions: ['view', 'manage'] },
   { module: 'ai',           label: 'AI Assistant',            actions: ['use'] },
+  { module: 'reports',      label: 'MIS Reports',             actions: ['view'] },
 ];
 
 const ALL_PERMISSIONS = PERMISSION_GROUPS.flatMap((g) => g.actions.map((a) => `${g.module}.${a}`));

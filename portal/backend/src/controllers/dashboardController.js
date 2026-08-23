@@ -84,7 +84,7 @@ exports.summary = async (_req, res) => {
   const berthBoard = berths.map((b) => {
     const call = berthed.find((c) => c.berth && String(c.berth._id || c.berth) === String(b._id));
     return {
-      _id: b._id, code: b.code, name: b.name, terminal: b.terminal, berthType: b.berthType, status: b.status,
+      _id: b._id, code: b.code, name: b.name, terminal: b.terminal, berthType: b.berthType, status: b.status, loaMax: b.loaMax, draftMax: b.draftMax,
       occupiedBy: call ? { callId: call._id, vcn: call.vcn, vessel: call.vessel && call.vessel.name, etd: call.etd, atb: call.atb } : null,
     };
   });
