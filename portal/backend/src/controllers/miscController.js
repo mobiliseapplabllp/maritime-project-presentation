@@ -7,7 +7,9 @@ const { ApiError } = require('../utils/respond');
 const { hasPerm } = require('../domain/rbac');
 
 exports.meta = async (_req, res) => {
+  const org = await Setting.findOne({ key: 'org' }).lean();
   ok(res, {
+    org: (org && org.value) || {},
     permissionGroups: PERMISSION_GROUPS,
     portCallStatuses: PORTCALL_STATUS,
     portCallTransitions: PORTCALL_TRANSITIONS,

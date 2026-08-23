@@ -6,6 +6,7 @@ const routes = require('./src/routes');
 const { errorHandler, notFound } = require('./src/middleware/error');
 
 const app = express();
+app.disable('x-powered-by');
 app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));

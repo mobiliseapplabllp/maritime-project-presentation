@@ -21,13 +21,29 @@ const sessionPayload = (user) => ({
   refreshToken: signRefresh(user),
 });
 
+// naive in-memory throttle: 10 failed attempts per identity per 15 minutes
+const attempts = new Map();
+const throttled = (key) => {
+  const a = attempts.get(key);
+  return a && a.count >= 10 && Date.now() - a.first < 15 * 60 * 1000;
+};
+const recordFail = (key) => {
+  const a = attempts.get(key);
+  if (!a || Date.now() - a.first > 15 * 60 * 1000) attempts.set(key, { count: 1, first: Date.now() });
+  else a.count += 1;
+};
+
 exports.login = async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) throw new ApiError(400, 'Email and password are required');
+  const key = String(email).toLowerCase().trim();
+  if (throttled(key)) throw new ApiError(429, 'Too many failed attempts — try again in 15 minutes');
   const user = await User.findOne({ email: String(email).toLowerCase().trim() }).populate('role');
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+    recordFail(key);
     throw new ApiError(401, 'Incorrect email or password');
   }
+  attempts.delete(key);
   if (!user.active) throw new ApiError(403, 'This account has been deactivated — contact your administrator');
   user.lastLoginAt = new Date();
   await user.save();
