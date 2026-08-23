@@ -5,8 +5,10 @@ import { busyStart, busyEnd } from './busy';
 
 const api = axios.create({ baseURL: '/api' });
 
+const quiet = (config) => config?.headers?.['X-Quiet'];
+
 api.interceptors.request.use((config) => {
-  busyStart();
+  if (!quiet(config)) busyStart();
   const { token } = store.getState().auth;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
@@ -14,9 +16,9 @@ api.interceptors.request.use((config) => {
 
 let refreshing = null;
 api.interceptors.response.use(
-  (res) => { busyEnd(); return res.data; },
+  (res) => { if (!quiet(res.config)) busyEnd(); return res.data; },
   async (err) => {
-    busyEnd();
+    if (!quiet(err.config)) busyEnd();
     const original = err.config;
     const status = err.response?.status;
     if (status === 401 && !original._retried && !original.url.includes('/auth/')) {

@@ -11,6 +11,7 @@ import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
 import StatusChip from '../../components/common/StatusChip';
+import EntityHover from '../../components/common/EntityHover';
 import { PORTCALL_STATUS_META } from '../../utils/status';
 import { fmtDT } from '../../utils/format';
 
@@ -50,7 +51,7 @@ export default function PortCallsList() {
 
   const columns = [
     { key: 'vcn', label: 'VCN', mono: true, sortable: true },
-    { key: 'vessel', label: 'Vessel', render: (r) => <b>{r.vessel?.name || '—'}</b> },
+    { key: 'vessel', label: 'Vessel', render: (r) => (r.vessel ? <EntityHover type="vessel" id={r.vessel._id}><b>{r.vessel.name}</b></EntityHover> : '—') },
     { key: 'type', label: 'Type', render: (r) => r.vessel?.type || '—' },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} map={PORTCALL_STATUS_META} /> },
     { key: 'eta', label: 'ETA', sortable: true, render: (r) => fmtDT(r.eta), mono: true },

@@ -11,6 +11,7 @@ import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
 import StatusChip from '../../components/common/StatusChip';
+import EntityHover from '../../components/common/EntityHover';
 import { INSPECTION_STATUS_META, RESULT_META } from '../../utils/status';
 import { fmtDT, toInputDT } from '../../utils/format';
 
@@ -52,7 +53,7 @@ export default function InspectionsList() {
       <DataTable
         columns={[
           { key: 'number', label: 'Number', mono: true, sortable: true },
-          { key: 'vessel', label: 'Vessel', render: (r) => <b>{r.vessel?.name}</b> },
+          { key: 'vessel', label: 'Vessel', render: (r) => (r.vessel ? <EntityHover type="vessel" id={r.vessel._id}><b>{r.vessel.name}</b></EntityHover> : '—') },
           { key: 'type', label: 'Type', render: (r) => <Chip size="small" variant="outlined" label={r.type} sx={{ height: 20, fontSize: 11 }} /> },
           { key: 'inspector', label: 'Inspector' },
           { key: 'plannedAt', label: 'Planned', sortable: true, render: (r) => fmtDT(r.plannedAt) },

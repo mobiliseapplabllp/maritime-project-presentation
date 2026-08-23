@@ -38,31 +38,73 @@ async function run() {
       permissions: P('dashboard.view','vessels.view','vessels.create','vessels.edit','certificates.view',
         'portcalls.view','portcalls.create','portcalls.edit','portcalls.delete','portcalls.transition',
         'cargo.manage','inspections.view','invoices.view','tariffs.view','masters.view',
-        'nmc.view','risk.view','seafarers.view','legislation.view','facilities.view','ai.use','reports.view') },
+        'nmc.view','risk.view','seafarers.view','legislation.view','facilities.view','ai.use','reports.view',
+        'incidents.view','incidents.create','incidents.manage') },
     { name: 'Marine Surveyor', description: 'Inspections, certificates and vessel compliance', system: true,
       permissions: P('dashboard.view','vessels.view','certificates.view','certificates.manage',
         'portcalls.view','inspections.view','inspections.create','inspections.edit','inspections.close','masters.view',
-        'seafarers.view','seafarers.create','seafarers.edit','risk.view','legislation.view','legislation.manage','facilities.view','ai.use','reports.view') },
+        'seafarers.view','seafarers.create','seafarers.edit','risk.view','legislation.view','legislation.manage','facilities.view','ai.use','reports.view',
+        'incidents.view','incidents.create','incidents.manage','incidents.close') },
     { name: 'Finance Officer', description: 'Tariffs, invoicing and collections', system: true,
       permissions: P('dashboard.view','portcalls.view','vessels.view','invoices.view','invoices.create',
         'invoices.issue','invoices.pay','invoices.delete','tariffs.view','tariffs.manage','masters.view',
-        'legislation.view','facilities.view','ai.use','reports.view') },
+        'legislation.view','facilities.view','ai.use','reports.view','incidents.view') },
     { name: 'Shipping Agent', description: 'External agent — announce calls, track invoices', system: true,
       permissions: P('dashboard.view','vessels.view','portcalls.view','portcalls.create','invoices.view','legislation.view','ai.use') },
-    { name: 'NMC Duty Officer', description: 'Maritime centre — traffic picture, incidents, SAR', system: true,
-      permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use','reports.view') },
+    { name: 'NMC Duty Officer', description: 'Surveillance centre — traffic picture, incidents, SAR', system: true,
+      permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use','reports.view',
+        'incidents.view','incidents.create','incidents.manage','incidents.close') },
   ]);
   const roleByName = Object.fromEntries(roles.map((r) => [r.name, r._id]));
   const hash = await bcrypt.hash('Mundra@2026', 10);
-  await M.User.insertMany([
-    { name: 'Ashish Sharma', email: 'admin@mundraport.in', passwordHash: hash, role: roleByName['Super Admin'], designation: 'Port Administrator' },
-    { name: 'Capt. R. Nair', email: 'harbour@mundraport.in', passwordHash: hash, role: roleByName['Harbour Master'], designation: 'Harbour Master' },
-    { name: 'Cdr. S. Patel', email: 'surveyor@mundraport.in', passwordHash: hash, role: roleByName['Marine Surveyor'], designation: 'Chief Marine Surveyor' },
-    { name: 'M. Iyer', email: 'finance@mundraport.in', passwordHash: hash, role: roleByName['Finance Officer'], designation: 'Manager — Billing' },
-    { name: 'K. Bhatt (Kutch Shipping)', email: 'agent@mundraport.in', passwordHash: hash, role: roleByName['Shipping Agent'], designation: 'Boarding Agent' },
-    { name: 'V. Menon', email: 'ops2@mundraport.in', passwordHash: hash, role: roleByName['Harbour Master'], designation: 'Dy. Harbour Master' },
-    { name: 'Lt. A. Rathore', email: 'nmc@mundraport.in', passwordHash: hash, role: roleByName['NMC Duty Officer'], designation: 'Duty Officer — Maritime Centre' },
+  const mkPhone = (i) => `+91 98${String(79210000 + i * 3517).slice(0, 8)}`;
+  const loginUsers = [
+    ['Ashish Sharma', 'admin@mundraport.in', 'Super Admin', 'Port Administrator'],
+    ['Capt. Rajiv Nair', 'harbour@mundraport.in', 'Harbour Master', 'Harbour Master'],
+    ['Cdr. Suresh Patel', 'surveyor@mundraport.in', 'Marine Surveyor', 'Chief Marine Surveyor'],
+    ['Meenakshi Iyer', 'finance@mundraport.in', 'Finance Officer', 'Manager — Billing'],
+    ['Kalpesh Bhatt (Kutch Shipping)', 'agent@mundraport.in', 'Shipping Agent', 'Boarding Agent'],
+    ['Vinod Menon', 'ops2@mundraport.in', 'Harbour Master', 'Dy. Harbour Master'],
+    ['Lt. Aditi Rathore', 'nmc@mundraport.in', 'NMC Duty Officer', 'Duty Officer — Surveillance Centre'],
+  ];
+  const staffDefs = [
+    ['Capt. Pradeep Chauhan', 'Dock Master — West Basin', 'Harbour Master'],
+    ['Capt. Meera Krishnan', 'Senior Pilot', 'Harbour Master'],
+    ['Capt. Arjun Jadeja', 'Pilot', 'Harbour Master'],
+    ['Capt. Farooq Bukhari', 'Pilot', 'Harbour Master'],
+    ['Capt. Devraj Sodha', 'Dy. Conservator', 'Harbour Master'],
+    ['Nilesh Gohil', 'Berth Planner', 'Harbour Master'],
+    ['Ketan Maheshwari', 'Terminal Duty Manager — CT-3', 'Harbour Master'],
+    ['Ravindra Ahir', 'Jetty Supervisor — Liquid Terminal', 'Harbour Master'],
+    ['Prakash Koli', 'Foreman — Multipurpose', 'Harbour Master'],
+    ['Heena Chudasama', 'Marine Control Room Operator', 'NMC Duty Officer'],
+    ['Lt. Vikram Solanki', 'Duty Officer — Surveillance', 'NMC Duty Officer'],
+    ['Harshad Mange', 'PFSO Office — ISPS', 'NMC Duty Officer'],
+    ['Dr. Kavita Raval', 'Chief — HSE & Fire', 'Marine Surveyor'],
+    ['Jaydeep Rathod', 'HSE Officer', 'Marine Surveyor'],
+    ['Bhavna Joshi', 'Environment Officer', 'Marine Surveyor'],
+    ['Sanjay Vaghela', 'Fire Station Officer', 'Marine Surveyor'],
+    ['Narendra Shah', 'Surveyor', 'Marine Surveyor'],
+    ['Lt. Rakesh Joshi', 'Asst. Surveyor', 'Marine Surveyor'],
+    ['Deepa Krishnamurthy', 'Asst. Manager — Billing', 'Finance Officer'],
+    ['Rohan Trivedi', 'Collections Officer', 'Finance Officer'],
+    ['Nikita Parmar', 'MIS Analyst', 'Finance Officer'],
+  ];
+  const emailOf = (n) => `${n.toLowerCase().replace(/\(.*\)/, '').replace(/^(capt|cdr|lt|dr)\.? /, '').trim().replace(/[^a-z]+/g, '.')}@mundraport.in`;
+  const users = await M.User.insertMany([
+    ...loginUsers.map(([name, email, role, designation], i) => ({
+      name, email, passwordHash: hash, role: roleByName[role], designation, phone: mkPhone(i),
+      lastLoginAt: new Date(NOW.getTime() - ri(1, 40) * H),
+    })),
+    ...staffDefs.map(([name, designation, role], i) => ({
+      name, email: emailOf(name), passwordHash: hash, role: roleByName[role], designation, phone: mkPhone(i + 10),
+      lastLoginAt: rnd() < 0.7 ? new Date(NOW.getTime() - ri(1, 160) * H) : undefined,
+    })),
   ]);
+  const userByName = Object.fromEntries(users.map((u) => [u.name, u]));
+  const hseOfficers = ['Dr. Kavita Raval', 'Jaydeep Rathod', 'Bhavna Joshi', 'Sanjay Vaghela'].map((n) => userByName[n]);
+  const dutyOfficers = ['Lt. Aditi Rathore', 'Lt. Vikram Solanki', 'Heena Chudasama', 'Harshad Mange'].map((n) => userByName[n]);
+  const marineOfficers = ['Capt. Rajiv Nair', 'Vinod Menon', 'Capt. Pradeep Chauhan', 'Capt. Devraj Sodha'].map((n) => userByName[n]);
 
   // ---------- lookups ----------
   const lk = (category, code, label, meta = {}) => ({ category, code, label, meta });
@@ -204,31 +246,87 @@ async function run() {
     // car carriers — Maruti Suzuki / Toyota exports via dedicated Ro-Ro
     ['MV Dwarka Wave','RORO',59000,21000,200],['MV Somnath Carrier','RORO',61000,22500,200],
   ];
+  // Documented Mundra callers (public berthing reports / carrier schedules) — kept with clean
+  // compliance records; incidents, detentions and billing stay on the demo fleet above.
+  const realDefs = [
+    ['MSC Anna','CONT',192000,199000,399, 19224, 'MSC Mediterranean Shipping Company'],   // largest boxship to call Mundra
+    ['APL Raffles','CONT',153000,151000,397, 17292, 'APL / CMA CGM Group'],
+    ['MSC Al Rawdah','CONT',153000,149000,366, 14336, 'MSC Mediterranean Shipping Company'],
+    ['Maersk Kensington','CONT',74642,83700,300, 6478, 'Maersk Line'],
+    ['Maersk Chicago','CONT',74642,83700,300, 6478, 'Maersk Line'],
+    ['CMA CGM Ural','CONT',140872,148992,366, 13344, 'CMA CGM'],
+    ['ESL Wafa','CONT',88586,101000,334, 8464, 'Emirates Shipping Line'],
+    ['Folk Jazan','CONT',27100,34800,222, 2556, 'Folk Maritime'],
+  ];
   const certTypes = ['Certificate of Registry','Classification Certificate','Safety Management Certificate',
     'International Ship Security Certificate','IOPP Certificate','Load Line Certificate','Maritime Labour Certificate'];
-  const vessels = await M.Vessel.insertMany(vdefs.map(([name, type, grt, dwt, loa], i) => {
-    const certs = certTypes.map((certType, j) => {
-      let expiry = new Date(NOW.getTime() + (120 + ((i * 7 + j * 97) % 700)) * D);
-      if (i === 2 && j === 2) expiry = new Date(NOW.getTime() + 11 * D);      // SMC expiring
-      if (i === 7 && j === 4) expiry = new Date(NOW.getTime() + 24 * D);      // IOPP expiring
-      if (i === 12 && j === 5) expiry = new Date(NOW.getTime() + 18 * D);     // Load line expiring
-      if (i === 9 && j === 6) expiry = new Date(NOW.getTime() - 12 * D);      // MLC expired
-      if (i === 16 && j === 3) expiry = new Date(NOW.getTime() - 40 * D);     // ISSC expired
+  const operators = ['Sagarmala Coastal Lines', 'Bharat Ocean Carriers', 'Hind Levant Shipping', 'Malabar Navigation Co', 'GreatIndia Shipping LLP'];
+  const managers = ['Fleetwise Ship Management, Mumbai', 'Samudra Ship Management, Kochi', 'Arya Marine Services, Chennai', 'Westline Shipmanagement, Gandhidham'];
+  const piClubs = ['IndOcean P&I Mutual', 'Sagar Shield P&I', 'Coromandel P&I Association'];
+  const yards = ['Cochin Shipyard, Kochi', 'Hyundai HI, Ulsan', 'Imabari Shipbuilding, Japan', 'Jiangnan Shipyard, Shanghai', 'Hanwha Ocean, Geoje'];
+  const engines = [['MAN B&W', '6G70ME-C', 21840], ['WinGD', 'X72-B', 24700], ['Wärtsilä', 'RT-flex68-D', 18460], ['MAN B&W', '7S60ME-C', 15820]];
+  const registries = { India: ['Mumbai', 'Kolkata', 'Kochi'], Panama: ['Panama City'], Liberia: ['Monrovia'], 'Marshall Islands': ['Majuro'], Singapore: ['Singapore'], Malta: ['Valletta'], 'Hong Kong': ['Hong Kong'] };
+  const vessels = await M.Vessel.insertMany([
+    ...vdefs.map(([name, type, grt, dwt, loa], i) => {
+      const certs = certTypes.map((certType, j) => {
+        let expiry = new Date(NOW.getTime() + (120 + ((i * 7 + j * 97) % 700)) * D);
+        if (i === 2 && j === 2) expiry = new Date(NOW.getTime() + 11 * D);      // SMC expiring
+        if (i === 7 && j === 4) expiry = new Date(NOW.getTime() + 24 * D);      // IOPP expiring
+        if (i === 12 && j === 5) expiry = new Date(NOW.getTime() + 18 * D);     // Load line expiring
+        if (i === 9 && j === 6) expiry = new Date(NOW.getTime() - 12 * D);      // MLC expired
+        if (i === 16 && j === 3) expiry = new Date(NOW.getTime() - 40 * D);     // ISSC expired
+        return {
+          certType, number: `${certType.split(' ').map((w) => w[0]).join('')}-${9100 + i * 13 + j}`,
+          issuer: j === 1 ? pick(classes) : 'DG Shipping / RO',
+          issueDate: new Date(expiry.getTime() - 5 * 365 * D), expiryDate: expiry,
+        };
+      });
+      const flag = i % 3 === 0 ? 'India' : pick(flags);
+      const eng = engines[i % engines.length];
+      const ldd = new Date(NOW.getTime() - ri(200, 850) * D);
       return {
-        certType, number: `${certType.split(' ').map((w) => w[0]).join('')}-${9100 + i * 13 + j}`,
-        issuer: j === 1 ? pick(classes) : 'DG Shipping / RO',
-        issueDate: new Date(expiry.getTime() - 5 * 365 * D), expiryDate: expiry,
+        name, imo: String(9700001 + i), mmsi: String(419000100 + i), callSign: `AT${String.fromCharCode(65 + (i % 26))}${2200 + i}`,
+        flag, type, built: 2005 + (i % 17), dwt, grt, loa,
+        beam: Math.round(loa / 6.8), maxDraft: type === 'TANK' ? 17 + (i % 5) : 11 + (i % 5),
+        owner: `${name.replace(/^M[VT] /, '')} Shipping Ltd`,
+        operator: operators[i % operators.length], manager: managers[i % managers.length],
+        agent: agents[i % agents.length],
+        classSociety: classes[i % classes.length], piClub: piClubs[i % piClubs.length],
+        portOfRegistry: pick(registries[flag] || ['—']),
+        yard: yards[i % yards.length],
+        engine: { maker: eng[0], model: eng[1], powerKW: eng[2] },
+        serviceSpeedKn: type === 'CONT' ? ri(19, 23) : type === 'RORO' ? ri(17, 19) : ri(12, 15),
+        teuCapacity: type === 'CONT' ? Math.round(dwt / 11) : undefined,
+        lastDryDock: ldd, nextDryDock: new Date(ldd.getTime() + 2.5 * 365 * D),
+        certificates: certs,
       };
-    });
-    return {
-      name, imo: String(9700001 + i), mmsi: String(419000100 + i), callSign: `AT${String.fromCharCode(65 + (i % 26))}${2200 + i}`,
-      flag: i % 3 === 0 ? 'India' : pick(flags), type, built: 2005 + (i % 17), dwt, grt, loa,
-      beam: Math.round(loa / 6.8), maxDraft: type === 'TANK' ? 17 + (i % 5) : 11 + (i % 5),
-      owner: `${name.replace(/^M[VT] /, '')} Shipping Ltd`, agent: agents[i % agents.length],
-      classSociety: classes[i % classes.length], certificates: certs,
-    };
-  }));
-  const vByType = (t) => vessels.filter((v) => v.type === t);
+    }),
+    ...realDefs.map(([name, type, grt, dwt, loa, teu, operator], k) => {
+      const i = vdefs.length + k;
+      const certs = certTypes.map((certType, j) => ({
+        certType, number: `${certType.split(' ').map((w) => w[0]).join('')}-${9100 + i * 13 + j}`,
+        issuer: j === 1 ? 'DNV' : 'Flag administration / RO',
+        issueDate: new Date(NOW.getTime() - 2 * 365 * D),
+        expiryDate: new Date(NOW.getTime() + (200 + ((i * 13 + j * 61) % 800)) * D),  // clean records
+      }));
+      const eng = engines[i % engines.length];
+      return {
+        name, imo: String(9700001 + i), mmsi: String(419000100 + i), callSign: `LN${String.fromCharCode(65 + (i % 26))}${2200 + i}`,
+        flag: pick(['Panama', 'Liberia', 'Malta', 'Singapore']), type, built: 2010 + (k % 12), dwt, grt, loa,
+        beam: Math.round(loa / 6.9), maxDraft: 15 + (k % 3),
+        owner: operator, operator, manager: operator,
+        agent: agents[i % agents.length],
+        classSociety: pick(['DNV', 'LR', 'ABS']), piClub: 'IG member club',
+        portOfRegistry: '—', yard: yards[i % yards.length],
+        engine: { maker: eng[0], model: eng[1], powerKW: eng[2] },
+        serviceSpeedKn: 22, teuCapacity: teu,
+        certificates: certs, liner: true,
+      };
+    }),
+  ]);
+  const demoFleet = vessels.slice(0, vdefs.length);          // fictional fleet — carries incidents & billing
+  const linerFleet = vessels.slice(vdefs.length);            // documented callers — schedule realism only
+  const vByType = (t) => demoFleet.filter((v) => v.type === t);
 
   // ---------- port call history (12 months, SAILED) ----------
   const cargoFor = (vt, vessel) => {
@@ -317,7 +415,7 @@ async function run() {
         prevPort: laneFor(c.v.type, c.ops[0].cargoType), nextPort: laneFor(c.v.type, c.ops[0].cargoType),
         draftArrival: Math.round((c.v.maxDraft - rnd() * 3) * 10) / 10,
         draftDeparture: Math.round((c.v.maxDraft - rnd() * 4) * 10) / 10,
-        crew: { count: ri(18, 26), master: pick(['Capt. A. Singh','Capt. J. Fernandes','Capt. L. Chen','Capt. M. Rao','Capt. O. Petrov','Capt. T. Nguyen']) },
+        crew: { count: ri(18, 26), master: pick(['Capt. Amarjit Singh','Capt. Joseph Fernandes','Capt. Mohan Rao','Capt. Harish Ambani','Capt. Zubin Contractor','Capt. Nitin Palekar']) },
         services: mkServices(c.v.type, c.waitedH), cargoOps: c.ops,
         statusHistory: [
           { from: '', to: 'ANNOUNCED', at: new Date(c.ata.getTime() - 4 * D), by: 'seed', note: 'Call announced' },
@@ -353,7 +451,7 @@ async function run() {
       purpose: 'Discharge', status: 'BERTHED', eta: new Date(ata.getTime() - 5 * H), etb: atb, etd,
       ata, atb, berth: b._id, prevPort: pick(portsArr), nextPort: pick(portsArr),
       draftArrival: Math.round((v.maxDraft - rnd() * 2) * 10) / 10,
-      crew: { count: ri(18, 26), master: pick(['Capt. A. Singh','Capt. D. Kumar','Capt. E. Silva']) },
+      crew: { count: ri(18, 26), master: pick(['Capt. Amarjit Singh','Capt. Dinesh Kumar','Capt. Elias D\'Souza']) },
       services: mkServices(vt, 6),
       cargoOps: [{ cargoType: cargo.cargoType, operation: 'DISCHARGE', qty: cargo.qty, unit: cargo.unit,
         qtyMT: Math.round(cargo.qty * cargo.mtFactor), gangs: ri(3, 6), startedAt: new Date(atb.getTime() + 2 * H) }],
@@ -373,7 +471,7 @@ async function run() {
       vcn: vcnFor(ata), vessel: v._id, agentCode: v.agent, agentName: agentNames[v.agent],
       purpose: 'Awaiting berth', status: 'AT_ANCHORAGE', eta: new Date(ata.getTime() - 4 * H),
       etb: new Date(NOW.getTime() + ri(4, 28) * H), ata,
-      prevPort: pick(portsArr), crew: { count: ri(18, 24), master: 'Capt. on file' },
+      prevPort: pick(portsArr), crew: { count: ri(18, 24), master: pick(['Capt. Mohan Rao','Capt. Nitin Palekar','Capt. Dinesh Kumar']) },
       statusHistory: [
         { from: '', to: 'ANNOUNCED', at: new Date(ata.getTime() - 3 * D), by: 'seed', note: '' },
         { from: 'ANNOUNCED', to: 'CONFIRMED', at: new Date(ata.getTime() - 1 * D), by: 'seed', note: '' },
@@ -430,7 +528,7 @@ async function run() {
       purpose: 'Discharge', status: 'SAILED', eta: new Date(ata.getTime() - 6 * H), etb: atb, etd: atd,
       ata, atb, atd, berth: b._id, prevPort: 'ARROS — Rosario', nextPort: 'SGSIN — Singapore',
       draftArrival: 12.8, draftDeparture: 8.2,
-      crew: { count: 24, master: 'Capt. on file' },
+      crew: { count: 24, master: 'Capt. Joseph Fernandes' },
       services: mkServices('TANK', 9),
       cargoOps: [{ cargoType: 'EDIBLE', operation: 'DISCHARGE', qty: 66800, unit: 'MT', qtyMT: 66800, gangs: 2,
         startedAt: new Date(atb.getTime() + 2 * H), completedAt: new Date(atd.getTime() - 3 * H),
@@ -460,6 +558,7 @@ async function run() {
   for (const call of sailed) {
     if (rnd() > 0.9) continue; // a few never billed
     const v = vMap[String(call.vessel)];
+    if (v && v.liner) continue;              // documented callers stay out of demo billing
     const lines = buildInvoiceLines({ vessel: v, services: call.services, cargoOps: call.cargoOps }, tariffs);
     if (!lines.length) continue;
     const totals = computeTotals(lines, GST_RATE);
@@ -486,7 +585,8 @@ async function run() {
   const insDocs = [];
   let insSeqN = { 2025: 0, 2026: 0 };
   const defCodes = ['01101','04103','07105','10111','11101','13101','14104','18203'];
-  const pastForIns = sailed.filter((_, i) => i % 5 === 2).slice(0, 20);
+  const linerIds = new Set(linerFleet.map((v) => String(v._id)));
+  const pastForIns = sailed.filter((c) => !linerIds.has(String(c.vessel))).filter((_, i) => i % 5 === 2).slice(0, 20);
   pastForIns.forEach((call, idx) => {
     const type = rnd() < 0.55 ? 'PSC' : rnd() < 0.5 ? 'FSI' : pick(['ISM','MLC']);
     const template = tpl.find((t) => t.inspectionType === type) || tpl[0];
@@ -508,7 +608,7 @@ async function run() {
     insDocs.push({
       number: `INS-${y}-${String(insSeqN[y]).padStart(3, '0')}`,
       vessel: call.vessel, portCall: call._id, type,
-      inspector: pick(['Cdr. S. Patel','Lt. R. Joshi','Surveyor N. Shah']),
+      inspector: pick(['Cdr. Suresh Patel','Lt. Rakesh Joshi','Narendra Shah']),
       plannedAt: startedAt, startedAt, closedAt: new Date(startedAt.getTime() + 9 * H),
       status: 'CLOSED', result: detained ? 'DETAINED' : nFind ? 'DEFICIENCIES' : 'SATISFACTORY',
       detention: detained,
@@ -517,14 +617,14 @@ async function run() {
     });
   });
   // open inspections now
-  const berthedNow = allCalls.filter((c) => c.status === 'BERTHED');
+  const berthedNow = allCalls.filter((c) => c.status === 'BERTHED' && !linerIds.has(String(c.vessel)));
   [0, 1].forEach((i) => {
     const call = berthedNow[i];
     const y = yearOf(NOW); insSeqN[y] = (insSeqN[y] || 0) + 1;
     insDocs.push({
       number: `INS-${y}-${String(insSeqN[y]).padStart(3, '0')}`,
       vessel: call.vessel, portCall: call._id, type: i === 0 ? 'PSC' : 'MLC',
-      inspector: 'Cdr. S. Patel', plannedAt: new Date(NOW.getTime() - 4 * H), startedAt: new Date(NOW.getTime() - 3 * H),
+      inspector: 'Cdr. Suresh Patel', plannedAt: new Date(NOW.getTime() - 4 * H), startedAt: new Date(NOW.getTime() - 3 * H),
       status: 'IN_PROGRESS',
       checklist: (tpl.find((t) => t.inspectionType === (i === 0 ? 'PSC' : 'MLC')) || tpl[0]).items
         .map((i2, ix) => ({ seq: i2.seq, text: i2.text, category: i2.category, answer: ix < 4 ? 'YES' : '', note: '' })),
@@ -537,7 +637,7 @@ async function run() {
     const y = yearOf(NOW); insSeqN[y] = (insSeqN[y] || 0) + 1;
     insDocs.push({
       number: `INS-${y}-${String(insSeqN[y]).padStart(3, '0')}`,
-      vessel: conf.vessel, portCall: conf._id, type: 'FSI', inspector: 'Lt. R. Joshi',
+      vessel: conf.vessel, portCall: conf._id, type: 'FSI', inspector: 'Lt. Rakesh Joshi',
       plannedAt: conf.eta, status: 'PLANNED',
       checklist: tpl[1].items.map((i2) => ({ seq: i2.seq, text: i2.text, category: i2.category, answer: '', note: '' })),
       findings: [], createdAt: NOW, updatedAt: NOW,
@@ -656,43 +756,268 @@ async function run() {
       expiryDate: issued ? new Date(issued.getTime() + 2 * 365 * D) : undefined,
       conditions: status === 'ISSUED' ? 'Valid for Mundra port limits; subject to annual safety audit.' : '',
       performanceRating: rating,
-      audits: issued ? [{ date: new Date(NOW.getTime() - 90 * D), auditor: 'Cdr. S. Patel', result: rating >= 4 ? 'SATISFACTORY' : rating >= 3 ? 'OBSERVATIONS' : 'NON_CONFORMITY', remarks: 'Annual audit' }] : [],
+      audits: issued ? [{ date: new Date(NOW.getTime() - 90 * D), auditor: 'Cdr. Suresh Patel', result: rating >= 4 ? 'SATISFACTORY' : rating >= 3 ? 'OBSERVATIONS' : 'NON_CONFORMITY', remarks: 'Annual audit' }] : [],
       history,
     };
   }));
   console.log('licenses: 12');
 
-  // ---------- maritime centre: incidents ----------
+  // ---------- marine resources (tugs · pilot launches · mooring boats · pilots) ----------
+  // Fleet mirrors the researched Mundra marine craft mix: 5 tugs (2 above 50 T BP),
+  // 5 pilot launches, 2 mooring boats — with an Indian pilot roster.
+  const resourceDefs = [
+    ['TUG-01', 'Mundra Shakti', 'TUG', 'ASD tug — 52 T bollard pull, FiFi-1', 'Sarang Mistry', 'VHF Ch 12'],
+    ['TUG-02', 'Mundra Veer', 'TUG', 'ASD tug — 52 T bollard pull, FiFi-1', 'Iqbal Sama', 'VHF Ch 12'],
+    ['TUG-03', 'Kutch Sahas', 'TUG', 'ASD tug — 40 T bollard pull', 'Bharat Rabari', 'VHF Ch 12'],
+    ['TUG-04', 'Kutch Bal', 'TUG', 'Conventional tug — 36 T bollard pull', 'Mansukh Gadhvi', 'VHF Ch 12'],
+    ['TUG-05', 'Samudra Tez', 'TUG', 'ASD tug — 45 T bollard pull, oil-spill kit', 'Jethabhai Chavda', 'VHF Ch 12'],
+    ['PLT-01', 'Mundra P-1', 'PILOT_LAUNCH', 'Pilot launch — 12 kn', 'Vasant Baraiya', 'VHF Ch 14'],
+    ['PLT-02', 'Mundra P-2', 'PILOT_LAUNCH', 'Pilot launch — 12 kn', 'Hamir Jethwa', 'VHF Ch 14'],
+    ['PLT-03', 'Mundra P-3', 'PILOT_LAUNCH', 'Pilot launch — 11 kn', 'Kanji Ahir', 'VHF Ch 14'],
+    ['PLT-04', 'Mundra P-4', 'PILOT_LAUNCH', 'Pilot launch — 7 kn', 'Noor Mohammad Theba', 'VHF Ch 14'],
+    ['PLT-05', 'Mundra P-5', 'PILOT_LAUNCH', 'Pilot launch — 7 kn', 'Ramji Maheshwari', 'VHF Ch 14'],
+    ['MB-01', 'Navinal-1', 'MOORING_BOAT', 'Mooring boat — line handling', 'Bhima Koli', 'VHF Ch 68'],
+    ['MB-02', 'Navinal-2', 'MOORING_BOAT', 'Mooring boat — line handling', 'Deva Manek', 'VHF Ch 68'],
+    ['PIL-01', 'Capt. Meera Krishnan', 'PILOT', 'Senior pilot — unrestricted, VLCC endorsed', '', '+91 98792 41210'],
+    ['PIL-02', 'Capt. Arjun Jadeja', 'PILOT', 'Pilot — unrestricted', '', '+91 98792 41211'],
+    ['PIL-03', 'Capt. Farooq Bukhari', 'PILOT', 'Pilot — unrestricted', '', '+91 98792 41212'],
+    ['PIL-04', 'Capt. Devraj Sodha', 'PILOT', 'Pilot — restricted to 250 m LOA', '', '+91 98792 41213'],
+    ['SVL-01', 'Bocha Survey-1', 'SURVEY_LAUNCH', 'Hydrographic survey launch', 'Jayesh Tandel', 'VHF Ch 71'],
+  ];
+  const berthedForRes = allCalls.filter((c) => c.status === 'BERTHED');
+  await M.Resource.insertMany(resourceDefs.map(([code, name, type, spec, master, contact], i) => {
+    let status = 'AVAILABLE'; let currentTask = '';
+    if (code === 'TUG-04') { status = 'MAINTENANCE'; }
+    else if (code === 'PLT-05') { status = 'OFF_DUTY'; }
+    else if (['TUG-01', 'PLT-01', 'PIL-02'].includes(code) && berthedForRes[i % berthedForRes.length]) {
+      status = 'TASKED';
+      const c = berthedForRes[i % berthedForRes.length];
+      currentTask = `${c.vcn} — ${type === 'PILOT' ? 'pilotage' : 'assist'} in progress`;
+    }
+    return { code, name, type, spec, status, currentTask, master, contact,
+      remarks: code === 'TUG-04' ? 'Annual survey — gearbox overhaul at Gulf Marine Repairs' : '' };
+  }));
+  console.log(`resources: ${resourceDefs.length}`);
+
+  // ---------- incident management (12-month case history + live cases) ----------
+  const BERTH_POS_MAP = {
+    'MICT-1': [22.7495, 69.7065], 'MICT-2': [22.7502, 69.7085], 'AMCT-1': [22.7511, 69.7105], 'AMCT-2': [22.7518, 69.7124],
+    'AMC2-1': [22.7526, 69.7145], 'AMC2-2': [22.7533, 69.7165], 'CT3-1': [22.7541, 69.7188], 'CT3-2': [22.7548, 69.7208],
+    'CT3-3': [22.7555, 69.7228], 'CT3-4': [22.7562, 69.7248], 'CT4-1': [22.7570, 69.7270], 'CT4-2': [22.7577, 69.7290],
+    'WB-1': [22.7370, 69.6870], 'WB-2': [22.7360, 69.6895],
+    'MP-1': [22.7435, 69.6990], 'MP-2': [22.7442, 69.7008], 'MP-3': [22.7449, 69.7026], 'MP-4': [22.7456, 69.7044],
+    'LB-1': [22.7405, 69.6940], 'LB-2': [22.7412, 69.6958], 'LB-3': [22.7419, 69.6976],
+    'SPM-1': [22.6350, 69.6250], 'SPM-2': [22.6280, 69.6420], 'RR-1': [22.7480, 69.7315],
+  };
   const berthedNowCalls = allCalls.filter((c) => c.status === 'BERTHED');
-  let incSeq = 0;
-  const mkInc = (over) => { incSeq += 1; return { number: `MRCC-${yearOf(over.reportedAt)}-${String(incSeq).padStart(3, '0')}`, ...over }; };
-  await M.Incident.insertMany([
-    mkInc({ type: 'SAR', severity: 'HIGH', status: 'RESPONDING', title: 'Fishing vessel adrift with fouled propeller, 6 nm SW of fairway buoy',
-      vesselName: 'FV Jal Pari (IND-GJ-04-MM-1287)', position: { lat: 22.62, lon: 69.58 }, reportedAt: new Date(NOW.getTime() - 5 * H),
-      reportedBy: 'VHF Ch 16 distress relay', assets: ['Pilot boat Mundra-2', 'Tug Ocean Turmeric'],
-      log: [
-        { at: new Date(NOW.getTime() - 5 * H), by: 'Lt. A. Rathore', entry: 'Distress relay received; position plotted; FV drifting SW at 1.2 kn' },
-        { at: new Date(NOW.getTime() - 4 * H), by: 'Lt. A. Rathore', entry: 'Tug Ocean Turmeric tasked; ETA 45 min; Coast Guard station Okha informed' },
-        { at: new Date(NOW.getTime() - 2 * H), by: 'Lt. A. Rathore', entry: 'Tow connected; proceeding to fishing harbour; 6 crew safe' },
-      ] }),
-    mkInc({ type: 'POLLUTION', severity: 'MEDIUM', status: 'OPEN', title: 'Light sheen observed near LB-2 during edible oil hose disconnection',
-      vessel: berthedNowCalls[5] ? berthedNowCalls[5].vessel : undefined, position: { lat: 22.741, lon: 69.712 }, reportedAt: new Date(NOW.getTime() - 90 * 60000),
-      reportedBy: 'Jetty supervisor', assets: ['Boom crew A'],
-      log: [{ at: new Date(NOW.getTime() - 85 * 60000), by: 'Duty Officer', entry: 'Tier-1 response activated; boom deployed as precaution; sample taken' }] }),
-    mkInc({ type: 'SECURITY', severity: 'LOW', status: 'CLOSED', title: 'Unauthorised drone sighting over container yard CT-3',
-      position: { lat: 22.75, lon: 69.71 }, reportedAt: new Date(NOW.getTime() - 6 * D), closedAt: new Date(NOW.getTime() - 6 * D + 3 * H),
-      reportedBy: 'ISPS patrol', outcome: 'Operator traced to survey contractor; permit verified; advisory issued.',
-      log: [{ at: new Date(NOW.getTime() - 6 * D), by: 'PFSO', entry: 'Drone tracked; operator located at Gate 4 laydown' }] }),
-    mkInc({ type: 'MEDICAL_EVAC', severity: 'HIGH', status: 'CLOSED', title: 'Crew medical evacuation — suspected appendicitis, bulk carrier at anchorage',
-      reportedAt: new Date(NOW.getTime() - 18 * D), closedAt: new Date(NOW.getTime() - 18 * D + 6 * H),
-      reportedBy: 'Master via agent', outcome: 'Crewman evacuated by pilot launch, admitted G.K. General Hospital, stable.',
-      log: [{ at: new Date(NOW.getTime() - 18 * D), by: 'Duty Officer', entry: 'Port health notified; launch dispatched with paramedic' }] }),
-    mkInc({ type: 'CASUALTY', severity: 'MEDIUM', status: 'CLOSED', title: 'Mooring line parted during squall at MP-2 — no injuries',
-      reportedAt: new Date(NOW.getTime() - 45 * D), closedAt: new Date(NOW.getTime() - 44 * D),
-      reportedBy: 'Berth foreman', outcome: 'Vessel re-secured; line failure analysis shared; MP berth mooring SOP amended.',
-      log: [{ at: new Date(NOW.getTime() - 45 * D), by: 'Duty Officer', entry: 'Tug standby ordered; additional lines run' }] }),
-  ]);
-  console.log('incidents: 5');
+  const berthCodesOp = berths.filter((b) => b.status === 'OPERATIONAL').map((b) => b.code);
+  const berthByCode = Object.fromEntries(berths.map((b) => [b.code, b]));
+  const reporters = ['Jetty supervisor — Ravindra Ahir', 'Berth foreman — Prakash Koli', 'Terminal duty manager — Ketan Maheshwari',
+    'Master via agent', 'VHF Ch 16 watch', 'ISPS patrol — Gate 3', 'Crane operator', 'Marine control room', 'Stevedore gang leader',
+    'Pilot — Capt. Arjun Jadeja', 'Tug master — Sarang Mistry', 'CISF post — Gate 1'];
+  const commPool = [
+    ['VHF', 'IN', 'Master confirms situation under control; no assistance required at this time.'],
+    ['VHF', 'IN', 'Tug master reports on scene; commencing assessment.'],
+    ['VHF', 'OUT', 'Marine control to all stations: restrict small-craft movement near the affected berth until further notice.'],
+    ['PHONE', 'OUT', 'Informed Coast Guard Station Okha; reference number logged in the register.'],
+    ['PHONE', 'OUT', 'GPCB regional office informed as a precaution; sampling arranged.'],
+    ['PHONE', 'IN', 'Agent confirms P&I correspondent has been notified and surveyor is en route.'],
+    ['EMAIL', 'OUT', 'Preliminary incident notification circulated to HM, HSE and terminal management.'],
+    ['EMAIL', 'IN', 'Master\'s statement and crew list received from the agent.'],
+    ['PORTAL', 'INTERNAL', 'First responders logged on scene; area cordoned as per SOP.'],
+    ['PORTAL', 'INTERNAL', 'Boom deployed as a precaution; skimmer on standby.'],
+    ['PORTAL', 'INTERNAL', 'Work resumed after toolbox talk and equipment inspection.'],
+    ['PORTAL', 'INTERNAL', 'CCTV footage of the period secured for review.'],
+    ['PHONE', 'IN', 'G.K. General Hospital confirms the injured person is stable.'],
+    ['VHF', 'IN', 'Pilot reports vessel all fast; no further damage observed.'],
+    ['EMAIL', 'OUT', 'Corrective action plan requested from the contractor within 48 hours.'],
+  ];
+  const docPool = [
+    ['first-information-report.pdf', 'REPORT'], ['site-photographs.zip', 'PHOTO'], ['masters-statement.pdf', 'STATEMENT'],
+    ['water-sample-analysis.pdf', 'SAMPLE'], ['cctv-clip-gate3.mp4', 'CCTV'], ['crane-maintenance-log.pdf', 'REPORT'],
+    ['boom-deployment-photos.zip', 'PHOTO'], ['injury-medical-report.pdf', 'REPORT'], ['permit-to-work-scan.pdf', 'PERMIT'],
+    ['damage-survey-report.pdf', 'REPORT'], ['toolbox-talk-record.pdf', 'REPORT'], ['line-failure-analysis.pdf', 'REPORT'],
+  ];
+  const taskPool = ['Deploy containment boom', 'Collect water samples for analysis', 'Obtain master\'s statement via agent',
+    'Arrange ambulance and first aid', 'Isolate equipment and tag out', 'Notify GPCB regional office', 'Notify Coast Guard Station Okha',
+    'Review CCTV footage of the period', 'Arrange diver inspection of hull/fender', 'File P&I / insurance notification',
+    'Conduct toolbox talk with the stevedore gang', 'Civil team to inspect fender and cope line', 'Restrict berth until survey clears'];
+  const rcaPool = [
+    ['Mooring line worn beyond discard criteria', 'Equipment', 'Line renewed from ship\'s stores; full mooring inspection done', 'Quarterly mooring-line audit added to the berth checklist'],
+    ['SOP not followed during hose disconnection', 'Procedure', 'Operation stopped; hose crew re-briefed and drip trays repositioned', 'Hose-handling refresher training for all jetty crews'],
+    ['Hydraulic hose fatigue on the crane boom circuit', 'Equipment', 'Hose replaced; adjacent circuits pressure-tested', 'Hose replacement interval halved in the PM plan'],
+    ['Inadequate lighting at the work site', 'Human factor', 'Portable mast lighting positioned; work rescheduled to day shift', 'Lux survey of all cargo work areas each quarter'],
+    ['Sudden squall — weather within forecast limits', 'Weather', 'Additional lines run; tug held on standby until wind eased', 'Pre-monsoon mooring standard raised for cape vessels'],
+    ['Third-party craft error in the fairway', 'External', 'Craft escorted clear; owner advised through the fisheries association', 'Joint awareness drive with the fishing harbour association'],
+    ['Lashing gear failure under dynamic load', 'Equipment', 'Damaged units quarantined; batch inspection completed', 'Supplier batch certificates now verified at the gate'],
+  ];
+  const incTemplates = [
+    { cat: 'ENVIRONMENT', type: 'OIL_SPILL', sev: ['MEDIUM', 'MEDIUM', 'HIGH'], w: 8, tier: 1, berth: true,
+      title: (x) => `Oil sheen observed at ${x.berth} during ${x.p(['bunkering', 'hose disconnection', 'ballast operations', 'sludge transfer'])}` },
+    { cat: 'ENVIRONMENT', type: 'POLLUTION', sev: ['LOW', 'MEDIUM'], w: 6, berth: true,
+      title: (x) => `${x.p(['Floating debris', 'Garbage overflow from a skip', 'Coal dust plume beyond the sprinkler line', 'Grey-water discharge observed'])} near ${x.berth}` },
+    { cat: 'PERSONNEL', type: 'PERSONNEL_INJURY', sev: ['MEDIUM', 'MEDIUM', 'HIGH'], w: 12, injuries: 1, berth: true,
+      title: (x) => `Stevedore ${x.p(['hand injury during lashing', 'ankle injury on the quay apron', 'fall from a container stack ladder', 'struck by a swinging sling load'])} at ${x.berth}` },
+    { cat: 'PERSONNEL', type: 'MEDICAL_EVAC', sev: ['HIGH'], w: 5, vessel: true,
+      title: (x) => `Medical evacuation — crew member with ${x.p(['chest pain', 'suspected appendicitis', 'severe dehydration', 'crush injury to the hand'])} on ${x.vessel}` },
+    { cat: 'MARINE', type: 'MOORING_FAILURE', sev: ['MEDIUM', 'HIGH'], w: 7, berth: true, vessel: true,
+      title: (x) => `Mooring line parted during ${x.p(['a squall', 'spring tide', 'passing-vessel surge'])} — ${x.vessel} at ${x.berth}` },
+    { cat: 'MARINE', type: 'COLLISION', sev: ['HIGH', 'CRITICAL'], w: 3, berth: true, vessel: true,
+      title: (x) => `Heavy contact with the fender while berthing — ${x.vessel} at ${x.berth}` },
+    { cat: 'MARINE', type: 'NEAR_MISS', sev: ['LOW', 'LOW', 'MEDIUM'], w: 11, berth: true,
+      title: (x) => `Near miss — ${x.p(['pilot ladder step gave way', 'crane hook swung over the gangway', 'tug line slipped off the bitt', 'forklift reversed towards the gang', 'container twist-lock found unsecured'])} at ${x.berth}` },
+    { cat: 'MARINE', type: 'SAR', sev: ['HIGH', 'CRITICAL'], w: 4,
+      title: (x) => `Fishing boat ${x.p(['adrift with engine failure', 'taking water', 'with a fouled propeller', 'reported overdue'])} ${x.n(3, 9)} nm ${x.p(['SW', 'SE', 'S'])} of the fairway buoy` },
+    { cat: 'SECURITY', type: 'SECURITY_BREACH', sev: ['LOW', 'MEDIUM'], w: 7,
+      title: (x) => `${x.p(['Unauthorised drone sighting', 'Tailgating attempt', 'Unidentified small craft in the security zone', 'Dock pass reported lost', 'Perimeter fence damage found'])} — ${x.p(['CT-3 yard', 'Gate 3', 'West Basin approach', 'ISPS Zone B', 'Gate 1 truck lane'])}` },
+    { cat: 'EQUIPMENT', type: 'EQUIPMENT_FAILURE', sev: ['LOW', 'MEDIUM', 'MEDIUM', 'HIGH'], w: 13, berth: true,
+      title: (x) => `${x.p(['STS crane boom-limit fault', 'Shore gangway hydraulic failure', 'Quay crane gearbox over-temperature', 'Mooring winch brake slip', 'Conveyor belt tear on the coal stream', 'Harbour mobile crane outrigger alarm'])} at ${x.berth}` },
+    { cat: 'CARGO', type: 'CARGO_DAMAGE', sev: ['LOW', 'MEDIUM'], w: 9, berth: true,
+      title: (x) => `${x.p(['Container dropped during lashing', 'Torn fertiliser bags on the stack', 'Wet-damaged steel coils found', 'Reefer power interruption on the yard', 'Project cargo shifted on the trailer'])} at ${x.berth}` },
+    { cat: 'NAVIGATION', type: 'NAV_HAZARD', sev: ['MEDIUM'], w: 4,
+      title: (x) => `${x.p(['Drifting container reported in the approach channel', 'Unlit fishing-net marker in the channel', 'Channel buoy No. 7 light reported unlit', 'Dredger pipeline marker adrift'])}` },
+    { cat: 'HSE', type: 'FIRE', sev: ['HIGH', 'CRITICAL'], w: 4, berth: true,
+      title: (x) => `${x.p(['Small fire in the conveyor gallery', 'Engine-room fire alarm', 'Hot-work spark ignition on the lashing bridge', 'Transformer room smoke detected'])} — ${x.berth}` },
+    { cat: 'MARINE', type: 'GROUNDING', sev: ['CRITICAL'], w: 1,
+      title: (x) => `Bunker barge touched bottom near ${x.p(['Bocha Island shallows', 'channel edge marker 7'])} — refloated on the rising tide` },
+  ];
+  const wPool = incTemplates.flatMap((t) => Array.from({ length: t.w }, () => t));
+  const sevHours = { LOW: [4, 30], MEDIUM: [8, 72], HIGH: [4, 48], CRITICAL: [3, 24] };
+  const sevPriority = { LOW: 'P4', MEDIUM: 'P3', HIGH: 'P2', CRITICAL: 'P1' };
+  const incidentDocs = [];
+  const incSeqByYear = {};
+  const incNumberFor = (d) => { const y = yearOf(d); incSeqByYear[y] = (incSeqByYear[y] || 0) + 1; return `INC-${y}-${String(incSeqByYear[y]).padStart(4, '0')}`; };
+  const N_INC = 108;
+  const incTimes = Array.from({ length: N_INC }, () => new Date(NOW.getTime() - Math.floor(rnd() * 358 + 2) * D - ri(0, 23) * H)).sort((a, b) => a - b);
+  for (let k = 0; k < N_INC; k++) {
+    const t = pick(wPool);
+    const reportedAt = incTimes[k];
+    const helpers = { p: pick, n: ri };
+    if (t.berth) helpers.berth = pick(berthCodesOp);
+    if (t.vessel) helpers.vessel = pick(demoFleet).name;
+    const severity = pick(t.sev);
+    const officerPool = ['SECURITY', 'NAVIGATION', 'MARINE'].includes(t.cat) ? [...dutyOfficers, ...marineOfficers] : hseOfficers;
+    const officer = pick(officerPool);
+    const ageD = (NOW - reportedAt) / D;
+    // lifecycle by age: old cases are closed; the recent tail is a live pipeline
+    let status;
+    if (ageD > 30) status = rnd() < 0.94 ? 'CLOSED' : 'RESOLVED';
+    else if (ageD > 7) status = pick(['CLOSED', 'CLOSED', 'CLOSED', 'RESOLVED', 'RESOLVED', 'MONITORING']);
+    else status = pick(['OPEN', 'ACKNOWLEDGED', 'RESPONDING', 'RESPONDING', 'MONITORING', 'RESOLVED']);
+    const ackAt = new Date(reportedAt.getTime() + ri(4, 55) * 60000);
+    const respAt = new Date(ackAt.getTime() + ri(10, 90) * 60000);
+    const sevWin = sevHours[severity];
+    const resolvedAt = new Date(respAt.getTime() + ri(sevWin[0], sevWin[1]) * H);
+    const closedAt = new Date(resolvedAt.getTime() + ri(18, 90) * H);
+    const history = [{ from: '', to: 'OPEN', at: reportedAt, by: 'Marine control room', note: 'Incident logged' }];
+    const log = [{ at: reportedAt, by: 'Marine control room', entry: 'Incident logged in the portal; duty officer paged' }];
+    const reach = { OPEN: 0, ACKNOWLEDGED: 1, RESPONDING: 2, MONITORING: 2, RESOLVED: 3, CLOSED: 4 }[status];
+    if (reach >= 1) history.push({ from: 'OPEN', to: 'ACKNOWLEDGED', at: ackAt, by: officer.name, note: '' });
+    if (reach >= 2) history.push({ from: 'ACKNOWLEDGED', to: 'RESPONDING', at: respAt, by: officer.name, note: 'Response initiated' });
+    if (status === 'MONITORING') history.push({ from: 'RESPONDING', to: 'MONITORING', at: new Date(respAt.getTime() + ri(2, 10) * H), by: officer.name, note: 'Situation contained — monitoring' });
+    const rca = pick(rcaPool);
+    if (reach >= 3) history.push({ from: 'RESPONDING', to: 'RESOLVED', at: resolvedAt, by: officer.name, note: rca[2] });
+    if (reach >= 4) history.push({ from: 'RESOLVED', to: 'CLOSED', at: closedAt, by: 'Dr. Kavita Raval', note: 'RCA reviewed and case closed' });
+    for (const h of history.slice(1)) log.push({ at: h.at, by: h.by, entry: `Status moved to ${h.to}${h.note ? ` — ${h.note}` : ''}` });
+    const nComms = ri(2, 6);
+    const comms = Array.from({ length: nComms }, (_, ci) => {
+      const cp = pick(commPool);
+      return { at: new Date(reportedAt.getTime() + (ci + 1) * ri(20, 200) * 60000), by: ci % 2 ? officer.name : pick(reporters).split(' — ')[0], channel: cp[0], direction: cp[1], message: cp[2] };
+    });
+    const docs = Array.from({ length: ri(0, 4) }, () => {
+      const dp = pick(docPool);
+      return { name: dp[0], docType: dp[1], sizeKB: ri(80, 8200), uploadedBy: officer.name, at: new Date(reportedAt.getTime() + ri(2, 40) * H), note: '' };
+    });
+    const tasks = Array.from({ length: ri(0, 4) }, () => {
+      const done = reach >= 3 || rnd() < 0.5;
+      const due = new Date(reportedAt.getTime() + ri(1, 5) * D);
+      return { title: pick(taskPool), assignee: pick([...hseOfficers, ...dutyOfficers]).name, due, status: done ? 'DONE' : 'OPEN', doneAt: done ? new Date(due.getTime() - ri(2, 20) * H) : undefined };
+    });
+    const berthDoc = helpers.berth ? berthByCode[helpers.berth] : null;
+    const vesselDoc = helpers.vessel ? demoFleet.find((v) => v.name === helpers.vessel) : null;
+    const posOfBerth = berthDoc ? (BERTH_POS_MAP[berthDoc.code] || [22.74, 69.7]) : null;
+    incidentDocs.push({
+      number: incNumberFor(reportedAt),
+      category: t.cat, type: t.type, severity, priority: sevPriority[severity], status,
+      title: t.title(helpers),
+      description: 'Logged from the first information report; see the communications thread and documents for the working record.',
+      vessel: vesselDoc ? vesselDoc._id : undefined,
+      vesselName: vesselDoc ? '' : (t.type === 'SAR' ? `FV ${pick(['Jal Pari', 'Dariya Sathi', 'Matsya Kanya', 'Sagar Putra'])} (IND-GJ-04-MM-${ri(1000, 1999)})` : ''),
+      berth: berthDoc ? berthDoc._id : undefined,
+      location: { area: helpers.berth || pick(['Approach channel', 'Outer anchorage A1', 'Fairway buoy sector', 'Gate complex']),
+        lat: posOfBerth ? posOfBerth[0] : 22.6 + rnd() * 0.1, lon: posOfBerth ? posOfBerth[1] : 69.55 + rnd() * 0.2 },
+      reportedAt, reportedBy: pick(reporters), source: pick(['VHF', 'PHONE', 'PORTAL', 'PATROL', 'CCTV']),
+      assignedTo: { userId: String(officer._id), name: officer.name },
+      assets: t.type === 'SAR' ? ['Tug Mundra Shakti', 'Pilot launch Mundra P-2'] : t.tier ? ['Boom crew A', 'Tug Samudra Tez (spill kit)'] : [],
+      injuries: t.injuries && rnd() < 0.9 ? t.injuries : 0,
+      pollutionTier: t.tier && reach >= 2 ? t.tier : 0,
+      weather: { windKn: ri(6, 26), seaState: ri(1, 5) },
+      comms, documents: docs, tasks, log, statusHistory: history,
+      rca: reach >= 3 ? { rootCause: rca[0], category: rca[1], correctiveAction: rca[2], preventiveAction: rca[3] } : { rootCause: '', category: '', correctiveAction: '', preventiveAction: '' },
+      acknowledgedAt: reach >= 1 ? ackAt : undefined,
+      resolvedAt: reach >= 3 ? resolvedAt : undefined,
+      closedAt: reach >= 4 ? closedAt : undefined,
+      outcome: reach >= 3 ? rca[2] : '',
+      createdAt: reportedAt, updatedAt: history[history.length - 1].at,
+    });
+  }
+  // live marquee cases
+  incidentDocs.push({
+    number: incNumberFor(new Date(NOW.getTime() - 5 * H)),
+    category: 'MARINE', type: 'SAR', severity: 'HIGH', priority: 'P2', status: 'RESPONDING',
+    title: 'Fishing vessel adrift with a fouled propeller, 6 nm SW of the fairway buoy',
+    description: 'VHF Ch 16 distress relay; six crew on board, vessel drifting SW at 1.2 kn. Tow arranged.',
+    vesselName: 'FV Jal Pari (IND-GJ-04-MM-1287)',
+    location: { area: 'Fairway buoy sector', lat: 22.62, lon: 69.58 },
+    reportedAt: new Date(NOW.getTime() - 5 * H), reportedBy: 'VHF Ch 16 watch', source: 'VHF',
+    assignedTo: { userId: String(userByName['Lt. Aditi Rathore']._id), name: 'Lt. Aditi Rathore' },
+    assets: ['Tug Mundra Shakti', 'Pilot launch Mundra P-2'], injuries: 0, pollutionTier: 0,
+    weather: { windKn: 18, seaState: 3 },
+    comms: [
+      { at: new Date(NOW.getTime() - 4.8 * H), by: 'Lt. Aditi Rathore', channel: 'VHF', direction: 'IN', message: 'Distress relay received; position plotted; boat drifting SW at 1.2 kn.' },
+      { at: new Date(NOW.getTime() - 4.4 * H), by: 'Lt. Aditi Rathore', channel: 'PHONE', direction: 'OUT', message: 'Coast Guard Station Okha informed; reference number logged.' },
+      { at: new Date(NOW.getTime() - 2 * H), by: 'Sarang Mistry', channel: 'VHF', direction: 'IN', message: 'Tow connected; proceeding to the fishing harbour; all six crew safe.' },
+    ],
+    documents: [{ name: 'distress-relay-log.pdf', docType: 'REPORT', sizeKB: 240, uploadedBy: 'Lt. Aditi Rathore', at: new Date(NOW.getTime() - 4 * H), note: '' }],
+    tasks: [
+      { title: 'Notify Coast Guard Station Okha', assignee: 'Lt. Aditi Rathore', due: new Date(NOW.getTime() - 4 * H), status: 'DONE', doneAt: new Date(NOW.getTime() - 4.4 * H) },
+      { title: 'Escort tow to the fishing harbour', assignee: 'Sarang Mistry', due: new Date(NOW.getTime() + 2 * H), status: 'OPEN' },
+    ],
+    log: [
+      { at: new Date(NOW.getTime() - 5 * H), by: 'Marine control room', entry: 'Incident logged; duty officer paged' },
+      { at: new Date(NOW.getTime() - 4.6 * H), by: 'Lt. Aditi Rathore', entry: 'Tug Mundra Shakti tasked; ETA 45 min' },
+    ],
+    statusHistory: [
+      { from: '', to: 'OPEN', at: new Date(NOW.getTime() - 5 * H), by: 'Marine control room', note: 'Incident logged' },
+      { from: 'OPEN', to: 'ACKNOWLEDGED', at: new Date(NOW.getTime() - 4.9 * H), by: 'Lt. Aditi Rathore', note: '' },
+      { from: 'ACKNOWLEDGED', to: 'RESPONDING', at: new Date(NOW.getTime() - 4.6 * H), by: 'Lt. Aditi Rathore', note: 'Tug tasked' },
+    ],
+    acknowledgedAt: new Date(NOW.getTime() - 4.9 * H),
+    createdAt: new Date(NOW.getTime() - 5 * H), updatedAt: new Date(NOW.getTime() - 2 * H),
+  });
+  incidentDocs.push({
+    number: incNumberFor(new Date(NOW.getTime() - 90 * 60000)),
+    category: 'ENVIRONMENT', type: 'OIL_SPILL', severity: 'MEDIUM', priority: 'P3', status: 'OPEN',
+    title: 'Light sheen observed near LB-2 during edible-oil hose disconnection',
+    description: 'Sheen approximately 15 m × 40 m reported alongside during hose disconnection. Tier-1 response readied.',
+    vessel: berthedNowCalls[5] ? berthedNowCalls[5].vessel : undefined,
+    berth: berthByCode['LB-2'] ? berthByCode['LB-2']._id : undefined,
+    location: { area: 'LB-2', lat: 22.7412, lon: 69.6958 },
+    reportedAt: new Date(NOW.getTime() - 90 * 60000), reportedBy: 'Jetty supervisor — Ravindra Ahir', source: 'PHONE',
+    assignedTo: { userId: String(userByName['Bhavna Joshi']._id), name: 'Bhavna Joshi' },
+    assets: ['Boom crew A'], injuries: 0, pollutionTier: 1,
+    weather: { windKn: 9, seaState: 2 },
+    comms: [{ at: new Date(NOW.getTime() - 85 * 60000), by: 'Bhavna Joshi', channel: 'PORTAL', direction: 'INTERNAL', message: 'Tier-1 response activated; boom deployed as a precaution; sample taken for analysis.' }],
+    documents: [], tasks: [
+      { title: 'Collect water samples for analysis', assignee: 'Bhavna Joshi', due: new Date(NOW.getTime() + 4 * H), status: 'OPEN' },
+      { title: 'Obtain master\'s statement via agent', assignee: 'Jaydeep Rathod', due: new Date(NOW.getTime() + 24 * H), status: 'OPEN' },
+    ],
+    log: [{ at: new Date(NOW.getTime() - 88 * 60000), by: 'Marine control room', entry: 'Incident logged; HSE environment officer paged' }],
+    statusHistory: [{ from: '', to: 'OPEN', at: new Date(NOW.getTime() - 90 * 60000), by: 'Marine control room', note: 'Incident logged' }],
+    createdAt: new Date(NOW.getTime() - 90 * 60000), updatedAt: new Date(NOW.getTime() - 85 * 60000),
+  });
+  await M.Incident.insertMany(incidentDocs, { timestamps: false });
+  console.log(`incidents: ${incidentDocs.length}`);
 
   // ---------- simulated AIS picture ----------
   const BERTH_POS = {
@@ -717,7 +1042,7 @@ async function run() {
     posDocs.push({ vessel: c.vessel, lat: 22.520 - i * 0.05, lon: 69.520 - i * 0.06, course: 38, speed: ri(9, 13), navStatus: 'UNDERWAY', destination: 'INMUN', receivedAt: new Date(NOW.getTime() - ri(1, 3) * 60000) });
   });
   // transiting traffic not bound for Mundra
-  const others = vessels.filter((v) => !posDocs.some((p) => String(p.vessel) === String(v._id))).slice(0, 3);
+  const others = demoFleet.filter((v) => !posDocs.some((p) => String(p.vessel) === String(v._id))).slice(0, 3);
   others.forEach((v, i) => {
     posDocs.push({ vessel: v._id, lat: 22.44 + i * 0.06, lon: 69.30 + i * 0.11, course: i === 1 ? 255 : 82, speed: ri(10, 14), navStatus: 'UNDERWAY', destination: i === 1 ? 'AEJEA' : 'INNSA', receivedAt: new Date(NOW.getTime() - ri(1, 5) * 60000) });
   });
@@ -725,9 +1050,9 @@ async function run() {
   const gapVessel = others[0];
   await M.MdaAlert.insertMany([
     { type: 'AIS_GAP', severity: 'warning', vessel: gapVessel._id, vesselName: gapVessel.name, note: 'No AIS transmission for 42 min in covered sector; last SOG 11.5 kn', at: new Date(NOW.getTime() - 40 * 60000) },
-    { type: 'SPEED_IN_CHANNEL', severity: 'warning', vesselName: posDocs.length ? vessels[2].name : 'Unknown', vessel: vessels[2]._id, note: '11.8 kn in approach channel (limit 8 kn)', at: new Date(NOW.getTime() - 3 * H) },
-    { type: 'ANCHOR_DRIFT', severity: 'error', vessel: allCalls.find((x) => x.status === 'AT_ANCHORAGE') ? allCalls.find((x) => x.status === 'AT_ANCHORAGE').vessel : vessels[8]._id, vesselName: '', note: 'Position moved 0.28 nm from anchor drop point; wind 22 kn', at: new Date(NOW.getTime() - 55 * 60000) },
-    { type: 'ZONE_ENTRY', severity: 'info', vessel: others[1] ? others[1]._id : vessels[10]._id, vesselName: others[1] ? others[1].name : '', note: 'Entered port limits without pre-arrival notification on file', at: new Date(NOW.getTime() - 6 * H) },
+    { type: 'SPEED_IN_CHANNEL', severity: 'warning', vesselName: posDocs.length ? demoFleet[2].name : 'Unknown', vessel: demoFleet[2]._id, note: '11.8 kn in approach channel (limit 8 kn)', at: new Date(NOW.getTime() - 3 * H) },
+    { type: 'ANCHOR_DRIFT', severity: 'error', vessel: allCalls.find((x) => x.status === 'AT_ANCHORAGE') ? allCalls.find((x) => x.status === 'AT_ANCHORAGE').vessel : demoFleet[8]._id, vesselName: '', note: 'Position moved 0.28 nm from anchor drop point; wind 22 kn', at: new Date(NOW.getTime() - 55 * 60000) },
+    { type: 'ZONE_ENTRY', severity: 'info', vessel: others[1] ? others[1]._id : demoFleet[10]._id, vesselName: others[1] ? others[1].name : '', note: 'Entered port limits without pre-arrival notification on file', at: new Date(NOW.getTime() - 6 * H) },
   ]);
   console.log(`positions: ${posDocs.length}, alerts: 4`);
 
@@ -735,9 +1060,9 @@ async function run() {
 
   // ---------- synthesized audit trail ----------
   const actors = [
-    { id: 'seed1', name: 'Capt. R. Nair', email: 'harbour@mundraport.in' },
-    { id: 'seed2', name: 'Cdr. S. Patel', email: 'surveyor@mundraport.in' },
-    { id: 'seed3', name: 'M. Iyer', email: 'finance@mundraport.in' },
+    { id: 'seed1', name: 'Capt. Rajiv Nair', email: 'harbour@mundraport.in' },
+    { id: 'seed2', name: 'Cdr. Suresh Patel', email: 'surveyor@mundraport.in' },
+    { id: 'seed3', name: 'Meenakshi Iyer', email: 'finance@mundraport.in' },
     { id: 'seed4', name: 'Ashish Sharma', email: 'admin@mundraport.in' },
   ];
   const auditDocs = [];
@@ -767,6 +1092,7 @@ async function run() {
     tariffs: await M.TariffItem.countDocuments(), vessels: await M.Vessel.countDocuments(),
     portCalls: await M.PortCall.countDocuments(), inspections: await M.Inspection.countDocuments(),
     invoices: await M.Invoice.countDocuments(), templates: await M.ChecklistTemplate.countDocuments(),
+    incidents: await M.Incident.countDocuments(), resources: await M.Resource.countDocuments(),
   };
   console.log('SEED COMPLETE', JSON.stringify(counts));
   await mongoose.disconnect();

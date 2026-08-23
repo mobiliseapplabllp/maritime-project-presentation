@@ -1,5 +1,5 @@
-/* Module registry — drives the header icon strip, the app launcher, and the
- * per-module side navigation. A module is visible when the user holds its perm. */
+/* Module registry — drives the app launcher and the per-module side navigation.
+ * A module is visible when the user holds its perm. */
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import ViewTimelineRoundedIcon from '@mui/icons-material/ViewTimelineRounded';
 import DirectionsBoatFilledRoundedIcon from '@mui/icons-material/DirectionsBoatFilledRounded';
@@ -25,50 +25,60 @@ import MapRoundedIcon from '@mui/icons-material/MapRounded';
 import CrisisAlertRoundedIcon from '@mui/icons-material/CrisisAlertRounded';
 import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
 import TrackChangesRoundedIcon from '@mui/icons-material/TrackChangesRounded';
+import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
+import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
+import DirectionsBoatRoundedIcon from '@mui/icons-material/DirectionsBoatRounded';
+import HealthAndSafetyRoundedIcon from '@mui/icons-material/HealthAndSafetyRounded';
+import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
 
 export const MODULES = [
   {
-    key: 'home', name: 'Dashboard', short: 'Home', color: '#0B74B0',
-    desc: 'Port-wide KPIs, throughput, berth board and activity',
+    key: 'home', name: 'Command Centre', short: 'Home', color: '#0B74B0',
+    desc: 'Port-wide KPIs, throughput, berth occupancy and live activity',
     icon: DashboardRoundedIcon, perm: 'dashboard.view', home: '/',
-    nav: [{ header: 'Overview', items: [{ to: '/', label: 'Dashboard', icon: DashboardRoundedIcon, perm: 'dashboard.view', end: true }] }],
+    nav: [{ header: 'Overview', items: [{ to: '/', label: 'Command Centre', icon: DashboardRoundedIcon, perm: 'dashboard.view', end: true }] }],
   },
   {
-    key: 'ops', name: 'Port Operations', short: 'Operations', color: '#0797A5',
-    desc: 'Port calls, berthing, cargo operations and the live board',
+    key: 'ops', name: 'Harbour Operations', short: 'Harbour', color: '#0797A5',
+    desc: 'Vessel calls, quay view, day schedule, berthing and marine craft',
     icon: ViewTimelineRoundedIcon, perm: 'portcalls.view', home: '/port-calls',
     nav: [{
-      header: 'Operations',
+      header: 'Marine operations',
       items: [
-        { to: '/port-calls', label: 'Port Calls', icon: ViewTimelineRoundedIcon, perm: 'portcalls.view' },
+        { to: '/port-calls', label: 'Vessel Calls', icon: ViewTimelineRoundedIcon, perm: 'portcalls.view' },
         { to: '/berth-board', label: 'Berth Board', icon: AnchorRoundedIcon, perm: 'portcalls.view' },
+        { to: '/quay-view', label: 'Quay View (2D)', icon: SpaceDashboardRoundedIcon, perm: 'portcalls.view' },
+        { to: '/schedule', label: 'Vessel Schedule', icon: EventNoteRoundedIcon, perm: 'portcalls.view' },
+        { to: '/marine-services', label: 'Marine Craft & Pilots', icon: DirectionsBoatRoundedIcon, perm: 'portcalls.view' },
       ],
     }],
   },
   {
-    key: 'ships', name: 'Ships Registry', short: 'Ships', color: '#3B6FB6',
-    desc: 'Vessel particulars and statutory certificates',
-    icon: DirectionsBoatFilledRoundedIcon, perm: 'vessels.view', home: '/vessels',
+    key: 'ships', name: 'Fleet Manager', short: 'Fleet', color: '#3B6FB6',
+    desc: 'Vessel particulars, certificates, voyages and risk profiling',
+    icon: DirectionsBoatFilledRoundedIcon, perm: 'vessels.view', home: '/fleet',
     nav: [{
-      header: 'Registry',
+      header: 'Fleet',
       items: [
-        { to: '/vessels', label: 'Vessels', icon: DirectionsBoatFilledRoundedIcon, perm: 'vessels.view' },
+        { to: '/fleet', label: 'Fleet Dashboard', icon: SpaceDashboardRoundedIcon, perm: 'vessels.view', end: true },
+        { to: '/vessels', label: 'Vessel Register', icon: DirectionsBoatFilledRoundedIcon, perm: 'vessels.view' },
         { to: '/certificates', label: 'Certificates', icon: WorkspacePremiumRoundedIcon, perm: 'certificates.view' },
+        { to: '/risk', label: 'Vessel Risk Register', icon: InsightsRoundedIcon, perm: 'risk.view', end: true },
       ],
     }],
   },
   {
-    key: 'crew', name: 'Seafarers', short: 'Seafarers', color: '#75479C',
-    desc: 'Crew register — competency, medicals and sea service',
+    key: 'crew', name: 'Crew & Manning', short: 'Crew', color: '#75479C',
+    desc: 'Crew records — competency, medicals and sea service',
     icon: GroupsRoundedIcon, perm: 'seafarers.view', home: '/seafarers',
     nav: [{
       header: 'Crew',
-      items: [{ to: '/seafarers', label: 'Seafarer Register', icon: BadgeRoundedIcon, perm: 'seafarers.view' }],
+      items: [{ to: '/seafarers', label: 'Crew Register', icon: BadgeRoundedIcon, perm: 'seafarers.view' }],
     }],
   },
   {
-    key: 'legis', name: 'Legislation & Circulars', short: 'Legislation', color: '#8A5A2B',
-    desc: 'Acts, rules, circulars and notices — with acknowledgments',
+    key: 'legis', name: 'Regulatory Desk', short: 'Regulatory', color: '#8A5A2B',
+    desc: 'Acts, rules, notices and circulars — with acknowledgments',
     icon: GavelRoundedIcon, perm: 'legislation.view', home: '/legislation',
     nav: [{
       header: 'Instruments',
@@ -76,40 +86,40 @@ export const MODULES = [
     }],
   },
   {
-    key: 'nmc', name: 'Maritime Centre', short: 'MDA', color: '#0B4F8A',
-    desc: 'Live traffic picture, MDA alerts, incidents and SAR',
+    key: 'nmc', name: 'Ocean Watch', short: 'Watch', color: '#0B4F8A',
+    desc: 'Live traffic picture and derived surveillance alerts',
     icon: RadarRoundedIcon, perm: 'nmc.view', home: '/nmc/map',
     nav: [{
-      header: 'Domain awareness',
+      header: 'Surveillance',
+      items: [{ to: '/nmc/map', label: 'Live Traffic', icon: MapRoundedIcon, perm: 'nmc.view' }],
+    }],
+  },
+  {
+    key: 'incidents', name: 'Incident Desk', short: 'Incidents', color: '#B3452E',
+    desc: 'HSE & marine incident case files — response, RCA and closure',
+    icon: CrisisAlertRoundedIcon, perm: 'incidents.view', home: '/incidents',
+    nav: [{
+      header: 'Case management',
       items: [
-        { to: '/nmc/map', label: 'Live Traffic', icon: MapRoundedIcon, perm: 'nmc.view' },
-        { to: '/nmc/incidents', label: 'Incidents & SAR', icon: CrisisAlertRoundedIcon, perm: 'nmc.view' },
+        { to: '/incidents/overview', label: 'Incident Dashboard', icon: MonitorHeartRoundedIcon, perm: 'incidents.view' },
+        { to: '/incidents', label: 'Incident Register', icon: CrisisAlertRoundedIcon, perm: 'incidents.view', end: true },
       ],
     }],
   },
   {
-    key: 'inspect', name: 'Inspection & Audit', short: 'Inspection', color: '#9C6412',
-    desc: 'PSC, FSI, ISM, ISPS and MLC inspections with findings',
+    key: 'inspect', name: 'Survey & Audit Cell', short: 'Surveys', color: '#9C6412',
+    desc: 'PSC, FSI, ISM, ISPS and MLC surveys with findings and targeting',
     icon: FactCheckRoundedIcon, perm: 'inspections.view', home: '/inspections',
     nav: [{
-      header: 'Compliance',
-      items: [{ to: '/inspections', label: 'Inspections', icon: FactCheckRoundedIcon, perm: 'inspections.view' }],
-    }],
-  },
-  {
-    key: 'risk', name: 'Compliance & Risk', short: 'Risk', color: '#A33229',
-    desc: 'Explainable vessel risk scores and PSC targeting',
-    icon: InsightsRoundedIcon, perm: 'risk.view', home: '/risk',
-    nav: [{
-      header: 'Risk engine',
+      header: 'Surveys',
       items: [
-        { to: '/risk', label: 'Risk Register', icon: InsightsRoundedIcon, perm: 'risk.view', end: true },
-        { to: '/risk/targeting', label: 'PSC Targeting', icon: TrackChangesRoundedIcon, perm: 'risk.view' },
+        { to: '/inspections', label: 'Survey Register', icon: FactCheckRoundedIcon, perm: 'inspections.view' },
+        { to: '/risk/targeting', label: 'Boarding Targets', icon: TrackChangesRoundedIcon, perm: 'risk.view' },
       ],
     }],
   },
   {
-    key: 'facil', name: 'Facilities & Companies', short: 'Facilities', color: '#2C6E52',
+    key: 'facil', name: 'Trade Partners', short: 'Partners', color: '#2C6E52',
     desc: 'Licensing of agencies, suppliers, yards and institutes',
     icon: CorporateFareRoundedIcon, perm: 'facilities.view', home: '/facilities',
     nav: [{
@@ -118,7 +128,7 @@ export const MODULES = [
     }],
   },
   {
-    key: 'finance', name: 'Finance', short: 'Finance', color: '#BD3861',
+    key: 'finance', name: 'Revenue & Billing', short: 'Revenue', color: '#BD3861',
     desc: 'Invoicing, tariffs and collections',
     icon: ReceiptLongRoundedIcon, perm: 'invoices.view', home: '/invoices',
     nav: [{
@@ -139,8 +149,8 @@ export const MODULES = [
     }],
   },
   {
-    key: 'masters', name: 'Masters', short: 'Masters', color: '#5A6B78',
-    desc: 'Berths, lookups and checklist templates',
+    key: 'masters', name: 'Data Studio', short: 'Masters', color: '#5A6B78',
+    desc: 'Berth master, lookups and checklist templates',
     icon: HubRoundedIcon, perm: 'masters.view', home: '/masters/berths',
     nav: [{
       header: 'Reference data',
@@ -167,6 +177,9 @@ export const MODULES = [
   },
 ];
 
+// safety icon reused by incident pages
+export { HealthAndSafetyRoundedIcon };
+
 export const moduleOf = (pathname) => {
   if (pathname === '/') return MODULES[0];
   let best = null;
@@ -184,6 +197,7 @@ export const moduleOf = (pathname) => {
     if (pathname.startsWith('/seafarers')) return MODULES.find((m) => m.key === 'crew');
     if (pathname.startsWith('/facilities')) return MODULES.find((m) => m.key === 'facil');
     if (pathname.startsWith('/nmc')) return MODULES.find((m) => m.key === 'nmc');
+    if (pathname.startsWith('/incidents')) return MODULES.find((m) => m.key === 'incidents');
     if (pathname.startsWith('/inspections')) return MODULES.find((m) => m.key === 'inspect');
     if (pathname.startsWith('/invoices')) return MODULES.find((m) => m.key === 'finance');
     if (pathname.startsWith('/port-calls')) return MODULES.find((m) => m.key === 'ops');

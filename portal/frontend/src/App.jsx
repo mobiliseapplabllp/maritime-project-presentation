@@ -35,8 +35,13 @@ const LegislationPage = lazy(() => import('./pages/legislation/LegislationPage')
 const FacilitiesList = lazy(() => import('./pages/facilities/FacilitiesList'));
 const FacilityDetail = lazy(() => import('./pages/facilities/FacilityDetail'));
 const TrafficMap = lazy(() => import('./pages/nmc/TrafficMap'));
-const IncidentsList = lazy(() => import('./pages/nmc/IncidentsList'));
-const IncidentDetail = lazy(() => import('./pages/nmc/IncidentDetail'));
+const IncidentDashboard = lazy(() => import('./pages/incidents/IncidentDashboard'));
+const IncidentsRegister = lazy(() => import('./pages/incidents/IncidentsRegister'));
+const IncidentCase = lazy(() => import('./pages/incidents/IncidentCase'));
+const FleetDashboard = lazy(() => import('./pages/vessels/FleetDashboard'));
+const PortTwin = lazy(() => import('./pages/ops/PortTwin'));
+const VesselSchedule = lazy(() => import('./pages/ops/VesselSchedule'));
+const MarineServices = lazy(() => import('./pages/ops/MarineServices'));
 const RiskRegister = lazy(() => import('./pages/risk/RiskRegister'));
 const TargetingPage = lazy(() => import('./pages/risk/TargetingPage'));
 const MisReport = lazy(() => import('./pages/mis/MisReport'));
@@ -70,6 +75,10 @@ export default function App() {
           <Route path="/port-calls" element={<Guard perm="portcalls.view"><PortCallsList /></Guard>} />
           <Route path="/port-calls/:id" element={<Guard perm="portcalls.view"><PortCallDetail /></Guard>} />
           <Route path="/berth-board" element={<Guard perm="portcalls.view"><BerthBoard /></Guard>} />
+          <Route path="/quay-view" element={<Guard perm="portcalls.view"><PortTwin /></Guard>} />
+          <Route path="/schedule" element={<Guard perm="portcalls.view"><VesselSchedule /></Guard>} />
+          <Route path="/marine-services" element={<Guard perm="portcalls.view"><MarineServices /></Guard>} />
+          <Route path="/fleet" element={<Guard perm="vessels.view"><FleetDashboard /></Guard>} />
           <Route path="/vessels" element={<Guard perm="vessels.view"><VesselsList /></Guard>} />
           <Route path="/vessels/:id" element={<Guard perm="vessels.view"><VesselDetail /></Guard>} />
           <Route path="/certificates" element={<Guard perm="certificates.view"><CertificatesPage /></Guard>} />
@@ -91,8 +100,10 @@ export default function App() {
           <Route path="/facilities" element={<Guard perm="facilities.view"><FacilitiesList /></Guard>} />
           <Route path="/facilities/:id" element={<Guard perm="facilities.view"><FacilityDetail /></Guard>} />
           <Route path="/nmc/map" element={<Guard perm="nmc.view"><TrafficMap /></Guard>} />
-          <Route path="/nmc/incidents" element={<Guard perm="nmc.view"><IncidentsList /></Guard>} />
-          <Route path="/nmc/incidents/:id" element={<Guard perm="nmc.view"><IncidentDetail /></Guard>} />
+          <Route path="/nmc/incidents" element={<Navigate to="/incidents" replace />} />
+          <Route path="/incidents/overview" element={<Guard perm="incidents.view"><IncidentDashboard /></Guard>} />
+          <Route path="/incidents" element={<Guard perm="incidents.view"><IncidentsRegister /></Guard>} />
+          <Route path="/incidents/:id" element={<Guard perm="incidents.view"><IncidentCase /></Guard>} />
           <Route path="/risk" element={<Guard perm="risk.view"><RiskRegister /></Guard>} />
           <Route path="/risk/targeting" element={<Guard perm="risk.view"><TargetingPage /></Guard>} />
           <Route path="/mis" element={<Guard perm="reports.view"><MisReport /></Guard>} />

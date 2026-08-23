@@ -5,6 +5,7 @@ import KeyRoundedIcon from '@mui/icons-material/KeyRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import CrudPage from '../../components/common/CrudPage';
+import EntityHover from '../../components/common/EntityHover';
 import { fmtDT } from '../../utils/format';
 
 export default function UsersPage() {
@@ -25,7 +26,7 @@ export default function UsersPage() {
         perms={{ create: 'users.manage', edit: 'users.manage', del: 'users.manage' }}
         searchPlaceholder="Search name, email…"
         columns={[
-          { key: 'name', label: 'Name', render: (r) => <b>{r.name}</b> },
+          { key: 'name', label: 'Name', render: (r) => <EntityHover type="user" id={r._id}><b>{r.name}</b></EntityHover> },
           { key: 'email', label: 'Email', mono: true },
           { key: 'role', label: 'Role', render: (r) => <Chip size="small" variant="outlined" label={r.role?.name || '—'} sx={{ height: 20, fontSize: 11 }} /> },
           { key: 'designation', label: 'Designation' },

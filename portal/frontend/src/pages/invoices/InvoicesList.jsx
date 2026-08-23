@@ -8,6 +8,7 @@ import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
 import StatusChip from '../../components/common/StatusChip';
+import EntityHover from '../../components/common/EntityHover';
 import { INVOICE_STATUS_META } from '../../utils/status';
 import { fmtD, fmtINR } from '../../utils/format';
 
@@ -30,7 +31,7 @@ export default function InvoicesList() {
       <DataTable
         columns={[
           { key: 'number', label: 'Invoice no.', mono: true, sortable: true },
-          { key: 'vessel', label: 'Vessel', render: (r) => <b>{r.vessel?.name}</b> },
+          { key: 'vessel', label: 'Vessel', render: (r) => (r.vessel ? <EntityHover type="vessel" id={r.vessel._id}><b>{r.vessel.name}</b></EntityHover> : '—') },
           { key: 'portCall', label: 'Call', mono: true, render: (r) => r.portCall?.vcn || '—' },
           { key: 'billTo', label: 'Billed to', render: (r) => r.billTo?.name || '—' },
           { key: 'total', label: 'Total (incl. GST)', align: 'right', render: (r) => fmtINR(r.total), mono: true },

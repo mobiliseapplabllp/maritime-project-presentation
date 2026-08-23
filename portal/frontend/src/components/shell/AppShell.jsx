@@ -228,14 +228,6 @@ export default function AppShell() {
             <Box sx={{ flex: 1 }} />
             <Chip size="small" label={import.meta.env.VITE_DEMO === '1' ? 'READ-ONLY DEMO' : 'DEMO DATA'} color="warning" variant="outlined"
               sx={{ fontSize: 10, fontWeight: 700, display: { xs: 'none', md: 'inline-flex' } }} />
-            {hasPerm(user, 'ai.use') && (
-              <Tooltip title="AI assistant">
-                <IconButton onClick={() => setAiOpen(true)}
-                  sx={{ background: ADANI_GRADIENT, color: '#fff', width: 34, height: 34, borderRadius: 2.5, '&:hover': { opacity: 0.88, background: ADANI_GRADIENT } }}>
-                  <AutoAwesomeRoundedIcon sx={{ fontSize: 18 }} />
-                </IconButton>
-              </Tooltip>
-            )}
             <Tooltip title={mode === 'dark' ? 'Light mode' : 'Dark mode'}>
               <IconButton color="inherit" onClick={() => dispatch(toggleMode())}>
                 {mode === 'dark' ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />}
@@ -266,6 +258,31 @@ export default function AppShell() {
         </Box>
       </Box>
       <Launcher open={launcher} onClose={() => setLauncher(false)} user={user} />
+      {/* floating assistant — hangs on the bottom-right corner on every screen */}
+      {hasPerm(user, 'ai.use') && !aiOpen && (
+        <Tooltip title="Ask the assistant" placement="left">
+          <IconButton onClick={() => setAiOpen(true)} aria-label="AI assistant"
+            sx={{
+              position: 'fixed', right: 22, bottom: 22, zIndex: (t) => t.zIndex.drawer + 2,
+              width: 54, height: 54, background: ADANI_GRADIENT, color: '#fff',
+              boxShadow: '0 8px 22px rgba(11,50,80,0.38)',
+              '&:hover': { background: ADANI_GRADIENT, transform: 'translateY(-2px)', boxShadow: '0 12px 26px rgba(11,50,80,0.45)' },
+              transition: 'all .18s',
+              '&::after': {
+                content: '""', position: 'absolute', inset: -5, borderRadius: '50%',
+                border: '2px solid', borderColor: 'rgba(117,71,156,0.45)',
+                animation: 'aiPulse 2.6s ease-out infinite',
+              },
+              '@keyframes aiPulse': {
+                '0%': { transform: 'scale(0.85)', opacity: 0.9 },
+                '70%': { transform: 'scale(1.22)', opacity: 0 },
+                '100%': { transform: 'scale(1.22)', opacity: 0 },
+              },
+            }}>
+            <AutoAwesomeRoundedIcon sx={{ fontSize: 26 }} />
+          </IconButton>
+        </Tooltip>
+      )}
       <AiDock open={aiOpen} onClose={() => setAiOpen(false)} />
     </Box>
   );

@@ -12,14 +12,14 @@ const C = require('../src/config/constants');
 
 async function run() {
   await connectDB();
-  const [vessels, berths, lookups, tariffs, templates, users, roles, portcalls, inspections, invoices, notifications, settings, audit, seafarers, instruments, licenses, incidents] = await Promise.all([
+  const [vessels, berths, lookups, tariffs, templates, users, roles, portcalls, inspections, invoices, notifications, settings, audit, seafarers, instruments, licenses, incidents, resources] = await Promise.all([
     M.Vessel.find().lean(), M.Berth.find().lean(), M.Lookup.find().lean(), M.TariffItem.find().lean(),
     M.ChecklistTemplate.find().lean(),
     M.User.find().select('-passwordHash').lean(), M.Role.find().lean(),
     M.PortCall.find().lean(), M.Inspection.find().lean(), M.Invoice.find().lean(),
     M.Notification.find().lean(), M.Setting.findOne({ key: 'org' }).lean(),
     M.AuditLog.find().sort({ at: -1 }).limit(60).lean(),
-    M.Seafarer.find().lean(), M.Instrument.find().lean(), M.License.find().lean(), M.Incident.find().lean(),
+    M.Seafarer.find().lean(), M.Instrument.find().lean(), M.License.find().lean(), M.Incident.find().lean(), M.Resource.find().lean(),
   ]);
   let dash; let riskScores; let riskTargeting; let riskWeights; let trafficPic;
   await dashboard.summary({}, { json: (p) => { dash = p; } });
@@ -35,11 +35,14 @@ async function run() {
       portCallTransitions: C.PORTCALL_TRANSITIONS, inspectionTypes: C.INSPECTION_TYPES,
       inspectionResults: C.INSPECTION_RESULTS, invoiceStatuses: C.INVOICE_STATUS,
       lookupCategories: C.LOOKUP_CATEGORIES, gstRate: C.GST_RATE,
+      incidentTypes: C.INCIDENT_TYPES, incidentStatus: C.INCIDENT_STATUS, incidentSeverity: C.INCIDENT_SEVERITY,
+      incidentCategories: C.INCIDENT_CATEGORIES, incidentPriorities: C.INCIDENT_PRIORITIES, incidentSources: C.INCIDENT_SOURCES,
+      incidentTransitions: C.INCIDENT_TRANSITIONS, resourceTypes: C.RESOURCE_TYPES,
     },
     dashboard: dash.data,
     risk: { scores: riskScores.data, weights: riskWeights.data, targeting: riskTargeting.data },
     tracking: trafficPic.data,
-    collections: { vessels, berths, lookups, tariffs, templates, users, roles, portcalls, inspections, invoices, notifications, audit, seafarers, instruments, licenses, incidents },
+    collections: { vessels, berths, lookups, tariffs, templates, users, roles, portcalls, inspections, invoices, notifications, audit, seafarers, instruments, licenses, incidents, resources },
   };
   const dest = path.join(__dirname, '..', '..', 'frontend', 'src', 'demo', 'snapshot.json');
   fs.mkdirSync(path.dirname(dest), { recursive: true });

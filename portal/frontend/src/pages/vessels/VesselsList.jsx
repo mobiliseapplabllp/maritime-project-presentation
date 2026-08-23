@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Chip } from '@mui/material';
 import CrudPage from '../../components/common/CrudPage';
 import StatusChip from '../../components/common/StatusChip';
+import EntityHover from '../../components/common/EntityHover';
 import { fmtNum } from '../../utils/format';
 
 const TYPES = ['CONT', 'BULK', 'TANK', 'GEN', 'RORO', 'OSV'].map((t) => ({ value: t, label: t }));
@@ -18,7 +19,7 @@ export default function VesselsList() {
       defaultSort="name" searchPlaceholder="Search name, IMO, call sign…"
       onRowClick={(r) => navigate(`/vessels/${r._id}`)}
       columns={[
-        { key: 'name', label: 'Vessel', render: (r) => <b>{r.name}</b> },
+        { key: 'name', label: 'Vessel', render: (r) => <EntityHover type="vessel" id={r._id}><b>{r.name}</b></EntityHover> },
         { key: 'imo', label: 'IMO', mono: true },
         { key: 'type', label: 'Type', render: (r) => <Chip size="small" variant="outlined" label={r.type} sx={{ height: 20, fontSize: 11 }} /> },
         { key: 'flag', label: 'Flag' },

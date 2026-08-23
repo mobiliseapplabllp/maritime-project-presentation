@@ -23,8 +23,19 @@ const vesselSchema = new mongoose.Schema({
   beam: Number,
   maxDraft: Number,
   owner: { type: String, default: '' },
+  operator: { type: String, default: '' },      // commercial operator / charterer
+  manager: { type: String, default: '' },       // technical / ISM manager
   agent: { type: String, default: '' },         // lookup agent code
   classSociety: { type: String, default: '' },
+  piClub: { type: String, default: '' },
+  portOfRegistry: { type: String, default: '' },
+  yard: { type: String, default: '' },          // builder
+  engine: { maker: String, model: String, powerKW: Number },
+  serviceSpeedKn: Number,
+  teuCapacity: Number,                          // container ships only
+  lastDryDock: Date,
+  nextDryDock: Date,
+  liner: { type: Boolean, default: false },     // mainline service caller (documented schedule entry)
   status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
   certificates: [certificateSchema],
 }, { timestamps: true });

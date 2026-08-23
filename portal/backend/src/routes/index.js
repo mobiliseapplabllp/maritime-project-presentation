@@ -20,6 +20,8 @@ const risk = require('../controllers/riskController');
 const ai = require('../controllers/aiController');
 const stats = require('../controllers/statsController');
 const reports = require('../controllers/reportController');
+const cards = require('../controllers/cardController');
+const opsx = require('../controllers/opsController');
 
 // express 4 doesn't catch async rejections — wrap every handler
 const w = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -42,6 +44,9 @@ r.get('/dashboard', requirePerm('dashboard.view'), w(dashboard.summary));
 r.get('/vessels', requirePerm('vessels.view'), w(vessels.list));
 r.post('/vessels', requirePerm('vessels.create'), w(vessels.create));
 r.get('/vessels/certificates/all', requirePerm('certificates.view'), w(vessels.allCertificates));
+r.get('/vessels/fleet-dashboard', requirePerm('vessels.view'), w(vessels.fleetDashboard));
+r.get('/vessels/:id/voyages', requirePerm('vessels.view'), w(vessels.voyages));
+r.get('/vessels/:id/movements', requirePerm('vessels.view'), w(vessels.movements));
 r.get('/vessels/:id', requirePerm('vessels.view'), w(vessels.get));
 r.put('/vessels/:id', requirePerm('vessels.edit'), w(vessels.update));
 r.delete('/vessels/:id', requirePerm('vessels.delete'), w(vessels.remove));
@@ -140,15 +145,32 @@ r.delete('/licenses/:id', requirePerm('facilities.manage'), w(licenses.remove));
 r.post('/licenses/:id/transition', requirePerm('facilities.approve'), w(licenses.transition));
 r.post('/licenses/:id/audits', requirePerm('facilities.manage'), w(licenses.addAudit));
 
-// maritime centre — incidents + traffic picture
-r.get('/incidents', requirePerm('nmc.view'), w(incidents.list));
-r.post('/incidents', requirePerm('nmc.manage'), w(incidents.create));
-r.get('/incidents/:id', requirePerm('nmc.view'), w(incidents.get));
-r.put('/incidents/:id', requirePerm('nmc.manage'), w(incidents.update));
-r.post('/incidents/:id/log', requirePerm('nmc.manage'), w(incidents.addLog));
-r.post('/incidents/:id/close', requirePerm('nmc.manage'), w(incidents.close));
+// incident management — case files with lifecycle, comms, documents, tasks
+r.get('/incidents/dashboard', requirePerm('incidents.view'), w(incidents.dashboard));
+r.get('/incidents', requirePerm('incidents.view'), w(incidents.list));
+r.post('/incidents', requirePerm('incidents.create'), w(incidents.create));
+r.get('/incidents/:id', requirePerm('incidents.view'), w(incidents.get));
+r.put('/incidents/:id', requirePerm('incidents.manage'), w(incidents.update));
+r.delete('/incidents/:id', requirePerm('incidents.manage'), w(incidents.remove));
+r.post('/incidents/:id/transition', requirePerm('incidents.manage'), w(incidents.transition));
+r.post('/incidents/:id/comms', requirePerm('incidents.manage'), w(incidents.addComm));
+r.post('/incidents/:id/documents', requirePerm('incidents.manage'), w(incidents.addDocument));
+r.post('/incidents/:id/tasks', requirePerm('incidents.manage'), w(incidents.addTask));
+r.put('/incidents/:id/tasks/:taskId', requirePerm('incidents.manage'), w(incidents.setTask));
+r.post('/incidents/:id/log', requirePerm('incidents.manage'), w(incidents.addLog));
+
+// maritime surveillance — traffic picture + MDA alerts
 r.get('/tracking', requirePerm('nmc.view'), w(tracking.picture));
 r.post('/tracking/alerts/:id/ack', requirePerm('nmc.manage'), w(tracking.ackAlert));
+
+// harbour operations depth — quay twin, day schedule, marine resources
+r.get('/ops/twin', requirePerm('portcalls.view'), w(opsx.twin));
+r.get('/ops/schedule', requirePerm('portcalls.view'), w(opsx.schedule));
+r.get('/ops/resources', requirePerm('portcalls.view'), w(opsx.resources));
+r.put('/ops/resources/:id', requirePerm('portcalls.edit'), w(opsx.setResourceStatus));
+
+// entity hover-cards (any signed-in user)
+r.get('/cards/:type/:id', w(cards.get));
 
 // compliance & risk engine
 r.get('/risk/scores', requirePerm('risk.view'), w(risk.scores));

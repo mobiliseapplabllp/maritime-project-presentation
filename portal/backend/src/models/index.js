@@ -18,4 +18,5 @@ module.exports = {
   Incident: require('./Incident'),
   MdaAlert: require('./MdaAlert'),
   Position: require('./Position'),
+  Resource: require('./Resource'),
 };

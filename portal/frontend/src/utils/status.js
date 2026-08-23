@@ -31,3 +31,27 @@ export const BERTH_STATUS_META = {
   OPERATIONAL: { label: 'Operational', color: 'success' },
   MAINTENANCE: { label: 'Maintenance', color: 'warning' },
 };
+export const INCIDENT_STATUS_META = {
+  OPEN: { label: 'Open', color: 'error' },
+  ACKNOWLEDGED: { label: 'Acknowledged', color: 'warning' },
+  RESPONDING: { label: 'Responding', color: 'warning' },
+  MONITORING: { label: 'Monitoring', color: 'info' },
+  RESOLVED: { label: 'Resolved', color: 'success' },
+  CLOSED: { label: 'Closed', color: 'default' },
+};
+export const SEVERITY_META = {
+  LOW: { label: 'Low', color: 'default' },
+  MEDIUM: { label: 'Medium', color: 'info' },
+  HIGH: { label: 'High', color: 'warning' },
+  CRITICAL: { label: 'Critical', color: 'error' },
+};
+export const RESOURCE_STATUS_META = {
+  AVAILABLE: { label: 'Available', color: 'success' },
+  TASKED: { label: 'Tasked', color: 'info' },
+  MAINTENANCE: { label: 'Maintenance', color: 'warning' },
+  OFF_DUTY: { label: 'Off duty', color: 'default' },
+};
+export const TASK_STATUS_META = {
+  OPEN: { label: 'Open', color: 'warning' },
+  DONE: { label: 'Done', color: 'success' },
+};

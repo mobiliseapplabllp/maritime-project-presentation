@@ -18,8 +18,9 @@ const PERMISSION_GROUPS = [
   { module: 'seafarers',    label: 'Seafarers',            actions: ['view', 'create', 'edit', 'delete'] },
   { module: 'legislation',  label: 'Legislation & Circulars', actions: ['view', 'manage'] },
   { module: 'facilities',   label: 'Facilities & Companies',  actions: ['view', 'manage', 'approve'] },
-  { module: 'nmc',          label: 'Maritime Centre (MDA)',   actions: ['view', 'manage'] },
-  { module: 'risk',         label: 'Compliance & Risk',       actions: ['view', 'manage'] },
+  { module: 'nmc',          label: 'Maritime Surveillance',   actions: ['view', 'manage'] },
+  { module: 'incidents',    label: 'Incident Management',     actions: ['view', 'create', 'manage', 'close'] },
+  { module: 'risk',         label: 'Risk Intelligence',       actions: ['view', 'manage'] },
   { module: 'ai',           label: 'AI Assistant',            actions: ['use'] },
   { module: 'reports',      label: 'MIS Reports',             actions: ['view'] },
 ];
@@ -77,9 +78,22 @@ const LICENSE_TRANSITIONS = {
   REJECTED: [], REVOKED: [],
 };
 
-const INCIDENT_TYPES = ['SAR', 'POLLUTION', 'SECURITY', 'CASUALTY', 'MEDICAL_EVAC', 'NEAR_MISS'];
-const INCIDENT_STATUS = ['OPEN', 'RESPONDING', 'CLOSED'];
+const INCIDENT_CATEGORIES = ['MARINE', 'HSE', 'SECURITY', 'ENVIRONMENT', 'EQUIPMENT', 'PERSONNEL', 'CARGO', 'NAVIGATION'];
+const INCIDENT_TYPES = ['SAR', 'POLLUTION', 'OIL_SPILL', 'SECURITY_BREACH', 'CASUALTY', 'MEDICAL_EVAC', 'NEAR_MISS',
+  'FIRE', 'COLLISION', 'GROUNDING', 'PERSONNEL_INJURY', 'EQUIPMENT_FAILURE', 'CARGO_DAMAGE', 'NAV_HAZARD', 'MOORING_FAILURE'];
+const INCIDENT_STATUS = ['OPEN', 'ACKNOWLEDGED', 'RESPONDING', 'MONITORING', 'RESOLVED', 'CLOSED'];
 const INCIDENT_SEVERITY = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+const INCIDENT_PRIORITIES = ['P1', 'P2', 'P3', 'P4'];
+const INCIDENT_SOURCES = ['VHF', 'PHONE', 'EMAIL', 'PATROL', 'PORTAL', 'CCTV', 'AIS'];
+const INCIDENT_TRANSITIONS = {
+  OPEN:         ['ACKNOWLEDGED', 'RESPONDING'],
+  ACKNOWLEDGED: ['RESPONDING', 'RESOLVED'],
+  RESPONDING:   ['MONITORING', 'RESOLVED'],
+  MONITORING:   ['RESPONDING', 'RESOLVED'],
+  RESOLVED:     ['CLOSED', 'RESPONDING'],   // RESPONDING here = reopened
+  CLOSED:       ['RESPONDING'],             // reopen a closed case
+};
+const RESOURCE_TYPES = ['TUG', 'PILOT_LAUNCH', 'MOORING_BOAT', 'PILOT', 'SURVEY_LAUNCH'];
 
 // default weights for the explainable risk engine (0-100 scale contribution caps)
 const DEFAULT_RISK_WEIGHTS = {
@@ -91,7 +105,8 @@ module.exports = {
   SEAFARER_RANKS, SEAFARER_CERT_TYPES,
   INSTRUMENT_TYPES, INSTRUMENT_STATUS,
   LICENSE_TYPES, LICENSE_STATUS, LICENSE_TRANSITIONS,
-  INCIDENT_TYPES, INCIDENT_STATUS, INCIDENT_SEVERITY, DEFAULT_RISK_WEIGHTS,
+  INCIDENT_CATEGORIES, INCIDENT_TYPES, INCIDENT_STATUS, INCIDENT_SEVERITY,
+  INCIDENT_PRIORITIES, INCIDENT_SOURCES, INCIDENT_TRANSITIONS, RESOURCE_TYPES, DEFAULT_RISK_WEIGHTS,
   PORTCALL_STATUS, PORTCALL_TRANSITIONS,
   INSPECTION_TYPES, INSPECTION_STATUS, INSPECTION_RESULTS,
   INVOICE_STATUS, GST_RATE, LOOKUP_CATEGORIES, CERT_EXPIRING_DAYS,

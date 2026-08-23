@@ -6,6 +6,7 @@ import PageStats from '../components/common/PageStats';
 import PageHeader from '../components/common/PageHeader';
 import DataTable from '../components/common/DataTable';
 import StatusChip from '../components/common/StatusChip';
+import EntityHover from '../components/common/EntityHover';
 import { CERT_STATUS_META } from '../utils/status';
 import { fmtD } from '../utils/format';
 
@@ -26,7 +27,7 @@ export default function CertificatesPage() {
       <PageStats scope="certificates" />
       <DataTable
         columns={[
-          { key: 'vesselName', label: 'Vessel', render: (r) => <b>{r.vesselName}</b> },
+          { key: 'vesselName', label: 'Vessel', render: (r) => <EntityHover type="vessel" id={r.vesselId}><b>{r.vesselName}</b></EntityHover> },
           { key: 'imo', label: 'IMO', mono: true },
           { key: 'certType', label: 'Certificate' },
           { key: 'number', label: 'Number', mono: true },

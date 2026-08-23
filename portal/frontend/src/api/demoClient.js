@@ -187,8 +187,8 @@ function statsFor(scope) {
     case 'incidents': {
       const inc = D.incidents || [];
       return [
-        card('Open', inc.filter((i) => i.status === 'OPEN').length, 'awaiting response', 'error'),
-        card('Responding', inc.filter((i) => i.status === 'RESPONDING').length, 'assets tasked', 'warning'),
+        card('Open / unacknowledged', inc.filter((i) => ['OPEN', 'ACKNOWLEDGED'].includes(i.status)).length, 'awaiting response', 'error'),
+        card('In response', inc.filter((i) => ['RESPONDING', 'MONITORING'].includes(i.status)).length, 'assets tasked', 'warning'),
         card('Closed this month', inc.filter((i) => i.closedAt && new Date(i.closedAt) >= monthStart).length, '', 'success'),
         card('High severity YTD', inc.filter((i) => ['HIGH', 'CRITICAL'].includes(i.severity) && new Date(i.reportedAt) >= yearStart).length, 'high + critical'),
       ];
@@ -413,7 +413,11 @@ const LISTS = {
   '/seafarers': (p) => listOf((D.seafarers || []).map(decorateSeafarer), p, { search: ['name', 'cdcNo', 'indosNo'], filters: ['rank', 'status', 'nationality'], sort: 'name' }),
   '/instruments': (p) => listOf((D.instruments || []).map((i) => ({ ...i, acknowledgedBy: [...(i.acknowledgedBy || []), ...(ackedInstruments.get(String(i._id)) || [])] })), p, { search: ['refNo', 'title', 'summary'], filters: ['type', 'category', 'status'], sort: '-issuedDate' }),
   '/licenses': (p) => listOf(D.licenses || [], p, { search: ['licenseNo', 'entityName'], filters: ['entityType', 'status'] }),
-  '/incidents': (p) => listOf((D.incidents || []).map((i) => ({ ...i, vessel: i.vessel ? pickFields(maps.vessels.get(String(i.vessel)), ['name', 'imo']) : null })), p, { search: ['number', 'title', 'vesselName'], filters: ['status', 'type', 'severity'], sort: '-reportedAt' }),
+  '/incidents': (p) => listOf((D.incidents || []).map(({ comms, documents, log, statusHistory, tasks, ...i }) => ({
+    ...i,
+    vessel: i.vessel ? pickFields(maps.vessels.get(String(i.vessel)), ['name', 'imo']) : null,
+    berth: i.berth ? pickFields(maps.berths.get(String(i.berth)), ['code', 'terminal']) : null,
+  })), p, { search: ['number', 'title', 'vesselName', 'reportedBy'], filters: ['status', 'type', 'severity', 'category', 'priority'], sort: '-reportedAt' }),
 };
 
 function detail(url) {
@@ -428,6 +432,15 @@ function detail(url) {
       .map((c) => ({ ...clone(c), berth: c.berth ? pickFields(maps.berths.get(String(c.berth)), ['code', 'name']) : null }));
     v.recentInspections = D.inspections.filter((i) => String(i.vessel) === m[1])
       .sort((a, b) => new Date(b.plannedAt) - new Date(a.plannedAt)).slice(0, 10).map(clone);
+    v.recentIncidents = (D.incidents || []).filter((i) => String(i.vessel) === m[1])
+      .sort((a, b) => new Date(b.reportedAt) - new Date(a.reportedAt)).slice(0, 12)
+      .map(({ number, title, type, severity, status, reportedAt, closedAt, _id }) => ({ _id, number, title, type, severity, status, reportedAt, closedAt }));
+    v.crewOnBoard = (D.seafarers || []).filter((s2) => String(s2.currentVessel) === m[1]).map((s2) => ({
+      _id: s2._id, name: s2.name, rank: s2.rank, cdcNo: s2.cdcNo, nationality: s2.nationality, status: s2.status,
+      certAlerts: (s2.certificates || []).filter((c) => certStatus(c.expiryDate) !== 'VALID').length,
+    }));
+    const lp = (snap.tracking?.positions || []).find((p2) => String(p2.vessel?._id) === m[1]);
+    v.lastPosition = lp ? { lat: lp.lat, lon: lp.lon, course: lp.course, speed: lp.speed, navStatus: lp.navStatus, receivedAt: lp.receivedAt } : null;
     return v;
   }
   if ((m = url.match(/^\/port-calls\/([a-f0-9]{24})$/))) {
@@ -468,9 +481,289 @@ function detail(url) {
   if ((m = url.match(/^\/incidents\/([a-f0-9]{24})$/))) {
     const inc = maps.incidents.get(m[1]);
     if (!inc) throw new Error('Incident not found');
-    return { ...clone(inc), vessel: inc.vessel ? pickFields(maps.vessels.get(String(inc.vessel)), ['name', 'imo', 'type', 'flag']) : null };
+    return { ...clone(inc),
+      vessel: inc.vessel ? pickFields(maps.vessels.get(String(inc.vessel)), ['name', 'imo', 'type', 'flag']) : null,
+      berth: inc.berth ? pickFields(maps.berths.get(String(inc.berth)), ['code', 'name', 'terminal']) : null };
   }
+  if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/voyages$/))) return vesselVoyages(m[1]);
+  if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/movements$/))) return vesselMovements(m[1]);
+  if ((m = url.match(/^\/cards\/([a-z]+)\/([A-Za-z0-9]+)$/))) return cardFor(m[1], m[2]);
   return undefined;
+}
+
+/* ---- v5: incidents dashboard, fleet dashboard, voyages/movements, quay twin, schedule, cards ---- */
+const ACTIVE_CALL = ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'];
+
+function incidentsDashboard() {
+  const now = new Date();
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  const from = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const all = (D.incidents || []).filter((i) => new Date(i.reportedAt) >= from);
+  const everOpen = (D.incidents || []).filter((i) => ['OPEN', 'ACKNOWLEDGED', 'RESPONDING', 'MONITORING'].includes(i.status))
+    .sort((a, b) => new Date(a.reportedAt) - new Date(b.reportedAt));
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const months = [];
+  const cur = new Date(from.getFullYear(), from.getMonth(), 1);
+  while (cur <= now) {
+    months.push({ key: monthKey(cur), month: cur.toLocaleString('en-IN', { month: 'short', year: '2-digit' }), LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0, total: 0 });
+    cur.setMonth(cur.getMonth() + 1);
+  }
+  const byType = {}; const byCategory = {}; const byStatus = {};
+  let resolvedN = 0; let resolveSum = 0; let ackN = 0; let ackSum = 0; let injuries = 0;
+  for (const i of all) {
+    const row = months.find((mm) => mm.key === monthKey(new Date(i.reportedAt)));
+    if (row) { row[i.severity] += 1; row.total += 1; }
+    byType[i.type] = (byType[i.type] || 0) + 1;
+    byCategory[i.category] = (byCategory[i.category] || 0) + 1;
+    byStatus[i.status] = (byStatus[i.status] || 0) + 1;
+    injuries += i.injuries || 0;
+    const end = i.resolvedAt || i.closedAt;
+    if (end) { resolvedN += 1; resolveSum += (new Date(end) - new Date(i.reportedAt)) / HOUR; }
+    if (i.acknowledgedAt) { ackN += 1; ackSum += (new Date(i.acknowledgedAt) - new Date(i.reportedAt)) / HOUR; }
+  }
+  const aging = { '0-24h': 0, '1-3d': 0, '3-7d': 0, '>7d': 0 };
+  for (const i of everOpen) {
+    const ageH = (now - new Date(i.reportedAt)) / HOUR;
+    if (ageH <= 24) aging['0-24h'] += 1; else if (ageH <= 72) aging['1-3d'] += 1;
+    else if (ageH <= 168) aging['3-7d'] += 1; else aging['>7d'] += 1;
+  }
+  return {
+    kpis: {
+      open: everOpen.length,
+      highOpen: everOpen.filter((i) => ['HIGH', 'CRITICAL'].includes(i.severity)).length,
+      loggedYtd: all.filter((i) => new Date(i.reportedAt) >= yearStart).length,
+      closedYtd: all.filter((i) => i.closedAt && new Date(i.closedAt) >= yearStart).length,
+      mttrHrs: resolvedN ? Math.round((resolveSum / resolvedN) * 10) / 10 : 0,
+      mttaMin: ackN ? Math.round((ackSum / ackN) * 60) : 0,
+      injuriesYtd: injuries,
+    },
+    byMonth: months.map(({ key, ...mm }) => mm),
+    byType: Object.entries(byType).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count),
+    byCategory: Object.entries(byCategory).map(([category, count]) => ({ category, count })).sort((a, b) => b.count - a.count),
+    byStatus: Object.entries(byStatus).map(([status, count]) => ({ status, count })),
+    aging: Object.entries(aging).map(([bucket, count]) => ({ bucket, count })),
+    openList: everOpen.slice(0, 12).map((i) => ({ _id: i._id, number: i.number, title: i.title, severity: i.severity, status: i.status, reportedAt: i.reportedAt, priority: i.priority, assignedTo: i.assignedTo })),
+  };
+}
+
+function fleetDashboard() {
+  const now = new Date();
+  const activeSet = new Map(D.portcalls.filter((c) => ACTIVE_CALL.includes(c.status)).map((c) => [String(c.vessel), c.status]));
+  const fleet = D.vessels.filter((v) => v.status === 'ACTIVE');
+  const byType = {}; const byFlag = {}; const byClass = {}; const ageBands = { '0-5': 0, '6-10': 0, '11-15': 0, '16-20': 0, '>20': 0 };
+  let certValid = 0; let certExpiring = 0; let certExpired = 0;
+  const certAlertVessels = [];
+  for (const v of fleet) {
+    byType[v.type] = (byType[v.type] || 0) + 1;
+    byFlag[v.flag] = (byFlag[v.flag] || 0) + 1;
+    byClass[v.classSociety || '—'] = (byClass[v.classSociety || '—'] || 0) + 1;
+    const age = now.getFullYear() - (v.built || now.getFullYear());
+    ageBands[age <= 5 ? '0-5' : age <= 10 ? '6-10' : age <= 15 ? '11-15' : age <= 20 ? '16-20' : '>20'] += 1;
+    let alerts = 0;
+    for (const c of v.certificates || []) {
+      const st = certStatus(c.expiryDate);
+      if (st === 'VALID') certValid += 1; else if (st === 'EXPIRING') { certExpiring += 1; alerts += 1; } else { certExpired += 1; alerts += 1; }
+    }
+    if (alerts) certAlertVessels.push({ _id: v._id, name: v.name, type: v.type, alerts });
+  }
+  certAlertVessels.sort((a, b) => b.alerts - a.alerts);
+  return {
+    kpis: {
+      fleet: fleet.length, inactive: D.vessels.length - fleet.length,
+      inPort: [...activeSet.values()].filter((s2) => s2 === 'BERTHED').length,
+      inbound: [...activeSet.values()].filter((s2) => ['ANNOUNCED', 'CONFIRMED'].includes(s2)).length,
+      atAnchor: [...activeSet.values()].filter((s2) => s2 === 'AT_ANCHORAGE').length,
+      avgAge: fleet.length ? Math.round(fleet.reduce((s2, v) => s2 + (now.getFullYear() - (v.built || now.getFullYear())), 0) / fleet.length) : 0,
+      totalDwt: fleet.reduce((s2, v) => s2 + (v.dwt || 0), 0),
+    },
+    byType: Object.entries(byType).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count),
+    byFlag: Object.entries(byFlag).map(([flag, count]) => ({ flag, count })).sort((a, b) => b.count - a.count),
+    byClass: Object.entries(byClass).map(([cls, count]) => ({ cls, count })).sort((a, b) => b.count - a.count),
+    ageBands: Object.entries(ageBands).map(([band, count]) => ({ band, count })),
+    certs: { valid: certValid, expiring: certExpiring, expired: certExpired },
+    certAlertVessels: certAlertVessels.slice(0, 8),
+  };
+}
+
+function vesselVoyages(id) {
+  const calls = D.portcalls.filter((c) => String(c.vessel) === id && c.status === 'SAILED')
+    .sort((a, b) => new Date(b.atd) - new Date(a.atd)).slice(0, 40);
+  const voyages = calls.map((c) => {
+    const b = c.berth && maps.berths.get(String(c.berth));
+    return {
+      callId: c._id, vcn: c.vcn, fromPort: c.prevPort || '—', toPort: c.nextPort || '—',
+      arrived: c.ata, sailed: c.atd, berth: b ? b.code : '—', terminal: b ? b.terminal : '—', purpose: c.purpose,
+      cargo: (c.cargoOps || []).map((o) => `${o.operation === 'LOAD' ? 'Loaded' : 'Discharged'} ${new Intl.NumberFormat('en-IN').format(o.qty)} ${o.unit} ${o.cargoType}`).join('; '),
+      portDays: c.ata && c.atd ? Math.round(((new Date(c.atd) - new Date(c.ata)) / 86400000) * 10) / 10 : null,
+    };
+  });
+  const laneCount = {};
+  for (const c of calls) for (const p of [c.prevPort, c.nextPort]) if (p) laneCount[p] = (laneCount[p] || 0) + 1;
+  const lanes = Object.entries(laneCount).map(([port, calls2]) => ({ port, calls: calls2 })).sort((a, b) => b.calls - a.calls).slice(0, 8);
+  return { voyages, lanes };
+}
+
+function vesselMovements(id) {
+  const lp = (snap.tracking?.positions || []).find((p2) => String(p2.vessel?._id) === id);
+  const position = lp ? { lat: lp.lat, lon: lp.lon, course: lp.course, speed: lp.speed, navStatus: lp.navStatus, receivedAt: lp.receivedAt } : null;
+  const events = D.portcalls.filter((c) => String(c.vessel) === id)
+    .sort((a, b) => new Date(b.eta) - new Date(a.eta)).slice(0, 12)
+    .flatMap((c) => (c.statusHistory || []).map((h) => ({ at: h.at, vcn: c.vcn, event: h.to, note: h.note || '' })))
+    .sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 40);
+  return { position, events };
+}
+
+function opsTwin() {
+  const active = D.portcalls.filter((c) => ACTIVE_CALL.includes(c.status));
+  const byBerth = new Map(active.filter((c) => c.status === 'BERTHED' && c.berth).map((c) => [String(c.berth), c]));
+  const vOf = (c) => maps.vessels.get(String(c.vessel));
+  return {
+    berths: D.berths.slice().sort((a, b) => (a.code < b.code ? -1 : 1)).map((b) => {
+      const c = byBerth.get(String(b._id));
+      const v = c && vOf(c);
+      return {
+        _id: b._id, code: b.code, name: b.name, terminal: b.terminal, berthType: b.berthType,
+        loaMax: b.loaMax, draftMax: b.draftMax, status: b.status,
+        occupiedBy: c ? {
+          callId: c._id, vcn: c.vcn, vesselId: v?._id, vessel: v?.name, type: v?.type, loa: v?.loa, atb: c.atb, etd: c.etd,
+          cargo: (c.cargoOps || []).map((o) => `${o.operation.toLowerCase()} ${new Intl.NumberFormat('en-IN').format(o.qty)} ${o.unit} ${o.cargoType}`).join('; '),
+        } : null,
+      };
+    }),
+    anchorage: active.filter((c) => c.status === 'AT_ANCHORAGE').map((c) => {
+      const v = vOf(c);
+      return { callId: c._id, vcn: c.vcn, vesselId: v?._id, vessel: v?.name, type: v?.type, loa: v?.loa, since: c.ata, etb: c.etb };
+    }),
+    inbound: active.filter((c) => ['ANNOUNCED', 'CONFIRMED'].includes(c.status)).map((c) => {
+      const v = vOf(c);
+      return { callId: c._id, vcn: c.vcn, vesselId: v?._id, vessel: v?.name, type: v?.type, loa: v?.loa, eta: c.eta, status: c.status };
+    }).sort((a, b) => new Date(a.eta) - new Date(b.eta)),
+  };
+}
+
+function opsSchedule(params = {}) {
+  const days = Math.min(14, Math.max(1, parseInt(params.days, 10) || 5));
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const from = new Date(start.getTime() - DAY);
+  const to = new Date(start.getTime() + days * DAY);
+  const events = [];
+  for (const c of D.portcalls) {
+    if (c.status === 'CANCELLED') continue;
+    const v = maps.vessels.get(String(c.vessel));
+    const b = c.berth && maps.berths.get(String(c.berth));
+    const base = { callId: c._id, vcn: c.vcn, vesselId: v?._id, vessel: v?.name, type: v?.type, berth: b ? b.code : '—', agent: c.agentName, status: c.status };
+    const inWin = (d) => d && new Date(d) >= from && new Date(d) <= to;
+    if (['ANNOUNCED', 'CONFIRMED'].includes(c.status) && inWin(c.eta)) events.push({ ...base, kind: 'ARRIVAL', at: c.eta, planned: true });
+    if (c.status === 'AT_ANCHORAGE' && inWin(c.etb)) events.push({ ...base, kind: 'BERTHING', at: c.etb, planned: true });
+    if (c.status === 'BERTHED' && c.etd) events.push({ ...base, kind: 'SAILING', at: c.etd, planned: true });
+    if (c.status === 'SAILED' && inWin(c.atd)) events.push({ ...base, kind: 'SAILED', at: c.atd, planned: false });
+  }
+  events.sort((a, b) => new Date(a.at) - new Date(b.at));
+  return { from, to, events };
+}
+
+function cardFor(type, id) {
+  const inr2 = (x) => x; // labels only
+  if (type === 'user') {
+    const u = maps ? (D.users.find((x) => String(x._id) === id)) : null;
+    if (!u) throw new Error('Record not found');
+    const role = maps.roles.get(String(u.role));
+    return {
+      kind: 'user', title: u.name, subtitle: u.designation || role?.name || '',
+      lines: [
+        { label: 'Role', value: role?.name || '—' }, { label: 'Email', value: u.email },
+        { label: 'Phone', value: u.phone || '—' }, { label: 'Last sign-in', value: u.lastLoginAt || null, kind: 'since' },
+      ],
+      chips: [{ label: u.active === false ? 'Disabled' : 'Active', tone: u.active === false ? 'default' : 'success' }],
+    };
+  }
+  if (type === 'vessel') {
+    const v = maps.vessels.get(id);
+    if (!v) throw new Error('Record not found');
+    const call = D.portcalls.find((c) => String(c.vessel) === id && ACTIVE_CALL.includes(c.status));
+    const b = call && call.berth && maps.berths.get(String(call.berth));
+    const alerts = (v.certificates || []).filter((c) => certStatus(c.expiryDate) !== 'VALID').length;
+    const situation = !call ? 'No active call'
+      : call.status === 'BERTHED' ? `Berthed at ${b?.code || '—'} (${call.vcn})`
+        : call.status === 'AT_ANCHORAGE' ? `At anchorage (${call.vcn})` : `Inbound — ${call.status.toLowerCase()} (${call.vcn})`;
+    return {
+      kind: 'vessel', title: v.name, subtitle: `IMO ${v.imo} · ${v.type} · ${v.flag} flag`, link: `/vessels/${v._id}`,
+      lines: [
+        { label: 'Now', value: situation }, { label: 'Owner', value: v.owner || '—' },
+        { label: 'Agent', value: v.agent || '—' },
+        { label: 'DWT / LOA', value: `${new Intl.NumberFormat('en-IN').format(v.dwt || 0)} MT · ${v.loa || '—'} m` },
+      ],
+      chips: [
+        { label: v.status, tone: v.status === 'ACTIVE' ? 'success' : 'default' },
+        ...(alerts ? [{ label: `${alerts} cert alert${alerts > 1 ? 's' : ''}`, tone: 'warning' }] : []),
+      ],
+    };
+  }
+  if (type === 'seafarer') {
+    const s2 = maps.seafarers.get(id);
+    if (!s2) throw new Error('Record not found');
+    const cv = s2.currentVessel && maps.vessels.get(String(s2.currentVessel));
+    const alerts = (s2.certificates || []).filter((c) => certStatus(c.expiryDate) !== 'VALID').length;
+    return {
+      kind: 'seafarer', title: s2.name, subtitle: `${s2.rank} · CDC ${s2.cdcNo}`, link: `/seafarers/${s2._id}`,
+      lines: [
+        { label: 'On board', value: cv?.name || 'Ashore' }, { label: 'Nationality', value: s2.nationality },
+        { label: 'INDoS', value: s2.indosNo || '—' }, { label: 'Phone', value: s2.phone || '—' },
+      ],
+      chips: [
+        { label: s2.status.replace(/_/g, ' '), tone: s2.status === 'ACTIVE' ? 'success' : 'default' },
+        ...(alerts ? [{ label: `${alerts} cert alert${alerts > 1 ? 's' : ''}`, tone: 'warning' }] : []),
+      ],
+    };
+  }
+  if (type === 'berth') {
+    const b = maps.berths.get(id);
+    if (!b) throw new Error('Record not found');
+    const call = D.portcalls.find((c) => String(c.berth) === id && c.status === 'BERTHED');
+    const v = call && maps.vessels.get(String(call.vessel));
+    return {
+      kind: 'berth', title: `${b.code} — ${b.name}`, subtitle: b.terminal,
+      lines: [
+        { label: 'Type', value: b.berthType },
+        { label: 'Max LOA / draft', value: `${b.loaMax || '—'} m · ${b.draftMax || '—'} m` },
+        { label: 'Alongside', value: call ? `${v?.name} (${call.vcn})` : 'Free' },
+      ],
+      chips: [
+        { label: b.status, tone: b.status === 'OPERATIONAL' ? 'success' : 'warning' },
+        { label: call ? 'Occupied' : 'Free', tone: call ? 'info' : 'default' },
+      ],
+    };
+  }
+  if (type === 'agent') {
+    const a = D.lookups.find((l) => l.category === 'agent' && l.code === String(id).toUpperCase());
+    if (!a) throw new Error('Record not found');
+    const activeCalls = D.portcalls.filter((c) => c.agentCode === a.code && ACTIVE_CALL.includes(c.status)).length;
+    return {
+      kind: 'agent', title: a.label, subtitle: `Shipping agent · ${a.code}`,
+      lines: [
+        { label: 'Address', value: inr2(a.meta?.address || '—') }, { label: 'GSTIN', value: a.meta?.gstin || '—' },
+        { label: 'Active calls', value: String(activeCalls) },
+      ],
+      chips: [{ label: 'Licensed', tone: 'success' }],
+    };
+  }
+  if (type === 'incident') {
+    const i = maps.incidents.get(id);
+    if (!i) throw new Error('Record not found');
+    return {
+      kind: 'incident', title: i.number, subtitle: i.title, link: `/incidents/${i._id}`,
+      lines: [
+        { label: 'Type', value: i.type.replace(/_/g, ' ') },
+        { label: 'Case officer', value: i.assignedTo?.name || 'Unassigned' },
+        { label: 'Reported', value: i.reportedAt, kind: 'since' },
+      ],
+      chips: [
+        { label: i.severity, tone: ['HIGH', 'CRITICAL'].includes(i.severity) ? 'error' : i.severity === 'MEDIUM' ? 'warning' : 'default' },
+        { label: i.status.replace(/_/g, ' '), tone: ['RESOLVED', 'CLOSED'].includes(i.status) ? 'success' : 'info' },
+      ],
+    };
+  }
+  throw new Error('Record not found');
 }
 
 const READ_ONLY = 'Read-only demo — CRUD, workflow transitions and billing run in the full portal (see the repository README)';
@@ -521,6 +814,11 @@ const demo = {
       if (cards) return { success: true, data: { cards } };
     }
     if (url === '/reports/mis') return { success: true, data: misReport(params) };
+    if (url === '/incidents/dashboard') return { success: true, data: incidentsDashboard() };
+    if (url === '/vessels/fleet-dashboard') return { success: true, data: fleetDashboard() };
+    if (url === '/ops/twin') return { success: true, data: opsTwin() };
+    if (url === '/ops/schedule') return { success: true, data: opsSchedule(params) };
+    if (url === '/ops/resources') return { success: true, data: clone(D.resources || []) };
     const d = detail(url);
     if (d !== undefined) return { success: true, data: d };
     if (LISTS[url]) { const r = LISTS[url](params); return { success: true, ...r }; }

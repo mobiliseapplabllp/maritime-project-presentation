@@ -106,12 +106,12 @@ const SCOPES = {
       card('Detentions YTD', ins.filter((i) => i.detention && i.closedAt && new Date(i.closedAt) >= new Date(now.getFullYear(), 0, 1)).length, '', 'error'),
     ];
   } },
-  incidents: { perm: 'nmc.view', compute: async () => {
+  incidents: { perm: 'incidents.view', compute: async () => {
     const now = new Date();
     const inc = await Incident.find().select('status severity closedAt reportedAt').lean();
     return [
-      card('Open', inc.filter((i) => i.status === 'OPEN').length, 'awaiting response', 'error'),
-      card('Responding', inc.filter((i) => i.status === 'RESPONDING').length, 'assets tasked', 'warning'),
+      card('Open / unacknowledged', inc.filter((i) => ['OPEN', 'ACKNOWLEDGED'].includes(i.status)).length, 'awaiting response', 'error'),
+      card('In response', inc.filter((i) => ['RESPONDING', 'MONITORING'].includes(i.status)).length, 'assets tasked', 'warning'),
       card('Closed this month', inc.filter((i) => i.closedAt && new Date(i.closedAt) >= new Date(now.getFullYear(), now.getMonth(), 1)).length, '', 'success'),
       card('High severity YTD', inc.filter((i) => ['HIGH', 'CRITICAL'].includes(i.severity) && new Date(i.reportedAt) >= new Date(now.getFullYear(), 0, 1)).length, 'high + critical'),
     ];

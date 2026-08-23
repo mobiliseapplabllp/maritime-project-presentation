@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Chip, Badge } from '@mui/material';
 import api from '../../api/client';
 import CrudPage from '../../components/common/CrudPage';
+import EntityHover from '../../components/common/EntityHover';
 import { fmtNum } from '../../utils/format';
 
 const STATUS_META = { ACTIVE: ['Active', 'success'], SHORE_LEAVE: ['Shore leave', 'info'], SIGNED_OFF: ['Signed off', 'default'], SUSPENDED: ['Suspended', 'error'] };
@@ -20,7 +21,7 @@ export default function SeafarersList() {
       defaultSort="name" searchPlaceholder="Search name, CDC, INDoS…"
       onRowClick={(r) => navigate(`/seafarers/${r._id}`)}
       columns={[
-        { key: 'name', label: 'Seafarer', render: (r) => <b>{r.name}</b> },
+        { key: 'name', label: 'Seafarer', render: (r) => <EntityHover type="seafarer" id={r._id}><b>{r.name}</b></EntityHover> },
         { key: 'cdcNo', label: 'CDC No.', mono: true },
         { key: 'indosNo', label: 'INDoS', mono: true },
         { key: 'rank', label: 'Rank' },
