@@ -15,7 +15,7 @@ Mobilise App Lab project.
 | `docs/01-capability-model.md` | Part I in full — the seven domains, five capability spines, and the Core/Configure/Extend/Build model. |
 | `docs/02-delivery-confidence.md` | Part II in tender-response prose — delivery capability, the proof-of-capability offer, roadmap, risk. |
 | `docs/03-agentic-ai-architecture.md` | Part III in full — agent specifications, orchestration, autonomy tiers, guardrails, audit. |
-| `build/make_pptx.py` | Generates the editable PowerPoint from the same content. |
+| `build/make_pptx.js` | Generates the editable PowerPoint from the same content. |
 
 ## Viewing the deck
 
@@ -28,9 +28,15 @@ Google Fonts (which degrades to system fonts cleanly if blocked).
 ## Building the PowerPoint
 
 ```bash
-pip install python-pptx
-python3 build/make_pptx.py
+npm install          # pptxgenjs
+node build/make_pptx.js
 # writes dist/maritime-platform-capability.pptx
+```
+
+Validate and QA the result:
+
+```bash
+python3 ~/.claude/skills/synced/pptx/scripts/office/validate.py dist/maritime-platform-capability.pptx
 ```
 
 ## The three questions this material answers

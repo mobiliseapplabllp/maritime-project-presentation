@@ -1,0 +1,8 @@
+{
+  "name": "maritime-project-presentation",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Maritime platform capability and delivery dossier",
+  "scripts": { "pptx": "node build/make_pptx.js" },
+  "dependencies": { "pptxgenjs": "^4.0.1" }
+}
