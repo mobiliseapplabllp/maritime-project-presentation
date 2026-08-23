@@ -3,3 +3,10 @@ node_modules/
 *.log
 build/venv/
 __pycache__/
+
+# portal dev
+portal/.dev/bin/
+portal/.dev/data/
+portal/**/node_modules/
+portal/**/.env
+portal/frontend/dist/

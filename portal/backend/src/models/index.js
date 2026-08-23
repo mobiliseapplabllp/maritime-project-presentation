@@ -1,0 +1,15 @@
+module.exports = {
+  User: require('./User'),
+  Role: require('./Role'),
+  Setting: require('./Setting'),
+  Berth: require('./Berth'),
+  Lookup: require('./Lookup'),
+  TariffItem: require('./TariffItem'),
+  ChecklistTemplate: require('./ChecklistTemplate'),
+  Vessel: require('./Vessel'),
+  PortCall: require('./PortCall'),
+  Inspection: require('./Inspection'),
+  Invoice: require('./Invoice'),
+  AuditLog: require('./AuditLog'),
+  Notification: require('./Notification'),
+};
