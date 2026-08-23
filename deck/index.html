@@ -1,0 +1,1302 @@
+<title>Maritime Digital Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F4F3; --bg2:#FFFFFF; --bg3:#E4EAE9; --bg4:#D8E1E1;
+  --ink:#0B1F2A; --ink2:#3E5561; --ink3:#6B838E;
+  --rule:#C6D3D4; --rule2:#AFC1C2;
+  --sea:#0E7C86; --sea2:#0A5C64; --seaSoft:rgba(14,124,134,.10); --seaLine:rgba(14,124,134,.34);
+  --beacon:#A96F12; --beaconSoft:rgba(169,111,18,.11); --beaconLine:rgba(169,111,18,.34);
+  --ok:#2C6E52; --warn:#9C6412; --crit:#A33229;
+  --okSoft:rgba(44,110,82,.11); --warnSoft:rgba(156,100,18,.11); --critSoft:rgba(163,50,41,.11);
+  --shadow:0 1px 2px rgba(11,31,42,.05),0 8px 26px -14px rgba(11,31,42,.22);
+  --maxw:1180px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#071620; --bg2:#0C2330; --bg3:#102D3B; --bg4:#16394A;
+    --ink:#E9F0F0; --ink2:#AAC1C7; --ink3:#89A5B0;
+    --rule:#1C3F4F; --rule2:#2A5568;
+    --sea:#45BFC6; --sea2:#7FD8DC; --seaSoft:rgba(69,191,198,.13); --seaLine:rgba(69,191,198,.36);
+    --beacon:#E8B155; --beaconSoft:rgba(232,177,85,.13); --beaconLine:rgba(232,177,85,.36);
+    --ok:#5FC191; --warn:#E0A64E; --crit:#E4736A;
+    --okSoft:rgba(95,193,145,.13); --warnSoft:rgba(224,166,78,.13); --critSoft:rgba(228,115,106,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.30),0 10px 30px -14px rgba(0,0,0,.60);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#071620; --bg2:#0C2330; --bg3:#102D3B; --bg4:#16394A;
+  --ink:#E9F0F0; --ink2:#AAC1C7; --ink3:#89A5B0;
+  --rule:#1C3F4F; --rule2:#2A5568;
+  --sea:#45BFC6; --sea2:#7FD8DC; --seaSoft:rgba(69,191,198,.13); --seaLine:rgba(69,191,198,.36);
+  --beacon:#E8B155; --beaconSoft:rgba(232,177,85,.13); --beaconLine:rgba(232,177,85,.36);
+  --ok:#5FC191; --warn:#E0A64E; --crit:#E4736A;
+  --okSoft:rgba(95,193,145,.13); --warnSoft:rgba(224,166,78,.13); --critSoft:rgba(228,115,106,.13);
+  --shadow:0 1px 2px rgba(0,0,0,.30),0 10px 30px -14px rgba(0,0,0,.60);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation:none!important;transition:none!important}}
+
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Public Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  scroll-snap-type:y proximity; overflow-x:hidden;
+}
+h1,h2,h3,h4{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.018em;line-height:1.1}
+.mono,code,.tag,.eyebrow,.num,td.n,th.n{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- rail ---------- */
+.rail{position:fixed;left:0;top:0;bottom:0;width:216px;z-index:40;background:var(--bg2);border-right:1px solid var(--rule);
+  display:flex;flex-direction:column;padding:20px 0 14px}
+.rail-brand{padding:0 18px 14px;border-bottom:1px solid var(--rule);margin-bottom:10px}
+.rail-brand .bt{font-family:Archivo;font-weight:800;font-size:14px;letter-spacing:-.01em;line-height:1.2}
+.rail-brand .bs{font-family:"IBM Plex Mono";font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-top:5px}
+.rail-nav{overflow-y:auto;flex:1;padding:2px 10px;scrollbar-width:thin}
+.rail-part{font-family:"IBM Plex Mono";font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);
+  padding:13px 8px 5px;border-top:1px solid var(--rule);margin-top:8px}
+.rail-part:first-child{border-top:0;margin-top:0;padding-top:4px}
+.rail-nav a{display:flex;gap:9px;align-items:baseline;padding:5px 8px;border-radius:4px;text-decoration:none;color:var(--ink2);font-size:12.5px;line-height:1.3}
+.rail-nav a:hover{background:var(--bg3);color:var(--ink)}
+.rail-nav a.on{background:var(--seaSoft);color:var(--ink);font-weight:600}
+.rail-nav a.on .rn{color:var(--sea)}
+.rail-nav a:focus-visible{outline:2px solid var(--sea);outline-offset:1px}
+.rn{font-family:"IBM Plex Mono";font-size:9.5px;color:var(--ink3);min-width:15px}
+.rail-foot{padding:10px 18px 0;border-top:1px solid var(--rule);display:flex;gap:8px;align-items:center}
+.tbtn{background:var(--bg3);border:1px solid var(--rule);color:var(--ink2);border-radius:5px;padding:5px 9px;
+  font-family:"IBM Plex Mono";font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;cursor:pointer}
+.tbtn:hover{border-color:var(--sea);color:var(--sea)}
+.tbtn:focus-visible{outline:2px solid var(--sea);outline-offset:1px}
+
+.prog{position:fixed;top:0;left:216px;right:0;height:2px;background:transparent;z-index:60}
+.prog i{display:block;height:100%;width:0;background:var(--sea)}
+
+/* ---------- slides ---------- */
+main{margin-left:216px}
+.s{min-height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;
+  padding:60px 52px;border-bottom:1px solid var(--rule);position:relative}
+.s-in{width:100%;max-width:var(--maxw);margin:0 auto}
+.sno{position:absolute;top:22px;right:30px;font-family:"IBM Plex Mono";font-size:10px;color:var(--ink3);letter-spacing:.1em}
+
+.eyebrow{font-size:10px;letter-spacing:.19em;text-transform:uppercase;color:var(--sea);font-weight:600;display:block;margin-bottom:12px}
+.eyebrow.b{color:var(--beacon)}
+h2.st{font-size:clamp(26px,3.3vw,40px);font-weight:800}
+.lede{font-size:clamp(15px,1.35vw,18px);color:var(--ink2);max-width:64ch;margin-top:13px;line-height:1.6}
+.hr{height:1px;background:var(--rule);margin:26px 0;border:0}
+.hr.d{background:repeating-linear-gradient(90deg,var(--rule2) 0 3px,transparent 3px 8px)}
+
+/* ---------- cover ---------- */
+.cover{justify-content:center;background:var(--bg2)}
+.cover h1{font-size:clamp(38px,6vw,78px);font-weight:800;letter-spacing:-.032em;line-height:.98}
+.cover h1 em{font-style:normal;color:var(--sea);display:block}
+.coverbar{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--rule);border-radius:7px;overflow:hidden;margin-top:38px;background:var(--bg)}
+.coverbar div{flex:1 1 190px;padding:15px 18px;border-right:1px solid var(--rule)}
+.coverbar div:last-child{border-right:0}
+.coverbar b{display:block;font-family:"IBM Plex Mono";font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:500;margin-bottom:6px}
+.coverbar span{font-size:14px;font-weight:600;color:var(--ink)}
+
+/* ---------- grids ---------- */
+.g{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.g-7-5{grid-template-columns:7fr 5fr;gap:34px;align-items:start}
+.g-5-7{grid-template-columns:5fr 7fr;gap:34px;align-items:start}
+
+.card{background:var(--bg2);border:1px solid var(--rule);border-radius:7px;padding:17px 18px}
+.card h4{font-size:14.5px;font-weight:700;margin-bottom:7px}
+.card p{margin:0;font-size:13px;color:var(--ink2);line-height:1.52}
+.card.acc{border-left:2px solid var(--sea)}
+.card.accb{border-left:2px solid var(--beacon)}
+
+ul.tick{list-style:none;padding:0;margin:9px 0 0;display:flex;flex-direction:column;gap:6px}
+ul.tick li{font-size:13px;color:var(--ink2);padding-left:15px;position:relative;line-height:1.5}
+ul.tick li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;background:var(--sea);border-radius:50%}
+ul.tick.b li::before{background:var(--beacon)}
+ul.tick li b{color:var(--ink);font-weight:600}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:7px;background:var(--bg2)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:12.5px}
+th{background:var(--bg3);text-align:left;padding:9px 12px;font-family:"IBM Plex Mono";font-size:9.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink2);font-weight:600;border-bottom:1px solid var(--rule);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--rule);color:var(--ink2);vertical-align:top;line-height:1.45}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--bg3)}
+td b,td strong{color:var(--ink);font-weight:600}
+td.n,th.n{font-family:"IBM Plex Mono";font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.pill{display:inline-block;padding:2px 7px;border-radius:20px;font-family:"IBM Plex Mono";font-size:9.5px;
+  letter-spacing:.06em;text-transform:uppercase;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.p-core{background:var(--okSoft);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 34%,transparent)}
+.p-cfg{background:var(--seaSoft);color:var(--sea);border-color:var(--seaLine)}
+.p-ext{background:var(--warnSoft);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 34%,transparent)}
+.p-ai{background:var(--beaconSoft);color:var(--beacon);border-color:var(--beaconLine)}
+.p-new{background:var(--critSoft);color:var(--crit);border-color:color-mix(in srgb,var(--crit) 34%,transparent)}
+
+.tag{display:inline-block;padding:2px 6px;border-radius:3px;background:var(--bg3);border:1px solid var(--rule);
+  font-size:10px;color:var(--ink2);letter-spacing:.02em;white-space:nowrap}
+
+/* ---------- stats ---------- */
+.stat{background:var(--bg2);border:1px solid var(--rule);border-radius:7px;padding:15px 17px}
+.stat .v{font-family:Archivo;font-size:clamp(24px,3vw,34px);font-weight:800;letter-spacing:-.028em;color:var(--sea);
+  font-variant-numeric:tabular-nums;line-height:1}
+.stat.b .v{color:var(--beacon)}
+.stat .k{font-family:"IBM Plex Mono";font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-top:9px}
+.stat .d{font-size:11.5px;color:var(--ink2);margin-top:5px;line-height:1.42}
+
+.note{background:var(--bg3);border:1px solid var(--rule);border-left:2px solid var(--ink3);border-radius:6px;
+  padding:11px 14px;font-size:12px;color:var(--ink2);line-height:1.5}
+.note b{color:var(--ink)}
+.note.w{border-left-color:var(--warn);background:var(--warnSoft)}
+
+svg{display:block;max-width:100%;height:auto}
+.svgwrap{overflow-x:auto;border:1px solid var(--rule);border-radius:7px;background:var(--bg2);padding:18px}
+
+/* ---------- domain header strip ---------- */
+.dstrip{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:5px}
+.dstrip .dn{font-family:"IBM Plex Mono";font-size:10px;color:var(--bg2);background:var(--sea);
+  padding:3px 7px;border-radius:3px;letter-spacing:.08em;font-weight:600}
+
+.kbd{display:inline-block;border:1px solid var(--rule2);border-bottom-width:2px;border-radius:4px;padding:1px 6px;
+  font-family:"IBM Plex Mono";font-size:10.5px;background:var(--bg2);color:var(--ink2)}
+
+@media (max-width:1080px){
+  .g-7-5,.g-5-7{grid-template-columns:1fr;gap:22px}
+  .g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  body{scroll-snap-type:none}
+  .rail{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--rule);flex-direction:row;
+    align-items:center;justify-content:space-between;padding:11px 16px;gap:12px}
+  .rail-nav,.rail-part{display:none}
+  .rail-brand{border-bottom:0;padding:0;margin:0}
+  .rail-foot{border-top:0;padding:0}
+  .prog{left:0}
+  main{margin-left:0}
+  .s{min-height:0;padding:44px 18px}
+  .sno{display:none}
+  .g2,.g3,.g4,.g5{grid-template-columns:1fr}
+}
+</style>
+<div class="prog"><i id="pg"></i></div>
+
+<nav class="rail" aria-label="Deck contents">
+  <div class="rail-brand">
+    <div class="bt">Maritime Digital Platform</div>
+    <div class="bs">Capability &amp; Delivery Dossier</div>
+  </div>
+  <div class="rail-nav" id="railnav">
+    <div class="rail-part">Frame</div>
+    <a href="#s1"><span class="rn">01</span><span>Cover</span></a>
+    <a href="#s2"><span class="rn">02</span><span>What this answers</span></a>
+    <div class="rail-part">I &mdash; Platform capability</div>
+    <a href="#s3"><span class="rn">03</span><span>Capability map</span></a>
+    <a href="#s4"><span class="rn">04</span><span>Ships</span></a>
+    <a href="#s5"><span class="rn">05</span><span>Seafarers</span></a>
+    <a href="#s6"><span class="rn">06</span><span>Legislation &amp; circulars</span></a>
+    <a href="#s7"><span class="rn">07</span><span>National Maritime Centre</span></a>
+    <a href="#s8"><span class="rn">08</span><span>Smart inspection &amp; audit</span></a>
+    <a href="#s9"><span class="rn">09</span><span>Ports</span></a>
+    <a href="#s10"><span class="rn">10</span><span>Facilities &amp; companies</span></a>
+    <a href="#s11"><span class="rn">11</span><span>Compliance &amp; risk engine</span></a>
+    <a href="#s12"><span class="rn">12</span><span>Vessel tracking &amp; MDA</span></a>
+    <a href="#s13"><span class="rn">13</span><span>Configure, don't rebuild</span></a>
+    <a href="#s14"><span class="rn">14</span><span>Reference architecture</span></a>
+    <a href="#s15"><span class="rn">15</span><span>Standards register</span></a>
+    <div class="rail-part">II &mdash; Delivery</div>
+    <a href="#s16"><span class="rn">16</span><span>Why we can deliver</span></a>
+    <a href="#s17"><span class="rn">17</span><span>Proof of capability</span></a>
+    <a href="#s18"><span class="rn">18</span><span>Roadmap &amp; governance</span></a>
+    <a href="#s19"><span class="rn">19</span><span>Risk register</span></a>
+    <a href="#s20"><span class="rn">20</span><span>Sovereignty &amp; ICV</span></a>
+    <div class="rail-part">III &mdash; Agentic AI</div>
+    <a href="#s21"><span class="rn">21</span><span>AI-native by design</span></a>
+    <a href="#s22"><span class="rn">22</span><span>The agent mesh</span></a>
+    <a href="#s23"><span class="rn">23</span><span>Autonomy tiers</span></a>
+    <a href="#s24"><span class="rn">24</span><span>Trust &amp; audit</span></a>
+    <a href="#s25"><span class="rn">25</span><span>Where the time goes</span></a>
+    <a href="#s26"><span class="rn">26</span><span>Next steps</span></a>
+  </div>
+  <div class="rail-foot">
+    <button class="tbtn" id="themeBtn" type="button">Theme</button>
+    <span class="bs" style="font-size:9px;color:var(--ink3)"><span class="kbd">&larr;</span> <span class="kbd">&rarr;</span></span>
+  </div>
+</nav>
+
+<main>
+
+<!-- 01 COVER -->
+<section class="s cover" id="s1">
+  <div class="s-in">
+    <span class="eyebrow">Capability &amp; Delivery Dossier &mdash; Prepared for a National Maritime Authority</span>
+    <h1>Maritime Digital<br>Platform<em>Built, not proposed.</em></h1>
+    <p class="lede">A configurable platform covering the seven operating domains of a maritime administration &mdash; with an agentic AI layer that does the reading, the cross-checking and the drafting, so your officers spend their time deciding rather than assembling.</p>
+    <div class="coverbar">
+      <div><b>Domains covered</b><span>7 operating domains</span></div>
+      <div><b>Capability spines</b><span>5 end-to-end services</span></div>
+      <div><b>Autonomous agents</b><span>10 in the mesh</span></div>
+      <div><b>Regulatory frame</b><span>IMO &middot; Riyadh MoU &middot; FAL</span></div>
+    </div>
+    <div class="note" style="margin-top:22px">Presented by <b>Mobilise App Lab</b>. Figures marked <span class="pill p-ai">Modelled</span> are design targets derived from the process baselines on slide&nbsp;25, not measured results from a prior deployment. Every claim's evidence status is listed in <code>docs/00-claims-and-evidence.md</code>.</div>
+  </div>
+</section>
+
+<!-- 02 WHAT THIS ANSWERS -->
+<section class="s" id="s2"><span class="sno">02 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">The brief</span>
+    <h2 class="st">Three questions, answered in order</h2>
+    <p class="lede">You are assessing whether a partner can carry a national maritime programme. That reduces to three questions &mdash; and they deserve separate, honest answers rather than one merged pitch.</p>
+    <div class="g g3" style="margin-top:28px">
+      <div class="card acc">
+        <span class="eyebrow" style="margin-bottom:8px">Part I</span>
+        <h4>Does the platform already do this?</h4>
+        <p>Seven domains, five capability spines. We show what exists as product, what is configuration, and what is genuine new build &mdash; marked cell by cell, not asserted in bulk.</p>
+        <p style="margin-top:9px"><span class="pill p-core">Core</span> <span class="pill p-cfg">Configure</span> <span class="pill p-ext">Extend</span> <span class="pill p-new">Build</span></p>
+      </div>
+      <div class="card acc">
+        <span class="eyebrow" style="margin-bottom:8px">Part II</span>
+        <h4>Can you deliver it here?</h4>
+        <p>We have not delivered a national flag-state registry before, and we will not pretend otherwise in a tender that can be checked. Instead: a working platform, a gated engineering process, and a funded proof on your own data before you commit.</p>
+      </div>
+      <div class="card accb">
+        <span class="eyebrow b" style="margin-bottom:8px">Part III</span>
+        <h4>What does AI actually change?</h4>
+        <p>Not a chatbot bolted to a portal. Ten scoped agents with tools, citations and autonomy tiers &mdash; wired so a registration dossier arrives at an officer's desk already assembled, cross-checked and sourced.</p>
+      </div>
+    </div>
+    <div class="note w" style="margin-top:22px"><b>On the honesty of Part II.</b> A maritime administration verifies references. An unverifiable case study is worth less than nothing &mdash; it is grounds for disqualification. What follows is the strongest case that survives verification.</div>
+  </div>
+</section>
+
+<!-- 03 CAPABILITY MAP -->
+<section class="s" id="s3"><span class="sno">03 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part I &mdash; Platform capability</span>
+    <h2 class="st">Seven domains &times; five capability spines</h2>
+    <p class="lede">The domains are how a maritime administration is organised. The spines are how work actually flows across it &mdash; a single ship touches registration, risk, tracking, port operations and survey in one lifecycle. The platform is built on the spines and presented as the domains.</p>
+    <div class="tw" style="margin-top:24px">
+      <table>
+        <thead><tr>
+          <th style="min-width:190px">Operating domain</th>
+          <th>Registration &amp; certification</th>
+          <th>Compliance &amp; risk</th>
+          <th>Vessel tracking</th>
+          <th>Port &amp; terminal ops</th>
+          <th>Inspection &amp; survey</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><b>Ships</b><br><span style="font-size:11px;color:var(--ink3)">Flag-state registry</span></td>
+            <td class="n">&#9679; primary</td><td class="n">&#9679; primary</td><td class="n">&#9673; feeds</td><td class="n">&#9673; feeds</td><td class="n">&#9679; primary</td><td><span class="pill p-core">Core</span></td></tr>
+          <tr><td><b>Seafarers</b><br><span style="font-size:11px;color:var(--ink3)">STCW competency</span></td>
+            <td class="n">&#9679; primary</td><td class="n">&#9679; primary</td><td class="n">&#9675;</td><td class="n">&#9673; crew lists</td><td class="n">&#9673; MLC audit</td><td><span class="pill p-core">Core</span></td></tr>
+          <tr><td><b>Legislation &amp; circulars</b><br><span style="font-size:11px;color:var(--ink3)">Instrument base</span></td>
+            <td class="n">&#9673; rules</td><td class="n">&#9679; primary</td><td class="n">&#9675;</td><td class="n">&#9673; rules</td><td class="n">&#9679; checklists</td><td><span class="pill p-core">Core</span></td></tr>
+          <tr><td><b>National Maritime Centre</b><br><span style="font-size:11px;color:var(--ink3)">24/7 operations</span></td>
+            <td class="n">&#9675;</td><td class="n">&#9679; primary</td><td class="n">&#9679; primary</td><td class="n">&#9673; calls</td><td class="n">&#9673; casualty</td><td><span class="pill p-cfg">Configure</span></td></tr>
+          <tr><td><b>Smart inspection &amp; audit</b><br><span style="font-size:11px;color:var(--ink3)">FSI / PSC / ISM</span></td>
+            <td class="n">&#9673; endorses</td><td class="n">&#9679; primary</td><td class="n">&#9673; targeting</td><td class="n">&#9673; at berth</td><td class="n">&#9679; primary</td><td><span class="pill p-core">Core</span></td></tr>
+          <tr><td><b>Ports</b><br><span style="font-size:11px;color:var(--ink3)">Single window &amp; calls</span></td>
+            <td class="n">&#9675;</td><td class="n">&#9673; clearance</td><td class="n">&#9679; primary</td><td class="n">&#9679; primary</td><td class="n">&#9673; at berth</td><td><span class="pill p-ext">Extend</span></td></tr>
+          <tr><td><b>Maritime facilities &amp; companies</b><br><span style="font-size:11px;color:var(--ink3)">Licensing</span></td>
+            <td class="n">&#9679; primary</td><td class="n">&#9679; primary</td><td class="n">&#9675;</td><td class="n">&#9673; facilities</td><td class="n">&#9679; audit</td><td><span class="pill p-core">Core</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g g4" style="margin-top:16px">
+      <div class="note"><b>&#9679; primary</b> &mdash; the domain owns this spine end to end.</div>
+      <div class="note"><b>&#9673; feeds</b> &mdash; contributes or consumes data across the spine.</div>
+      <div class="note"><b>&#9675;</b> &mdash; not applicable to this domain.</div>
+      <div class="note"><b>Status</b> &mdash; effort to reach your specification, defined on slide&nbsp;13.</div>
+    </div>
+  </div>
+</section>
+<!-- 04 SHIPS -->
+<section class="s" id="s4"><span class="sno">04 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 01</span><span class="eyebrow" style="margin:0">Ships &mdash; registration &amp; certification</span></div>
+    <h2 class="st">The registry is the system of record</h2>
+    <p class="lede">Every other domain resolves back to a ship identity. Get the registry right &mdash; one identity, a complete title chain, a live certificate matrix &mdash; and inspection, port clearance and risk targeting all inherit it.</p>
+    <div class="g g-7-5" style="margin-top:26px">
+      <div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Registry service</th><th>Covers</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><b>Registration</b></td><td>Provisional, permanent, bareboat-in and bareboat-out, under-construction, re-registration, change of ownership or name, deletion and closure</td><td><span class="pill p-core">Core</span></td></tr>
+              <tr><td><b>Ship identity</b></td><td>IMO number, official number, call sign, MMSI, port of registry, tonnage under ITC&nbsp;69, class linkage to the IACS society</td><td><span class="pill p-core">Core</span></td></tr>
+              <tr><td><b>Title &amp; encumbrance</b></td><td>Mortgage registration, priority ranking, transfer, discharge; arrest, detention and caveat flags visible to every downstream service</td><td><span class="pill p-core">Core</span></td></tr>
+              <tr><td><b>Statutory certificates</b></td><td>SOLAS, MARPOL, Load Line, Tonnage, ISM, ISPS, MLC, BWM, AFS and the liability set &mdash; issued, endorsed, suspended, withdrawn</td><td><span class="pill p-core">Core</span></td></tr>
+              <tr><td><b>Small craft</b></td><td>Dhows, abras, leisure yachts, fishing and workboats on a separate lighter register with its own fee and survey rules</td><td><span class="pill p-cfg">Configure</span></td></tr>
+              <tr><td><b>Radio &amp; CSR</b></td><td>MMSI and EPIRB assignment, ship station licence, Continuous Synopsis Record with full history chain</td><td><span class="pill p-cfg">Configure</span></td></tr>
+              <tr><td><b>RO delegation</b></td><td>Which survey each Recognised Organisation may perform on your behalf, with performance tracking against delegation</td><td><span class="pill p-core">Core</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card acc">
+          <h4>The certificate matrix, computed</h4>
+          <p>Ship type, gross tonnage, trading area and convention applicability determine which certificates a vessel must carry. The platform derives that set rather than asking a clerk to remember it &mdash; then holds the HSSC survey windows against it.</p>
+          <ul class="tick">
+            <li><b>Anniversary-date harmonisation</b> across all statutory certificates</li>
+            <li><b>Window states</b> &mdash; annual, intermediate, renewal, with the &plusmn;3 month rule applied</li>
+            <li><b>Short-term extensions</b> and their justification held on the record</li>
+            <li><b>Conflict detection</b> when an RO endorsement lands outside its permitted window</li>
+          </ul>
+        </div>
+        <div class="note" style="margin-top:14px"><b>Why this matters for PSC.</b> A ship detained abroad on a certificate defect is a flag-state performance event. The registry that computes the matrix is the registry that stops the defect leaving port.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 SEAFARERS -->
+<section class="s" id="s5"><span class="sno">05 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 02</span><span class="eyebrow" style="margin:0">Seafarers &mdash; competency &amp; welfare</span></div>
+    <h2 class="st">One seafarer identity, from cadet to master</h2>
+    <p class="lede">STCW competency, sea service, medical fitness and MLC entitlements are usually four disconnected systems. Held as one identity, they cross-validate each other &mdash; and fraud stops being invisible.</p>
+    <div class="g g3" style="margin-top:26px">
+      <div class="card acc">
+        <h4>Competency &amp; certification</h4>
+        <ul class="tick">
+          <li>Certificates of Competency and Proficiency under <b>STCW&nbsp;2010</b> as amended</li>
+          <li>GMDSS operator certificates and radio endorsements</li>
+          <li><b>Certificates of Recognition</b> &mdash; flag endorsement of foreign CoCs, with issuing-administration verification</li>
+          <li>Revalidation, upgrade paths and gap analysis against the STCW table</li>
+        </ul>
+      </div>
+      <div class="card acc">
+        <h4>Service &amp; identity</h4>
+        <ul class="tick">
+          <li>Seafarer Identity Document and Continuous Discharge Book issue and replacement</li>
+          <li><b>Sea-service records</b> validated against vessel movement history and crew lists &mdash; not against the applicant's own declaration alone</li>
+          <li>Medical fitness certificates and approved-examiner register</li>
+          <li>Biometric enrolment where national identity policy requires it</li>
+        </ul>
+      </div>
+      <div class="card acc">
+        <h4>Training &amp; employment</h4>
+        <ul class="tick">
+          <li><b>Maritime training institute</b> accreditation, course approval, and audit against approved syllabus</li>
+          <li>Examination and assessment scheduling, assessor rostering, result capture</li>
+          <li>Manning agency licensing and periodic inspection</li>
+          <li><b>MLC&nbsp;2006</b> &mdash; employment agreements, wage records, repatriation cover, on-board complaint escalation to the administration</li>
+        </ul>
+      </div>
+    </div>
+    <div class="g g-7-5" style="margin-top:22px">
+      <div class="note"><b>Manning closes the loop.</b> The Minimum Safe Manning Document issued against a ship in Domain&nbsp;01 is enforced against the crew list in Domain&nbsp;06 and checked by the inspector in Domain&nbsp;05. The same three records, read three ways &mdash; which is only possible if they are one record.</div>
+      <div class="note"><b>Verification is the hard part.</b> Certificate-of-recognition fraud is a live problem for every open and hybrid registry. Slide&nbsp;22 covers the agent that reads the document, checks the issuing administration, and tests the sea-service dates against where the ship actually was.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 LEGISLATION -->
+<section class="s" id="s6"><span class="sno">06 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 03</span><span class="eyebrow" style="margin:0">Legislation &amp; circulars</span></div>
+    <h2 class="st">Regulation as structured data, not a PDF library</h2>
+    <p class="lede">Most administrations publish circulars as documents and then re-type their content into checklists, forms and fee tables by hand. Holding the instrument base as data means a change propagates instead of being re-keyed &mdash; and you can prove, for audit, that it did.</p>
+    <div class="g g-5-7" style="margin-top:26px">
+      <div>
+        <div class="card acc">
+          <h4>The instrument base</h4>
+          <ul class="tick">
+            <li>Maritime law, ministerial resolutions, technical and marine notices, circulars</li>
+            <li><b>Bilingual parallel text</b> &mdash; Arabic and English held as one instrument with two renderings, not two documents</li>
+            <li>Version chains with effective dates, amendment and supersession links</li>
+            <li>Public portal, subscription alerts, and public-consultation workflow</li>
+          </ul>
+        </div>
+        <div class="note" style="margin-top:14px"><b>IMSAS readiness.</b> The IMO Member State Audit Scheme asks a state to demonstrate that adopted conventions are implemented and enforced. That is exactly the chain below &mdash; queryable, with evidence attached at every link.</div>
+      </div>
+      <div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 620 268" role="img" aria-label="Chain from IMO convention through national law, procedure, checklist item, to inspection evidence">
+            <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="currentColor"/></marker></defs>
+            <g font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" color="currentColor">
+              <g style="color:var(--ink3)">
+                <text x="10" y="16" letter-spacing="1.4">TRACEABILITY CHAIN &mdash; ONE QUERY, END TO END</text>
+              </g>
+            </g>
+            <g>
+              <rect x="10" y="30" width="600" height="40" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/>
+              <text x="24" y="47" font-family="Archivo, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">IMO instrument</text>
+              <text x="24" y="62" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink2)">MARPOL Annex VI &middot; Reg. 14 &mdash; sulphur content of fuel oil</text>
+
+              <line x1="40" y1="70" x2="40" y2="86" stroke="var(--rule2)" stroke-width="1.4" marker-end="url(#ar)" style="color:var(--rule2)"/>
+              <rect x="10" y="88" width="600" height="40" rx="5" fill="var(--bg3)" stroke="var(--rule)"/>
+              <text x="24" y="105" font-family="Archivo, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">National instrument</text>
+              <text x="24" y="120" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink2)">Ministerial Resolution &mdash; adopting article, effective date, penalty schedule</text>
+
+              <line x1="40" y1="128" x2="40" y2="144" stroke="var(--rule2)" stroke-width="1.4" marker-end="url(#ar)" style="color:var(--rule2)"/>
+              <rect x="10" y="146" width="600" height="40" rx="5" fill="var(--bg3)" stroke="var(--rule)"/>
+              <text x="24" y="163" font-family="Archivo, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">Administrative procedure</text>
+              <text x="24" y="178" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink2)">Surveyor SOP &middot; bunker delivery note retention &middot; sampling method</text>
+
+              <line x1="40" y1="186" x2="40" y2="202" stroke="var(--rule2)" stroke-width="1.4" marker-end="url(#ar)" style="color:var(--rule2)"/>
+              <rect x="10" y="204" width="600" height="52" rx="5" fill="var(--beaconSoft)" stroke="var(--beaconLine)"/>
+              <text x="24" y="221" font-family="Archivo, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">Checklist item &rarr; inspection evidence</text>
+              <text x="24" y="236" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink2)">PSC deficiency code &middot; photo &middot; sample seal no. &middot; officer &middot; timestamp</text>
+              <text x="24" y="249" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--beacon)">Amend the instrument &rarr; the agent proposes every downstream change</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 07 NMC -->
+<section class="s" id="s7"><span class="sno">07 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 04</span><span class="eyebrow" style="margin:0">National Maritime Centre</span></div>
+    <h2 class="st">One operating picture, 24 hours a day</h2>
+    <p class="lede">The centre is where registry data stops being paperwork and becomes situational awareness. Its value is not the video wall &mdash; it is that the vessel on the wall is already linked to its certificates, its detention history, its crew list and its owner.</p>
+    <div class="g g4" style="margin-top:26px">
+      <div class="card acc"><h4>Domain awareness</h4><ul class="tick">
+        <li>Terrestrial and satellite <b>AIS</b>, <b>LRIT</b>, VMS and coastal radar fused into one track store</li>
+        <li>VTS interoperability at national and port level</li>
+        <li>Geofences &mdash; territorial sea, anchorages, MPAs, exclusion and security zones</li>
+        <li>Common operating picture shared to coast guard, customs and environment agencies under role-scoped access</li>
+      </ul></div>
+      <div class="card acc"><h4>Incident &amp; SAR</h4><ul class="tick">
+        <li>MRCC incident log, distress alert intake, asset tasking and on-scene coordination</li>
+        <li>Incident timeline reconstructed from track history, not from recollection</li>
+        <li>Inter-agency escalation matrix with duty rosters</li>
+        <li>After-action pack generated from the log</li>
+      </ul></div>
+      <div class="card acc"><h4>Casualty &amp; pollution</h4><ul class="tick">
+        <li>Marine casualty investigation under the <b>Casualty Investigation Code</b> &mdash; case file, evidence chain, safety recommendations</li>
+        <li>Pollution response under <b>OPRC</b>, with tiered response activation</li>
+        <li>Findings feed back into the risk model and the inspection checklist</li>
+        <li>GISIS-compatible casualty reporting</li>
+      </ul></div>
+      <div class="card acc"><h4>Maritime security</h4><ul class="tick">
+        <li><b>ISPS</b> security level declaration and propagation to port facilities</li>
+        <li>Ship security alert handling</li>
+        <li>Port facility security assessment and plan approval status on the map</li>
+        <li>Sanctions and watchlist correlation against live tracks</li>
+      </ul></div>
+    </div>
+    <div class="note" style="margin-top:22px"><b>Status &mdash; <span class="pill p-cfg">Configure</span>.</b> The case-management, mapping, fusion and alerting substrate is core. What is configuration is your sensor inventory, your geofence set, your escalation matrix and your agency access model. What is genuine integration work is each upstream feed &mdash; scoped in the roadmap on slide&nbsp;18, not hand-waved here.</div>
+  </div>
+</section>
+
+<!-- 08 INSPECTION -->
+<section class="s" id="s8"><span class="sno">08 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 05</span><span class="eyebrow" style="margin:0">Smart inspection &amp; audit</span></div>
+    <h2 class="st">Inspect the right ship, not the next ship</h2>
+    <p class="lede">Inspection capacity is fixed; arrivals are not. The whole discipline is targeting &mdash; computing a defensible risk profile, spending scarce surveyor hours against it, and being able to justify the selection afterwards.</p>
+    <div class="g g-7-5" style="margin-top:26px">
+      <div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Inspection &amp; audit regime</th><th>What the platform runs</th></tr></thead>
+            <tbody>
+              <tr><td><b>Flag State Inspection</b></td><td>Annual and ad-hoc FSI programme, surveyor assignment, findings, corrective action tracking to closure</td></tr>
+              <tr><td><b>Port State Control</b></td><td>Targeting under <b>Riyadh MoU</b> methodology, initial and more-detailed inspection, deficiency coding, detention decision, rectification and follow-up</td></tr>
+              <tr><td><b>ISM audit</b></td><td>Document of Compliance and Safety Management Certificate &mdash; initial, annual, intermediate, renewal; major non-conformity handling</td></tr>
+              <tr><td><b>ISPS audit</b></td><td>International Ship Security Certificate verification; port facility security audits against the approved plan</td></tr>
+              <tr><td><b>MLC inspection</b></td><td>Declaration of Maritime Labour Compliance Parts I and II, on-board conditions, complaint-triggered inspection</td></tr>
+              <tr><td><b>Oversight audits</b></td><td>Recognised Organisations against delegation, training institutes against syllabus, licensed facilities against condition</td></tr>
+              <tr><td><b>IMSAS evidence</b></td><td>Standing evidence library mapped to the audit standard, so the state is not assembling it in the weeks before an audit</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card accb">
+          <span class="eyebrow b" style="margin-bottom:8px">Field-first, offline-first</span>
+          <h4>The inspector's device is the primary interface</h4>
+          <p>Not a web form retyped at the office at 19:00. The mobile app carries the targeted vessel list, the applicable checklist derived from the instrument base, and the ship's full history &mdash; and it works at a berth with no signal.</p>
+          <ul class="tick b">
+            <li><b>Offline capture</b> with conflict-safe sync on reconnect</li>
+            <li>Photo and video evidence bound to the checklist item and geotagged</li>
+            <li><b>Deficiency code suggested</b> from the photo and the officer's note &mdash; officer confirms, never auto-files</li>
+            <li>Report and detention justification <b>drafted against convention references</b> before the surveyor leaves the gangway</li>
+            <li>Electronic signature and immediate issue to the master</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 PORTS -->
+<section class="s" id="s9"><span class="sno">09 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 06</span><span class="eyebrow" style="margin:0">Ports &mdash; single window &amp; terminal operations</span></div>
+    <h2 class="st">One submission, every agency</h2>
+    <p class="lede">Since 1&nbsp;January 2024 the FAL Convention has made electronic exchange of port-call data mandatory for its Contracting Governments. A Maritime Single Window is no longer a modernisation project &mdash; it is a treaty obligation with a date that has already passed.</p>
+    <div class="g g-5-7" style="margin-top:24px">
+      <div>
+        <div class="card acc">
+          <h4>Maritime Single Window</h4>
+          <ul class="tick">
+            <li><b>FAL Forms 1&ndash;7</b> &mdash; general declaration, cargo, ship's stores, crew effects, crew list, passenger list, dangerous goods</li>
+            <li>Aligned to the <b>IMO Compendium</b> harmonised data model so submissions are reusable, not port-specific</li>
+            <li>Once-only principle &mdash; the agent submits once; customs, immigration, health, security and the port each read their slice</li>
+            <li>Machine-to-machine API for agents and lines alongside the web channel</li>
+          </ul>
+        </div>
+        <div class="note" style="margin-top:14px"><b>Status &mdash; <span class="pill p-ext">Extend</span>.</b> Declaration handling, workflow, clearance and the tariff engine are core. The extension is your specific agency clearance rules and the terminal systems in scope &mdash; genuine work, and we would rather price it than pretend it is a switch.</div>
+      </div>
+      <div>
+        <div class="g g2">
+          <div class="card"><h4>Port call lifecycle</h4><ul class="tick">
+            <li>Pre-arrival notification and ETA management</li>
+            <li>Berth allocation and conflict resolution</li>
+            <li>Pilotage, towage and mooring ordering</li>
+            <li>Arrival, shifting, departure clearance</li>
+            <li>Waste reception and delivery receipt</li>
+          </ul></div>
+          <div class="card"><h4>Terminal operations</h4><ul class="tick">
+            <li>Gate, yard and berth for container, bulk and ro-ro</li>
+            <li>Crane moves per hour and berth productivity</li>
+            <li>Equipment and gang deployment</li>
+            <li>TOS interoperability rather than replacement</li>
+          </ul></div>
+          <div class="card"><h4>Revenue</h4><ul class="tick">
+            <li>Configurable tariff engine &mdash; port dues, berth hire, pilotage, tug, waste</li>
+            <li>Automatic assessment from the call record</li>
+            <li>Invoicing, payment gateway, dispute handling</li>
+            <li>Concession and lease revenue tracking</li>
+          </ul></div>
+          <div class="card"><h4>Safety &amp; performance</h4><ul class="tick">
+            <li><b>IMDG</b> dangerous-goods declaration and approval</li>
+            <li>Under-keel clearance and tidal window checks</li>
+            <li>Port performance indicators on the UNCTAD/World Bank basis</li>
+            <li>Waiting time, turnaround, dwell &mdash; measured, not estimated</li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 FACILITIES -->
+<section class="s" id="s10"><span class="sno">10 / 26</span>
+  <div class="s-in">
+    <div class="dstrip"><span class="dn">DOMAIN 07</span><span class="eyebrow" style="margin:0">Maritime facilities &amp; companies</span></div>
+    <h2 class="st">Licensing is one engine, not fourteen forms</h2>
+    <p class="lede">Every licence type differs in its eligibility test, its documents and its inspection &mdash; and is identical in its lifecycle. Building one configurable lifecycle and expressing each licence as data is the difference between adding a licence type in a fortnight and adding one in a release.</p>
+    <div class="g g-7-5" style="margin-top:24px">
+      <div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Licensed entity</th><th>Regulated because</th><th class="n">Renewal</th></tr></thead>
+            <tbody>
+              <tr><td><b>Shipping agencies</b></td><td>Act for the owner in port-call and clearance submissions</td><td class="n">Annual</td></tr>
+              <tr><td><b>Ship management companies</b></td><td>Hold the Document of Compliance; ISM-accountable</td><td class="n">Annual</td></tr>
+              <tr><td><b>Manning agencies</b></td><td>MLC&nbsp;2006 recruitment and placement obligations</td><td class="n">Annual</td></tr>
+              <tr><td><b>Bunker suppliers</b></td><td>MARPOL Annex&nbsp;VI fuel quality and delivery notes</td><td class="n">Annual</td></tr>
+              <tr><td><b>Ship repair yards &amp; dry docks</b></td><td>Hot work, safety case, hazardous waste, recycling</td><td class="n">2&nbsp;years</td></tr>
+              <tr><td><b>Marinas &amp; jetties</b></td><td>Facility safety, berth capacity, small-craft registry linkage</td><td class="n">2&nbsp;years</td></tr>
+              <tr><td><b>Diving &amp; marine contractors</b></td><td>Underwater operations and permit-to-work</td><td class="n">Annual</td></tr>
+              <tr><td><b>Marine surveyors &amp; consultants</b></td><td>Issue reports the administration relies on</td><td class="n">2&nbsp;years</td></tr>
+              <tr><td><b>Recognised Organisations</b></td><td>Exercise delegated statutory authority</td><td class="n">By agreement</td></tr>
+              <tr><td><b>Training institutes</b></td><td>Deliver STCW-approved courses</td><td class="n">3&nbsp;years</td></tr>
+              <tr><td><b>ISPS port facilities</b></td><td>Statement of Compliance against approved security plan</td><td class="n">5&nbsp;years</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card acc">
+          <h4>One lifecycle, configured per type</h4>
+          <ul class="tick">
+            <li><b>Apply</b> &mdash; document set defined per licence type, not hard-coded</li>
+            <li><b>Screen</b> &mdash; completeness and eligibility tested against the licence matrix</li>
+            <li><b>Evaluate</b> &mdash; technical assessment, routed by competency</li>
+            <li><b>Inspect</b> &mdash; scheduled into the same field app as Domain&nbsp;05</li>
+            <li><b>Issue</b> &mdash; licence with conditions, scope and validity</li>
+            <li><b>Supervise</b> &mdash; periodic audit, complaints, performance rating</li>
+            <li><b>Enforce</b> &mdash; warning, condition, suspension, revocation, penalty</li>
+          </ul>
+        </div>
+        <div class="note" style="margin-top:14px"><b>The compounding effect.</b> A licensed company's audit history feeds the ship risk profile of every vessel it manages. A poor manager makes its fleet a targeting priority automatically &mdash; which is what a risk-based administration is supposed to do.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 11 RISK -->
+<section class="s" id="s11"><span class="sno">11 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Cross-cutting spine &mdash; compliance &amp; risk</span>
+    <h2 class="st">A risk profile you can defend in writing</h2>
+    <p class="lede">Targeting only works if the score is explainable. Every ship carries a live profile assembled from factors the administration controls &mdash; each one weighted, versioned, and traceable to the record that produced it.</p>
+    <div class="g g-7-5" style="margin-top:24px">
+      <div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Risk factor</th><th>Source of truth</th><th class="n">Weight</th><th>Direction</th></tr></thead>
+            <tbody>
+              <tr><td><b>Detention history</b></td><td>PSC records, own and MoU-exchanged</td><td class="n">High</td><td>Recency-decayed</td></tr>
+              <tr><td><b>Deficiency density</b></td><td>Deficiencies per inspection, last 36 months</td><td class="n">High</td><td>Rising = worse</td></tr>
+              <tr><td><b>Company performance</b></td><td>DoC holder's fleet record &mdash; Domain&nbsp;07</td><td class="n">High</td><td>Fleet-wide</td></tr>
+              <tr><td><b>RO performance</b></td><td>Detention rate on the surveying society's certificates</td><td class="n">Medium</td><td>Fleet-wide</td></tr>
+              <tr><td><b>Ship age &amp; type</b></td><td>Registry &mdash; Domain&nbsp;01</td><td class="n">Medium</td><td>Type-banded</td></tr>
+              <tr><td><b>Certificate status</b></td><td>Live certificate matrix, overdue survey windows</td><td class="n">Medium</td><td>Binary escalation</td></tr>
+              <tr><td><b>Casualty involvement</b></td><td>Casualty and incident file &mdash; Domain&nbsp;04</td><td class="n">Medium</td><td>Recency-decayed</td></tr>
+              <tr><td><b>Time since last inspection</b></td><td>Inspection ledger &mdash; Domain&nbsp;05</td><td class="n">Medium</td><td>Rising</td></tr>
+              <tr><td><b>Behavioural anomaly</b></td><td>AIS gaps, spoofing indicators, STS patterns &mdash; slide&nbsp;12</td><td class="n">Emerging</td><td>Advisory only</td></tr>
+              <tr><td><b>Sanctions exposure</b></td><td>Ownership chain screened against UN, OFAC, EU lists</td><td class="n">Override</td><td>Escalate to review</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card acc">
+          <h4>Non-negotiable properties</h4>
+          <ul class="tick">
+            <li><b>Explainable, always.</b> Every score opens to the factor breakdown and the underlying record. No opaque model output drives a boarding decision.</li>
+            <li><b>Versioned.</b> A weighting change is an event with an author and a date. Yesterday's selection is reproducible under yesterday's model.</li>
+            <li><b>Simulated before adopted.</b> Change the weights, replay 12 months of arrivals, see what would have been targeted and what would have been missed &mdash; before it goes live.</li>
+            <li><b>Advisory where it must be.</b> Behavioural signals raise attention; they never, on their own, produce a detention.</li>
+          </ul>
+        </div>
+        <div class="note" style="margin-top:14px"><b>Where AI sits here.</b> Not in setting the weights &mdash; those are policy. In noticing what the weights are missing: patterns of deficiency clustering by ship type, yard of build, or trade route that no one had thought to encode. Proposed to a human, adopted by a human.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 TRACKING -->
+<section class="s" id="s12"><span class="sno">12 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Cross-cutting spine &mdash; vessel tracking</span>
+    <h2 class="st">Position data is only useful once it is joined</h2>
+    <p class="lede">Every administration can display AIS. The value is in the join: this track belongs to a ship whose ISM certificate lapses in eleven days, managed by a company under audit, carrying a crew list with two unverified endorsements &mdash; and it is inbound to your anchorage.</p>
+    <div class="g g3" style="margin-top:24px">
+      <div class="card acc"><h4>Sources fused</h4><ul class="tick">
+        <li>Terrestrial AIS from coastal receivers</li>
+        <li>Satellite AIS for open-ocean coverage</li>
+        <li><b>LRIT</b> via the national data centre</li>
+        <li>VMS for the fishing fleet</li>
+        <li>Coastal and port radar; VTS feeds</li>
+        <li>Optical and SAR satellite tasking where procured</li>
+      </ul></div>
+      <div class="card acc"><h4>Derived signals</h4><ul class="tick">
+        <li><b>AIS gaps</b> &mdash; transmission ceasing in a pattern inconsistent with coverage</li>
+        <li><b>Spoofing</b> &mdash; implausible kinematics, position jumps, identity collision on MMSI</li>
+        <li><b>Ship-to-ship transfer</b> &mdash; paired loitering outside designated areas</li>
+        <li>Geofence entry, exit and dwell</li>
+        <li>Deviation from declared voyage plan</li>
+        <li>Anchorage congestion and waiting-time build-up</li>
+      </ul></div>
+      <div class="card accb"><h4>Joined to</h4><ul class="tick b">
+        <li>Registry identity and certificate matrix</li>
+        <li>Detention and deficiency history</li>
+        <li>Crew list and manning compliance</li>
+        <li>Owner, manager and sanctions screening</li>
+        <li>Declared port call and FAL submission</li>
+        <li>The targeting list, in real time as the vessel closes</li>
+      </ul></div>
+    </div>
+    <div class="note" style="margin-top:20px"><b>An honest limit.</b> AIS is self-reported and can be switched off or falsified; satellite AIS has revisit gaps; SAR tasking costs money per scene. We design for corroboration across sources and we surface confidence on every derived signal, rather than presenting a track as ground truth. An administration that acts on a single unverified source will eventually board the wrong ship.</div>
+  </div>
+</section>
+
+<!-- 13 CONFIGURE -->
+<section class="s" id="s13"><span class="sno">13 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part I &mdash; the customisation model</span>
+    <h2 class="st">What "already built" honestly means</h2>
+    <p class="lede">Every vendor says their platform is configurable. The question worth asking is which specific things change without code &mdash; because that determines whether your second year is spent adding services or raising change requests.</p>
+    <div class="tw" style="margin-top:24px">
+      <table>
+        <thead><tr><th style="min-width:120px">Tier</th><th>Definition</th><th>Examples in this platform</th><th class="n">Typical lead time</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill p-core">Core</span></td><td>Exists and runs today. Your work is data migration and acceptance.</td><td>Registry lifecycle, certificate matrix, licensing engine, inspection and audit workflow, case management, document handling, RBAC, audit ledger, notifications, reporting</td><td class="n">&mdash;</td></tr>
+          <tr><td><span class="pill p-cfg">Configure</span></td><td>Changed by an administrator through the console. No release, no developer.</td><td>Service catalogue and forms, workflow stages and approval routing, fee and tariff tables, checklist libraries, licence types and conditions, risk weights, document requirements, roles and delegations, bilingual labels, SLA clocks, notification templates, dashboards</td><td class="n">Hours&ndash;days</td></tr>
+          <tr><td><span class="pill p-ext">Extend</span></td><td>Built on documented extension points &mdash; APIs, connectors, rule modules &mdash; without forking the core.</td><td>Agency clearance rules, terminal system connectors, national identity SSO, payment gateway, e-signature provider, GIS layers, sensor feeds, external registry lookups</td><td class="n">Weeks</td></tr>
+          <tr><td><span class="pill p-new">Build</span></td><td>Genuinely new. Estimated, scheduled and priced like new development, because it is.</td><td>Anything specific to your legal framework with no analogue in the core; bespoke terminal automation; novel inter-agency protocols</td><td class="n">Sprint-scoped</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g g2" style="margin-top:18px">
+      <div class="note"><b>Why this table is in the deck at all.</b> A vendor who marks everything <span class="pill p-core">Core</span> is either not reading your requirement or is planning to argue about it later. We would rather have the argument now, on a slide, than in month seven of delivery.</div>
+      <div class="note w"><b>What we will do in week one.</b> Walk your actual service catalogue &mdash; every service, in your terms &mdash; and mark each one against these four tiers. That marked catalogue, not this slide, is the real answer to "does it already do this".</div>
+    </div>
+  </div>
+</section>
+<!-- 14 ARCHITECTURE -->
+<section class="s" id="s14"><span class="sno">14 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part I &mdash; reference architecture</span>
+    <h2 class="st">Domain services below, agents above, one governed tool layer between</h2>
+    <p class="lede">The critical structural decision: agents hold no privileged data path. They call the same governed APIs the officer's screen calls, through the same authorisation, into the same audit ledger. There is no shadow route to the registry.</p>
+    <div class="svgwrap" style="margin-top:20px">
+      <svg viewBox="0 0 1120 616" role="img" aria-label="Layered reference architecture: channels, experience layer, agentic orchestration, domain services, data and integration, external systems">
+        <g font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.3" fill="var(--ink3)">
+          <text x="16" y="14">CHANNELS</text>
+          <text x="16" y="134">EXPERIENCE</text>
+          <text x="16" y="180">AGENTIC ORCHESTRATION LAYER</text>
+          <text x="16" y="320">DOMAIN SERVICES</text>
+          <text x="16" y="450">DATA &amp; INTEGRATION</text>
+          <text x="16" y="546">EXTERNAL SYSTEMS OF RECORD</text>
+        </g>
+        <g font-family="Public Sans, sans-serif" font-size="10.5" fill="var(--ink)" text-anchor="middle">
+
+          <!-- channels -->
+          <g>
+            <rect x="16"  y="22" width="173" height="42" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="102" y="41">Public portal</text><text x="102" y="55" font-size="9" fill="var(--ink3)">AR / EN, RTL</text>
+            <rect x="199" y="22" width="173" height="42" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="285" y="41">Officer workspace</text><text x="285" y="55" font-size="9" fill="var(--ink3)">case handling</text>
+            <rect x="382" y="22" width="173" height="42" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="468" y="41">Inspector mobile</text><text x="468" y="55" font-size="9" fill="var(--ink3)">offline-first</text>
+            <rect x="565" y="22" width="173" height="42" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="651" y="41">NMC operations</text><text x="651" y="55" font-size="9" fill="var(--ink3)">live picture</text>
+            <rect x="748" y="22" width="173" height="42" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="834" y="41">Agent / line API</text><text x="834" y="55" font-size="9" fill="var(--ink3)">machine-to-machine</text>
+            <rect x="931" y="22" width="173" height="42" rx="5" fill="var(--beaconSoft)" stroke="var(--beaconLine)"/><text x="1017" y="41">Assistant</text><text x="1017" y="55" font-size="9" fill="var(--ink3)">bilingual, conversational</text>
+          </g>
+
+          <!-- experience -->
+          <rect x="16" y="86" width="1088" height="34" rx="5" fill="var(--bg2)" stroke="var(--rule)"/>
+          <text x="560" y="107">Experience layer &mdash; API gateway &middot; session &amp; consent &middot; rate limiting &middot; bilingual rendering &middot; accessibility</text>
+
+          <!-- agentic band -->
+          <rect x="16" y="188" width="1088" height="112" rx="7" fill="var(--beaconSoft)" stroke="var(--beaconLine)"/>
+          <rect x="30"  y="200" width="348" height="40" rx="5" fill="var(--bg2)" stroke="var(--beaconLine)"/><text x="204" y="217">Planner / supervisor agent</text><text x="204" y="231" font-size="9" fill="var(--ink3)">decomposes a request into a verifiable plan</text>
+          <rect x="386" y="200" width="348" height="40" rx="5" fill="var(--bg2)" stroke="var(--beaconLine)"/><text x="560" y="217">Specialist agent mesh &mdash; 10 agents</text><text x="560" y="231" font-size="9" fill="var(--ink3)">scoped tools, scoped data, scoped authority</text>
+          <rect x="742" y="200" width="348" height="40" rx="5" fill="var(--bg2)" stroke="var(--beaconLine)"/><text x="916" y="217">Verifier / critic agent</text><text x="916" y="231" font-size="9" fill="var(--ink3)">adversarial check before a human ever sees it</text>
+          <rect x="30"  y="248" width="348" height="40" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="204" y="265">Tool gateway</text><text x="204" y="279" font-size="9" fill="var(--ink3)">the same governed APIs the UI calls &mdash; nothing more</text>
+          <rect x="386" y="248" width="348" height="40" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="560" y="265">Grounding &amp; citation store</text><text x="560" y="279" font-size="9" fill="var(--ink3)">instrument base, SOPs, precedent &mdash; citation mandatory</text>
+          <rect x="742" y="248" width="348" height="40" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="916" y="265">Policy guardrails</text><text x="916" y="279" font-size="9" fill="var(--ink3)">autonomy tiers, PII redaction, model routing</text>
+
+          <!-- domain services -->
+          <g font-size="10">
+            <rect x="16"  y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="89"  y="350">Ship registry</text>
+            <rect x="172" y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="245" y="350">Seafarer</text>
+            <rect x="328" y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="401" y="350">Instrument base</text>
+            <rect x="484" y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="557" y="350">Maritime centre</text>
+            <rect x="640" y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="713" y="350">Inspection</text>
+            <rect x="796" y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="869" y="350">Port &amp; single window</text>
+            <rect x="952" y="328" width="146" height="36" rx="5" fill="var(--seaSoft)" stroke="var(--seaLine)"/><text x="1025" y="350">Licensing</text>
+
+            <rect x="16"  y="372" width="173" height="36" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="102"  y="394">Risk engine</text>
+            <rect x="199" y="372" width="173" height="36" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="285" y="394">Workflow &amp; SLA</text>
+            <rect x="382" y="372" width="173" height="36" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="468" y="394">Documents &amp; e-sign</text>
+            <rect x="565" y="372" width="173" height="36" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="651" y="394">Fees &amp; payments</text>
+            <rect x="748" y="372" width="173" height="36" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="834" y="394">Identity &amp; RBAC</text>
+            <rect x="931" y="372" width="173" height="36" rx="5" fill="var(--bg3)" stroke="var(--rule)"/><text x="1017" y="394">Notifications</text>
+          </g>
+
+          <!-- data -->
+          <g font-size="10">
+            <rect x="16"  y="458" width="173" height="36" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="102"  y="480">Operational store</text>
+            <rect x="199" y="458" width="173" height="36" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="285" y="480">Track store (geo/time)</text>
+            <rect x="382" y="458" width="173" height="36" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="468" y="480">Object &amp; document store</text>
+            <rect x="565" y="458" width="173" height="36" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="651" y="480">Event bus</text>
+            <rect x="748" y="458" width="173" height="36" rx="5" fill="var(--bg2)" stroke="var(--seaLine)" stroke-width="1.6"/><text x="834" y="480">Immutable audit ledger</text>
+            <rect x="931" y="458" width="173" height="36" rx="5" fill="var(--bg2)" stroke="var(--rule)"/><text x="1017" y="480">Warehouse &amp; BI</text>
+          </g>
+
+          <!-- external -->
+          <g font-size="9.5" fill="var(--ink2)">
+            <rect x="16"  y="554" width="173" height="32" rx="5" fill="none" stroke="var(--rule2)" stroke-dasharray="3 3"/><text x="102"  y="574">IMO GISIS</text>
+            <rect x="199" y="554" width="173" height="32" rx="5" fill="none" stroke="var(--rule2)" stroke-dasharray="3 3"/><text x="285" y="574">Riyadh MoU exchange</text>
+            <rect x="382" y="554" width="173" height="32" rx="5" fill="none" stroke="var(--rule2)" stroke-dasharray="3 3"/><text x="468" y="574">IACS societies / ROs</text>
+            <rect x="565" y="554" width="173" height="32" rx="5" fill="none" stroke="var(--rule2)" stroke-dasharray="3 3"/><text x="651" y="574">National identity SSO</text>
+            <rect x="748" y="554" width="173" height="32" rx="5" fill="none" stroke="var(--rule2)" stroke-dasharray="3 3"/><text x="834" y="574">Customs &amp; immigration</text>
+            <rect x="931" y="554" width="173" height="32" rx="5" fill="none" stroke="var(--rule2)" stroke-dasharray="3 3"/><text x="1017" y="574">Satellite AIS / LRIT</text>
+          </g>
+
+          <!-- connectors -->
+          <g stroke="var(--rule2)" stroke-width="1.2" fill="none">
+            <path d="M560 64 L560 86"/><path d="M560 120 L560 188"/><path d="M560 300 L560 328"/><path d="M560 408 L560 458"/><path d="M560 494 L560 554"/>
+          </g>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="8.5" fill="var(--ink3)" letter-spacing=".6">
+          <text x="1104" y="600" text-anchor="end">CROSS-CUTTING &mdash; DATA RESIDENCY &middot; ENCRYPTION AT REST AND IN TRANSIT &middot; OBSERVABILITY &middot; DEVSECOPS &middot; DR AND BUSINESS CONTINUITY</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 15 STANDARDS -->
+<section class="s" id="s15"><span class="sno">15 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part I &mdash; interoperability</span>
+    <h2 class="st">The standards this platform is built against</h2>
+    <p class="lede">A maritime administration's software is only as useful as the instruments it can speak to. These are the specifications the data model and interfaces are designed around &mdash; listed so your technical evaluators can check us rather than take our word.</p>
+    <div class="g g3" style="margin-top:24px">
+      <div class="card acc">
+        <h4>Convention &amp; regulatory</h4>
+        <ul class="tick">
+          <li><b>SOLAS</b> &mdash; safety certification and equipment</li>
+          <li><b>MARPOL</b> Annexes I&ndash;VI &mdash; pollution prevention</li>
+          <li><b>STCW 2010</b> as amended &mdash; competency</li>
+          <li><b>MLC 2006</b> &mdash; labour and welfare</li>
+          <li><b>ISM</b> and <b>ISPS</b> Codes</li>
+          <li><b>Load Line</b>, <b>Tonnage 69</b>, <b>COLREG</b></li>
+          <li><b>BWM</b>, <b>AFS</b>, <b>Hong Kong</b> recycling</li>
+          <li><b>FAL Convention</b> &mdash; single window, mandatory since Jan&nbsp;2024</li>
+        </ul>
+      </div>
+      <div class="card acc">
+        <h4>Data &amp; exchange</h4>
+        <ul class="tick">
+          <li><b>IMO Compendium</b> on Facilitation and Electronic Business &mdash; harmonised port-call data model</li>
+          <li><b>IMO Reference Data Model</b> alignment for FAL messages</li>
+          <li><b>GISIS</b> ship, casualty and company reporting</li>
+          <li><b>Riyadh MoU</b> inspection data exchange; reciprocity with Indian Ocean, Paris and Tokyo MoUs</li>
+          <li><b>LRIT</b> data centre interface</li>
+          <li><b>ITU-R M.1371</b> AIS message decoding</li>
+          <li><b>S-100 / S-57</b> hydrographic data for chart layers</li>
+          <li>OGC <b>WMS/WFS</b> for GIS interoperability</li>
+        </ul>
+      </div>
+      <div class="card acc">
+        <h4>Assurance &amp; governance</h4>
+        <ul class="tick">
+          <li><b>III Code</b> and <b>IMSAS</b> &mdash; audit evidence structured to the scheme</li>
+          <li><b>ISO/IEC 27001</b> information security management</li>
+          <li><b>ISO 22301</b> business continuity</li>
+          <li><b>OWASP ASVS</b> and Top&nbsp;10 in the build gates</li>
+          <li><b>WCAG 2.2 AA</b> accessibility on public channels</li>
+          <li>National data-residency and personal-data law of the host state</li>
+          <li>National digital-government service and identity standards</li>
+          <li><b>NIST AI RMF</b> as the frame for the AI governance on slide&nbsp;24</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:20px"><b>Read this as a commitment, not a certificate.</b> Where an item is an accreditation the delivered system must hold &mdash; ISO 27001, national accreditation &mdash; the certification is achieved during delivery against the deployed system, and the programme plan carries the milestone. Vendor-level claims are listed with their evidence status in <code>docs/00-claims-and-evidence.md</code>.</div>
+  </div>
+</section>
+<!-- 16 WHY WE CAN DELIVER -->
+<section class="s" id="s16"><span class="sno">16 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part II &mdash; delivery</span>
+    <h2 class="st">What we can prove, what transfers, and what we are not claiming</h2>
+    <p class="lede">Three columns, because merging them is how vendors mislead. Read the third one first &mdash; it is the reason to believe the other two.</p>
+    <div class="g g3" style="margin-top:24px">
+      <div class="card" style="border-left:2px solid var(--ok)">
+        <span class="eyebrow" style="color:var(--ok);margin-bottom:8px">Proven &mdash; verifiable today</span>
+        <h4>Engineering discipline</h4>
+        <ul class="tick" style="margin-top:8px">
+          <li><b>Gated delivery process</b> &mdash; requirements, UI/UX, technical design, build, code review, QA, security assessment and release each pass a gate before the next opens. Documented, enforced, and open to your inspection.</li>
+          <li><b>Security in the gate, not after it</b> &mdash; OWASP-aligned review, SAST and DAST in the pipeline, penetration test before release.</li>
+          <li><b>Production systems in service</b> carrying multi-role approval chains, statutory calculation, immutable audit trails and regulated document output.</li>
+          <li>Reference architecture, data model and agent designs in this deck &mdash; <b>reviewable now</b>, before you spend anything.</li>
+        </ul>
+      </div>
+      <div class="card acc">
+        <span class="eyebrow" style="margin-bottom:8px">Transferable &mdash; structurally identical</span>
+        <h4>A registry is a regulated workflow system</h4>
+        <ul class="tick" style="margin-top:8px">
+          <li><b>Multi-party, multi-stage approval</b> with segregation of duties &mdash; identical shape to registration, licensing and certification.</li>
+          <li><b>Immutable audit of every state change</b>, with before-and-after snapshots &mdash; the requirement an administration cannot compromise on.</li>
+          <li><b>Rule-driven calculation</b> producing a legally consequential number &mdash; the same engine shape as tonnage, fees, tariffs and risk scores.</li>
+          <li><b>Controlled document generation</b> with versioning and revocation &mdash; the same shape as certificate issue and withdrawal.</li>
+          <li><b>Role-scoped access across organisations</b> &mdash; the same shape as agencies, ROs and inter-agency clearance.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:2px solid var(--crit)">
+        <span class="eyebrow" style="color:var(--crit);margin-bottom:8px">Not claimed</span>
+        <h4>Stated plainly, in writing</h4>
+        <ul class="tick" style="margin-top:8px">
+          <li>We have <b>not</b> previously delivered a national flag-state registry or a Maritime Single Window in production.</li>
+          <li>We hold <b>no</b> maritime-authority reference you can call today.</li>
+          <li>Any figure in this deck marked <span class="pill p-ai">Modelled</span> is a design target from a stated baseline, <b>not</b> a measured outcome.</li>
+        </ul>
+        <div class="note" style="margin-top:12px"><b>Why say this.</b> Because you will check. A reference that evaporates under diligence costs the bid and the relationship. The proposal on the next slide is built so you never have to take the risk on our word.</div>
+      </div>
+    </div>
+    <div class="note w" style="margin-top:18px"><b>Corporate credentials to be inserted before issue:</b> <span class="tag" style="border-style:dashed">years in operation</span> <span class="tag" style="border-style:dashed">engineering headcount</span> <span class="tag" style="border-style:dashed">ISO certifications held</span> <span class="tag" style="border-style:dashed">named public-sector clients</span> <span class="tag" style="border-style:dashed">largest system by users</span> <span class="tag" style="border-style:dashed">uptime record</span> &mdash; each with a document reference, per <code>docs/00-claims-and-evidence.md</code>.</div>
+  </div>
+</section>
+
+<!-- 17 PROOF -->
+<section class="s" id="s17"><span class="sno">17 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part II &mdash; the offer</span>
+    <h2 class="st">Eight weeks. Your data. One real service, in production shape.</h2>
+    <p class="lede">Rather than ask you to believe a case study, we propose you watch us build. One service of your choosing, on your own records, deployed into your own environment &mdash; assessed against exit criteria written by you before we start.</p>
+    <div class="tw" style="margin-top:22px">
+      <table>
+        <thead><tr><th class="n" style="min-width:88px">Weeks</th><th style="min-width:180px">Stage</th><th>What is produced</th><th>What you can check</th></tr></thead>
+        <tbody>
+          <tr><td class="n"><b>1&ndash;2</b></td><td><b>Service catalogue &amp; fit</b></td><td>Your full service list marked Core / Configure / Extend / Build; target-state process for the chosen service; data-quality assessment of the source records</td><td>Whether we understood your regulation, or only its vocabulary</td></tr>
+          <tr><td class="n"><b>3&ndash;4</b></td><td><b>Configure the core</b></td><td>The chosen service standing up on the configured platform &mdash; forms, workflow, roles, fees, documents, bilingual labels &mdash; with no bespoke code</td><td>Exactly how much is configuration, measured rather than asserted</td></tr>
+          <tr><td class="n"><b>5&ndash;6</b></td><td><b>Real data &amp; integration</b></td><td>Migration of a representative record set; one live integration; the audit ledger populated with real transactions</td><td>Whether your legacy data survives contact with a modern data model</td></tr>
+          <tr><td class="n"><b>7</b></td><td><b>Agent on the service</b></td><td>One agent from slide&nbsp;22 in Tier&nbsp;1 &mdash; drafting for officer approval, every output cited, nothing auto-executed</td><td>Whether the AI claim is substantive or decorative</td></tr>
+          <tr><td class="n"><b>8</b></td><td><b>Assessment</b></td><td>Officer-run acceptance against your criteria; security scan results; measured cycle time against the pre-pilot baseline; full-programme estimate grounded in observed velocity</td><td>Everything at once &mdash; against criteria you wrote in week&nbsp;0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g g3" style="margin-top:18px">
+      <div class="card acc"><h4>You keep the output</h4><p>Configuration, migrated data, integration code and documentation are yours at the end of week&nbsp;8, under the programme's IP terms &mdash; whether or not you proceed with us.</p></div>
+      <div class="card acc"><h4>Exit criteria are yours</h4><p>Written and signed before week&nbsp;1. We do not get to mark our own work, and we do not get to move the line in week&nbsp;7.</p></div>
+      <div class="card accb"><h4>Recommended first service</h4><p>Small-craft registration or a single PSC inspection flow &mdash; high volume, well-bounded, politically low-risk, and touching every layer of the architecture. It exercises the platform honestly.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 ROADMAP -->
+<section class="s" id="s18"><span class="sno">18 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part II &mdash; programme shape</span>
+    <h2 class="st">Sequenced so value lands before the hard integrations</h2>
+    <p class="lede">The registry comes first because everything else references it. Port and centre integrations come later because they depend on external parties whose timelines you do not fully control &mdash; and a programme that front-loads those stalls in month three.</p>
+    <div class="tw" style="margin-top:22px">
+      <table>
+        <thead><tr><th class="n" style="min-width:78px">Phase</th><th style="min-width:150px">Scope</th><th>Domains</th><th>Goes live with</th><th class="n">Depends on</th></tr></thead>
+        <tbody>
+          <tr><td class="n"><b>0</b><br><span style="font-size:10px;color:var(--ink3)">Wk 1&ndash;8</span></td><td><b>Proof of capability</b></td><td>One service, one agent</td><td>A working service on real data</td><td class="n">Nothing external</td></tr>
+          <tr><td class="n"><b>1</b><br><span style="font-size:10px;color:var(--ink3)">Mo 3&ndash;8</span></td><td><b>Registry foundation</b></td><td>Ships &middot; Facilities &amp; companies &middot; Instrument base</td><td>Registration, certification, licensing, the legal instrument base, public portal</td><td class="n">Data migration<br>National SSO</td></tr>
+          <tr><td class="n"><b>2</b><br><span style="font-size:10px;color:var(--ink3)">Mo 7&ndash;13</span></td><td><b>Competency &amp; field</b></td><td>Seafarers &middot; Inspection &amp; audit</td><td>STCW certification, inspector mobile app, FSI and PSC, risk targeting</td><td class="n">Phase&nbsp;1 registry<br>Device rollout</td></tr>
+          <tr><td class="n"><b>3</b><br><span style="font-size:10px;color:var(--ink3)">Mo 12&ndash;20</span></td><td><b>Port &amp; single window</b></td><td>Ports</td><td>FAL single window, port call lifecycle, tariffs, agency clearance</td><td class="n">Customs, immigration,<br>health, port bodies</td></tr>
+          <tr><td class="n"><b>4</b><br><span style="font-size:10px;color:var(--ink3)">Mo 16&ndash;24</span></td><td><b>Operations centre</b></td><td>National Maritime Centre</td><td>Fused tracking, incident and SAR, casualty, security levels</td><td class="n">AIS/LRIT/VTS feeds<br>Inter-agency accords</td></tr>
+          <tr><td class="n"><b>5</b><br><span style="font-size:10px;color:var(--ink3)">Continuous</span></td><td><b>Agent expansion</b></td><td>All</td><td>Agents promoted tier by tier as evidence accumulates &mdash; slide&nbsp;23</td><td class="n">Measured accuracy<br>Governance approval</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g g4" style="margin-top:18px">
+      <div class="note"><b>Governance.</b> Joint steering committee monthly; your programme director holds scope. Phase gates are signed by you, not reported to you.</div>
+      <div class="note"><b>Team.</b> Named individuals with committed allocation, not a rate card. Substitution requires your approval.</div>
+      <div class="note"><b>Transfer.</b> Your engineers embedded from Phase&nbsp;1, not briefed at handover. Source and documentation in your repository throughout.</div>
+      <div class="note"><b>Exit.</b> Source-code escrow, documented runbooks, and a defined transition to your team or another supplier. Priced in, not negotiated later.</div>
+    </div>
+  </div>
+</section>
+<!-- 19 RISK -->
+<section class="s" id="s19"><span class="sno">19 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part II &mdash; risk</span>
+    <h2 class="st">The risks in this programme, including the one that is us</h2>
+    <p class="lede">A risk register that omits the supplier is not a risk register. Ours is listed first, with the mitigation you are entitled to demand.</p>
+    <div class="tw" style="margin-top:22px">
+      <table>
+        <thead><tr><th style="min-width:190px">Risk</th><th class="n">Likelihood</th><th class="n">Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td><b>Supplier has no maritime production record</b></td><td class="n"><span class="pill p-new">Certain</span></td><td class="n">High</td><td>Phase&nbsp;0 proof of capability on your data with your exit criteria; payment gated on phase acceptance; source and configuration in your repository from day one; escrow and a costed exit path</td></tr>
+          <tr><td><b>Legacy registry data is incomplete or inconsistent</b></td><td class="n"><span class="pill p-ext">High</span></td><td class="n">High</td><td>Data-quality assessment in Phase&nbsp;0, before commitments are priced; migration with reconciliation reporting; a remediation workstream owned jointly, never silently absorbed</td></tr>
+          <tr><td><b>Inter-agency dependencies stall the single window</b></td><td class="n"><span class="pill p-ext">High</span></td><td class="n">High</td><td>Sequenced to Phase&nbsp;3, after value has already landed; agency onboarding tracked as a named programme dependency with its own governance; the platform runs without any given agency, degraded rather than blocked</td></tr>
+          <tr><td><b>Officers do not adopt the field app</b></td><td class="n"><span class="pill p-cfg">Medium</span></td><td class="n">High</td><td>Surveyors in the design from week&nbsp;1; offline-first because a berth has no signal; the app must be faster than the paper form on day one or it has failed</td></tr>
+          <tr><td><b>AI output is trusted beyond its evidence</b></td><td class="n"><span class="pill p-cfg">Medium</span></td><td class="n">High</td><td>Autonomy tiers with hard technical enforcement, not policy alone &mdash; slide&nbsp;23; mandatory citation; a standing accuracy review that can demote an agent's tier</td></tr>
+          <tr><td><b>Regulation changes mid-programme</b></td><td class="n"><span class="pill p-ext">High</span></td><td class="n">Medium</td><td>The instrument base is the point &mdash; regulatory change is configuration, not a change request; the regulatory-intelligence agent surfaces the downstream impact list</td></tr>
+          <tr><td><b>Scope expands beyond the phase</b></td><td class="n"><span class="pill p-ext">High</span></td><td class="n">Medium</td><td>The Core/Configure/Extend/Build catalogue is the scope baseline; anything marked Build is estimated separately and enters a later phase by decision, not by drift</td></tr>
+          <tr><td><b>External data feeds carry commercial terms</b></td><td class="n"><span class="pill p-cfg">Medium</span></td><td class="n">Medium</td><td>Satellite AIS, SAR tasking and commercial ship databases are priced as pass-through and named in the commercial schedule &mdash; not discovered in year&nbsp;2</td></tr>
+          <tr><td><b>Key-person dependency</b></td><td class="n"><span class="pill p-cfg">Medium</span></td><td class="n">Medium</td><td>Named team with committed allocation; paired roles on every critical component; your engineers embedded from Phase&nbsp;1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 20 SOVEREIGNTY -->
+<section class="s" id="s20"><span class="sno">20 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Part II &mdash; sovereignty</span>
+    <h2 class="st">National data, national control, national capability</h2>
+    <p class="lede">A maritime registry holds ownership structures, crew identity, security levels and enforcement history. Where it runs, who can read it, and who can operate it after we leave are procurement questions before they are technical ones.</p>
+    <div class="g g4" style="margin-top:24px">
+      <div class="card acc"><h4>Data residency</h4><ul class="tick">
+        <li>Deploys to the <b>national cloud</b>, a sovereign region, or your own data centre &mdash; your decision, not our default</li>
+        <li>No operational data leaves the jurisdiction, including for support</li>
+        <li>Support access through your bastion, logged, time-boxed and revocable</li>
+        <li>Backup and DR within the same jurisdiction</li>
+      </ul></div>
+      <div class="card accb"><h4>Sovereign AI options</h4><ul class="tick b">
+        <li>Model routing is <b>a configuration, not an architecture</b> &mdash; hosted frontier model, in-region managed model, or fully on-premise open-weight model</li>
+        <li>Classification-driven routing: sensitive case data can be pinned to the on-premise path while low-sensitivity drafting uses the stronger model</li>
+        <li>No training on your data; no retention beyond the request</li>
+        <li>Degraded-mode operation defined for every agent if models are unavailable</li>
+      </ul></div>
+      <div class="card acc"><h4>Intellectual property</h4><ul class="tick">
+        <li>Configuration, data model, migrated data and integration code: <b>yours</b></li>
+        <li>Platform core licensed perpetually for the administration's use, with escrow</li>
+        <li>No lock-in through proprietary data formats &mdash; documented schema, full export</li>
+        <li>Costed exit and transition plan in the contract, not a later negotiation</li>
+      </ul></div>
+      <div class="card acc"><h4>In-country value</h4><ul class="tick">
+        <li>Local delivery presence and national hiring targets stated in the bid</li>
+        <li>Your engineers embedded from Phase&nbsp;1 &mdash; capability transfer as a deliverable with acceptance criteria, not a closing workshop</li>
+        <li>Operating runbooks written for your team to run, and tested by them</li>
+        <li>Named local partner arrangements where national policy requires them</li>
+      </ul></div>
+    </div>
+    <div class="note w" style="margin-top:20px"><b>To be aligned before issue:</b> the host state's cloud policy and accredited providers, its personal-data law, its national digital-identity scheme, its in-country-value scoring model, and the national maritime or transport strategy this programme should be shown to advance. These are jurisdiction-specific and we will not guess at them in a document that goes to an evaluator.</div>
+  </div>
+</section>
+
+<!-- 21 AI NATIVE -->
+<section class="s" id="s21"><span class="sno">21 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow b">Part III &mdash; agentic AI</span>
+    <h2 class="st">AI-native means the work arrives assembled</h2>
+    <p class="lede">Bolted-on AI adds a chat box to a form. AI-native changes what lands on the officer's desk: not an application to process, but a dossier already read, cross-checked, sourced and flagged &mdash; with the decision left, deliberately, to the officer.</p>
+    <div class="g g2" style="margin-top:26px">
+      <div class="card" style="border-left:2px solid var(--ink3)">
+        <span class="eyebrow" style="color:var(--ink3);margin-bottom:8px">Bolted on</span>
+        <h4>A chatbot beside the queue</h4>
+        <ul class="tick" style="margin-top:8px">
+          <li>Answers questions <i>about</i> the process; does no part of it</li>
+          <li>Reads a knowledge base, not the live case record</li>
+          <li>Cannot act, so its accuracy is untested by consequence</li>
+          <li>Officer workload unchanged &mdash; the queue is the same length tomorrow</li>
+          <li>Impressive in the demonstration, unused by month four</li>
+        </ul>
+      </div>
+      <div class="card accb">
+        <span class="eyebrow b" style="margin-bottom:8px">AI-native</span>
+        <h4>Agents inside the workflow</h4>
+        <ul class="tick b" style="margin-top:8px">
+          <li>An application enters the queue <b>already assessed</b> &mdash; documents read, entities extracted, registry cross-checked, gaps listed</li>
+          <li>Every assertion carries a <b>citation</b> to the record or the instrument that supports it</li>
+          <li>Findings are ranked, and the <b>uncertain ones are flagged as uncertain</b> rather than smoothed over</li>
+          <li>The officer's first action is a judgement, not thirty minutes of assembly</li>
+          <li>Its accuracy is measured continuously, because it acts and the outcome is observable</li>
+        </ul>
+      </div>
+    </div>
+    <div class="g g3" style="margin-top:18px">
+      <div class="note"><b>Grounded, not generative.</b> Regulatory outputs are produced against the instrument base and the case record with mandatory citation. An assertion with no source is a defect, and is treated as one.</div>
+      <div class="note"><b>Deterministic where determinism belongs.</b> Fee calculation, certificate applicability and risk weighting are rules, not inference. Agents read, reason and draft; they do not compute what a rule engine should compute.</div>
+      <div class="note"><b>Bilingual throughout.</b> Arabic and English are equal citizens &mdash; in the instrument base, in agent reasoning, in generated circulars and in the citizen assistant. Not an English system with a translation layer.</div>
+    </div>
+  </div>
+</section>
+<!-- 22 AGENT MESH -->
+<section class="s" id="s22"><span class="sno">22 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow b">Part III &mdash; the agent mesh</span>
+    <h2 class="st">Ten agents, each with a scope narrow enough to govern</h2>
+    <p class="lede">One general-purpose assistant across a maritime administration is ungovernable &mdash; you cannot audit it, tier it, or demote it. Ten narrow agents can each be measured, evidenced and promoted independently.</p>
+    <div class="tw" style="margin-top:22px">
+      <table style="min-width:900px">
+        <thead><tr><th class="n" style="min-width:34px">#</th><th style="min-width:150px">Agent</th><th class="n" style="min-width:64px">Domain</th><th>What it does, end to end</th><th class="n" style="min-width:92px">Launch tier</th></tr></thead>
+        <tbody>
+          <tr><td class="n">01</td><td><b>Registry</b></td><td class="n">01</td><td>Reads builder's certificate, bill of sale and deletion certificate; extracts and validates ship particulars; cross-checks IMO number and prior flag; walks the ownership chain and screens it against sanctions lists; returns a decision-ready dossier with every gap named</td><td class="n"><span class="pill p-ai">Tier 1</span></td></tr>
+          <tr><td class="n">02</td><td><b>Certification</b></td><td class="n">01</td><td>Derives the statutory certificate set for the vessel's type, tonnage and trade; holds HSSC survey windows; opens renewal tasks ahead of expiry; detects endorsements landing outside their permitted window</td><td class="n"><span class="pill p-ai">Tier 1</span></td></tr>
+          <tr><td class="n">03</td><td><b>Risk &amp; targeting</b></td><td class="n">05</td><td>Recomputes ship risk profiles as new evidence arrives; produces the daily targeting list against arrivals; explains every placement by factor; proposes weighting changes with a backtest, never applying them itself</td><td class="n"><span class="pill p-ai">Tier 2</span></td></tr>
+          <tr><td class="n">04</td><td><b>Inspection copilot</b></td><td class="n">05</td><td>Briefs the surveyor before boarding on this ship's history and its sister vessels' recurring deficiencies; suggests deficiency codes from photograph and field note; drafts the report and the detention justification against convention references</td><td class="n"><span class="pill p-ai">Tier 1</span></td></tr>
+          <tr><td class="n">05</td><td><b>Regulatory intelligence</b></td><td class="n">03</td><td>Watches IMO, MoU and class circular feeds; diffs each change against the national instrument base; produces the downstream impact list &mdash; which checklists, forms, fees and rules must change; drafts the national circular in Arabic and English</td><td class="n"><span class="pill p-ai">Tier 2</span></td></tr>
+          <tr><td class="n">06</td><td><b>Seafarer verification</b></td><td class="n">02</td><td>Validates certificate authenticity with the issuing administration; tests declared sea service against vessel movement history and crew lists; detects document tampering; runs STCW gap analysis before an endorsement is issued</td><td class="n"><span class="pill p-ai">Tier 1</span></td></tr>
+          <tr><td class="n">07</td><td><b>Port call orchestrator</b></td><td class="n">06</td><td>Reconciles FAL declarations across agent, customs, immigration and health submissions; catches missing or contradictory data before arrival rather than at the berth; predicts berth and resource conflicts; sequences pilot, tug and berth</td><td class="n"><span class="pill p-ai">Tier 1</span></td></tr>
+          <tr><td class="n">08</td><td><b>Domain awareness</b></td><td class="n">04</td><td>Scores AIS gaps, spoofing indicators, ship-to-ship transfers and voyage deviation; corroborates across terrestrial, satellite and radar sources; raises attention with a stated confidence &mdash; and never on its own initiates an enforcement action</td><td class="n"><span class="pill p-ai">Tier 3</span></td></tr>
+          <tr><td class="n">09</td><td><b>Licensing</b></td><td class="n">07</td><td>Tests application completeness and eligibility against the licence matrix; schedules the inspection; drafts the technical evaluation; tracks conditions and prompts renewal before lapse</td><td class="n"><span class="pill p-ai">Tier 1</span></td></tr>
+          <tr><td class="n">10</td><td><b>Service assistant</b></td><td class="n">All</td><td>The bilingual front door for owners, agents, seafarers and companies &mdash; explains requirements, pre-fills forms from held records, answers status queries, and escalates to a named officer with the full context attached</td><td class="n"><span class="pill p-ai">Tier 0/1</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g g3" style="margin-top:18px">
+      <div class="note"><b>Orchestration.</b> A planner agent decomposes a request into a plan; specialists execute against scoped tools; a verifier agent attacks the result before any human sees it. Disagreement between them is surfaced, not resolved silently.</div>
+      <div class="note"><b>Scoped authority.</b> Each agent's tool set is an explicit allow-list. The inspection copilot cannot alter a registry record. The service assistant cannot read enforcement files. Scope is enforced at the gateway, not requested in a prompt.</div>
+      <div class="note"><b>Independently governed.</b> Each agent carries its own accuracy record, its own tier, and its own review. One agent underperforming is demoted on its own &mdash; it does not take the programme with it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 23 AUTONOMY TIERS -->
+<section class="s" id="s23"><span class="sno">23 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow b">Part III &mdash; autonomy</span>
+    <h2 class="st">Four tiers, enforced in code, earned with evidence</h2>
+    <p class="lede">"Human in the loop" is a slogan until you say precisely which loop and which human. These four tiers are technical settings on each agent, not statements of intent &mdash; and an agent moves up only on measured accuracy, approved by your governance board.</p>
+    <div class="g g4" style="margin-top:24px">
+      <div class="card" style="border-left:2px solid var(--ok)">
+        <span class="eyebrow" style="color:var(--ok);margin-bottom:6px">Tier 0 &mdash; Autonomous</span>
+        <h4>Acts without review</h4>
+        <p>Reversible, non-consequential, fully verifiable actions.</p>
+        <ul class="tick" style="margin-top:8px"><li>Status lookups and notifications</li><li>Reminders before expiry</li><li>Document classification and filing</li><li>Data-quality flagging</li></ul>
+        <p style="margin-top:9px;font-size:11.5px"><b>Reversal:</b> automatic, no consequence.</p>
+      </div>
+      <div class="card acc">
+        <span class="eyebrow" style="margin-bottom:6px">Tier 1 &mdash; Drafts</span>
+        <h4>Officer approves before effect</h4>
+        <p>The agent produces the complete output; nothing takes effect until a named officer signs.</p>
+        <ul class="tick" style="margin-top:8px"><li>Registration dossiers and assessments</li><li>Inspection reports and deficiency codes</li><li>Licence technical evaluations</li><li>Circular drafts, both languages</li></ul>
+        <p style="margin-top:9px;font-size:11.5px"><b>Reversal:</b> reject the draft &mdash; nothing has happened.</p>
+      </div>
+      <div class="card accb">
+        <span class="eyebrow b" style="margin-bottom:6px">Tier 2 &mdash; Advises</span>
+        <h4>Officer decides with evidence</h4>
+        <p>The agent assembles and argues; it does not draft the decision. The officer's reasoning is the record.</p>
+        <ul class="tick b" style="margin-top:8px"><li>Targeting recommendations</li><li>Risk-weighting change proposals</li><li>Regulatory impact assessments</li><li>Anomaly escalations</li></ul>
+        <p style="margin-top:9px;font-size:11.5px"><b>Reversal:</b> not applicable &mdash; the human decided.</p>
+      </div>
+      <div class="card" style="border-left:2px solid var(--crit)">
+        <span class="eyebrow" style="color:var(--crit);margin-bottom:6px">Tier 3 &mdash; Excluded</span>
+        <h4>Never AI-determined</h4>
+        <p>Decisions with legal consequence for a person or a vessel. AI may inform the file; it may not produce the finding.</p>
+        <ul class="tick" style="margin-top:8px"><li>Detention and release</li><li>Licence suspension or revocation</li><li>Casualty investigation findings</li><li>Prosecution and penalty</li><li>Certificate withdrawal</li></ul>
+        <p style="margin-top:9px;font-size:11.5px"><b>Enforcement:</b> the tool simply is not exposed to the agent.</p>
+      </div>
+    </div>
+    <div class="g g2" style="margin-top:18px">
+      <div class="note"><b>Promotion is earned.</b> An agent enters service at the tier in the table on slide&nbsp;22. Moving from Tier&nbsp;1 to Tier&nbsp;0 requires a defined volume of decisions at a measured accuracy threshold, reviewed by your AI governance board, recorded as a versioned change. Accuracy falling below the threshold demotes it automatically.</div>
+      <div class="note w"><b>Tier 3 is a floor, not a starting position.</b> These exclusions are proposed as permanent. If your legal framework requires more to sit in Tier&nbsp;3, that is a configuration change, and we would expect it to be made before go-live rather than debated afterwards.</div>
+    </div>
+  </div>
+</section>
+<!-- 24 TRUST -->
+<section class="s" id="s24"><span class="sno">24 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow b">Part III &mdash; trust</span>
+    <h2 class="st">Every agent action is a record you can subpoena</h2>
+    <p class="lede">A maritime administration is auditable by the IMO, by its own state audit office, and eventually by a tribunal. An AI action that cannot be reconstructed two years later is not usable in that setting &mdash; so the ledger is designed first and the agent second.</p>
+    <div class="g g-7-5" style="margin-top:24px">
+      <div>
+        <div class="tw">
+          <table>
+            <thead><tr><th style="min-width:170px">Written on every agent action</th><th>Why it is there</th></tr></thead>
+            <tbody>
+              <tr><td><b>Agent, version, tier</b></td><td>Which agent acted, under which released configuration, at what authority</td></tr>
+              <tr><td><b>Model and prompt fingerprint</b></td><td>Reproducibility &mdash; the same inputs can be re-run against the same model version</td></tr>
+              <tr><td><b>Inputs consulted</b></td><td>Every record, document and instrument the agent actually read, by identifier and version</td></tr>
+              <tr><td><b>Tool calls made</b></td><td>Each governed API call, with parameters and result &mdash; the complete action trail</td></tr>
+              <tr><td><b>Citations</b></td><td>The specific clause, record or precedent behind each assertion in the output</td></tr>
+              <tr><td><b>Confidence and uncertainty</b></td><td>What the agent was unsure of, stated at the time and not reconstructed later</td></tr>
+              <tr><td><b>Human disposition</b></td><td>Who reviewed it, what they changed, whether they accepted or rejected, and why</td></tr>
+              <tr><td><b>Outcome linkage</b></td><td>What eventually happened &mdash; which is what makes accuracy measurable rather than asserted</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card accb">
+          <h4>Guardrails that hold</h4>
+          <ul class="tick b">
+            <li><b>Citation is mandatory.</b> An assertion the agent cannot source is suppressed and logged as a defect, not shown with a hedge.</li>
+            <li><b>Tool allow-lists at the gateway.</b> Prompt injection in an uploaded document cannot reach a tool the agent was never granted.</li>
+            <li><b>Untrusted content is fenced.</b> Applicant documents, external feeds and correspondence are data to be analysed, never instructions to be followed.</li>
+            <li><b>PII minimised at the boundary.</b> Redaction before any external model call; classification-driven routing keeps sensitive cases on the in-country path.</li>
+            <li><b>Deterministic fallback.</b> Every agent has a defined degraded mode. Model unavailability slows the administration; it never stops it.</li>
+          </ul>
+        </div>
+        <div class="note" style="margin-top:14px"><b>The rejection rate is the metric that matters.</b> Officers rejecting agent drafts is the honest signal of quality. We instrument it from day one, report it to your governance board, and treat a rising rate as a defect in the agent rather than as resistance from the officer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 25 IMPACT -->
+<section class="s" id="s25"><span class="sno">25 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow b">Part III &mdash; impact</span>
+    <h2 class="st">Where the officer's time actually goes</h2>
+    <p class="lede">The arithmetic, shown rather than summarised. Every reduction below is <span class="pill p-ai">Modelled</span> &mdash; derived from the task decomposition in the middle column, not measured in a prior deployment. Column two is a placeholder until we baseline your real timings in week&nbsp;0.</p>
+    <div class="tw" style="margin-top:22px">
+      <table style="min-width:860px">
+        <thead><tr><th style="min-width:160px">Process</th><th class="n" style="min-width:96px">Your baseline</th><th>What consumes the time today</th><th>What the agent removes</th><th class="n" style="min-width:96px">Modelled</th></tr></thead>
+        <tbody>
+          <tr><td><b>Ship registration</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Reading and re-keying documents; chasing missing papers; manual ownership and sanctions checks; assembling the file for review</td><td>Extraction, cross-checking, gap listing and dossier assembly &mdash; the officer receives a complete file and decides</td><td class="n">&minus;50 to 70%<br><span style="font-size:9.5px;color:var(--ink3)">handling time</span></td></tr>
+          <tr><td><b>Certificate renewal</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Manual tracking of expiry across a fleet; late discovery of lapsed certificates; reactive chasing</td><td>Derived matrix, window monitoring, and tasks opened before expiry rather than after</td><td class="n">Lapses<br>&rarr; near zero</td></tr>
+          <tr><td><b>PSC inspection</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Pre-boarding history research; on-board note-taking; report typed back at the office; code lookup</td><td>Briefing pack, on-device capture, code suggestion, report drafted before the surveyor leaves the ship</td><td class="n">&minus;40 to 60%<br><span style="font-size:9.5px;color:var(--ink3)">report time</span></td></tr>
+          <tr><td><b>Inspection targeting</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Manual list-building; targeting on what is visible rather than what is risky</td><td>Continuous recomputation against live arrivals, with the selection explained</td><td class="n">Deficiency<br>hit-rate &uarr;</td></tr>
+          <tr><td><b>Seafarer endorsement</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Manual verification with issuing administrations; sea-service checked against the applicant's own declaration</td><td>Automated verification and cross-checking against vessel movements and crew lists</td><td class="n">&minus;50 to 65%<br><span style="font-size:9.5px;color:var(--ink3)">cycle time</span></td></tr>
+          <tr><td><b>Port call clearance</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Same data submitted repeatedly to separate agencies; errors surfacing at the berth</td><td>Once-only submission; contradictions caught pre-arrival, when they are still cheap to fix</td><td class="n">&minus;60 to 80%<br><span style="font-size:9.5px;color:var(--ink3)">submissions</span></td></tr>
+          <tr><td><b>Circular issuance</b></td><td class="n"><span class="tag" style="border-style:dashed">measure wk 0</span></td><td>Manual impact analysis across checklists and forms; bilingual drafting and review</td><td>Impact list generated from the instrument chain; bilingual draft prepared for legal review</td><td class="n">Weeks<br>&rarr; days</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g g2" style="margin-top:18px">
+      <div class="note w"><b>Read the middle column, not the last one.</b> Any vendor can print a percentage. The question your evaluators should ask is whether the described task actually decomposes the way column three claims. If it does not, the number is worthless &mdash; and we would rather you interrogate the reasoning than the figure.</div>
+      <div class="note"><b>These become commitments in Phase&nbsp;0.</b> Week&nbsp;0 measures your real baseline; week&nbsp;8 measures the same process on the platform. From that point the numbers stop being modelled and start being observed &mdash; and can be written into the contract.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 26 NEXT -->
+<section class="s cover" id="s26"><span class="sno">26 / 26</span>
+  <div class="s-in">
+    <span class="eyebrow">Close</span>
+    <h2 class="st" style="font-size:clamp(28px,4.2vw,52px)">What we would like to agree today</h2>
+    <p class="lede" style="max-width:70ch">Not a contract. A structured week that tells you more about us than any reference call would &mdash; and costs you a room and four of your officers.</p>
+    <div class="g g3" style="margin-top:30px">
+      <div class="card acc">
+        <span class="eyebrow" style="margin-bottom:8px">Step one &mdash; a working session</span>
+        <h4>Two days with your officers</h4>
+        <p>Your service catalogue on the wall, marked live against Core / Configure / Extend / Build. You will see how we handle the services that do not fit, which is the only part that tells you anything.</p>
+      </div>
+      <div class="card acc">
+        <span class="eyebrow" style="margin-bottom:8px">Step two &mdash; you write the test</span>
+        <h4>Exit criteria, signed before we start</h4>
+        <p>You choose the pilot service and define what success means in week&nbsp;8. We do not get to mark our own work.</p>
+      </div>
+      <div class="card accb">
+        <span class="eyebrow b" style="margin-bottom:8px">Step three &mdash; eight weeks</span>
+        <h4>Proof of capability on your data</h4>
+        <p>One service, in your environment, with one agent in Tier&nbsp;1. Then you decide about the programme &mdash; with evidence instead of a proposal.</p>
+      </div>
+    </div>
+    <hr class="hr d" style="margin:30px 0 22px">
+    <div class="g g2">
+      <div>
+        <h4 style="font-size:17px;margin-bottom:9px">The argument in one line</h4>
+        <p style="color:var(--ink2);font-size:14.5px;max-width:58ch;margin:0">The platform capability is real and demonstrable, the maritime track record is not yet there, and the proposal is built so that the second fact costs you nothing to verify.</p>
+      </div>
+      <div class="note"><b>Accompanying material in this repository.</b> <code>docs/01-capability-model.md</code> &mdash; the full domain analysis behind Part&nbsp;I. <code>docs/02-delivery-confidence.md</code> &mdash; Part&nbsp;II in tender-response prose. <code>docs/03-agentic-ai-architecture.md</code> &mdash; agent specifications, tiers and governance. <code>docs/00-claims-and-evidence.md</code> &mdash; every claim in this deck with its evidence status, to be cleared before issue.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  try{var st=localStorage.getItem('mdp-theme'); if(st){root.setAttribute('data-theme',st);}}catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+    var nxt=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',nxt);
+    try{localStorage.setItem('mdp-theme',nxt);}catch(e){}
+  });
+
+  var slides=Array.prototype.slice.call(document.querySelectorAll('main .s'));
+  var links=Array.prototype.slice.call(document.querySelectorAll('#railnav a'));
+  var bar=document.getElementById('pg');
+  var idx=0;
+
+  function paint(){
+    var mid=window.innerHeight*0.4, best=0, bd=Infinity;
+    slides.forEach(function(s,i){
+      var d=Math.abs(s.getBoundingClientRect().top-0);
+      if(d<bd){bd=d;best=i;}
+    });
+    if(best!==idx||!links[idx].classList.contains('on')){
+      idx=best;
+      links.forEach(function(a,i){a.classList.toggle('on',i===idx);});
+      var act=links[idx];
+      if(act && act.offsetParent){
+        var nav=document.getElementById('railnav');
+        var t=act.offsetTop-nav.clientHeight/2;
+        if(Math.abs(nav.scrollTop-t)>60){nav.scrollTop=t;}
+      }
+    }
+    bar.style.width=((idx)/(slides.length-1)*100).toFixed(2)+'%';
+  }
+
+  var tick=false;
+  window.addEventListener('scroll',function(){
+    if(tick)return; tick=true;
+    window.requestAnimationFrame(function(){paint();tick=false;});
+  },{passive:true});
+
+  function go(n){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    slides[n].scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  document.addEventListener('keydown',function(e){
+    var t=e.target.tagName;
+    if(t==='INPUT'||t==='TEXTAREA'||e.metaKey||e.ctrlKey||e.altKey)return;
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();go(idx+1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(idx-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1);}
+  });
+  paint();
+})();
+</script>
