@@ -1,0 +1,34 @@
+# ─── secrets — never commit ──────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+!*_env.template
+# runtime agent state: holds smtp_config.json (live SMTP password), learned
+# agent memory and cached reports. All regenerates at runtime.
+portal/backend/agent_state/
+
+# ─── dependencies / build artefacts ──────────────────────────────────────
+node_modules/
+dist/
+build/
+.vite/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+tts_venv/
+
+# ─── generated at runtime (rebuild from the pipeline) ────────────────────
+# flyer / creative renders and digital-twin frames
+portal/backend/generated_assets/
+# LLM prompt spool
+portal/backend/.claude_prompts/
+
+# ─── logs / scratch ──────────────────────────────────────────────────────
+*.log
+*.bak
+.DS_Store
+*.swp
+~$*

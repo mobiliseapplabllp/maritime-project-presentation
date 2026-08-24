@@ -1,0 +1,9 @@
+metric,value,unit,source_note
+avg_turnaround_hr_major_ports,50.4,hours,"Indian major ports average ship turnaround ~2.1 days FY2023-24 — Ministry of Ports Shipping & Waterways / IPA published statistics (public)"
+avg_output_per_shipberthday_mt,16500,MT,"Average output per ship berth-day across Indian major ports FY2023-24 — IPA operational statistics (public)"
+avg_preberthing_wait_hr,5.0,hours,"Average pre-berthing detention on port account major ports FY2023-24 — IPA (public)"
+idle_time_at_berth_pct,18.0,percent,"Idle time as share of time at berth Indian major ports (public IPA statistics)"
+psc_detention_rate_pct,5.6,percent,"Indian Ocean MoU regional PSC detention rate 2023 annual report (public)"
+berth_occupancy_healthy_low_pct,40,percent,"UNCTAD guidance band lower bound for healthy berth occupancy (public)"
+berth_occupancy_healthy_high_pct,70,percent,"UNCTAD guidance band upper bound before congestion risk (public)"
+collection_efficiency_target_pct,95,percent,"Standard commercial port receivables collection target (industry norm)"

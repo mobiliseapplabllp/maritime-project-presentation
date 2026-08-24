@@ -1,0 +1,1264 @@
+level,unit_id,unit_name,zone,terminal,ym,invoices_issued,billed_cr,collected_cr,outstanding_cr,collection_pct
+port,INMUN,Mundra Port,,,2023-01,11,10.12,0.48,9.64,4.7
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-01,5,3.25,0.0,3.25,0.0
+zone,CONTAINER,Container,Container,,2023-01,2,2.56,0.0,2.56,0.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-01,4,4.31,0.48,3.83,11.1
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-01,1,1.06,0.0,1.06,0.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-01,1,1.5,0.0,1.5,0.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-01,3,1.83,0.48,1.35,26.2
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-01,4,2.32,0.0,2.32,0.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-01,1,2.49,0.0,2.49,0.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-01,1,0.93,0.0,0.93,0.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-01,1,1.06,0.0,1.06,0.0
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-01,1,1.5,0.0,1.5,0.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-01,2,1.12,0.48,0.64,42.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-01,1,0.7,0.0,0.7,0.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-01,2,0.94,0.0,0.94,0.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-01,1,0.77,0.0,0.77,0.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-01,1,0.6,0.0,0.6,0.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-01,1,2.49,0.0,2.49,0.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-01,1,0.93,0.0,0.93,0.0
+port,INMUN,Mundra Port,,,2023-02,14,13.74,10.93,12.45,47.8
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-02,7,7.35,3.9,6.7,36.8
+zone,CONTAINER,Container,Container,,2023-02,6,5.95,3.19,5.32,37.5
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-02,1,0.43,3.84,0.42,91.1
+terminal,AMC2,AMCT-2,Container,AMC2,2023-02,2,2.94,0.0,2.94,0.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-02,1,0.69,1.06,0.69,60.6
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-02,1,0.63,0.63,0.0,100.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-02,1,0.97,1.5,0.97,60.7
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-02,1,0.43,1.35,0.43,81.0
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-02,1,0.73,0.0,0.73,0.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-02,2,1.18,2.97,0.53,84.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-02,2,1.11,0.0,1.11,0.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-02,0,0.0,2.49,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-02,3,5.06,0.93,5.06,15.5
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2023-02,1,1.84,0.0,1.84,0.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-02,1,1.1,0.0,1.1,0.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-02,1,0.69,0.0,0.69,0.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-02,0,0.0,1.06,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2023-02,1,0.63,0.63,0.0,100.0
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-02,0,0.0,1.5,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-02,1,0.97,0.0,0.97,0.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-02,1,0.43,0.65,0.42,72.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-02,0,0.0,0.7,0.0,100.0
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2023-02,1,0.73,0.0,0.73,0.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-02,2,1.18,1.59,0.53,75.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-02,0,0.0,0.77,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-02,0,0.0,0.6,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-02,2,1.11,0.0,1.11,0.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-02,0,0.0,2.49,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-02,1,2.23,0.93,2.23,29.4
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-02,2,2.83,0.0,2.83,0.0
+port,INMUN,Mundra Port,,,2023-03,14,13.68,20.18,5.95,84.2
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-03,4,4.45,10.37,0.78,94.8
+zone,CONTAINER,Container,Container,,2023-03,7,7.56,8.21,4.67,70.9
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-03,3,1.67,1.6,0.49,92.4
+terminal,AMC2,AMCT-2,Container,AMC2,2023-03,1,1.24,2.94,1.24,70.3
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-03,2,2.3,2.05,0.94,76.8
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-03,3,2.49,0.0,2.49,20.2
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-03,1,1.53,2.5,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-03,3,1.67,1.6,0.5,87.3
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-03,0,0.0,0.73,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-03,3,2.02,1.76,0.79,85.7
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-03,0,0.0,1.11,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-03,1,2.43,7.49,0.0,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2023-03,0,0.0,1.84,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-03,1,1.24,1.1,1.24,47.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-03,1,1.36,2.05,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-03,1,0.94,0.0,0.94,53.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2023-03,1,0.92,0.0,0.92,40.6
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2023-03,2,1.57,0.0,1.57,0.0
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-03,1,1.53,1.53,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-03,0,0.0,0.97,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-03,1,0.61,1.05,0.0,100.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-03,2,1.06,0.56,0.5,71.6
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2023-03,0,0.0,0.73,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-03,1,0.79,0.53,0.79,72.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-03,1,0.62,0.62,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-03,1,0.61,0.61,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-03,0,0.0,1.11,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-03,1,2.43,4.66,0.0,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-03,0,0.0,2.83,0.0,100.0
+port,INMUN,Mundra Port,,,2023-04,10,10.37,9.26,7.06,85.3
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-04,5,4.87,2.99,2.66,86.6
+zone,CONTAINER,Container,Container,,2023-04,2,1.93,5.77,0.83,95.4
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-04,3,3.57,0.5,3.56,64.3
+terminal,AMC2,AMCT-2,Container,AMC2,2023-04,1,1.1,2.34,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-04,1,0.83,0.94,0.83,83.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-04,0,0.0,2.49,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-04,2,0.95,0.5,0.95,80.5
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-04,3,2.05,0.79,2.05,72.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-04,1,0.62,0.0,0.62,64.2
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-04,1,2.62,0.0,2.62,48.7
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-04,1,2.2,2.2,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-04,1,1.1,2.34,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-04,1,0.83,0.0,0.83,71.2
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-04,0,0.0,0.94,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2023-04,0,0.0,0.92,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2023-04,0,0.0,1.57,0.0,100.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-04,2,0.95,0.5,0.95,64.9
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-04,1,0.66,0.79,0.66,81.5
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-04,2,1.39,0.0,1.39,50.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-04,1,0.62,0.0,0.62,64.2
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-04,1,2.62,0.0,2.62,48.7
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-04,1,2.2,2.2,0.0,100.0
+port,INMUN,Mundra Port,,,2023-05,13,15.14,10.85,11.35,82.0
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-05,7,7.61,5.36,4.91,82.2
+zone,CONTAINER,Container,Container,,2023-05,4,3.81,1.92,2.72,87.5
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-05,2,3.72,3.57,3.71,72.9
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-05,3,2.53,1.92,1.44,80.6
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-05,1,1.27,0.0,1.27,75.9
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-05,1,0.46,0.95,0.46,91.4
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-05,2,0.71,2.5,0.26,96.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-05,1,0.57,0.62,0.57,75.2
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-05,1,3.25,2.62,3.25,61.1
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-05,4,6.34,2.24,4.1,75.8
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-05,0,0.0,0.83,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-05,3,2.53,1.09,1.44,68.2
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-05,1,1.27,0.0,1.27,43.3
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-05,1,0.46,0.0,0.44,83.2
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-05,0,0.0,0.95,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-05,0,0.0,0.66,0.0,100.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-05,0,0.0,1.39,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-05,2,0.71,0.45,0.26,86.5
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-05,1,0.57,0.62,0.57,75.2
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-05,1,3.25,2.62,3.25,61.1
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-05,1,2.24,2.24,0.0,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-05,3,4.1,0.0,4.1,55.1
+port,INMUN,Mundra Port,,,2023-06,13,14.8,19.08,7.07,90.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-06,6,8.71,8.6,5.02,86.1
+zone,CONTAINER,Container,Container,,2023-06,6,5.51,6.77,1.46,94.7
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-06,1,0.58,3.72,0.57,96.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-06,1,0.41,1.44,0.41,94.8
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-06,2,1.97,1.97,0.0,100.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-06,1,1.22,2.49,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-06,1,0.58,0.46,0.58,90.2
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-06,2,1.9,0.85,1.05,60.1
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-06,1,0.66,0.91,0.01,99.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-06,2,1.41,1.12,0.86,76.8
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-06,0,0.0,3.25,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-06,3,6.64,6.56,4.18,82.3
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-06,1,0.41,0.0,0.41,87.5
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-06,0,0.0,1.44,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2023-06,1,0.84,0.84,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2023-06,1,1.13,1.13,0.0,100.0
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-06,1,1.22,1.22,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-06,0,0.0,1.27,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-06,0,0.0,0.46,0.0,100.8
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-06,1,0.58,0.0,0.58,82.4
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2023-06,1,0.85,0.85,0.0,100.0
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2023-06,1,1.05,0.0,1.05,0.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-06,1,0.66,0.66,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-06,0,0.0,0.25,0.01,99.5
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-06,2,1.41,1.12,0.86,76.8
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-06,0,0.0,3.25,0.0,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-06,3,6.64,6.56,4.18,73.5
+port,INMUN,Mundra Port,,,2023-07,15,12.35,12.14,7.28,91.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-07,6,4.16,7.28,1.9,95.3
+zone,CONTAINER,Container,Container,,2023-07,4,3.61,3.38,1.69,94.5
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-07,5,4.58,1.48,3.67,80.5
+terminal,AMC2,AMCT-2,Container,AMC2,2023-07,1,0.87,0.87,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-07,0,0.0,0.41,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-07,2,1.75,1.05,0.7,89.8
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-07,1,0.99,0.0,0.99,86.8
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-07,4,1.74,1.48,0.84,89.0
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-07,0,0.0,1.05,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-07,4,2.59,0.68,1.92,83.3
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-07,1,0.49,1.35,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-07,1,2.83,0.0,2.83,74.7
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-07,1,1.08,5.25,0.01,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2023-07,1,0.87,0.87,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-07,0,0.0,0.41,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2023-07,1,1.05,1.05,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2023-07,1,0.7,0.0,0.7,0.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-07,1,0.99,0.0,0.99,69.3
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-07,1,0.43,0.43,0.0,100.7
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2023-07,1,0.39,0.0,0.39,0.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-07,2,0.93,1.05,0.46,89.1
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2023-07,0,0.0,1.05,0.0,100.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-07,1,0.8,0.0,0.8,81.1
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-07,3,1.79,0.68,1.12,69.8
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-07,1,0.49,1.35,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-07,1,2.83,0.0,2.83,74.7
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-07,1,1.08,5.25,0.01,99.9
+port,INMUN,Mundra Port,,,2023-08,20,20.95,12.74,15.49,86.1
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-08,8,4.95,2.92,3.93,91.3
+zone,CONTAINER,Container,Container,,2023-08,7,6.55,3.66,4.58,87.8
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-08,5,9.45,6.15,6.97,75.4
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-08,2,1.97,1.97,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-08,4,3.11,0.7,3.11,68.7
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-08,1,1.48,0.99,1.48,83.5
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-08,2,1.26,0.85,1.25,86.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-08,5,2.6,2.33,2.19,84.5
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-08,1,0.6,0.6,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-08,3,8.19,5.3,5.72,70.5
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-08,2,1.76,0.0,1.77,93.3
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-08,1,0.87,0.87,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2023-08,1,1.09,1.09,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2023-08,2,1.65,0.0,1.65,53.4
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2023-08,1,0.86,0.7,0.86,44.9
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2023-08,1,0.6,0.0,0.6,81.8
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-08,1,1.48,0.0,1.48,74.2
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-08,0,0.0,0.99,0.0,100.0
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2023-08,1,0.66,0.39,0.66,37.1
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-08,1,0.6,0.46,0.6,87.6
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-08,1,0.42,0.42,0.0,100.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-08,4,2.18,0.8,2.18,66.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-08,0,0.0,1.11,0.01,99.7
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-08,1,0.6,0.6,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-08,3,8.19,5.3,5.72,70.5
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-08,1,0.87,0.0,0.87,90.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-08,1,0.88,0.0,0.89,95.0
+port,INMUN,Mundra Port,,,2023-09,10,12.37,17.66,10.2,91.7
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-09,4,3.59,4.71,2.81,94.3
+zone,CONTAINER,Container,Container,,2023-09,2,1.78,5.54,0.82,97.9
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-09,4,7.0,7.41,6.56,81.4
+terminal,AMC2,AMCT-2,Container,AMC2,2023-09,1,0.83,0.0,0.83,88.1
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-09,1,0.95,4.06,0.0,100.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-09,0,0.0,1.48,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-09,2,0.97,1.7,0.52,94.7
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-09,1,0.26,2.45,0.0,100.0
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-09,2,1.38,0.51,0.87,85.9
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-09,2,6.03,5.72,6.03,76.3
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-09,1,1.95,1.76,1.96,93.1
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-09,1,0.83,0.0,0.83,80.6
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2023-09,1,0.95,2.6,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2023-09,0,0.0,0.86,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2023-09,0,0.0,0.6,0.0,100.0
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-09,0,0.0,1.48,0.0,100.0
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2023-09,1,0.54,0.66,0.54,66.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-09,1,0.43,1.03,0.0,100.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-09,0,0.0,2.18,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-09,1,0.26,0.26,0.01,99.7
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-09,2,1.38,0.51,0.87,85.9
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-09,2,6.03,5.72,6.03,76.3
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-09,1,1.95,0.87,1.95,81.7
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-09,0,0.0,0.88,0.01,99.9
+port,INMUN,Mundra Port,,,2023-10,20,21.9,17.74,14.36,90.1
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-10,9,9.98,7.08,5.71,90.3
+zone,CONTAINER,Container,Container,,2023-10,5,6.28,2.61,4.49,90.1
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-10,6,5.63,8.05,4.14,89.9
+terminal,AMC2,AMCT-2,Container,AMC2,2023-10,2,1.92,0.83,1.92,78.4
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-10,1,1.77,1.77,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-10,5,2.46,2.03,0.95,92.3
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-10,2,2.58,0.0,2.58,50.5
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-10,5,2.43,1.13,1.3,92.3
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-10,0,0.0,0.87,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-10,1,3.18,6.03,3.18,88.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-10,4,7.55,5.08,4.43,87.7
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2023-10,1,0.69,0.0,0.69,79.7
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-10,1,1.23,0.83,1.23,77.6
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-10,1,1.77,1.77,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-10,2,1.05,1.05,0.0,100.5
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2023-10,2,0.84,0.98,0.4,83.5
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-10,1,0.57,0.0,0.57,90.2
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2023-10,2,2.58,0.0,2.58,28.9
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-10,1,0.3,0.0,0.3,93.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-10,2,0.66,0.37,0.29,95.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-10,2,1.47,0.77,0.71,86.9
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-10,0,0.0,0.87,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-10,1,3.18,6.03,3.18,88.9
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-10,1,2.26,1.95,2.26,82.5
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-10,3,5.28,3.13,2.16,90.6
+port,INMUN,Mundra Port,,,2023-11,15,18.34,16.79,15.91,90.3
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-11,4,5.59,5.72,5.58,91.4
+zone,CONTAINER,Container,Container,,2023-11,6,5.78,4.51,5.76,88.8
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-11,5,6.97,6.56,4.55,90.5
+terminal,AMC2,AMCT-2,Container,AMC2,2023-11,2,2.06,1.92,2.06,81.2
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-11,2,2.08,0.0,2.08,82.5
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-11,1,0.99,0.0,0.99,91.7
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-11,1,0.64,0.0,0.64,94.4
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-11,3,1.79,0.97,1.77,87.5
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-11,0,0.0,2.58,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-11,1,0.46,1.3,0.46,97.3
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-11,1,0.82,0.0,0.82,88.3
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-11,2,5.17,5.6,2.75,91.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-11,2,4.31,4.42,4.32,89.3
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2023-11,1,1.55,0.69,1.55,68.7
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-11,1,0.51,1.23,0.51,91.5
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-11,2,2.08,0.0,2.08,66.7
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2023-11,1,0.99,0.0,0.99,81.9
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-11,1,0.64,0.0,0.64,83.5
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-11,2,1.21,0.0,1.19,77.6
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2023-11,0,0.0,0.4,0.0,100.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-11,1,0.58,0.57,0.58,90.9
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2023-11,0,0.0,2.58,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-11,1,0.46,0.3,0.46,90.3
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-11,0,0.0,0.29,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-11,0,0.0,0.71,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-11,1,0.82,0.0,0.82,88.3
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-11,2,5.17,5.6,2.75,91.9
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-11,2,4.31,2.26,4.31,75.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-11,0,0.0,2.16,0.0,100.0
+port,INMUN,Mundra Port,,,2023-12,17,24.16,28.2,11.87,93.7
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2023-12,5,4.94,8.07,2.45,96.5
+zone,CONTAINER,Container,Container,,2023-12,7,9.2,9.75,5.21,91.4
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2023-12,5,10.02,10.38,4.19,92.8
+terminal,AMC2,AMCT-2,Container,AMC2,2023-12,1,0.67,2.06,0.67,94.2
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2023-12,0,0.0,2.08,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2023-12,2,2.11,1.56,1.54,89.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2023-12,3,4.45,4.05,1.04,93.4
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2023-12,2,1.15,1.79,1.13,92.6
+terminal,MICT,MICT (DP World JV),Container,MICT,2023-12,1,1.97,0.0,1.97,72.6
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2023-12,2,0.92,0.46,0.92,94.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2023-12,1,0.51,0.82,0.51,93.2
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2023-12,3,8.87,8.59,3.03,92.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2023-12,2,3.51,6.78,1.05,97.6
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2023-12,1,0.67,1.55,0.67,88.1
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2023-12,0,0.0,0.51,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2023-12,0,0.0,2.08,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2023-12,0,0.0,0.99,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2023-12,2,2.11,0.56,1.55,57.8
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2023-12,2,3.41,3.41,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2023-12,1,1.04,0.64,1.04,78.8
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2023-12,1,0.58,1.21,0.56,90.5
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2023-12,1,0.57,0.58,0.57,91.8
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2023-12,1,1.97,0.0,1.97,64.8
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2023-12,0,0.0,0.46,0.0,100.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2023-12,1,0.46,0.0,0.46,93.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2023-12,1,0.46,0.0,0.46,92.2
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2023-12,1,0.51,0.82,0.51,93.2
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2023-12,3,8.87,8.59,3.03,92.9
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2023-12,0,0.0,4.31,0.0,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2023-12,2,3.51,2.47,1.04,96.1
+port,INMUN,Mundra Port,,,2024-01,15,11.9,16.95,6.82,96.6
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-01,4,4.04,3.47,3.02,95.9
+zone,CONTAINER,Container,Container,,2024-01,7,5.88,7.92,3.17,95.2
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-01,4,1.98,5.55,0.62,99.0
+terminal,AMC2,AMCT-2,Container,AMC2,2024-01,0,0.0,0.67,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-01,1,0.59,0.0,0.59,95.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-01,4,3.51,3.3,1.75,90.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-01,2,1.78,1.98,0.84,95.2
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-01,4,1.98,2.52,0.59,96.6
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-01,0,0.0,1.97,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-01,2,0.89,0.92,0.89,95.3
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-01,0,0.0,0.51,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-01,0,0.0,3.03,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-01,2,3.16,2.04,2.17,95.4
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2024-01,0,0.0,0.67,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-01,1,0.59,0.0,0.59,90.5
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2024-01,1,1.18,1.18,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-01,1,0.52,1.55,0.52,87.6
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-01,2,1.82,0.57,1.25,75.6
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2024-01,1,0.94,0.94,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2024-01,1,0.83,1.04,0.83,85.5
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-01,1,0.4,0.98,0.0,100.3
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-01,3,1.59,1.54,0.62,92.8
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-01,0,0.0,1.97,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-01,1,0.33,0.0,0.33,93.5
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-01,0,0.0,0.46,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-01,1,0.56,0.46,0.56,91.3
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-01,0,0.0,0.51,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-01,0,0.0,3.03,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-01,1,2.15,0.0,2.15,88.9
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-01,1,1.01,2.04,0.01,100.0
+port,INMUN,Mundra Port,,,2024-02,17,16.47,10.18,13.11,93.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-02,9,9.4,5.94,6.48,92.2
+zone,CONTAINER,Container,Container,,2024-02,3,2.08,3.18,2.07,97.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-02,5,4.99,1.06,4.55,93.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-02,0,0.0,0.59,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-02,1,0.5,1.76,0.49,97.3
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-02,0,0.0,0.83,0.01,99.9
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-02,4,1.96,1.06,1.49,92.3
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-02,2,1.58,0.0,1.58,82.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-02,5,3.1,1.59,2.4,89.2
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-02,1,0.76,0.0,0.76,90.8
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-02,1,3.03,0.0,3.03,93.4
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-02,3,5.54,4.35,3.36,93.6
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-02,0,0.0,0.59,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-02,1,0.5,0.52,0.5,89.3
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-02,0,0.0,1.24,0.01,99.8
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2024-02,0,0.0,0.83,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-02,1,0.51,0.0,0.49,92.8
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-02,1,0.44,0.44,0.0,100.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-02,2,1.01,0.62,1.01,89.4
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-02,2,1.58,0.0,1.58,78.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-02,2,1.48,1.03,0.78,88.1
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-02,1,0.68,0.0,0.68,91.7
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-02,2,0.94,0.56,0.94,87.3
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-02,1,0.76,0.0,0.76,90.8
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-02,1,3.03,0.0,3.03,93.4
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-02,0,0.0,2.15,0.0,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-02,3,5.54,2.2,3.35,89.9
+port,INMUN,Mundra Port,,,2024-03,21,24.07,16.83,20.35,91.5
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-03,8,6.62,8.48,4.62,94.8
+zone,CONTAINER,Container,Container,,2024-03,8,7.78,3.8,6.05,92.1
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-03,5,9.66,4.54,9.67,87.0
+terminal,AMC2,AMCT-2,Container,AMC2,2024-03,1,1.05,1.05,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-03,3,3.23,0.0,3.23,79.4
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-03,2,2.03,0.5,2.02,89.9
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-03,2,0.92,1.52,0.89,95.6
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-03,2,1.47,2.25,0.8,92.2
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-03,5,3.38,4.38,1.4,94.5
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-03,0,0.0,0.76,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-03,3,8.74,3.03,8.74,83.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-03,3,3.25,3.34,3.27,94.1
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2024-03,1,1.05,1.05,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-03,2,2.14,0.0,2.14,74.5
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-03,1,1.09,0.0,1.09,85.1
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-03,1,1.07,0.0,1.07,59.2
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-03,1,0.96,0.5,0.96,83.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-03,1,0.46,0.51,0.44,93.9
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-03,1,0.47,0.0,0.47,85.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-03,0,0.0,1.01,0.0,100.0
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-03,1,0.67,0.67,0.0,100.0
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-03,1,0.8,1.58,0.8,90.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-03,2,1.71,1.64,0.85,89.7
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-03,1,0.56,0.68,0.56,93.6
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-03,2,1.11,2.06,0.0,100.1
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-03,0,0.0,0.76,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-03,3,8.74,3.03,8.74,83.9
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-03,1,1.13,0.0,1.13,94.5
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-03,2,2.11,3.34,2.12,94.0
+port,INMUN,Mundra Port,,,2024-04,15,15.32,30.49,5.18,98.0
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-04,10,7.18,6.64,5.16,94.7
+zone,CONTAINER,Container,Container,,2024-04,2,1.12,7.18,0.0,100.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-04,3,7.01,16.68,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-04,0,0.0,3.23,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-04,2,1.12,3.15,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-04,1,0.53,1.46,0.0,100.2
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-04,0,0.0,0.8,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-04,7,3.71,2.02,3.09,89.4
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-04,1,0.48,0.48,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-04,2,6.48,15.22,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-04,2,2.99,4.13,2.13,96.4
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-04,0,0.0,2.14,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-04,0,0.0,1.09,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-04,0,0.0,1.07,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2024-04,2,1.12,1.12,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-04,0,0.0,0.96,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-04,0,0.0,0.46,0.0,100.3
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-04,0,0.0,0.47,0.0,100.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-04,1,0.53,0.53,0.0,100.0
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-04,0,0.0,0.8,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-04,2,1.13,1.18,0.8,91.5
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-04,2,0.6,0.84,0.32,96.6
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-04,3,1.98,0.0,1.97,81.2
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-04,1,0.48,0.48,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-04,2,6.48,15.22,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-04,2,2.99,2.01,2.11,91.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-04,0,0.0,2.11,0.01,100.0
+port,INMUN,Mundra Port,,,2024-05,12,11.45,8.09,8.54,96.8
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-05,6,7.15,7.19,5.12,95.1
+zone,CONTAINER,Container,Container,,2024-05,5,3.94,0.9,3.03,96.3
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-05,1,0.36,0.0,0.36,99.6
+terminal,AMC2,AMCT-2,Container,AMC2,2024-05,2,1.68,0.0,1.68,88.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-05,2,1.36,0.0,1.35,94.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-05,1,0.36,0.0,0.32,98.5
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-05,1,0.9,0.9,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-05,2,0.85,3.09,0.85,97.2
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-05,1,0.83,0.0,0.83,91.3
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-05,3,5.47,4.1,3.5,94.5
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2024-05,1,0.87,0.0,0.87,86.6
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2024-05,1,0.81,0.0,0.81,89.7
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-05,1,0.8,0.0,0.8,76.6
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-05,1,0.56,0.0,0.56,91.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-05,1,0.36,0.0,0.34,95.5
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-05,1,0.9,0.9,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-05,1,0.26,0.79,0.27,97.2
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-05,0,0.0,0.31,0.01,99.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-05,1,0.6,1.98,0.59,94.7
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-05,1,0.83,0.0,0.83,91.3
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-05,3,5.47,4.1,3.48,88.0
+port,INMUN,Mundra Port,,,2024-06,14,14.36,14.22,8.68,96.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-06,6,6.12,7.83,3.41,96.9
+zone,CONTAINER,Container,Container,,2024-06,4,3.77,3.04,3.76,95.6
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-06,4,4.47,3.35,1.48,98.3
+terminal,AMC2,AMCT-2,Container,AMC2,2024-06,1,0.55,1.68,0.55,96.3
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-06,1,0.85,0.0,0.85,94.9
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-06,1,1.72,1.36,1.71,92.9
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-06,3,1.48,0.36,1.44,93.6
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-06,1,0.65,0.0,0.65,94.5
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-06,3,1.88,1.71,1.02,96.8
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-06,1,0.84,1.67,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-06,1,2.99,2.99,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-06,2,3.4,4.45,2.45,96.4
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2024-06,1,0.55,0.87,0.55,92.2
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2024-06,0,0.0,0.81,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-06,1,0.85,0.0,0.85,90.8
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-06,0,0.0,0.8,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2024-06,1,1.72,0.0,1.72,81.9
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-06,0,0.0,0.56,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-06,2,1.01,0.36,0.99,88.5
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-06,1,0.47,0.0,0.47,87.7
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-06,1,0.65,0.0,0.65,82.9
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-06,2,1.16,1.11,0.32,97.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-06,1,0.72,0.0,0.73,92.8
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-06,0,0.0,0.6,0.0,100.1
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-06,1,0.84,1.67,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-06,1,2.99,2.99,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-06,1,0.98,4.45,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-06,1,2.43,0.0,2.44,93.5
+port,INMUN,Mundra Port,,,2024-07,19,16.91,12.97,12.62,95.8
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-07,9,6.24,5.09,4.56,96.1
+zone,CONTAINER,Container,Container,,2024-07,6,4.7,5.98,2.48,97.2
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-07,4,5.97,1.89,5.56,94.0
+terminal,AMC2,AMCT-2,Container,AMC2,2024-07,1,0.82,0.55,0.82,94.8
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-07,1,0.82,1.67,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-07,3,2.34,3.11,0.94,96.5
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-07,2,1.0,1.89,0.55,97.7
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-07,1,0.73,0.65,0.73,94.2
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-07,5,2.95,1.8,2.17,93.8
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-07,2,1.5,0.0,1.5,87.4
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-07,2,4.97,0.0,4.97,92.8
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-07,2,1.79,3.3,0.94,98.6
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2024-07,0,0.0,0.55,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2024-07,1,0.82,0.0,0.82,90.6
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-07,1,0.82,1.67,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-07,1,0.95,0.0,0.95,78.3
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2024-07,1,0.91,2.63,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-07,1,0.48,0.48,0.01,99.8
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-07,0,0.0,1.01,0.0,100.2
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-07,2,1.0,0.88,0.59,87.7
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-07,1,0.73,0.65,0.73,83.9
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-07,0,0.0,0.3,0.02,99.8
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-07,2,1.16,1.5,0.39,96.5
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-07,3,1.79,0.0,1.78,86.2
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-07,2,1.5,0.0,1.5,87.4
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-07,2,4.97,0.0,4.97,92.8
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-07,2,1.79,0.87,0.93,97.1
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-07,0,0.0,2.43,0.01,100.0
+port,INMUN,Mundra Port,,,2024-08,17,21.08,17.1,16.6,94.8
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-08,8,8.93,5.94,7.55,94.0
+zone,CONTAINER,Container,Container,,2024-08,8,9.04,2.49,9.03,90.9
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-08,1,3.11,8.66,0.01,100.0
+terminal,AMC2,AMCT-2,Container,AMC2,2024-08,0,0.0,0.82,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-08,1,0.59,0.0,0.59,96.7
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-08,2,2.14,0.95,2.13,92.6
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-08,3,4.58,0.0,4.59,79.3
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-08,0,0.0,0.59,0.0,100.2
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-08,2,1.74,0.73,1.74,87.8
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-08,3,1.67,2.54,1.3,96.5
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-08,1,0.62,1.5,0.62,95.1
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-08,1,3.11,8.07,0.01,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-08,4,6.64,1.9,5.68,92.5
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2024-08,0,0.0,0.82,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-08,1,0.59,0.0,0.59,92.5
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-08,1,1.13,0.95,1.13,79.5
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-08,1,1.01,0.0,1.02,84.6
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2024-08,1,1.49,0.0,1.49,88.8
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2024-08,2,3.09,0.0,3.09,65.0
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-08,0,0.0,0.59,0.0,100.0
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-08,1,0.95,0.73,0.95,82.7
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-08,1,0.78,0.0,0.78,91.1
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-08,0,0.0,0.38,0.01,99.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-08,3,1.67,2.15,1.3,91.1
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-08,1,0.62,1.5,0.62,95.1
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-08,1,3.11,8.07,0.01,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-08,3,5.66,0.92,5.67,84.8
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-08,1,0.98,0.98,0.01,100.0
+port,INMUN,Mundra Port,,,2024-09,20,22.74,21.68,17.66,94.8
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-09,9,6.5,11.35,2.7,97.9
+zone,CONTAINER,Container,Container,,2024-09,6,4.79,10.33,3.49,96.6
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-09,5,11.45,0.0,11.46,89.3
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-09,3,2.39,1.2,1.78,91.2
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-09,2,1.31,2.81,0.63,97.9
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-09,1,1.08,4.58,1.09,95.3
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-09,1,0.34,0.0,0.3,98.7
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-09,0,0.0,1.74,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-09,5,2.48,3.1,0.68,98.3
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-09,2,1.15,0.62,1.15,91.6
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-09,4,11.12,0.0,11.13,86.6
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-09,2,2.86,7.62,0.92,98.8
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-09,2,1.65,0.61,1.04,91.1
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-09,1,0.74,0.59,0.74,91.4
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-09,2,1.31,1.8,0.64,90.6
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-09,0,0.0,1.01,0.01,99.8
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2024-09,0,0.0,1.49,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2024-09,1,1.08,3.09,1.08,89.1
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-09,1,0.34,0.0,0.34,93.4
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-09,0,0.0,0.95,0.0,100.0
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-09,0,0.0,0.78,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-09,2,0.54,0.23,0.33,97.1
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-09,3,1.94,1.57,0.38,97.1
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-09,0,0.0,1.3,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-09,2,1.15,0.62,1.15,91.6
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-09,4,11.12,0.0,11.13,86.6
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-09,1,0.9,5.66,0.91,97.6
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-09,1,1.96,1.96,0.01,100.0
+port,INMUN,Mundra Port,,,2024-10,20,25.18,26.78,16.06,95.6
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-10,7,7.97,3.35,7.32,94.8
+zone,CONTAINER,Container,Container,,2024-10,10,10.6,5.91,8.18,92.8
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-10,3,6.61,17.51,0.56,99.5
+terminal,AMC2,AMCT-2,Container,AMC2,2024-10,1,0.56,0.0,0.56,96.6
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-10,0,0.0,1.77,0.01,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-10,4,4.76,0.64,4.75,86.3
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-10,2,2.2,1.78,1.51,94.1
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-10,1,0.55,0.34,0.51,97.9
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-10,3,3.08,1.71,1.37,92.1
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-10,3,1.67,1.3,1.05,97.4
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-10,1,0.85,1.15,0.85,94.2
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-10,2,6.06,17.18,0.01,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-10,3,5.44,0.9,5.46,93.5
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2024-10,1,0.56,0.0,0.56,92.6
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-10,0,0.0,1.04,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2024-10,0,0.0,0.74,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-10,2,2.45,0.64,2.45,73.5
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-10,1,0.94,0.0,0.94,86.9
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-10,1,1.37,0.0,1.38,82.7
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2024-10,2,2.2,0.7,1.5,90.3
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2024-10,0,0.0,1.08,0.0,100.0
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2024-10,0,0.0,0.34,0.0,100.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-10,1,0.55,0.0,0.55,94.8
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-10,3,3.08,1.71,1.37,88.4
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-10,3,1.67,0.93,1.07,91.8
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-10,0,0.0,0.37,0.01,99.9
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-10,1,0.85,1.15,0.85,94.2
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-10,2,6.06,17.18,0.01,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-10,2,3.2,0.9,3.21,92.3
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-10,1,2.24,0.0,2.25,94.7
+port,INMUN,Mundra Port,,,2024-11,16,15.46,17.77,13.75,96.4
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-11,5,2.7,7.72,2.3,98.4
+zone,CONTAINER,Container,Container,,2024-11,6,5.56,9.1,4.64,96.1
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-11,5,7.19,0.95,6.8,94.4
+terminal,AMC2,AMCT-2,Container,AMC2,2024-11,0,0.0,0.56,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-11,1,1.36,0.0,1.37,93.7
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-11,5,4.2,5.67,3.28,91.6
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-11,0,0.0,1.5,0.01,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-11,3,1.51,0.95,1.07,95.9
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-11,0,0.0,1.37,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-11,3,1.51,1.42,1.14,97.3
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-11,2,1.19,0.85,1.19,92.4
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-11,2,5.69,0.0,5.7,94.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-11,0,0.0,5.44,0.02,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2024-11,0,0.0,0.56,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-11,1,1.36,0.0,1.36,89.6
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-11,3,2.61,3.36,1.7,85.7
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-11,1,0.73,0.94,0.73,90.7
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-11,1,0.86,1.37,0.87,90.2
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2024-11,0,0.0,1.5,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-11,1,0.6,0.0,0.58,93.7
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-11,2,0.91,0.95,0.51,95.6
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2024-11,0,0.0,1.37,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-11,0,0.0,1.05,0.02,99.8
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-11,3,1.51,0.37,1.14,92.9
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-11,2,1.19,0.85,1.19,92.4
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-11,2,5.69,0.0,5.7,94.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2024-11,0,0.0,3.2,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-11,0,0.0,2.24,0.01,100.0
+port,INMUN,Mundra Port,,,2024-12,21,23.74,26.26,11.23,97.2
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2024-12,12,9.37,8.12,3.55,97.7
+zone,CONTAINER,Container,Container,,2024-12,5,5.17,5.44,4.37,96.5
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2024-12,4,9.2,12.69,3.31,97.5
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2024-12,0,0.0,1.36,0.01,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2024-12,2,2.11,3.29,2.1,94.9
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2024-12,2,2.08,0.79,1.3,95.3
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2024-12,1,0.69,1.11,0.65,97.6
+terminal,MICT,MICT (DP World JV),Container,MICT,2024-12,1,0.98,0.0,0.98,94.6
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2024-12,7,4.77,3.51,2.4,94.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2024-12,4,2.63,2.63,1.19,93.5
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2024-12,3,8.5,11.59,2.61,97.5
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2024-12,1,1.98,1.98,0.02,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2024-12,0,0.0,1.36,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2024-12,0,0.0,1.7,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2024-12,1,0.78,0.0,0.78,93.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2024-12,0,0.0,0.73,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2024-12,1,1.32,0.86,1.33,86.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2024-12,1,1.29,0.0,1.29,92.3
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2024-12,1,0.79,0.79,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2024-12,1,0.69,0.6,0.67,93.2
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2024-12,0,0.0,0.51,0.0,100.0
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2024-12,1,0.98,0.0,0.98,84.8
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2024-12,1,0.61,0.0,0.63,95.4
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2024-12,2,1.43,0.76,0.68,95.4
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2024-12,4,2.73,2.75,1.12,94.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2024-12,4,2.63,2.63,1.19,93.5
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2024-12,3,8.5,11.59,2.61,97.5
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2024-12,1,1.98,1.98,0.01,100.0
+port,INMUN,Mundra Port,,,2025-01,18,16.77,16.48,11.52,97.3
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-01,7,6.36,5.31,4.6,97.1
+zone,CONTAINER,Container,Container,,2025-01,9,7.09,4.97,6.49,95.1
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-01,2,3.32,6.2,0.43,99.7
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-01,2,1.8,0.0,1.81,92.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-01,5,3.65,2.7,3.05,93.2
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-01,1,0.7,1.29,0.71,97.5
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-01,1,0.42,0.69,0.38,98.6
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-01,1,0.94,0.98,0.94,95.1
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-01,3,1.75,2.66,1.49,96.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-01,3,2.2,2.65,0.74,96.4
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-01,1,2.9,5.5,0.01,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-01,1,2.41,0.0,2.43,97.3
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-01,2,1.8,0.0,1.8,82.7
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-01,1,0.98,0.0,0.98,92.4
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-01,2,1.54,0.78,1.54,87.9
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-01,1,0.59,0.59,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-01,1,0.54,1.32,0.55,94.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-01,0,0.0,1.29,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-01,1,0.7,0.0,0.7,93.9
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-01,0,0.0,0.69,0.0,100.2
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-01,1,0.42,0.0,0.42,96.5
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-01,1,0.94,0.98,0.94,87.3
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-01,0,0.0,0.61,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-01,1,0.27,0.94,0.01,99.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-01,2,1.48,1.12,1.48,92.7
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-01,3,2.2,2.65,0.74,96.4
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-01,1,2.9,5.5,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-01,1,2.41,0.0,2.42,94.9
+port,INMUN,Mundra Port,,,2025-02,19,21.94,13.11,20.35,95.4
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-02,8,7.86,6.19,6.27,96.2
+zone,CONTAINER,Container,Container,,2025-02,7,5.52,6.5,5.51,96.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-02,4,8.56,0.42,8.57,94.0
+terminal,AMC2,AMCT-2,Container,AMC2,2025-02,2,1.54,0.0,1.54,91.4
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-02,2,1.59,1.8,1.6,93.6
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-02,1,0.99,3.06,0.98,97.9
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-02,2,1.4,0.7,1.41,95.2
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-02,1,0.48,0.42,0.44,98.4
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-02,0,0.0,0.94,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-02,5,2.55,3.03,1.01,98.0
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-02,0,0.0,0.75,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-02,3,8.08,0.0,8.09,92.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-02,3,5.3,2.41,5.32,94.3
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-02,2,1.54,0.0,1.54,83.2
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-02,2,1.59,1.8,1.59,86.8
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-02,0,0.0,0.98,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-02,1,0.99,1.54,0.99,92.8
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-02,0,0.0,0.54,0.01,99.9
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-02,2,1.4,0.7,1.4,89.1
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-02,1,0.48,0.0,0.46,95.6
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-02,0,0.0,0.42,0.0,100.0
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-02,0,0.0,0.94,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-02,3,1.22,1.0,0.24,98.4
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-02,1,0.77,0.0,0.78,95.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-02,1,0.56,2.04,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-02,0,0.0,0.75,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-02,3,8.08,0.0,8.09,92.9
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2025-02,1,2.1,0.0,2.11,95.2
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-02,2,3.2,2.41,3.21,93.6
+port,INMUN,Mundra Port,,,2025-03,17,18.89,26.42,12.82,97.2
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-03,7,5.54,7.28,4.53,97.4
+zone,CONTAINER,Container,Container,,2025-03,7,5.84,8.19,3.16,97.8
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-03,3,7.51,10.95,5.13,96.6
+terminal,AMC2,AMCT-2,Container,AMC2,2025-03,1,0.76,1.54,0.76,95.9
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-03,0,0.0,1.59,0.01,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-03,4,3.24,1.82,2.4,95.1
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-03,2,1.84,3.24,0.01,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-03,0,0.0,0.48,0.0,100.1
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-03,2,0.78,1.53,0.26,99.5
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-03,4,2.66,0.45,2.2,90.5
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-03,3,7.51,10.48,5.12,95.8
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-03,1,2.1,5.3,2.12,97.8
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-03,1,0.76,1.54,0.76,92.3
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-03,0,0.0,1.59,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-03,1,0.95,0.0,0.95,93.1
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-03,2,1.46,0.99,1.46,90.4
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-03,1,0.83,0.83,0.01,99.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-03,2,1.84,1.84,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-03,0,0.0,1.4,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-03,0,0.0,0.48,0.0,100.2
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-03,1,0.53,0.75,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-03,1,0.25,0.77,0.26,98.4
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-03,4,2.66,0.45,2.2,90.5
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-03,3,7.51,10.48,5.12,95.8
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2025-03,0,0.0,2.1,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-03,1,2.1,3.2,2.11,96.0
+port,INMUN,Mundra Port,,,2025-04,20,19.05,16.89,14.98,96.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-04,5,5.54,4.55,5.52,96.9
+zone,CONTAINER,Container,Container,,2025-04,11,11.8,6.33,8.63,94.4
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-04,4,1.71,6.0,0.84,99.4
+terminal,AMC2,AMCT-2,Container,AMC2,2025-04,3,3.26,3.47,0.55,97.5
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-04,4,2.89,0.46,2.44,91.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-04,2,2.85,2.41,2.84,94.5
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-04,2,2.8,0.0,2.81,91.8
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-04,4,1.71,0.89,0.78,97.3
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-04,3,1.73,0.25,1.74,96.8
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-04,0,0.0,2.21,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-04,0,0.0,5.12,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-04,2,3.81,2.1,3.83,96.2
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-04,2,2.71,3.47,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2025-04,1,0.55,0.0,0.55,94.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2025-04,2,1.61,0.0,1.61,89.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-04,2,1.29,0.46,0.83,93.8
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-04,0,0.0,0.95,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-04,0,0.0,1.46,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-04,1,1.81,0.0,1.81,82.4
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-04,1,1.04,0.0,1.05,91.6
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-04,1,1.89,0.0,1.89,90.8
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-04,1,0.91,0.0,0.91,93.4
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-04,2,0.93,0.41,0.52,91.4
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-04,2,0.78,0.47,0.31,97.6
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-04,3,1.73,0.25,1.74,90.1
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-04,0,0.0,2.21,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-04,0,0.0,5.12,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2025-04,1,1.94,0.0,1.95,95.7
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-04,1,1.87,2.1,1.88,96.5
+port,INMUN,Mundra Port,,,2025-05,15,15.01,17.78,12.21,97.5
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-05,6,5.73,6.16,5.09,97.2
+zone,CONTAINER,Container,Container,,2025-05,6,5.06,10.8,2.89,98.2
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-05,3,4.22,0.83,4.23,97.3
+terminal,AMC2,AMCT-2,Container,AMC2,2025-05,2,1.48,0.55,1.48,93.7
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-05,0,0.0,2.44,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-05,1,0.86,2.85,0.85,98.4
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-05,2,1.45,3.7,0.56,98.4
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-05,2,1.15,0.83,1.1,96.4
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-05,1,1.26,1.26,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-05,3,1.91,2.35,1.3,97.7
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-05,1,0.95,0.0,0.94,96.1
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-05,1,3.06,0.0,3.06,97.5
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-05,2,2.87,3.81,2.89,97.2
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2025-05,2,1.48,0.55,1.48,86.2
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2025-05,0,0.0,1.61,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-05,0,0.0,0.83,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-05,1,0.86,0.0,0.86,94.6
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-05,0,0.0,1.81,0.0,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-05,0,0.0,1.04,0.01,99.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-05,2,1.45,2.79,0.55,97.5
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-05,0,0.0,0.91,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-05,1,0.61,0.0,0.59,94.6
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-05,1,0.54,0.51,0.55,91.7
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-05,0,0.0,0.31,0.0,100.0
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-05,1,1.26,1.26,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-05,1,0.74,0.0,0.76,95.3
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-05,0,0.0,1.73,0.01,99.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-05,2,1.17,0.62,0.55,97.5
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-05,1,0.95,0.0,0.94,96.1
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-05,1,3.06,0.0,3.06,97.5
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2025-05,1,1.02,1.94,1.03,97.8
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-05,1,1.86,1.87,1.87,96.7
+port,INMUN,Mundra Port,,,2025-06,23,24.57,24.13,12.65,97.6
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-06,10,8.56,10.06,3.59,98.1
+zone,CONTAINER,Container,Container,,2025-06,6,5.78,3.67,5.0,97.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-06,7,10.23,10.4,4.06,97.5
+terminal,AMC2,AMCT-2,Container,AMC2,2025-06,1,1.42,1.48,1.42,94.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-06,4,3.66,1.64,2.87,94.9
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-06,1,0.7,0.56,0.7,98.1
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-06,4,1.82,1.72,1.2,96.3
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-06,5,3.06,3.11,1.25,97.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-06,3,2.09,1.7,1.33,94.9
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-06,3,8.41,8.68,2.79,97.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-06,2,3.41,5.25,1.05,99.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-06,1,1.42,0.0,1.42,89.9
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2025-06,0,0.0,1.48,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-06,1,0.77,0.77,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-06,0,0.0,0.86,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-06,2,2.0,0.0,2.0,83.7
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-06,1,0.88,0.0,0.89,93.4
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-06,0,0.0,0.56,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-06,1,0.7,0.0,0.7,95.1
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-06,1,0.36,0.61,0.34,97.0
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-06,1,0.48,0.54,0.49,93.1
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-06,2,0.98,0.57,0.41,97.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-06,0,0.0,0.74,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-06,1,0.55,0.55,0.01,99.9
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-06,4,2.51,1.83,1.23,95.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-06,3,2.09,1.7,1.33,94.9
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-06,3,8.41,8.68,2.79,97.9
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2025-06,1,2.37,3.39,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-06,1,1.03,1.86,1.04,98.2
+port,INMUN,Mundra Port,,,2025-07,18,14.29,22.91,4.03,99.2
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-07,9,8.15,9.29,2.45,98.8
+zone,CONTAINER,Container,Container,,2025-07,6,4.66,9.13,0.53,99.7
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-07,3,1.48,4.49,1.05,99.4
+terminal,AMC2,AMCT-2,Container,AMC2,2025-07,1,0.95,2.37,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-07,3,1.96,4.31,0.52,99.1
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-07,1,1.1,1.8,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-07,3,1.48,1.7,0.98,97.1
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-07,1,0.65,0.65,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-07,2,0.98,1.71,0.52,99.1
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-07,4,2.81,2.18,1.96,93.3
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-07,0,0.0,2.79,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-07,3,4.36,5.4,0.01,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-07,1,0.95,2.37,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-07,1,0.74,0.74,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-07,1,0.68,2.69,0.0,100.1
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-07,1,0.54,0.88,0.55,96.1
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-07,1,1.1,1.1,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-07,0,0.0,0.7,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-07,0,0.0,0.36,0.0,100.2
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-07,0,0.0,0.48,0.01,99.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-07,3,1.48,0.86,1.03,93.2
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-07,1,0.65,0.65,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-07,2,0.98,1.71,0.5,98.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-07,4,2.81,2.18,1.96,93.3
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-07,0,0.0,2.79,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2025-07,3,4.36,4.36,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-07,0,0.0,1.03,0.01,100.0
+port,INMUN,Mundra Port,,,2025-08,17,17.34,9.8,11.57,97.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-08,4,3.54,2.49,3.5,98.3
+zone,CONTAINER,Container,Container,,2025-08,7,6.03,2.12,4.44,97.5
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-08,6,7.77,5.2,3.62,97.9
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-08,1,0.88,0.0,0.88,97.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-08,3,2.95,1.49,1.98,96.8
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-08,2,1.57,0.0,1.57,96.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-08,4,2.15,2.18,0.95,97.3
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-08,1,0.63,0.63,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-08,1,0.31,0.51,0.32,99.5
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-08,2,0.91,1.97,0.9,97.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-08,2,5.62,3.02,2.6,98.1
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-08,1,2.32,0.0,2.33,97.9
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2025-08,1,0.88,0.0,0.88,94.3
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-08,2,2.36,0.95,1.41,92.3
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-08,1,0.59,0.0,0.58,95.7
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-08,0,0.0,0.54,0.01,99.9
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-08,2,1.57,0.0,1.57,90.2
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-08,1,0.6,0.6,0.0,100.2
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-08,2,1.03,0.54,0.5,93.8
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-08,1,0.51,1.04,0.5,96.8
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-08,1,0.63,0.63,0.0,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-08,1,0.31,0.51,0.3,98.8
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-08,2,0.91,1.97,0.9,97.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-08,2,5.62,3.02,2.6,98.1
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-08,1,2.32,0.0,2.33,96.1
+port,INMUN,Mundra Port,,,2025-09,17,17.18,16.06,12.69,97.8
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-09,4,2.57,3.54,2.53,98.8
+zone,CONTAINER,Container,Container,,2025-09,10,10.59,8.33,6.7,96.4
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-09,3,4.02,4.18,3.46,98.1
+terminal,AMC2,AMCT-2,Container,AMC2,2025-09,2,1.94,0.59,1.35,95.1
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-09,2,1.59,2.47,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-09,3,3.62,3.7,1.9,97.1
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-09,0,0.0,1.57,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-09,2,1.02,1.58,0.39,98.9
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-09,3,3.44,0.0,3.44,86.4
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-09,2,0.74,0.31,0.75,98.8
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-09,1,0.83,0.91,0.82,97.3
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-09,1,3.0,2.6,3.0,97.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-09,1,1.01,2.32,1.02,99.1
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-09,1,0.59,0.59,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2025-09,1,1.35,0.0,1.35,88.8
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2025-09,2,1.59,2.47,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-09,1,0.97,0.0,0.97,94.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-09,0,0.0,1.4,0.01,99.9
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-09,1,1.71,2.3,0.0,100.1
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-09,1,0.93,0.0,0.94,93.7
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2025-09,0,0.0,1.57,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-09,1,0.45,0.0,0.43,96.5
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-09,0,0.0,0.49,0.01,99.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-09,1,0.57,1.09,0.0,100.1
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-09,2,2.47,0.0,2.47,80.1
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2025-09,1,0.97,0.0,0.97,92.4
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-09,1,0.4,0.0,0.42,97.5
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-09,1,0.34,0.31,0.33,98.7
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-09,1,0.83,0.91,0.82,97.3
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-09,1,3.0,2.6,3.0,97.9
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-09,1,1.01,2.32,1.02,98.3
+port,INMUN,Mundra Port,,,2025-10,20,21.37,17.81,16.25,97.3
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-10,8,8.67,4.18,7.02,96.7
+zone,CONTAINER,Container,Container,,2025-10,8,8.6,10.17,5.13,97.4
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-10,4,4.1,3.45,4.11,97.8
+terminal,AMC2,AMCT-2,Container,AMC2,2025-10,1,1.77,3.12,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-10,2,1.7,1.7,0.0,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-10,1,1.18,1.91,1.17,98.2
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-10,1,0.88,0.0,0.88,97.8
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-10,3,1.54,0.45,1.48,96.1
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-10,3,3.07,3.44,3.07,89.2
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-10,3,1.77,1.41,1.11,98.2
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-10,1,0.7,0.83,0.69,97.8
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-10,1,2.56,3.0,2.56,98.2
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-10,4,6.2,1.94,5.28,95.6
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-10,1,1.77,1.77,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2025-10,0,0.0,1.35,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-10,2,1.7,1.7,0.0,100.0
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-10,0,0.0,0.97,0.0,100.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-10,1,1.18,0.0,1.17,92.9
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-10,0,0.0,0.93,0.01,99.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-10,1,0.88,0.0,0.87,96.4
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-10,0,0.0,0.45,0.0,100.2
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-10,1,0.42,0.0,0.43,95.0
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-10,2,1.12,0.0,1.1,93.7
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-10,1,0.89,2.47,0.89,93.3
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2025-10,2,2.18,0.97,2.18,85.5
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-10,0,0.0,0.4,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-10,1,0.52,0.0,0.53,97.2
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-10,2,1.25,1.02,0.56,98.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-10,1,0.7,0.83,0.69,97.8
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-10,1,2.56,3.0,2.56,98.2
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-10,4,6.2,1.94,5.28,92.1
+port,INMUN,Mundra Port,,,2025-11,16,19.64,23.17,12.72,97.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-11,5,4.46,10.0,1.48,99.3
+zone,CONTAINER,Container,Container,,2025-11,5,5.5,5.91,4.72,97.7
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-11,6,9.68,7.26,6.53,96.6
+terminal,AMC2,AMCT-2,Container,AMC2,2025-11,1,1.32,0.0,1.32,95.7
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-11,1,0.72,0.0,0.72,97.8
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-11,1,0.92,1.18,0.91,98.6
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-11,1,0.78,1.66,0.0,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-11,3,1.47,2.04,0.91,97.7
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-11,1,1.76,3.07,1.76,94.1
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-11,2,1.01,1.1,1.02,98.4
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-11,1,0.51,0.7,0.5,98.4
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-11,3,8.21,5.22,5.55,96.4
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-11,2,2.94,8.2,0.02,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-11,1,1.32,0.0,1.32,92.9
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-11,1,0.72,0.0,0.72,95.4
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-11,1,0.92,0.0,0.92,94.7
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2025-11,0,0.0,1.18,0.0,100.1
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-11,1,0.78,1.66,0.0,100.0
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-11,1,0.49,0.0,0.47,96.4
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2025-11,1,0.5,0.92,0.01,99.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-11,1,0.48,1.12,0.46,97.4
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-11,1,1.76,0.89,1.76,88.3
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2025-11,0,0.0,2.18,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-11,1,0.64,0.0,0.66,96.2
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-11,1,0.38,0.52,0.39,98.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-11,0,0.0,0.58,0.0,100.1
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-11,1,0.51,0.7,0.5,98.4
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-11,3,8.21,5.22,5.55,96.4
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-11,2,2.94,8.2,0.02,100.0
+port,INMUN,Mundra Port,,,2025-12,23,23.11,19.13,16.7,97.4
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2025-12,12,8.7,4.35,5.83,97.4
+zone,CONTAINER,Container,Container,,2025-12,8,6.48,5.33,5.87,97.2
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2025-12,3,7.93,9.45,5.01,97.5
+terminal,AMC2,AMCT-2,Container,AMC2,2025-12,1,1.12,1.32,1.12,96.5
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2025-12,2,1.44,1.33,0.83,97.6
+terminal,CT3,CT-3 (AICT),Container,CT3,2025-12,2,1.16,0.92,1.15,98.3
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2025-12,2,2.02,0.0,2.02,95.3
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2025-12,0,0.0,0.97,0.0,100.2
+terminal,MICT,MICT (DP World JV),Container,MICT,2025-12,1,0.74,1.76,0.74,97.6
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2025-12,7,3.13,1.33,2.82,95.8
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2025-12,3,1.68,1.05,1.13,96.6
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2025-12,3,7.93,8.47,5.01,96.9
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2025-12,2,3.89,1.97,1.94,98.5
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2025-12,1,1.12,1.32,1.12,94.3
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2025-12,2,1.44,1.33,0.83,95.2
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2025-12,0,0.0,0.92,0.0,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2025-12,1,0.61,0.0,0.62,96.7
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2025-12,1,0.55,0.0,0.56,96.4
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2025-12,2,2.02,0.0,2.01,92.5
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2025-12,0,0.0,0.49,0.0,100.2
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2025-12,0,0.0,0.48,0.0,100.1
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2025-12,1,0.74,1.76,0.74,95.3
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2025-12,0,0.0,0.64,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2025-12,1,0.35,0.38,0.36,98.1
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2025-12,6,2.78,0.32,2.44,91.9
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2025-12,3,1.68,1.05,1.13,96.6
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2025-12,3,7.93,8.47,5.01,96.9
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2025-12,2,3.89,1.97,1.94,97.4
+port,INMUN,Mundra Port,,,2026-01,21,20.8,28.18,9.32,98.6
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-01,7,5.63,9.14,2.32,99.0
+zone,CONTAINER,Container,Container,,2026-01,9,8.37,11.08,3.16,98.5
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-01,5,6.79,7.95,3.85,98.1
+terminal,AMC2,AMCT-2,Container,AMC2,2026-01,1,0.99,2.11,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-01,2,1.31,1.52,0.62,98.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-01,4,3.05,3.23,0.97,98.6
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-01,2,3.02,3.48,1.56,96.6
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-01,3,1.7,0.57,1.07,97.4
+terminal,MICT,MICT (DP World JV),Container,MICT,2026-01,0,0.0,0.74,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-01,5,2.62,3.08,2.36,96.6
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-01,1,0.59,1.72,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-01,2,5.09,7.38,2.72,98.4
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-01,1,2.42,4.34,0.02,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2026-01,0,0.0,1.12,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-01,1,0.99,0.99,0.0,100.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2026-01,2,1.31,0.7,0.61,96.7
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-01,0,0.0,0.82,0.01,99.9
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2026-01,3,2.57,2.06,0.51,97.4
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-01,0,0.0,0.61,0.01,99.9
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-01,1,0.48,0.55,0.49,96.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-01,0,0.0,2.02,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2026-01,2,3.02,1.46,1.56,91.8
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2026-01,3,1.7,0.57,1.11,92.4
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2026-01,0,0.0,0.74,0.0,100.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-01,2,1.31,0.35,1.32,93.6
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2026-01,3,1.31,2.72,1.03,96.7
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-01,1,0.59,1.72,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-01,2,5.09,7.38,2.72,98.4
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-01,1,2.42,2.42,0.01,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-01,0,0.0,1.92,0.02,100.0
+port,INMUN,Mundra Port,,,2026-02,20,24.08,20.2,13.2,98.1
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-02,5,6.01,2.96,5.37,97.8
+zone,CONTAINER,Container,Container,,2026-02,9,8.32,6.2,5.28,97.6
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-02,6,9.75,11.04,2.56,98.8
+terminal,AMC2,AMCT-2,Container,AMC2,2026-02,2,1.72,1.1,0.62,98.2
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-02,2,1.87,1.22,1.27,96.6
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-02,2,1.46,1.62,0.81,98.9
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-02,3,3.27,2.26,2.57,94.8
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-02,3,1.6,2.72,0.0,100.1
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-02,2,0.97,2.36,0.97,98.6
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-02,1,0.6,0.6,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-02,3,8.15,8.31,2.56,98.5
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-02,2,4.44,0.0,4.46,96.7
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-02,2,1.72,1.1,0.62,95.8
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2026-02,1,1.27,0.61,1.27,93.6
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-02,1,0.61,0.61,0.01,99.9
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2026-02,0,0.0,0.5,0.01,99.9
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-02,1,0.83,0.0,0.84,95.8
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2026-02,1,0.63,0.63,0.0,100.1
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-02,0,0.0,0.48,0.01,99.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-02,2,1.44,0.71,0.72,97.4
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2026-02,1,1.84,1.55,1.85,91.1
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2026-02,0,0.0,1.13,0.0,100.1
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2026-02,2,1.08,1.08,0.01,99.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2026-02,1,0.51,0.51,0.0,100.1
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-02,1,0.63,0.0,0.65,96.3
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-02,1,0.34,1.31,0.35,98.3
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2026-02,0,0.0,1.04,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-02,1,0.6,0.6,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-02,3,8.15,8.31,2.56,98.5
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-02,1,2.11,0.0,2.12,96.3
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-02,1,2.33,0.0,2.35,96.9
+port,INMUN,Mundra Port,,,2026-03,25,26.39,25.28,14.31,98.0
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-03,8,8.33,10.22,3.48,98.6
+zone,CONTAINER,Container,Container,,2026-03,14,11.86,10.07,7.07,97.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-03,3,6.19,5.0,3.75,98.3
+terminal,AMC2,AMCT-2,Container,AMC2,2026-03,2,1.32,1.04,0.9,97.5
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-03,1,1.17,2.43,0.01,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-03,4,3.04,2.62,1.23,98.4
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-03,3,3.21,3.97,1.81,96.5
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-03,1,0.87,0.0,0.82,98.1
+terminal,MICT,MICT (DP World JV),Container,MICT,2026-03,4,3.12,0.0,3.12,90.8
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-03,2,1.19,2.16,0.0,100.0
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-03,4,2.45,1.31,1.14,96.9
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-03,2,5.32,5.0,2.88,98.4
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-03,2,4.69,6.75,2.4,98.3
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2026-03,1,0.9,0.0,0.9,95.6
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-03,1,0.43,1.04,0.01,99.9
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2026-03,0,0.0,1.27,0.0,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-03,1,1.17,1.17,0.01,99.9
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2026-03,2,1.8,1.8,0.01,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-03,2,1.24,0.83,1.25,94.1
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-03,0,0.0,0.73,0.0,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2026-03,3,3.21,3.24,1.82,92.4
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2026-03,1,0.87,0.0,0.88,92.0
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2026-03,4,3.12,0.0,3.12,82.8
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-03,0,0.0,0.63,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-03,2,1.19,1.53,0.01,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-03,4,2.45,1.31,1.14,96.9
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-03,2,5.32,5.0,2.88,98.4
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-03,2,4.69,4.42,2.39,96.2
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-03,0,0.0,2.33,0.02,100.0
+port,INMUN,Mundra Port,,,2026-04,18,20.86,23.36,11.81,98.4
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-04,7,6.98,5.27,5.19,98.0
+zone,CONTAINER,Container,Container,,2026-04,7,6.98,8.31,5.74,97.6
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-04,4,6.9,9.78,0.87,99.6
+terminal,AMC2,AMCT-2,Container,AMC2,2026-04,1,0.96,0.9,0.96,97.4
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-04,2,1.56,0.48,1.09,97.3
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-04,1,0.98,1.24,0.97,98.7
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-04,2,1.72,2.56,0.97,98.2
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-04,2,0.87,0.87,0.82,98.2
+terminal,MICT,MICT (DP World JV),Container,MICT,2026-04,1,1.77,3.12,1.77,95.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-04,3,1.74,0.94,0.8,98.9
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-04,1,0.81,1.95,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-04,2,6.03,8.92,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-04,3,4.43,2.38,4.45,96.9
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2026-04,0,0.0,0.9,0.0,100.0
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-04,1,0.96,0.0,0.97,94.0
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2026-04,2,1.56,0.48,1.08,94.9
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-04,0,0.0,1.24,0.01,100.0
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-04,1,0.98,0.0,0.99,94.2
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-04,1,0.96,0.0,0.95,96.7
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2026-04,1,0.76,2.56,0.02,99.9
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2026-04,1,0.43,0.0,0.41,97.3
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2026-04,0,0.0,0.87,0.01,99.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2026-04,1,0.44,0.0,0.42,97.8
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2026-04,1,1.77,3.12,1.77,91.1
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-04,1,0.66,0.66,0.02,99.9
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-04,1,0.28,0.28,0.01,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2026-04,1,0.8,0.0,0.79,97.6
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-04,1,0.81,1.95,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-04,2,6.03,8.92,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-04,2,2.06,2.38,2.07,96.8
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-04,1,2.37,0.0,2.39,96.9
+port,INMUN,Mundra Port,,,2026-05,21,30.51,18.94,23.38,96.9
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-05,11,16.54,10.03,11.7,95.7
+zone,CONTAINER,Container,Container,,2026-05,6,5.68,7.52,3.9,98.4
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-05,4,8.29,1.39,7.77,96.7
+terminal,AMC2,AMCT-2,Container,AMC2,2026-05,0,0.0,0.96,0.0,100.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-05,4,3.81,2.04,2.86,93.5
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-05,1,0.82,1.8,0.0,100.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-05,1,1.05,0.96,1.06,98.1
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-05,1,0.52,1.39,0.0,100.1
+terminal,MICT,MICT (DP World JV),Container,MICT,2026-05,0,0.0,1.77,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-05,3,1.68,1.15,1.33,98.2
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-05,3,7.77,0.0,7.76,96.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-05,8,14.86,8.88,10.43,93.4
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-05,0,0.0,0.96,0.01,99.9
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2026-05,2,1.46,1.07,1.47,93.5
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-05,2,2.35,0.96,1.4,93.4
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-05,1,0.82,1.8,0.01,99.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-05,1,1.05,0.96,1.04,96.6
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2026-05,0,0.0,0.43,0.0,100.1
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2026-05,1,0.52,0.96,0.0,100.1
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2026-05,0,0.0,1.77,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-05,1,0.74,0.0,0.76,96.0
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-05,2,0.93,0.35,0.59,97.5
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2026-05,0,0.0,0.8,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-05,3,7.77,0.0,7.76,96.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-05,3,4.16,4.1,2.13,96.9
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-05,5,10.7,4.77,8.32,90.7
+port,INMUN,Mundra Port,,,2026-06,19,22.13,33.29,12.22,98.4
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-06,9,9.68,14.63,6.75,97.6
+zone,CONTAINER,Container,Container,,2026-06,8,8.89,7.32,5.47,97.9
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-06,2,3.56,11.34,0.0,100.0
+terminal,AMC2,AMCT-2,Container,AMC2,2026-06,1,1.14,0.0,1.14,97.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-06,2,1.8,3.63,1.03,97.8
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-06,4,4.13,0.83,3.29,96.0
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-06,0,0.0,1.05,0.01,100.0
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-06,1,0.61,0.61,0.0,100.1
+terminal,MICT,MICT (DP World JV),Container,MICT,2026-06,1,1.81,1.81,0.0,100.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-06,3,1.29,1.74,0.88,98.8
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-06,2,1.31,0.51,0.8,98.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-06,1,2.95,10.73,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-06,4,7.08,12.38,5.13,96.9
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-06,1,1.14,0.0,1.15,93.4
+berth,AMCT-1,AMCT-1 — AMCT Berth 1,Container,AMCT,2026-06,0,0.0,1.46,0.01,100.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-06,2,1.8,2.17,1.03,95.5
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2026-06,1,1.31,0.0,1.32,94.2
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-06,1,1.25,0.0,1.26,94.4
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2026-06,1,0.83,0.83,0.0,100.1
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-06,1,0.74,0.0,0.75,95.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-06,0,0.0,1.05,0.0,100.0
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2026-06,1,0.61,0.61,0.01,99.9
+berth,MICT-1,MICT-1 — MICT Berth 1,Container,MICT,2026-06,1,1.81,1.81,0.0,100.0
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-06,2,1.07,1.16,0.67,96.7
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-06,0,0.0,0.58,0.01,100.0
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2026-06,1,0.22,0.0,0.21,99.4
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-06,2,1.31,0.51,0.8,98.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-06,1,2.95,10.73,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-06,1,1.94,2.11,1.96,97.2
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-06,3,5.13,10.26,3.19,96.6
+port,INMUN,Mundra Port,,,2026-07,23,21.14,22.8,10.56,98.7
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-07,9,6.07,10.89,1.93,99.3
+zone,CONTAINER,Container,Container,,2026-07,12,12.14,9.51,8.1,97.0
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-07,2,2.93,2.4,0.52,99.8
+terminal,AMC2,AMCT-2,Container,AMC2,2026-07,3,2.72,1.14,2.72,93.3
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-07,0,0.0,1.01,0.02,100.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-07,3,3.3,5.2,1.39,98.4
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-07,4,4.13,0.96,3.18,94.6
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-07,1,0.54,0.0,0.49,98.9
+terminal,MICT,MICT (DP World JV),Container,MICT,2026-07,2,1.99,1.2,0.79,98.0
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-07,6,3.4,2.3,1.98,97.5
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-07,1,0.63,1.44,0.0,100.0
+terminal,SPM,Single Point Moorings,Liquid & Offshore,SPM,2026-07,1,2.4,2.4,0.0,100.0
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-07,2,2.04,7.16,0.01,100.0
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2026-07,1,0.76,0.0,0.76,96.5
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-07,2,1.97,1.14,1.98,89.7
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-07,0,0.0,1.01,0.02,99.9
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2026-07,1,1.9,3.21,0.01,100.0
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-07,1,0.69,1.25,0.7,97.0
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2026-07,1,0.72,0.0,0.71,96.2
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-07,0,0.0,0.74,0.01,99.9
+berth,CT4-1,CT4-1 — CT-4 Berth 1,Container,CT4,2026-07,1,1.51,0.0,1.5,95.3
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2026-07,3,2.62,0.96,1.68,93.9
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2026-07,1,0.54,0.0,0.52,96.7
+berth,MICT-2,MICT-2 — MICT Berth 2,Container,MICT,2026-07,2,1.99,1.2,0.79,96.4
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-07,3,2.1,1.48,1.29,94.2
+berth,MP-2,MP-2 — Multipurpose Berth 2,Dry Bulk & General,MPT,2026-07,3,1.3,0.6,0.71,97.1
+berth,MP-3,MP-3 — Multipurpose Berth 3,Dry Bulk & General,MPT,2026-07,0,0.0,0.22,0.0,100.0
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-07,1,0.63,1.44,0.0,100.0
+berth,SPM-1,SPM-1 — Single Point Mooring 1 (crude),Liquid & Offshore,SPM,2026-07,1,2.4,2.4,0.0,100.0
+berth,WB-1,WB-1 — West Basin Coal Berth 1,Dry Bulk & General,WBC,2026-07,0,0.0,1.94,0.02,100.0
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-07,2,2.04,5.21,0.02,100.0
+port,INMUN,Mundra Port,,,2026-08,10,10.09,6.96,13.69,98.3
+zone,BULKGEN,Dry Bulk & General,Dry Bulk & General,,2026-08,2,2.95,0.88,4.0,98.6
+zone,CONTAINER,Container,Container,,2026-08,5,5.67,4.94,8.83,96.8
+zone,LIQMAR,Liquid & Offshore,Liquid & Offshore,,2026-08,3,1.47,1.13,0.86,99.7
+terminal,AMC2,AMCT-2,Container,AMC2,2026-08,1,0.71,1.76,1.67,96.0
+terminal,AMCT,Adani Mundra Container Terminal,Container,AMCT,2026-08,1,0.92,0.0,0.94,98.0
+terminal,CT3,CT-3 (AICT),Container,CT3,2026-08,3,4.04,2.48,2.95,96.7
+terminal,CT4,CT-4 (ACMT JV),Container,CT4,2026-08,0,0.0,0.7,2.48,95.8
+terminal,LQB,Liquid Berths,Liquid & Offshore,LQB,2026-08,3,1.47,1.13,0.83,98.3
+terminal,MPT,Multipurpose Terminal,Dry Bulk & General,MPT,2026-08,0,0.0,0.88,1.1,98.6
+terminal,RRT,Ro-Ro Terminal,Dry Bulk & General,RRT,2026-08,1,0.64,0.0,0.63,98.5
+terminal,WBC,West Basin Coal Terminal,Dry Bulk & General,WBC,2026-08,1,2.31,0.0,2.32,98.6
+berth,AMC2-1,AMC2-1 — AMCT-2 Berth 1,Container,AMC2,2026-08,1,0.71,0.76,0.71,96.8
+berth,AMC2-2,AMC2-2 — AMCT-2 Berth 2,Container,AMC2,2026-08,0,0.0,1.01,0.97,95.0
+berth,AMCT-2,AMCT-2 — AMCT Berth 2,Container,AMCT,2026-08,1,0.92,0.0,0.94,96.1
+berth,CT3-1,CT3-1 — CT-3 Berth 1,Container,CT3,2026-08,1,1.07,0.0,1.08,95.8
+berth,CT3-2,CT3-2 — CT-3 Berth 2,Container,CT3,2026-08,1,1.21,0.0,1.91,92.1
+berth,CT3-3,CT3-3 — CT-3 Berth 3,Container,CT3,2026-08,0,0.0,0.72,0.0,100.1
+berth,CT3-4,CT3-4 — CT-3 Berth 4,Container,CT3,2026-08,1,1.76,1.76,0.01,100.0
+berth,CT4-2,CT4-2 — CT-4 Berth 2,Container,CT4,2026-08,0,0.0,0.7,0.98,96.4
+berth,LB-1,LB-1 — Liquid Berth 1,Liquid & Offshore,LQB,2026-08,0,0.0,0.54,0.0,100.1
+berth,LB-2,LB-2 — Liquid Berth 2,Liquid & Offshore,LQB,2026-08,2,0.87,0.0,0.88,92.9
+berth,LB-3,LB-3 — Liquid Berth 3,Liquid & Offshore,LQB,2026-08,1,0.6,0.6,0.0,100.1
+berth,MP-1,MP-1 — Multipurpose Berth 1,Dry Bulk & General,MPT,2026-08,0,0.0,0.88,0.41,98.2
+berth,RR-1,RR-1 — Ro-Ro Berth 1,Dry Bulk & General,RRT,2026-08,1,0.64,0.0,0.63,98.5
+berth,WB-2,WB-2 — West Basin Coal Berth 2,Dry Bulk & General,WBC,2026-08,1,2.31,0.0,2.33,97.6

@@ -11,6 +11,7 @@ Mobilise App Lab project.
 | Path | What it is |
 |---|---|
 | `portal/` | **Mundra Port Operations Portal** — a working MERN demo of the platform (React + MUI + Express + Mongoose), seeded with fictional Adani Mundra data. See `portal/README.md`. |
+| `maritime-ai/` | **Sagar Drishti — Mundra Port AI Analytics** — the AI layer: findings engine, AI chat with RAG, 3D port twin, agent workforce, work orders, voice mode (FastAPI + React). Runs on the portal's own demo dataset. See `maritime-ai/README.md`. |
 | `deck/index.html` | The presentation — 26 slides, self-contained, works offline. Arrow keys or scroll. |
 | `docs/00-claims-and-evidence.md` | **Read this before issuing anything.** Every factual claim in the deck with its evidence status. |
 | `docs/01-capability-model.md` | Part I in full — the seven domains, five capability spines, and the Core/Configure/Extend/Build model. |
