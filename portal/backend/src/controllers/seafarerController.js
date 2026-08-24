@@ -128,3 +128,77 @@ module.exports.dashboard = async (_req, res) => {
     alertList: alertList.slice(0, 10),
   });
 };
+
+/* ---------------- v8: sign-on / sign-off with document gate ---------------- */
+const DAY_MS = 24 * 3600 * 1000;
+
+function documentGate(sf, cfg) {
+  const now = Date.now();
+  const failures = [];
+  const byType = (rxp) => (sf.certificates || []).filter((c) => rxp.test(c.certType));
+  const check = (label, certs, required) => {
+    if (!certs.length) { if (required) failures.push(`${label}: not on file`); return; }
+    const best = certs.slice().sort((a, b) => new Date(b.expiryDate) - new Date(a.expiryDate))[0];
+    const days = Math.floor((new Date(best.expiryDate) - now) / DAY_MS);
+    if (days < 0) failures.push(`${label}: expired ${-days} days ago`);
+    else if (days < 30) failures.push(`${label}: expires in ${days} days (tour would outlast it)`);
+  };
+  check('Medical fitness (ILO/MLC)', byType(/medical/i), true);
+  if (cfg.cocVerifyOnSignOn) check('Certificate of Competency', byType(/competency/i), true);
+  check('STCW Basic Safety', byType(/stcw|basic safety/i), false);
+  return failures;
+}
+
+module.exports.signOn = async (req, res) => {
+  const settings = require('../config/settingsCache');
+  const { ok: okRes, ApiError: Err } = { ok: require('../utils/respond').ok, ApiError: require('../utils/respond').ApiError };
+  const { audit: auditFn } = require('../utils/audit');
+  const Seafarer = require('../models/Seafarer');
+  const Vessel = require('../models/Vessel');
+  const sf = await Seafarer.findById(req.params.id);
+  if (!sf) throw new Err(404, 'Seafarer not found');
+  if (sf.currentVessel) throw new Err(400, 'Already signed on — sign off the current vessel first');
+  const vessel = await Vessel.findById(req.body.vesselId);
+  if (!vessel) throw new Err(400, 'Choose the vessel to sign on to');
+  const cfg = settings.isReady() ? settings.moduleGet('crew') : {};
+  const failures = documentGate(sf, cfg);
+  if (failures.length && !req.body.override) {
+    return res.status(422).json({ success: false, message: 'Documents block this sign-on', data: { failures } });
+  }
+  sf.currentVessel = vessel._id;
+  sf.status = 'ACTIVE';
+  sf.signedOnAt = new Date();
+  if (req.body.rank) sf.rank = req.body.rank;
+  await sf.save();
+  auditFn(req, { action: 'UPDATE', entity: 'Seafarer', entityId: sf._id,
+    entityLabel: `${sf.name} signed on ${vessel.name}${failures.length ? ` (OVERRIDE: ${req.body.overrideReason || 'no reason given'})` : ''}` });
+  okRes(res, { signedOn: true, overridden: failures.length > 0, failures });
+};
+
+module.exports.signOff = async (req, res) => {
+  const { ok: okRes, ApiError: Err } = { ok: require('../utils/respond').ok, ApiError: require('../utils/respond').ApiError };
+  const { audit: auditFn } = require('../utils/audit');
+  const Seafarer = require('../models/Seafarer');
+  const Vessel = require('../models/Vessel');
+  const sf = await Seafarer.findById(req.params.id);
+  if (!sf) throw new Err(404, 'Seafarer not found');
+  if (!sf.currentVessel) throw new Err(400, 'Not currently signed on to any vessel');
+  const vessel = await Vessel.findById(sf.currentVessel).lean();
+  const from = sf.signedOnAt
+    || (sf.seaService || []).map((x) => x.to).sort().pop()
+    || new Date(Date.now() - 90 * DAY_MS);
+  const to = new Date();
+  sf.seaService.push({
+    vesselName: vessel ? vessel.name : 'Unknown vessel', imo: vessel ? vessel.imo : '',
+    rank: sf.rank, from, to, verified: true,
+    remarks: req.body.remarks || 'Sign-off recorded by crewing desk',
+  });
+  sf.currentVessel = null;
+  sf.signedOnAt = null;
+  sf.status = 'SIGNED_OFF';
+  await sf.save();
+  const days = Math.max(1, Math.round((to - new Date(from)) / DAY_MS));
+  auditFn(req, { action: 'UPDATE', entity: 'Seafarer', entityId: sf._id,
+    entityLabel: `${sf.name} signed off ${vessel ? vessel.name : ''} — ${days} days verified sea service` });
+  okRes(res, { signedOff: true, seaServiceDays: days });
+};

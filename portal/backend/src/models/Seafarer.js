@@ -32,6 +32,7 @@ const seafarerSchema = new mongoose.Schema({
   email: { type: String, default: '' },
   status: { type: String, enum: ['ACTIVE', 'SHORE_LEAVE', 'SIGNED_OFF', 'SUSPENDED'], default: 'ACTIVE' },
   currentVessel: { type: mongoose.Schema.Types.ObjectId, ref: 'Vessel' },
+  signedOnAt: Date,   // start of the current tour (v8 sign-on wizard)
   certificates: [sfCertSchema],
   seaService: [seaServiceSchema],
   remarks: { type: String, default: '' },

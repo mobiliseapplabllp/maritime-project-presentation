@@ -9,6 +9,10 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
+import DescriptionRoundedIcon from '@mui/icons-material/DescriptionRounded';
+import RequestQuoteRoundedIcon from '@mui/icons-material/RequestQuoteRounded';
+import SofDialog from './SofDialog';
+import PdaDialog from './PdaDialog';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -38,6 +42,8 @@ export default function PortCallDetail() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
+  const [sofOpen, setSofOpen] = useState(false);
+  const [pdaOpen, setPdaOpen] = useState(false);
   const [call, setCall] = useState(null);
   const [tab, setTab] = useState(0);
   const [action, setAction] = useState(null);     // {to,label}
@@ -84,6 +90,8 @@ export default function PortCallDetail() {
         sub={`${call.purpose || 'Port call'} · Agent: ${call.agentName || '—'}`}
         actions={
           <>
+            <Button variant="outlined" startIcon={<DescriptionRoundedIcon />} onClick={() => setSofOpen(true)}>Statement of Facts</Button>
+            <Button variant="outlined" startIcon={<RequestQuoteRoundedIcon />} onClick={() => setPdaOpen(true)}>Cost estimate</Button>
             {hasPerm(user, 'invoices.create') && call.status === 'SAILED' && (
               <Button variant="outlined" startIcon={<ReceiptLongRoundedIcon />} onClick={() => {
                 api.post('/invoices/generate', { portCallId: id })
@@ -346,6 +354,9 @@ export default function PortCallDetail() {
           }}>{cargoOpen?._id ? 'Save' : 'Add'}</Button>
         </DialogActions>
       </Dialog>
+
+      <SofDialog callId={id} open={sofOpen} onClose={() => setSofOpen(false)} />
+      <PdaDialog callId={id} open={pdaOpen} onClose={() => setPdaOpen(false)} user={user} />
     </>
   );
 }

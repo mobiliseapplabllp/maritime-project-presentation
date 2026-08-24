@@ -9,6 +9,9 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
+import DirectionsBoatRoundedIcon from '@mui/icons-material/DirectionsBoatRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import SignOnOffDialog from './SignOnOffDialog';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -38,6 +41,7 @@ export default function SeafarerDetail() {
   const [svcVals, setSvcVals] = useState({});
   const [certTypes, setCertTypes] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [signDlg, setSignDlg] = useState(false);
 
   const load = useCallback(() => api.get(`/seafarers/${id}`).then((r) => setDoc(r.data))
     .catch((e) => dispatch(notify({ message: e.message, severity: 'error' }))), [id, dispatch]);
@@ -53,7 +57,13 @@ export default function SeafarerDetail() {
         crumbs={[{ label: 'Seafarers', to: '/seafarers' }, { label: doc.name }]}
         title={doc.name}
         sub={`${doc.rank} · CDC ${doc.cdcNo} · INDoS ${doc.indosNo || '—'} · ${doc.nationality}`}
+        actions={canEdit && (
+          doc.currentVessel
+            ? <Button variant="outlined" color="inherit" startIcon={<LogoutRoundedIcon />} onClick={() => setSignDlg(true)}>Sign off</Button>
+            : <Button variant="contained" startIcon={<DirectionsBoatRoundedIcon />} onClick={() => setSignDlg(true)}>Sign on to a vessel</Button>
+        )}
       />
+      <SignOnOffDialog seafarer={doc} open={signDlg} onClose={() => setSignDlg(false)} onDone={load} />
       <Card sx={{ p: 2.5, mb: 2 }}>
         <Grid container spacing={2.5}>
           <Grid item xs={6} md={2}><Item label="Status" value={<Chip size="small" label={doc.status.replace(/_/g, ' ')} color={doc.status === 'ACTIVE' ? 'success' : 'default'} sx={{ height: 20 }} />} /></Grid>

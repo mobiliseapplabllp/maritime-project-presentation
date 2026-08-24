@@ -193,3 +193,43 @@ module.exports = {
     ok(res, rows.slice((page - 1) * limit, page * limit), { total, page, limit });
   },
 };
+
+/* ---------------- v8: class survey & dry-dock planner ---------------- */
+// Windows derived from the class cycle: annual surveys on the anniversary of
+// the last docking (±3 months), an intermediate at 2.5 years, a special
+// survey + docking at 5 — the DNV/ABS pattern every superintendent knows.
+module.exports.surveyPlanner = async (_req, res) => {
+  const MONTH = 30.44 * 24 * 3600 * 1000;
+  const now = Date.now();
+  const horizon = now + 24 * MONTH;
+  const vessels = await Vessel.find({ status: 'ACTIVE' })
+    .select('name imo type classSociety built lastDryDock flag').sort('name').lean();
+  const lanes = vessels.map((v) => {
+    let anchor = v.lastDryDock ? new Date(v.lastDryDock).getTime()
+      : new Date(v.built || 2018, 5, 15).getTime();
+    // roll old anchors forward by 5-year class cycles so every vessel shows
+    // its CURRENT cycle (a 2009-built ship is on her 4th special survey, not her 1st)
+    while (anchor + 60 * MONTH < now) anchor += 60 * MONTH;
+    const events = [];
+    const push = (type, dueMs, windowMonths) => {
+      if (dueMs < now - 6 * MONTH || dueMs > horizon) return;
+      const from = dueMs - windowMonths * MONTH;
+      const to = dueMs + windowMonths * MONTH;
+      events.push({
+        type, due: new Date(dueMs), window: { from: new Date(from), to: new Date(to) },
+        status: now > to ? 'OVERDUE' : now >= from ? 'WINDOW_OPEN' : 'PLANNED',
+      });
+    };
+    // annuals each year from the anchor; intermediate at 2.5y; special+docking at 5y
+    for (let y = 1; y <= 6; y += 1) push('ANNUAL', anchor + y * 12 * MONTH, 3);
+    push('INTERMEDIATE', anchor + 30 * MONTH, 3);
+    push('SPECIAL', anchor + 60 * MONTH, 3);
+    push('DRY_DOCK', anchor + 60 * MONTH, 2);
+    events.sort((a, b) => new Date(a.due) - new Date(b.due));
+    return {
+      vessel: { _id: v._id, name: v.name, imo: v.imo, type: v.type, classSociety: v.classSociety, lastDryDock: v.lastDryDock },
+      events,
+    };
+  });
+  ok(res, { horizonMonths: 24, from: new Date(now - 6 * MONTH), to: new Date(horizon), lanes });
+};

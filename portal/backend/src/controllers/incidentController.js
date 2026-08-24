@@ -218,3 +218,35 @@ exports.dashboard = async (req, res) => {
     openList: everOpen.slice(0, 12),
   });
 };
+
+/* ---------------- v8: 5x5 risk matrix ---------------- */
+// Likelihood from priority (P1 most likely to recur unmanaged), consequence
+// from severity. Residual = initial minus one band once the case is resolved
+// with actions closed — the classic before/after risk picture.
+exports.riskMatrix = async (req, res) => {
+  const days = Number(req.query.days) || 180;
+  const since = new Date(Date.now() - days * 24 * 3600 * 1000);
+  const cases = await Incident.find({ reportedAt: { $gte: since } })
+    .select('number title severity priority status category reportedAt').lean();
+  const L = { P1: 5, P2: 4, P3: 3, P4: 2 };
+  const C = { CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2 };
+  const cellKey = (l, c) => `${l}:${c}`;
+  const initial = {}; const residual = {};
+  for (const i of cases) {
+    const l = L[i.priority] || 3;
+    const c = C[i.severity] || 3;
+    const k = cellKey(l, c);
+    (initial[k] = initial[k] || []).push(i);
+    const done = ['RESOLVED', 'CLOSED'].includes(i.status);
+    const rl = done ? Math.max(1, l - 1) : l;
+    const rc = done ? Math.max(1, c - 1) : c;
+    const rk = cellKey(rl, rc);
+    (residual[rk] = residual[rk] || []).push(i);
+  }
+  const pack = (m) => Object.entries(m).map(([k, list]) => {
+    const [l, c] = k.split(':').map(Number);
+    return { likelihood: l, consequence: c, count: list.length,
+      sample: list.slice(0, 6).map((i) => ({ _id: i._id, number: i.number, title: i.title, status: i.status })) };
+  });
+  ok(res, { days, total: cases.length, initial: pack(initial), residual: pack(residual) });
+};

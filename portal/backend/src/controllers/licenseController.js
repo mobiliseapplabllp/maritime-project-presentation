@@ -69,3 +69,25 @@ module.exports = {
     created(res, doc);
   },
 };
+
+/* ---------------- v8: public licence verification (QR target) ---------------- */
+// Unauthenticated by design — the certificate QR resolves here. Only the
+// registry facts needed to verify are exposed; a suspended or revoked licence
+// fails verification instantly.
+module.exports.publicVerify = async (req, res) => {
+  const licenseNo = String(req.params.licenseNo || '').trim();
+  const doc = await License.findOne({ licenseNo }).lean();
+  if (!doc) return ok(res, { found: false, licenseNo });
+  const expired = doc.expiryDate && new Date(doc.expiryDate) < new Date();
+  ok(res, {
+    found: true,
+    licenseNo: doc.licenseNo,
+    entityName: doc.entityName,
+    entityType: doc.entityType,
+    status: doc.status,
+    issueDate: doc.issueDate,
+    expiryDate: doc.expiryDate,
+    valid: doc.status === 'ISSUED' && !expired,
+    reason: doc.status !== 'ISSUED' ? `Licence is ${doc.status.toLowerCase()}` : expired ? 'Licence has expired' : 'Licence is in force',
+  });
+};

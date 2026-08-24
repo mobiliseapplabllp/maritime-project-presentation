@@ -131,6 +131,22 @@ exports.close = async (req, res) => {
   doc.detention = result === 'DETAINED';
   doc.status = 'CLOSED';
   doc.closedAt = new Date();
+  // v8: weighted compliance score against the checklist template
+  try {
+    const ChecklistTemplate = require('../models/ChecklistTemplate');
+    const tpl = await ChecklistTemplate.findOne({ inspectionType: doc.type, active: true }).lean();
+    if (tpl && (doc.checklist || []).length) {
+      const weightOf = Object.fromEntries((tpl.items || []).map((i) => [i.text, i.weight || 1]));
+      let got = 0; let max = 0;
+      for (const c of doc.checklist) {
+        if (!c.answer || c.answer === 'NA') continue;
+        const w = weightOf[c.text] || 1;
+        max += w;
+        if (c.answer === 'YES') got += w;
+      }
+      if (max > 0) doc.scorePct = Math.round((got / max) * 100);
+    }
+  } catch { /* scoring is best-effort — closing must never fail on it */ }
   if (remarks !== undefined) doc.remarks = remarks;
   await doc.save();
   if (doc.detention) {

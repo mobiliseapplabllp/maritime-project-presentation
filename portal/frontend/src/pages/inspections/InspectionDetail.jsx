@@ -11,6 +11,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded';
+import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -34,10 +35,28 @@ export default function InspectionDetail() {
   const [closeDlg, setCloseDlg] = useState(false);
   const [closeVals, setCloseVals] = useState({});
   const [busy, setBusy] = useState(false);
+  const [tpl, setTpl] = useState(null);
+  const [passScorePct, setPassScorePct] = useState(80);
 
-  const load = useCallback(() => api.get(`/inspections/${id}`).then((r) => { setDoc(r.data); setChecklist(r.data.checklist); setDirty(false); })
-    .catch((e) => dispatch(notify({ message: e.message, severity: 'error' }))), [id, dispatch]);
+  const load = useCallback(() => api.get(`/inspections/${id}`).then((r) => {
+    setDoc(r.data); setChecklist(r.data.checklist); setDirty(false);
+    return api.get('/checklist-templates', { params: { inspectionType: r.data.type, active: true, limit: 1 } })
+      .then((t) => setTpl(t.data[0] || null)).catch(() => setTpl(null));
+  }).catch((e) => dispatch(notify({ message: e.message, severity: 'error' }))), [id, dispatch]);
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { api.get('/module-settings/inspect').then((r) => setPassScorePct(r.data.passScorePct || 80)).catch(() => {}); }, []);
+
+  // live weighted compliance, mirroring the server's scoring at close
+  const weightOf = tpl ? Object.fromEntries(tpl.items.map((it) => [it.text, { w: it.weight || 1, critical: !!it.critical }])) : {};
+  let scoreGot = 0; let scoreMax = 0; let criticalFail = false;
+  for (const c of checklist) {
+    if (!c.answer || c.answer === 'NA') continue;
+    const meta = weightOf[c.text] || { w: 1, critical: false };
+    scoreMax += meta.w;
+    if (c.answer === 'YES') scoreGot += meta.w; else if (meta.critical) criticalFail = true;
+  }
+  const livePct = scoreMax > 0 ? Math.round((scoreGot / scoreMax) * 100) : null;
+  const suggestedResult = criticalFail ? 'DETAINED' : (livePct !== null && livePct < passScorePct) ? 'DEFICIENCIES' : 'SATISFACTORY';
 
   if (!doc) return <Skeleton variant="rounded" height={420} />;
   const err = (e) => dispatch(notify({ message: e.message, severity: 'error' }));
@@ -70,7 +89,7 @@ export default function InspectionDetail() {
               <Button variant="outlined" startIcon={<PlayArrowRoundedIcon />} onClick={() => api.post(`/inspections/${id}/start`).then(load).catch(err)}>Start inspection</Button>
             )}
             {canClose && (
-              <Button variant="contained" startIcon={<TaskAltRoundedIcon />} onClick={() => { setCloseVals({ remarks: doc.remarks }); setCloseDlg(true); }}>Close inspection</Button>
+              <Button variant="contained" startIcon={<TaskAltRoundedIcon />} onClick={() => { setCloseVals({ remarks: doc.remarks, result: suggestedResult }); setCloseDlg(true); }}>Close inspection</Button>
             )}
           </>
         }
@@ -81,6 +100,16 @@ export default function InspectionDetail() {
           {doc.result && <StatusChip value={doc.result} map={RESULT_META} size="medium" />}
           {doc.detention && <Chip color="error" label="SHIP DETAINED" size="small" />}
           {doc.portCall && <Chip variant="outlined" size="small" label={`Call ${doc.portCall.vcn}`} sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 11 }} />}
+          {(doc.status === 'CLOSED' ? doc.scorePct : livePct) !== null && (doc.status === 'CLOSED' ? doc.scorePct != null : livePct != null) && (
+            <Chip
+              icon={<ShieldRoundedIcon sx={{ fontSize: 15 }} />}
+              label={`${doc.status === 'CLOSED' ? doc.scorePct : livePct}% compliance${doc.status !== 'CLOSED' ? ' (live)' : ''}`}
+              size="small"
+              color={(doc.status === 'CLOSED' ? doc.scorePct : livePct) >= passScorePct ? 'success' : 'warning'}
+              sx={{ fontWeight: 700 }}
+            />
+          )}
+          {criticalFail && doc.status !== 'CLOSED' && <Chip size="small" color="error" label="Critical item failed" />}
           <Box sx={{ flex: 1 }} />
           <Typography variant="caption" color="text.secondary">
             {doc.startedAt ? `Started ${fmtDT(doc.startedAt)}` : 'Not started'}{doc.closedAt ? ` · Closed ${fmtDT(doc.closedAt)}` : ''}
@@ -201,9 +230,15 @@ export default function InspectionDetail() {
       <Dialog open={closeDlg} onClose={() => !busy && setCloseDlg(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Close inspection</DialogTitle>
         <DialogContent sx={{ pt: '12px !important' }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             {doc.findings.filter((f) => f.status === 'OPEN').length} open finding(s). Closing as <b>Detained</b> raises a detention notification.
           </Typography>
+          {livePct !== null && (
+            <Typography variant="caption" sx={{ display: 'block', mb: 2, color: criticalFail ? 'error.main' : 'text.secondary' }}>
+              Suggested from the checklist: <b>{RESULT_META[suggestedResult]?.label}</b> ({livePct}% weighted compliance
+              {criticalFail ? ', a critical question failed' : `, pass mark ${passScorePct}%`}) — pre-filled below, change if needed.
+            </Typography>
+          )}
           <FormFields
             fields={[
               { name: 'result', label: 'Result', type: 'select', required: true, cols: 12, options: Object.entries(RESULT_META).map(([value, m]) => ({ value, label: m.label })) },

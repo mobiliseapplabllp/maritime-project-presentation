@@ -21,6 +21,7 @@ const inspectionSchema = new mongoose.Schema({
   closedAt: Date,
   status: { type: String, enum: INSPECTION_STATUS, default: 'PLANNED' },
   result: { type: String, enum: [...INSPECTION_RESULTS, ''], default: '' },
+  scorePct: Number,   // weighted checklist compliance at close (v8)
   detention: { type: Boolean, default: false },
   checklist: [{ seq: Number, text: String, category: String, answer: { type: String, enum: ['YES', 'NO', 'NA', ''], default: '' }, note: { type: String, default: '' } }],
   findings: [findingSchema],

@@ -25,6 +25,7 @@ const companies = require('../controllers/companyController');
 const reportLib = require('../controllers/reportLibraryController');
 const settingsCtl = require('../controllers/settingsController');
 const opsx = require('../controllers/opsController');
+const search = require('../controllers/searchController');
 
 // express 4 doesn't catch async rejections — wrap every handler
 const w = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -34,10 +35,12 @@ const r = Router();
 r.get('/health', w(misc.health));
 r.post('/auth/login', w(auth.login));
 r.post('/auth/refresh', w(auth.refresh));
+r.get('/public/verify/:licenseNo', w(licenses.publicVerify));
 
 // everything below requires a session
 r.use(authenticate);
 r.get('/auth/me', w(auth.me));
+r.get('/search', w(search.global));
 r.post('/auth/change-password', w(auth.changePassword));
 r.get('/meta', w(misc.meta));
 
@@ -48,6 +51,7 @@ r.get('/vessels', requirePerm('vessels.view'), w(vessels.list));
 r.post('/vessels', requirePerm('vessels.create'), w(vessels.create));
 r.get('/vessels/certificates/all', requirePerm('certificates.view'), w(vessels.allCertificates));
 r.get('/vessels/fleet-dashboard', requirePerm('vessels.view'), w(vessels.fleetDashboard));
+r.get('/vessels/survey-planner', requirePerm('vessels.view'), w(vessels.surveyPlanner));
 r.get('/vessels/:id/voyages', requirePerm('vessels.view'), w(vessels.voyages));
 r.get('/vessels/:id/movements', requirePerm('vessels.view'), w(vessels.movements));
 r.get('/vessels/:id', requirePerm('vessels.view'), w(vessels.get));
@@ -131,6 +135,8 @@ r.post('/seafarers/:id/certificates', requirePerm('seafarers.edit'), w(seafarers
 r.put('/seafarers/:id/certificates/:certId', requirePerm('seafarers.edit'), w(seafarers.updateCert));
 r.delete('/seafarers/:id/certificates/:certId', requirePerm('seafarers.edit'), w(seafarers.removeCert));
 r.post('/seafarers/:id/service', requirePerm('seafarers.edit'), w(seafarers.addService));
+r.post('/seafarers/:id/sign-on', requirePerm('seafarers.edit'), w(seafarers.signOn));
+r.post('/seafarers/:id/sign-off', requirePerm('seafarers.edit'), w(seafarers.signOff));
 r.delete('/seafarers/:id/service/:serviceId', requirePerm('seafarers.edit'), w(seafarers.removeService));
 
 // legislation & circulars
@@ -152,6 +158,7 @@ r.post('/licenses/:id/audits', requirePerm('facilities.manage'), w(licenses.addA
 
 // incident management — case files with lifecycle, comms, documents, tasks
 r.get('/incidents/dashboard', requirePerm('incidents.view'), w(incidents.dashboard));
+r.get('/incidents/risk-matrix', requirePerm('incidents.view'), w(incidents.riskMatrix));
 r.get('/incidents', requirePerm('incidents.view'), w(incidents.list));
 r.post('/incidents', requirePerm('incidents.create'), w(incidents.create));
 r.get('/incidents/:id', requirePerm('incidents.view'), w(incidents.get));
@@ -172,6 +179,10 @@ r.post('/tracking/alerts/:id/ack', requirePerm('nmc.manage'), w(tracking.ackAler
 r.get('/ops/twin', requirePerm('portcalls.view'), w(opsx.twin));
 r.get('/ops/schedule', requirePerm('portcalls.view'), w(opsx.schedule));
 r.get('/ops/resources', requirePerm('portcalls.view'), w(opsx.resources));
+r.get('/ops/berth-plan', requirePerm('portcalls.view'), w(opsx.berthPlan));
+r.get('/port-calls/:id/sof', requirePerm('portcalls.view'), w(opsx.sof));
+r.post('/port-calls/:id/pda', requirePerm('invoices.create'), w(opsx.generatePda));
+r.get('/port-calls/:id/pda', requirePerm('invoices.view'), w(opsx.pdaVariance));
 r.put('/ops/resources/:id', requirePerm('portcalls.edit'), w(opsx.setResourceStatus));
 
 // port companies directory

@@ -1206,6 +1206,211 @@ function demoCrewDashboard() {
   };
 }
 
+/* ---- v8: global search, berth planner, survey planner, risk matrix, SOF, PDA, public verify ---- */
+const demoPdas = new Map(); // callId -> pda object, mirrors ackedInstruments-style ephemeral write
+
+function demoSearch(q) {
+  if (!q || q.trim().length < 2) return { groups: [] };
+  const rx = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  const LIMIT = 5;
+  const groups = [];
+  const push = (type, label, items) => { if (items.length) groups.push({ type, label, items: items.slice(0, LIMIT) }); };
+  push('vessel', 'Vessels', D.vessels.filter((v) => rx.test(v.name) || rx.test(v.imo) || rx.test(v.callSign || ''))
+    .map((v) => ({ id: v._id, label: v.name, sub: `IMO ${v.imo} · ${v.type}`, to: `/vessels/${v._id}` })));
+  push('call', 'Port calls', D.portcalls.filter((c) => rx.test(c.vcn)).sort((a, b) => new Date(b.eta) - new Date(a.eta))
+    .map((c) => ({ id: c._id, label: c.vcn, sub: `${maps.vessels.get(String(c.vessel))?.name || ''} · ${c.status}`, to: `/port-calls/${c._id}` })));
+  push('seafarer', 'Seafarers', (D.seafarers || []).filter((s2) => rx.test(s2.name) || rx.test(s2.cdcNo) || rx.test(s2.indosNo || ''))
+    .map((s2) => ({ id: s2._id, label: s2.name, sub: `${s2.rank} · CDC ${s2.cdcNo}`, to: `/seafarers/${s2._id}` })));
+  push('company', 'Companies', (D.companies || []).filter((c) => rx.test(c.name) || rx.test(c.code))
+    .map((c) => ({ id: c._id, label: c.name, sub: `${c.code} · ${String(c.category || '').replace(/_/g, ' ')}`, to: `/companies/${c._id}` })));
+  push('incident', 'Incidents', (D.incidents || []).filter((i) => rx.test(i.number) || rx.test(i.title)).sort((a, b) => new Date(b.reportedAt) - new Date(a.reportedAt))
+    .map((i) => ({ id: i._id, label: `${i.number} — ${i.title}`, sub: `${i.severity} · ${i.status}`, to: `/incidents/${i._id}` })));
+  push('invoice', 'Invoices', D.invoices.filter((i) => rx.test(i.number)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map((i) => ({ id: i._id, label: i.number, sub: `₹${nfIN.format(Math.round(i.total || 0))} · ${i.status}`, to: `/invoices/${i._id}` })));
+  push('notice', 'Notices & circulars', (D.instruments || []).filter((n) => rx.test(n.refNo) || rx.test(n.title)).sort((a, b) => new Date(b.issuedDate) - new Date(a.issuedDate))
+    .map((n) => ({ id: n._id, label: `${n.refNo} — ${n.title}`, sub: n.status, to: '/legislation' })));
+  push('licence', 'Licences', (D.licenses || []).filter((l) => rx.test(l.licenseNo) || rx.test(l.entityName))
+    .map((l) => ({ id: l._id, label: l.licenseNo, sub: `${l.entityName} · ${l.status}`, to: '/licenses' })));
+  push('user', 'Users', D.users.filter((u) => rx.test(u.name) || rx.test(u.email))
+    .map((u) => ({ id: u._id, label: u.name, sub: `${u.designation || ''} · ${u.email}`, to: '/admin/users' })));
+  return { groups, q };
+}
+
+function demoRiskMatrix(days) {
+  const win = days || 180;
+  const since = Date.now() - win * DAY;
+  const cases = (D.incidents || []).filter((i) => new Date(i.reportedAt) >= since);
+  const L = { P1: 5, P2: 4, P3: 3, P4: 2 };
+  const C = { CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2 };
+  const key = (l, c) => `${l}:${c}`;
+  const initial = {}; const residual = {};
+  for (const i of cases) {
+    const l = L[i.priority] || 3; const c = C[i.severity] || 3;
+    const k = key(l, c);
+    (initial[k] = initial[k] || []).push(i);
+    const done = ['RESOLVED', 'CLOSED'].includes(i.status);
+    const rk = key(done ? Math.max(1, l - 1) : l, done ? Math.max(1, c - 1) : c);
+    (residual[rk] = residual[rk] || []).push(i);
+  }
+  const pack = (m) => Object.entries(m).map(([k2, list]) => {
+    const [l, c] = k2.split(':').map(Number);
+    return { likelihood: l, consequence: c, count: list.length, sample: list.slice(0, 6).map((i) => ({ _id: i._id, number: i.number, title: i.title, status: i.status })) };
+  });
+  return { days: win, total: cases.length, initial: pack(initial), residual: pack(residual) };
+}
+
+function demoBerthPlan(params) {
+  const winDays = Number(params.days) || 5;
+  const from = params.from ? new Date(params.from) : new Date(Date.now() - DAY);
+  const to = new Date(from.getTime() + (winDays + 1) * DAY);
+  const berths = D.berths.slice().sort((a, b) => (a.terminal < b.terminal ? -1 : a.terminal > b.terminal ? 1 : (a.code < b.code ? -1 : 1)));
+  const calls = D.portcalls.filter((c) => c.berth && ['CONFIRMED', 'AT_ANCHORAGE', 'BERTHED', 'SAILED'].includes(c.status)
+    && (c.atb ? new Date(c.atb) < to && (!c.atd || new Date(c.atd) > from) : (c.etb && new Date(c.etb) < to && c.etd && new Date(c.etd) > from)));
+  const blocks = calls.map((c) => ({
+    id: c._id, vcn: c.vcn, berth: String(c.berth), status: c.status,
+    vessel: (() => { const v = maps.vessels.get(String(c.vessel)); return v ? { name: v.name, loa: v.loa, type: v.type } : null; })(),
+    start: c.atb || c.etb, end: c.atd || c.etd || null, actual: !!c.atb,
+  }));
+  const byBerth = {};
+  for (const b of blocks) (byBerth[b.berth] = byBerth[b.berth] || []).push(b);
+  const conflicts = [];
+  for (const list of Object.values(byBerth)) {
+    list.sort((a, b) => new Date(a.start) - new Date(b.start));
+    for (let i = 1; i < list.length; i += 1) {
+      const prevEnd = list[i - 1].end ? new Date(list[i - 1].end) : new Date(8640000000000000);
+      if (new Date(list[i].start) < prevEnd) conflicts.push({ a: list[i - 1].vcn, b: list[i].vcn, berth: list[i].berth });
+    }
+  }
+  const inbound = D.portcalls.filter((c) => ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE'].includes(c.status) && (!c.berth || !c.etb) && new Date(c.eta) < to)
+    .sort((a, b) => new Date(a.eta) - new Date(b.eta)).slice(0, 20);
+  return {
+    window: { from, to, days: winDays },
+    berths: berths.map((b) => ({ _id: b._id, code: b.code, name: b.name, terminal: b.terminal, berthType: b.berthType, status: b.status, loaMax: b.loaMax, draftMax: b.draftMax })),
+    blocks, conflicts,
+    unallocated: inbound.map((c) => ({ id: c._id, vcn: c.vcn, eta: c.eta, status: c.status, vessel: (() => { const v = maps.vessels.get(String(c.vessel)); return v ? { name: v.name, loa: v.loa, type: v.type } : null; })() })),
+  };
+}
+
+function demoSurveyPlanner() {
+  const MONTH = 30.44 * DAY;
+  const now = Date.now();
+  const horizon = now + 24 * MONTH;
+  const vessels = D.vessels.filter((v) => v.status === 'ACTIVE');
+  const lanes = vessels.map((v) => {
+    let anchor = v.lastDryDock ? new Date(v.lastDryDock).getTime() : new Date(v.built || 2018, 5, 15).getTime();
+    while (anchor + 60 * MONTH < now) anchor += 60 * MONTH;
+    const events = [];
+    const push = (type, dueMs, windowMonths) => {
+      if (dueMs < now - 6 * MONTH || dueMs > horizon) return;
+      const from = dueMs - windowMonths * MONTH; const to = dueMs + windowMonths * MONTH;
+      events.push({ type, due: new Date(dueMs), window: { from: new Date(from), to: new Date(to) }, status: now > to ? 'OVERDUE' : now >= from ? 'WINDOW_OPEN' : 'PLANNED' });
+    };
+    for (let y = 1; y <= 6; y += 1) push('ANNUAL', anchor + y * 12 * MONTH, 3);
+    push('INTERMEDIATE', anchor + 30 * MONTH, 3);
+    push('SPECIAL', anchor + 60 * MONTH, 3);
+    push('DRY_DOCK', anchor + 60 * MONTH, 2);
+    events.sort((a, b) => new Date(a.due) - new Date(b.due));
+    return { vessel: { _id: v._id, name: v.name, imo: v.imo, type: v.type, classSociety: v.classSociety, lastDryDock: v.lastDryDock }, events };
+  });
+  return { horizonMonths: 24, from: new Date(now - 6 * MONTH), to: new Date(horizon), lanes };
+}
+
+function demoSof(callId) {
+  const call = maps.portcalls.get(callId);
+  if (!call) throw new Error('Port call not found');
+  const v = maps.vessels.get(String(call.vessel));
+  const b = call.berth ? maps.berths.get(String(call.berth)) : null;
+  const ev = [];
+  const push = (at, event, detail) => { if (at) ev.push({ at, event, detail: detail || '' }); };
+  push(call.createdAt, 'Vessel call announced', `VCN ${call.vcn} issued to ${call.agentName || call.agentCode || 'agent'}`);
+  for (const h of call.statusHistory || []) push(h.at, `Status: ${String(h.from || '').replace(/_/g, ' ')} → ${String(h.to || '').replace(/_/g, ' ')}`, h.note);
+  push(call.ata, 'Arrived pilot station / anchorage', call.draftArrival ? `Arrival draft ${call.draftArrival} m` : '');
+  push(call.atb, `All fast alongside ${b ? b.code : ''}`, b ? b.terminal : '');
+  for (const c of call.cargoOps || []) {
+    const what = `${c.operation === 'LOAD' ? 'Loading' : 'Discharge'} ${c.cargoType} — ${nfIN.format(c.qty)} ${c.unit}`;
+    push(c.startedAt, `${what} commenced`, c.gangs ? `${c.gangs} gangs` : '');
+    push(c.completedAt, `${what} completed`, c.remarks);
+  }
+  for (const s2 of call.services || []) push(s2.at, `Service rendered: ${String(s2.type).replace(/_/g, ' ')}`, s2.description || s2.remarks);
+  push(call.atd, 'Vessel sailed', call.draftDeparture ? `Sailing draft ${call.draftDeparture} m · for ${call.nextPort || 'sea'}` : (call.nextPort ? `For ${call.nextPort}` : ''));
+  ev.sort((a, b2) => new Date(a.at) - new Date(b2.at));
+  return {
+    call: { vcn: call.vcn, agentName: call.agentName, agentCode: call.agentCode, vessel: v ? { name: v.name, imo: v.imo, flag: v.flag } : null, berth: b ? { code: b.code } : null },
+    events: ev,
+  };
+}
+
+const TARIFF_BY_CODE = Object.fromEntries((D.tariffs || []).map((t) => [t.code, t]));
+function demoGeneratePda(callId) {
+  const call = maps.portcalls.get(callId);
+  if (!call) throw new Error('Port call not found');
+  const v = maps.vessels.get(String(call.vessel));
+  if (!v || !v.grt) throw new Error('The vessel needs a GRT before an estimate can be made');
+  const ops = DEMO_MODULE_DEFAULTS.ops;
+  const grt = v.grt; const loa = v.loa || 0;
+  const tugs = loa >= 250 ? ops.defaultTugsOver250m : ops.defaultTugsUnder250m;
+  const plannedDays = call.etb && call.etd ? Math.max(1, Math.ceil((new Date(call.etd) - new Date(call.etb)) / DAY)) : 2;
+  const lines = [];
+  const have = new Set();
+  const add = (code, qty, suffix) => {
+    const t = TARIFF_BY_CODE[code];
+    if (!t || !qty || have.has(code)) return;
+    have.add(code);
+    lines.push({ code: t.code, description: suffix ? `${t.name} — ${suffix}` : t.name, unit: t.unit, qty, rate: t.rate, amount: Math.round(qty * t.rate * 100) / 100 });
+  };
+  if (v.grt) add('PD', v.grt, '');
+  for (const s2 of call.services || []) add(s2.tariffCode, s2.qty || 1, s2.description);
+  for (const c of call.cargoOps || []) {
+    const wc = c.unit === 'TEU' ? 'WFC' : c.unit === 'UNITS' ? 'WFR' : /CRUDE|POL|EDIBLE|LNG|LPG|CHEMICAL/i.test(c.cargoType) ? 'WFL' : 'WFB';
+    add(wc, c.qty, c.cargoType);
+  }
+  add('PIL', 2, 'inward + outward');
+  add('TUG', tugs * 2, `${tugs} tugs × 2 movements`);
+  add('BH', grt * plannedDays, `${plannedDays} days alongside (planned)`);
+  if (!lines.length) throw new Error('No tariff heads matched — check the tariff master');
+  const gstRate = DEMO_SETTINGS.billing.gstRate;
+  const subtotal = Math.round(lines.reduce((s2, l) => s2 + l.amount, 0) * 100) / 100;
+  const gstAmount = Math.round(subtotal * gstRate) / 100;
+  const total = Math.round((subtotal + gstAmount) * 100) / 100;
+  const pda = { number: `PDA/${call.vcn}`, lines, subtotal, gstRate, gstAmount, total,
+    basis: { grt, plannedDays, tugs }, generatedAt: new Date().toISOString(), generatedBy: currentUser.name };
+  demoPdas.set(callId, pda);
+  return pda;
+}
+function demoPdaView(callId) {
+  const call = maps.portcalls.get(callId);
+  if (!call) throw new Error('Port call not found');
+  const pda = demoPdas.get(callId);
+  if (!pda) return { call: null, pda: null, variance: null };
+  const v = maps.vessels.get(String(call.vessel));
+  const invoice = D.invoices.find((i) => String(i.portCall) === callId && ['ISSUED', 'PAID'].includes(i.status));
+  let variance = null;
+  if (invoice) {
+    const codes = new Set([...pda.lines.map((l) => l.code), ...invoice.lines.map((l) => l.code)]);
+    variance = {
+      lines: [...codes].map((code) => {
+        const est = pda.lines.filter((l) => l.code === code).reduce((s2, l) => s2 + l.amount, 0);
+        const act = invoice.lines.filter((l) => l.code === code).reduce((s2, l) => s2 + l.amount, 0);
+        return { code, estimated: Math.round(est * 100) / 100, actual: Math.round(act * 100) / 100, delta: Math.round((act - est) * 100) / 100 };
+      }),
+      estimatedTotal: pda.total, actualTotal: invoice.total, delta: Math.round((invoice.total - pda.total) * 100) / 100,
+      invoiceNumber: invoice.number,
+    };
+  }
+  return { call: { vcn: call.vcn, vessel: v ? { name: v.name, imo: v.imo, grt: v.grt } : null, agentName: call.agentName, eta: call.eta }, pda, variance };
+}
+
+function demoPublicVerify(licenseNo) {
+  const doc = (D.licenses || []).find((l) => l.licenseNo === licenseNo);
+  if (!doc) return { found: false, licenseNo };
+  const expired = doc.expiryDate && new Date(doc.expiryDate) < new Date();
+  return {
+    found: true, licenseNo: doc.licenseNo, entityName: doc.entityName, entityType: doc.entityType, status: doc.status,
+    issueDate: doc.issueDate, expiryDate: doc.expiryDate, valid: doc.status === 'ISSUED' && !expired,
+    reason: doc.status !== 'ISSUED' ? `Licence is ${doc.status.toLowerCase()}` : expired ? 'Licence has expired' : 'Licence is in force',
+  };
+}
+
 const READ_ONLY = 'Read-only demo — CRUD, workflow transitions and billing run in the full portal (see the repository README)';
 
 const demo = {
@@ -1269,6 +1474,13 @@ const demo = {
     }
     if (url === '/inspections/dashboard') return { success: true, data: demoAuditDashboard() };
     if (url === '/seafarers/dashboard') return { success: true, data: demoCrewDashboard() };
+    if (url === '/search') return { success: true, data: demoSearch(params.q) };
+    if (url === '/incidents/risk-matrix') return { success: true, data: demoRiskMatrix(Number(params.days)) };
+    if (url === '/ops/berth-plan') return { success: true, data: demoBerthPlan(params) };
+    if (url === '/vessels/survey-planner') return { success: true, data: demoSurveyPlanner() };
+    { const mm = url.match(/^\/port-calls\/([a-f0-9]{24})\/sof$/); if (mm) return { success: true, data: demoSof(mm[1]) }; }
+    { const mm = url.match(/^\/port-calls\/([a-f0-9]{24})\/pda$/); if (mm) return { success: true, data: demoPdaView(mm[1]) }; }
+    { const mm = url.match(/^\/public\/verify\/(.+)$/); if (mm) return { success: true, data: demoPublicVerify(decodeURIComponent(mm[1])) }; }
     const d = detail(url);
     if (d !== undefined) return { success: true, data: d };
     if (LISTS[url]) { const r = LISTS[url](params); return { success: true, ...r }; }
@@ -1289,6 +1501,7 @@ const demo = {
       } };
     }
     if (url === '/auth/refresh') throw new Error('Session expired — sign in again');
+    if ((m = url.match(/^\/port-calls\/([a-f0-9]{24})\/pda$/))) return { success: true, data: demoGeneratePda(m[1]) };
     if (url === '/ai/chat') {
       await delay();
       const grounded = await answer({ message: body.message, data: engineData });

@@ -6,6 +6,8 @@ import {
   Skeleton, Chip, Rating, Divider, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
+import CertificateDialog from './CertificateDialog';
 import api from '../../api/client';
 import { notify } from '../../store/uiSlice';
 import { hasPerm } from '../../utils/perms';
@@ -39,6 +41,7 @@ export default function FacilityDetail() {
   const [auditDlg, setAuditDlg] = useState(false);
   const [auditVals, setAuditVals] = useState({});
   const [busy, setBusy] = useState(false);
+  const [certOpen, setCertOpen] = useState(false);
 
   const load = useCallback(() => api.get(`/licenses/${id}`).then((r) => setDoc(r.data))
     .catch((e) => dispatch(notify({ message: e.message, severity: 'error' }))), [id, dispatch]);
@@ -56,11 +59,19 @@ export default function FacilityDetail() {
         crumbs={[{ label: 'Facilities & companies', to: '/facilities' }, { label: doc.licenseNo }]}
         title={doc.entityName}
         sub={`${doc.licenseNo} · ${licLabel(doc.entityType)}`}
-        actions={canApprove && (ACTIONS[doc.status] || []).map((a) => (
-          <Button key={a.to} variant={a.danger ? 'outlined' : 'contained'} color={a.danger ? 'error' : 'primary'}
-            onClick={() => { setVals({}); setAction(a); }}>{a.label}</Button>
-        ))}
+        actions={(
+          <>
+            {['ISSUED', 'SUSPENDED'].includes(doc.status) && (
+              <Button variant="outlined" startIcon={<VerifiedUserRoundedIcon />} onClick={() => setCertOpen(true)}>Print certificate</Button>
+            )}
+            {canApprove && (ACTIONS[doc.status] || []).map((a) => (
+              <Button key={a.to} variant={a.danger ? 'outlined' : 'contained'} color={a.danger ? 'error' : 'primary'}
+                onClick={() => { setVals({}); setAction(a); }}>{a.label}</Button>
+            ))}
+          </>
+        )}
       />
+      <CertificateDialog license={doc} open={certOpen} onClose={() => setCertOpen(false)} />
       <Card sx={{ p: 2.5, mb: 2 }}>
         <Grid container spacing={2.5}>
           <Grid item xs={6} md={2}><Item label="Status" value={<Chip size="small" label={statusLabel} color={statusColor} sx={{ height: 21 }} variant={statusColor === 'default' ? 'outlined' : 'filled'} />} /></Grid>

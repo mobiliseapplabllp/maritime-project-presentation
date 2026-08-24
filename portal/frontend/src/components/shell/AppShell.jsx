@@ -16,6 +16,7 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import api from '../../api/client';
 import { hasPerm } from '../../utils/perms';
 import { toggleMode } from '../../store/uiSlice';
@@ -25,6 +26,7 @@ import { ADANI_GRADIENT } from '../../theme';
 import { MODULES, moduleOf } from '../../modules';
 import { GlobalProgress, PageLoader } from '../common/Loaders';
 import AiDock from './AiDock';
+import CommandPalette from './CommandPalette';
 
 const W = 236;
 const SEVERITY_COLOR = { info: 'info.main', success: 'success.main', warning: 'warning.main', error: 'error.main' };
@@ -124,8 +126,17 @@ export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [launcher, setLauncher] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
   const wide = useMediaQuery('(min-width:1000px)');
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setPaletteOpen((v) => !v); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const activeModule = moduleOf(location.pathname);
   const prevModule = useRef(activeModule.key);
@@ -225,6 +236,17 @@ export default function AppShell() {
               </IconButton>
             </Tooltip>
             <Chip size="small" label={activeModule.name} sx={{ bgcolor: activeModule.color, color: '#fff', fontWeight: 700, fontSize: 11, display: { xs: 'none', sm: 'inline-flex' } }} />
+            <ButtonBase onClick={() => setPaletteOpen(true)}
+              sx={{
+                ml: { xs: 0.5, sm: 2 }, px: 1.25, py: 0.5, borderRadius: 2, gap: 1, display: 'flex', alignItems: 'center',
+                border: 1, borderColor: 'divider', color: 'text.secondary', maxWidth: 280, flex: { xs: 1, sm: '0 1 auto' },
+                '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+              }}>
+              <SearchRoundedIcon sx={{ fontSize: 17 }} />
+              <Typography noWrap sx={{ fontSize: 12.5, display: { xs: 'none', sm: 'block' } }}>Search everything…</Typography>
+              <Chip size="small" label={navigator.platform && /Mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K'}
+                sx={{ ml: 'auto', height: 18, fontSize: 9.5, display: { xs: 'none', md: 'inline-flex' } }} />
+            </ButtonBase>
             <Box sx={{ flex: 1 }} />
             <Chip size="small" label={import.meta.env.VITE_DEMO === '1' ? 'READ-ONLY DEMO' : 'DEMO DATA'} color="warning" variant="outlined"
               sx={{ fontSize: 10, fontWeight: 700, display: { xs: 'none', md: 'inline-flex' } }} />
@@ -284,6 +306,7 @@ export default function AppShell() {
         </Tooltip>
       )}
       <AiDock open={aiOpen} onClose={() => setAiOpen(false)} />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </Box>
   );
 }

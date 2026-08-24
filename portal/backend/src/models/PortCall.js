@@ -45,6 +45,14 @@ const portCallSchema = new mongoose.Schema({
   services: [serviceSchema],
   cargoOps: [cargoOpSchema],
   remarks: { type: String, default: '' },
+  // Proforma Disbursement Account — pre-arrival estimate snapshot (v8)
+  pda: {
+    number: String,
+    lines: [{ code: String, description: String, unit: String, qty: Number, rate: Number, amount: Number }],
+    subtotal: Number, gstRate: Number, gstAmount: Number, total: Number,
+    basis: { grt: Number, plannedDays: Number, tugs: Number },
+    generatedAt: Date, generatedBy: String,
+  },
   statusHistory: [{ from: String, to: String, at: Date, by: String, note: String }],
 }, { timestamps: true });
 

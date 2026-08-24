@@ -36,7 +36,10 @@ api.interceptors.response.use(
       } else store.dispatch(clearSession());
     }
     const message = err.response?.data?.message || err.message || 'Request failed';
-    return Promise.reject(new Error(message));
+    const wrapped = new Error(message);
+    wrapped.status = status;
+    wrapped.payload = err.response?.data;
+    return Promise.reject(wrapped);
   },
 );
 

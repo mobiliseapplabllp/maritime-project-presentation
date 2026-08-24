@@ -2,6 +2,8 @@
  * A module is visible when the user holds its perm. */
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import ViewTimelineRoundedIcon from '@mui/icons-material/ViewTimelineRounded';
+import EventRepeatRoundedIcon from '@mui/icons-material/EventRepeatRounded';
+import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
 import DirectionsBoatFilledRoundedIcon from '@mui/icons-material/DirectionsBoatFilledRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import GavelRoundedIcon from '@mui/icons-material/GavelRounded';
@@ -50,6 +52,7 @@ export const MODULES = [
       items: [
         { to: '/port-calls', label: 'Vessel Calls', icon: ViewTimelineRoundedIcon, perm: 'portcalls.view' },
         { to: '/berth-board', label: 'Berth Board', icon: AnchorRoundedIcon, perm: 'portcalls.view' },
+        { to: '/berth-planner', label: 'Berth Window Planner', icon: EventRepeatRoundedIcon, perm: 'portcalls.view' },
         { to: '/quay-view', label: 'Quay View (2D)', icon: SpaceDashboardRoundedIcon, perm: 'portcalls.view' },
         { to: '/schedule', label: 'Vessel Schedule', icon: EventNoteRoundedIcon, perm: 'portcalls.view' },
         { to: '/marine-services', label: 'Marine Craft & Pilots', icon: DirectionsBoatRoundedIcon, perm: 'portcalls.view' },
@@ -67,6 +70,7 @@ export const MODULES = [
         { to: '/fleet', label: 'Fleet Dashboard', icon: SpaceDashboardRoundedIcon, perm: 'vessels.view', end: true },
         { to: '/vessels', label: 'Vessel Register', icon: DirectionsBoatFilledRoundedIcon, perm: 'vessels.view' },
         { to: '/certificates', label: 'Certificates', icon: WorkspacePremiumRoundedIcon, perm: 'certificates.view' },
+        { to: '/vessels/survey-planner', label: 'Survey & Dry-Dock Planner', icon: EventRepeatRoundedIcon, perm: 'vessels.view' },
         { to: '/risk', label: 'Vessel Risk Register', icon: InsightsRoundedIcon, perm: 'risk.view', end: true },
       ],
     }],
@@ -100,6 +104,7 @@ export const MODULES = [
       header: 'Case management',
       items: [
         { to: '/incidents/overview', label: 'Incident Dashboard', icon: MonitorHeartRoundedIcon, perm: 'incidents.view' },
+        { to: '/incidents/risk-matrix', label: 'Risk Matrix', icon: GridViewRoundedIcon, perm: 'incidents.view' },
         { to: '/incidents', label: 'Incident Register', icon: CrisisAlertRoundedIcon, perm: 'incidents.view', end: true },
       ],
     }],
