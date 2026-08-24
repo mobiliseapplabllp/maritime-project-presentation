@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs');
+const settings = require('../config/settingsCache');
+const passwordMin = () => (settings.isReady() && settings.moduleGet('admin').passwordMinLength) || 8;
 const User = require('../models/User');
 const Role = require('../models/Role');
 const { ApiError, ok, created } = require('../utils/respond');
@@ -23,7 +25,7 @@ exports.list = async (req, res) => {
 exports.create = async (req, res) => {
   const { name, email, password, role, designation, department, phone } = req.body || {};
   if (!name || !email || !password || !role) throw new ApiError(400, 'Name, email, password and role are required');
-  if (String(password).length < 8) throw new ApiError(400, 'Password must be at least 8 characters');
+  if (String(password).length < passwordMin()) throw new ApiError(400, `Password must be at least ${passwordMin()} characters`);
   if (!(await Role.findById(role))) throw new ApiError(400, 'Selected role does not exist');
   const user = await User.create({
     name, email, role, designation: designation || '', department: department || '', phone: phone || '',
@@ -54,7 +56,7 @@ exports.update = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   const { password } = req.body || {};
-  if (!password || String(password).length < 8) throw new ApiError(400, 'Password must be at least 8 characters');
+  if (!password || String(password).length < passwordMin()) throw new ApiError(400, `Password must be at least ${passwordMin()} characters`);
   const user = await User.findById(req.params.id);
   if (!user) throw new ApiError(404, 'User not found');
   user.passwordHash = await bcrypt.hash(password, 10);

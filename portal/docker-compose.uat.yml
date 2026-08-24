@@ -1,0 +1,19 @@
+# UAT — client-acceptance environment. Release candidates only.
+#   docker compose -f docker-compose.yml -f docker-compose.uat.yml --env-file .env.uat up -d --build
+# Fresh acceptance data each release: docker compose ... down -v first.
+services:
+  mongo:
+    volumes: [mundra-mongo-uat:/data/db]
+
+  portal:
+    environment:
+      NODE_ENV: uat
+      MONGO_URI: mongodb://mongo:27017/mundra_portal_uat
+      JWT_SECRET: ${JWT_SECRET:?set in .env.uat}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set in .env.uat}
+      SEED_IF_EMPTY: "1"   # UAT starts from the full acceptance dataset
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports: ["5300:5200"]
+
+volumes:
+  mundra-mongo-uat:

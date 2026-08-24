@@ -1,0 +1,40 @@
+# Production — hardened deployment behind nginx TLS.
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+# Only nginx is exposed (80/443); the app and database stay on the internal network.
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes: [mundra-mongo-prod:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  portal:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mongo: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/mundra_portal
+      JWT_SECRET: ${JWT_SECRET:?set in .env.prod}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set in .env.prod}
+      SEED_IF_EMPTY: "0"   # production data is never auto-seeded
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    expose: ["5200"]
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [portal]
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+
+volumes:
+  mundra-mongo-prod:

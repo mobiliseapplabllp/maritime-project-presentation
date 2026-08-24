@@ -1,6 +1,6 @@
 // Sequential business numbers per year, derived from the max existing number.
 async function nextNumber(Model, field, prefix, pad = 4) {
-  const rx = new RegExp('^' + prefix.replace(/[/\-]/g, '\\$&'));
+  const rx = new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\/\-]/g, '\\$&'));
   const last = await Model.findOne({ [field]: { $regex: rx.source } }).sort({ [field]: -1 }).select(field).lean();
   let n = 1;
   if (last) {
