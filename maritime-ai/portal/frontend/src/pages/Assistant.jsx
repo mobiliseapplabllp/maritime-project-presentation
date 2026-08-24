@@ -1,0 +1,350 @@
+import React, { useState, useRef, useEffect } from "react";
+import { api } from "../lib/api.js";
+import { useApi } from "../lib/useApi.js";
+import { PageHeader } from "../components/ui.jsx";
+import Markdown from "../components/Markdown.jsx";
+import AssetCard from "../components/AssetCard.jsx";
+import { sttSupported, ttsSupported, VOICE_LANGS, useVoiceInput, speak, stopSpeaking } from "../lib/voice.js";
+import { useLang } from "../lib/i18n.jsx";
+
+const PROMPTS = [
+  "How is vessel turnaround tracking against the major-port benchmark across my scope? Report with charts.",
+  "Prepare a berthing prioritisation briefing: the 5 terminals with the worst anchorage waits and why.",
+  "Write a PSC-compliance assessment of the vessels calling at Mundra.",
+  "Do a deep-dive report on the worst-performing terminal — waiting, incidents, receivables.",
+  "Draft a one-page monthly status report for the Harbour Master, with a recommendation.",
+  "Which berths should be prioritised for marine-services attention, and what exactly to check?",
+];
+
+const PROMPTS_DOCS = [
+  "What are the monsoon UKC and pilotage restrictions at Mundra?",
+  "What can lead to a PSC detention under the Indian Ocean MoU?",
+  "What are the certificate renewal windows for vessels and seafarers?",
+  "What are the reporting duties for spills and near-misses?",
+  "What do the berthing policy and priority rules say?",
+  "How are port dues, berth hire and demurrage assessed?",
+];
+
+function reportContainer(i) {
+  return document.getElementById(`clarity-report-${i}`);
+}
+function reportMdHTML(i) {
+  const el = reportContainer(i);
+  return el ? (el.querySelector(".md")?.innerHTML || "") : "";
+}
+function reportPlainText(i) {
+  const el = reportContainer(i);
+  return el ? (el.querySelector(".md")?.innerText || "") : "";
+}
+
+function sourcesHTML(sources, t) {
+  if (!sources || !sources.length) return "";
+  return `<div class="sources"><h3>${t("Data sources")}</h3><ul>${sources
+    .map((s) => `<li>${s}</li>`).join("")}</ul></div>`;
+}
+
+function buildPrintDoc(i, sources, t) {
+  const body = reportMdHTML(i);
+  const date = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${t("Sagar Drishti — Sagar Intelligence Report")}</title>
+<style>
+  @page { margin: 20mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #1a2320; line-height: 1.55; font-size: 12pt; }
+  .brand { display:flex; align-items:center; gap:10px; border-bottom: 3px solid #0d6e6b; padding-bottom: 12px; margin-bottom: 6px; }
+  .brand .mk { width:34px;height:34px;border-radius:8px;background:#0d6e6b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px; }
+  .brand .t { font-weight:800; font-size:15pt; letter-spacing:-.3px; }
+  .brand .s { font-size:9pt; color:#5f6763; }
+  .meta { font-size:9pt; color:#5f6763; margin: 4px 0 18px; }
+  h1,h2 { font-size:16pt; margin:16px 0 8px; }
+  h2 { border-bottom:1px solid #dcded7; padding-bottom:4px; }
+  h3 { font-size:12.5pt; color:#0d6e6b; margin:14px 0 6px; }
+  p { margin:8px 0; } ul,ol { margin:8px 0; padding-left:20px; }
+  table { border-collapse:collapse; width:100%; margin:10px 0; font-size:10pt; }
+  th,td { border:1px solid #cfd3cc; padding:6px 9px; text-align:left; }
+  th { background:#eef1ec; }
+  .sources { margin-top:26px; border-top:1px solid #dcded7; padding-top:12px; font-size:9.5pt; color:#333; }
+  .sources h3 { color:#0d6e6b; }
+  .ft { margin-top:20px; font-size:8.5pt; color:#8a938e; border-top:1px solid #eee; padding-top:8px; }
+</style></head><body>
+<div class="brand"><div class="mk">◈</div><div><div class="t">Sagar Drishti</div>
+  <div class="s">${t("Mundra Port AI Analytics · Kutch, Gujarat")}</div></div></div>
+<div class="meta">${t("Sagar Intelligence report · generated {date} · Mundra Port operations panels (read-only, berth level)", { date })}</div>
+${body}
+${sourcesHTML(sources, t)}
+<div class="ft">${t("Prepared by Sagar Intelligence within Sagar Drishti. Figures are drawn from the sources listed above; the AI analysis is advisory and should be read alongside the operations-audit caveats in the portal.")}</div>
+</body></html>`;
+}
+
+function ReportActions({ index, sources }) {
+  const [copied, setCopied] = useState(false);
+  const { t } = useLang();
+
+  const copy = () => {
+    const txt = reportPlainText(index) + (sources?.length ? "\n\n" + t("Data sources") + ":\n- " + sources.join("\n- ") : "");
+    navigator.clipboard?.writeText(txt).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+  };
+  const email = () => {
+    const subject = t("Sagar Drishti — Sagar Intelligence report");
+    let body = reportPlainText(index);
+    if (sources?.length) body += "\n\n" + t("Data sources") + ":\n- " + sources.join("\n- ");
+    body += "\n\n" + t("— Generated by Sagar Intelligence within Sagar Drishti.");
+    if (body.length > 1800) body = body.slice(0, 1800) + "\n\n" + t("[Report truncated for email — use Download PDF for the full version.]");
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+  const pdf = () => {
+    const w = window.open("", "_blank");
+    if (!w) { alert(t("Please allow pop-ups to download the PDF.")); return; }
+    w.document.write(buildPrintDoc(index, sources, t));
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); }, 350);
+  };
+
+  return (
+    <div className="asst-actions">
+      <button onClick={copy}>{copied ? t("Copied ✓") : `⧉ ${t("Copy report")}`}</button>
+      <button onClick={email}>✉ {t("Email report")}</button>
+      <button onClick={pdf}>⭳ {t("Download PDF")}</button>
+    </div>
+  );
+}
+
+export default function Assistant() {
+  const status = useApi("/chat/status");
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [focus, setFocus] = useState(false);
+  const [askMode, setAskMode] = useState("data"); // "data" (live panels) | "docs" (RAG)
+  const { t } = useLang();
+  const [voiceLang, setVoiceLang] = useState(0);   // index into VOICE_LANGS
+  const [autoRead, setAutoRead] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const bodyRef = useRef(null);
+  const taRef = useRef(null);
+  const mic = useVoiceInput((text) => send(text));
+
+  useEffect(() => {
+    if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
+  }, [msgs, busy]);
+
+  // Focus mode = immersive layout: hide the side menu + top bar so the chat
+  // fills the screen. Pure CSS toggle (reliable everywhere); Esc also exits.
+  useEffect(() => {
+    document.body.classList.toggle("focus-mode", focus);
+    return () => document.body.classList.remove("focus-mode");
+  }, [focus]);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setFocus(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // read new answers aloud when voice output is on
+  const lastSpokenRef = useRef(-1);
+  useEffect(() => {
+    // enabling voice replies starts from the NEXT answer, not the history
+    if (autoRead) lastSpokenRef.current = Math.max(lastSpokenRef.current, msgs.length - 1);
+  }, [autoRead]);                 // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!autoRead || !msgs.length) return;
+    const i = msgs.length - 1;
+    const m = msgs[i];
+    if (m.role === "bot" && m.source !== "error" && i > lastSpokenRef.current) {
+      lastSpokenRef.current = i;
+      speak(m.text, VOICE_LANGS[voiceLang].code, setSpeaking);
+    }
+  }, [msgs, autoRead]);           // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => stopSpeaking(), []);  // stop narration on unmount
+
+  const toggleFocus = () => setFocus((f) => !f);
+
+  const engineReady = status.data?.cli || status.data?.api;
+  const ragReady = status.data?.rag?.available;
+  const ragInfo = status.data?.rag;
+
+  const send = async (text) => {
+    const q = (text || input).trim();
+    if (!q || busy) return;
+    setInput("");
+    if (taRef.current) taRef.current.style.height = "auto";
+    const history = msgs.map((m) => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text }));
+    setMsgs((m) => [...m, { role: "user", text: q }]);
+    setBusy(true);
+    try {
+      const mode = askMode === "docs" ? "docs" : "report";
+      const res = await api.chat(q, history, mode);
+      setMsgs((m) => [...m, { role: "bot", text: res.reply, source: res.source,
+        sources: res.data_sources, ragSources: res.rag_sources, asset: res.asset, mode }]);
+    } catch (e) {
+      setMsgs((m) => [...m, { role: "bot", text: t("**Sagar Intelligence is temporarily unavailable.**") + " " + e.message, source: "error" }]);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+  const grow = (e) => {
+    const t = e.target; t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 160) + "px";
+    setInput(t.value);
+  };
+
+  return (
+    <div className="asst">
+      <div className="asst-head-row">
+        <div>
+          <PageHeader
+            title={t("Sagar Intelligence — natural-language reports")}
+            sub={t("Ask in plain language and Sagar Intelligence prepares a formatted report from the live Mundra Port data — rankings, comparisons, benchmark and receivables assessments, briefings.")}
+          />
+        </div>
+        <button className="btn focus-btn" style={{ marginRight: 8 }}
+          onClick={() => window.location.assign("/voice")}>🎙 {t("Voice Mode")}</button>
+        <button className="btn focus-btn" onClick={toggleFocus}>
+          {focus ? `⤡ ${t("Exit focus")}` : `⤢ ${t("Focus mode")}`}
+        </button>
+      </div>
+
+      <div className="asst-status">
+        <span className={`dot ${engineReady ? "on" : "off"}`} />
+        <b>Sagar Intelligence</b>&nbsp;·&nbsp;
+        {askMode === "docs"
+          ? (ragReady
+            ? t("document mode — {n} official documents indexed ({c} passages · Sagar Intelligence retrieval)", { n: ragInfo?.indexed_docs || "—", c: ragInfo?.chunks?.toLocaleString?.("en-IN") || "—" })
+            : t("document index not built yet"))
+          : (engineReady ? t("ready — reports drawn from live data") : t("offline — administrator setup required"))}
+        <span className="asst-mode-toggle">
+          <button className={`seg ${askMode === "data" ? "on" : ""}`} onClick={() => setAskMode("data")}>
+            📊 {t("Ask the data")}
+          </button>
+          <button className={`seg ${askMode === "docs" ? "on" : ""}`} onClick={() => setAskMode("docs")}>
+            📚 {t("Ask the documents")}
+          </button>
+        </span>
+      </div>
+
+      <div className="asst-panel">
+        <div className="asst-body" ref={bodyRef}>
+          {msgs.length === 0 && (
+            <div className="asst-empty">
+              <div className="asst-empty-h">
+                {askMode === "docs" ? t("Ask the official documents") : t("What report do you need?")}
+              </div>
+              <div className="asst-empty-p">
+                {askMode === "docs"
+                  ? t("Talk to the port document library — marine circulars, the berthing policy, tariff schedules, PSC/MoU guidance and HSE procedures. Every answer cites the exact document and page. (Library seeding in progress.)")
+                  : t("Pick a starter or type your own request. Every answer is drawn only from the live data and formatted as a report you can copy, email, or download as a PDF.")}
+              </div>
+              <div className="asst-prompts">
+                {(askMode === "docs" ? PROMPTS_DOCS : PROMPTS).map((p) => (
+                  <button key={p} onClick={() => send(t(p))} disabled={busy}>{t(p)}</button>
+                ))}
+              </div>
+            </div>
+          )}
+          {msgs.map((m, i) => (
+            <div key={i} className={`asst-msg ${m.role}`}>
+              {m.role === "user" ? (
+                <div className="asst-user-bubble">{m.text}</div>
+              ) : (
+                <div className="asst-report" id={`clarity-report-${i}`}>
+                  <Markdown>{m.text}</Markdown>
+                  {m.asset && <AssetCard asset={m.asset} />}
+                  {m.ragSources && m.ragSources.length > 0 && (
+                    <div className="rag-sources">
+                      <div className="asst-sources-h">{t("Cited documents")}</div>
+                      {m.ragSources.map((s) => (
+                        <a key={s.n} className="rag-chip" href={s.url} target="_blank" rel="noreferrer"
+                          title={t("{source} · relevance {score}", { source: s.source, score: s.score })}>
+                          <b>[{s.n}]</b> {s.title.slice(0, 58)}{s.title.length > 58 ? "…" : ""} · p.{s.page}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  {(m.source === "claude_cli" || m.source === "anthropic_api") && (
+                    <>
+                      {m.sources && m.sources.length > 0 && (
+                        <div className="asst-sources">
+                          <div className="asst-sources-h">{t("Data sources")}</div>
+                          <ul>{m.sources.map((s, k) => <li key={k}>{s}</li>)}</ul>
+                        </div>
+                      )}
+                      <div className="asst-report-foot">
+                        <span className="mono">
+                          {m.mode === "docs"
+                            ? t("Answered by Sagar Intelligence · from the port document library (RAG)")
+                            : t("Generated by Sagar Intelligence · from live Mundra Port data")}
+                        </span>
+                        {ttsSupported && (
+                          <button className="asst-listen"
+                            onClick={() => speaking ? stopSpeaking(setSpeaking)
+                              : speak(m.text, VOICE_LANGS[voiceLang].code, setSpeaking)}>
+                            {speaking ? `◼ ${t("Stop")}` : `🔊 ${t("Listen")}`}
+                          </button>
+                        )}
+                        <ReportActions index={i} sources={m.sources} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          {busy && (
+            <div className="asst-msg bot">
+              <div className="asst-report asst-loading">
+                <span className="typing"><i /><i /><i /></span>
+                <span>
+                  {askMode === "docs"
+                    ? t("Sagar Intelligence is searching the document library and reading the best passages…")
+                    : t("Sagar Intelligence is preparing your report from the live data…")}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {(mic.listening || mic.interim) && (
+          <div className="voice-live">
+            <span className="mic-pulse" /> {t("Listening")} ({VOICE_LANGS[voiceLang].name})…
+            {mic.interim && <em>&nbsp;“{mic.interim}”</em>}
+          </div>
+        )}
+        <div className="asst-input">
+          <textarea ref={taRef} rows={1} value={input} onChange={grow} onKeyDown={onKey}
+            placeholder={askMode === "docs"
+              ? t("Ask the port documents… (Enter to send, or use the mic)")
+              : t("Ask Sagar Intelligence for a report or analysis… (Enter to send, or use the mic)")}
+            disabled={busy} />
+          {sttSupported && (
+            <>
+              <button className="btn voice-lang" title={t("Voice language")}
+                onClick={() => setVoiceLang((voiceLang + 1) % VOICE_LANGS.length)}>
+                {VOICE_LANGS[voiceLang].label}
+              </button>
+              <button className={`btn mic-btn ${mic.listening ? "rec" : ""}`}
+                title={mic.listening ? t("Stop listening") : t("Speak your question ({lang})", { lang: VOICE_LANGS[voiceLang].name })}
+                onClick={() => mic.listening ? mic.stop() : mic.start(VOICE_LANGS[voiceLang].code)}
+                disabled={busy}>
+                {mic.listening ? "◼" : "🎤"}
+              </button>
+            </>
+          )}
+          {ttsSupported && (
+            <button className={`btn voice-out ${autoRead ? "on" : ""} ${speaking ? "speaking" : ""}`}
+              title={speaking ? t("Stop reading") : autoRead ? t("Voice replies: ON") : t("Voice replies: OFF")}
+              onClick={() => { if (speaking) stopSpeaking(setSpeaking); else setAutoRead((v) => !v); }}>
+              {speaking ? "◼ 🔊" : "🔊"}
+            </button>
+          )}
+          <button className="btn primary" onClick={() => send()} disabled={busy || !input.trim()}>
+            {busy ? t("Working…") : t("Send")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
