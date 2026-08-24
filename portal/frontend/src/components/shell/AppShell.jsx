@@ -15,6 +15,7 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import api from '../../api/client';
@@ -25,7 +26,7 @@ import { fromNow } from '../../utils/format';
 import { ADANI_GRADIENT } from '../../theme';
 import { MODULES, moduleOf } from '../../modules';
 import { GlobalProgress, PageLoader } from '../common/Loaders';
-import AiDock from './AiDock';
+import { AI_PORTAL, IS_DEMO, openAiPortal } from '../../aiPortal';
 import CommandPalette from './CommandPalette';
 
 const W = 236;
@@ -76,9 +77,10 @@ function Bell() {
   );
 }
 
-function Launcher({ open, onClose, user }) {
+function Launcher({ open, onClose, user, onOpenAi }) {
   const navigate = useNavigate();
   const visible = MODULES.filter((m) => hasPerm(user, m.perm));
+  const showAi = hasPerm(user, 'ai.use');
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth TransitionComponent={Grow}
       slotProps={{ backdrop: { sx: { backdropFilter: 'blur(5px)' } }, paper: { sx: { borderRadius: 4, p: 1 } } }}>
@@ -87,6 +89,7 @@ function Launcher({ open, onClose, user }) {
           <Typography variant="h6">Applications</Typography>
           <Typography variant="caption" color="text.secondary">
             {visible.length} modules available to {user?.role?.name}
+            {showAi && ` · plus ${AI_PORTAL.name}`}
           </Typography>
         </Box>
         <IconButton onClick={onClose}><CloseRoundedIcon /></IconButton>
@@ -111,6 +114,27 @@ function Launcher({ open, onClose, user }) {
             </ButtonBase>
           );
         })}
+        {/* Sagar Drishti is a separate application, not a route here — it opens
+            in its own tab, so the card is marked to set that expectation. */}
+        {showAi && (
+          <ButtonBase onClick={() => { onClose(); onOpenAi(); }}
+            sx={{
+              borderRadius: 3, p: 2, textAlign: 'left', alignItems: 'flex-start', flexDirection: 'column', gap: 1.25,
+              border: 1, borderStyle: 'dashed', borderColor: 'divider', transition: 'all .15s',
+              '&:hover': { borderColor: AI_PORTAL.color, borderStyle: 'solid', transform: 'translateY(-2px)', boxShadow: 3 },
+            }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+              <Box sx={{ width: 42, height: 42, borderRadius: '12px', display: 'grid', placeItems: 'center', bgcolor: AI_PORTAL.color, color: '#fff' }}>
+                <AutoAwesomeRoundedIcon sx={{ fontSize: 23 }} />
+              </Box>
+              <OpenInNewRoundedIcon sx={{ fontSize: 15, color: 'text.disabled', ml: 'auto' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 700, fontSize: 14.5 }}>{AI_PORTAL.name}</Typography>
+              <Typography sx={{ fontSize: 11.8, color: 'text.secondary', lineHeight: 1.35, mt: 0.25 }}>{AI_PORTAL.desc}</Typography>
+            </Box>
+          </ButtonBase>
+        )}
       </Box>
     </Dialog>
   );
@@ -125,7 +149,10 @@ export default function AppShell() {
   const [userMenu, setUserMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [launcher, setLauncher] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
+  const [aiInfo, setAiInfo] = useState(false);
+  // Sagar Drishti is a separate app on its own port; in the demo bundle there is
+  // nothing to open, so explain it instead of following a dead link.
+  const openAi = () => (IS_DEMO ? setAiInfo(true) : openAiPortal());
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
   const wide = useMediaQuery('(min-width:1000px)');
@@ -199,6 +226,18 @@ export default function AppShell() {
           </Box>
         ))}
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 1 }} />
+        {/* Sits below every module's own navigation, so the AI portal is one
+            click away from anywhere in the app. */}
+        {hasPerm(user, 'ai.use') && (
+          <ListItemButton onClick={openAi}
+            sx={{ borderRadius: '8px', mb: 0.25, color: '#B7C9DA', '& .MuiListItemIcon-root': { color: AI_PORTAL.color, minWidth: 34 }, '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' } }}>
+            <ListItemIcon><AutoAwesomeRoundedIcon sx={{ fontSize: 19 }} /></ListItemIcon>
+            <ListItemText primary={AI_PORTAL.name} secondary="AI analytics"
+              primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }}
+              secondaryTypographyProps={{ fontSize: 10.5, color: '#7C9BB5' }} />
+            <OpenInNewRoundedIcon sx={{ fontSize: 13, color: '#5B7C99' }} />
+          </ListItemButton>
+        )}
         <ListItemButton onClick={() => setLauncher(true)}
           sx={{ borderRadius: '8px', color: '#B7C9DA', '& .MuiListItemIcon-root': { color: '#7C9BB5', minWidth: 34 }, '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' } }}>
           <ListItemIcon><AppsRoundedIcon sx={{ fontSize: 19 }} /></ListItemIcon>
@@ -279,11 +318,12 @@ export default function AppShell() {
           )}
         </Box>
       </Box>
-      <Launcher open={launcher} onClose={() => setLauncher(false)} user={user} />
-      {/* floating assistant — hangs on the bottom-right corner on every screen */}
-      {hasPerm(user, 'ai.use') && !aiOpen && (
-        <Tooltip title="Ask the assistant" placement="left">
-          <IconButton onClick={() => setAiOpen(true)} aria-label="AI assistant"
+      <Launcher open={launcher} onClose={() => setLauncher(false)} user={user} onOpenAi={openAi} />
+      {/* floating AI button — hangs on the bottom-right corner on every screen
+          and hands off to Sagar Drishti, the AI analytics portal */}
+      {hasPerm(user, 'ai.use') && (
+        <Tooltip title={`Open ${AI_PORTAL.name} — AI analytics`} placement="left">
+          <IconButton onClick={openAi} aria-label={`Open ${AI_PORTAL.name}`}
             sx={{
               position: 'fixed', right: 22, bottom: 22, zIndex: (t) => t.zIndex.drawer + 2,
               width: 54, height: 54, background: ADANI_GRADIENT, color: '#fff',
@@ -305,8 +345,29 @@ export default function AppShell() {
           </IconButton>
         </Tooltip>
       )}
-      <AiDock open={aiOpen} onClose={() => setAiOpen(false)} />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      {/* The shareable demo bundle has no local backend to reach, so explain the
+          second product rather than following a link that cannot resolve. */}
+      <Dialog open={aiInfo} onClose={() => setAiInfo(false)} maxWidth="xs" fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}>
+        <Box sx={{ p: 3 }}>
+          <Box sx={{ width: 46, height: 46, borderRadius: '13px', bgcolor: AI_PORTAL.color, display: 'grid', placeItems: 'center', mb: 1.75 }}>
+            <AutoAwesomeRoundedIcon sx={{ fontSize: 25, color: '#fff' }} />
+          </Box>
+          <Typography sx={{ fontWeight: 700, fontSize: 17 }}>{AI_PORTAL.name}</Typography>
+          <Typography sx={{ fontSize: 13.5, color: 'text.secondary', mt: 1, lineHeight: 1.6 }}>
+            {AI_PORTAL.desc}. It is a companion application to this portal, running on the
+            same Mundra dataset.
+          </Typography>
+          <Typography sx={{ fontSize: 13.5, color: 'text.secondary', mt: 1.5, lineHeight: 1.6 }}>
+            It needs its own server, so it is not part of this read-only demo. In a full
+            deployment it opens from here in one click.
+          </Typography>
+          <Box sx={{ mt: 2.5, display: 'flex', justifyContent: 'flex-end' }}>
+            <Chip label="Got it" onClick={() => setAiInfo(false)} color="primary" sx={{ fontWeight: 600 }} />
+          </Box>
+        </Box>
+      </Dialog>
     </Box>
   );
 }

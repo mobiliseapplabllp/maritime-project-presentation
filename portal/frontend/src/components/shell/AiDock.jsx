@@ -1,3 +1,12 @@
+/* In-portal assistant drawer — currently UNWIRED.
+ *
+ * The floating AI button now hands off to Sagar Drishti (see src/aiPortal.js),
+ * which is the richer AI surface. This component is kept because it does
+ * something Sagar Drishti does not: it answers from this portal's live records
+ * and returns links that navigate straight to the citing screen. To restore it,
+ * import it in AppShell.jsx and render <AiDock open={…} onClose={…} /> behind
+ * its own trigger.
+ */
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
