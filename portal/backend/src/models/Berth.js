@@ -9,6 +9,14 @@ const berthSchema = new mongoose.Schema({
   draftMax: { type: Number, required: true }, // metres
   status: { type: String, enum: ['OPERATIONAL', 'MAINTENANCE'], default: 'OPERATIONAL' },
   remarks: { type: String, default: '' },
+  // maintenance and outage windows taken over the berth's life, newest last
+  outages: [{
+    from: Date, to: Date,
+    days: { type: Number, default: 0 },
+    kind: { type: String, default: '' },       // PLANNED / BREAKDOWN / DREDGING / WEATHER
+    reason: { type: String, default: '' },
+    by: { type: String, default: '' },
+  }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Berth', berthSchema);

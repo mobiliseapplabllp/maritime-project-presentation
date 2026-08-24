@@ -3,6 +3,7 @@
 const { Berth, PortCall, Resource } = require('../models');
 const { ApiError, ok } = require('../utils/respond');
 const { audit } = require('../utils/audit');
+const { round1, monthKey, monthWindow, availability, clampMonths } = require('../utils/history');
 
 const D = 24 * 3600 * 1000;
 
@@ -68,10 +69,155 @@ exports.schedule = async (req, res) => {
   ok(res, { from, to, events });
 };
 
-// Marine resources board
+/* Marine resources board. Each craft carries its whole service record (a tug
+ * runs to ~700 jobs), so the jobs array never leaves the server — the board
+ * gets a digest and /ops/resources/:id/history pages the detail. */
 exports.resources = async (req, res) => {
   const rows = await Resource.find().sort('type code').lean();
-  ok(res, rows);
+  const months = clampMonths(req.query.months, 12);
+  const { from, to } = monthWindow(months);
+  const since30 = new Date(Date.now() - 30 * D);
+  const data = rows.map(({ jobs = [], ...r }) => {
+    const av = availability(r.outages, from, to);
+    let hours = 0; let last = null; let winJobs = 0; let winHours = 0; let jobs30d = 0;
+    for (const j of jobs) {
+      const at = new Date(j.at);
+      hours += j.hours || 0;
+      if (!last || at > last) last = at;
+      if (at >= from && at < to) { winJobs += 1; winHours += j.hours || 0; }
+      if (at >= since30) jobs30d += 1;
+    }
+    return {
+      ...r,
+      service: {
+        jobs: jobs.length, hours: round1(hours), windowJobs: winJobs, windowHours: round1(winHours),
+        jobs30d, lastJobAt: last, outages: (r.outages || []).length,
+        outageDays: av.days, availabilityPct: av.availabilityPct,
+      },
+    };
+  });
+  ok(res, data, { window: { from, to, months } });
+};
+
+/* Fleet-level utilisation — jobs and assist hours per month across every craft,
+ * the busiest units and the share of time the fleet was available. */
+exports.resourceUtilisation = async (req, res) => {
+  const months = clampMonths(req.query.months, 12);
+  const { bounds, from, to } = monthWindow(months);
+  const rows = await Resource.find().sort('type code').lean();
+
+  const buckets = new Map(bounds.map((b) => [b.key, { month: b.key, label: b.label, jobs: 0, hours: 0 }]));
+  const kinds = new Map();
+  const types = new Map();
+  const craft = [];
+  let allJobs = 0; let allHours = 0; let winJobs = 0; let winHours = 0; let lostDays = 0;
+
+  for (const r of rows) {
+    const jobs = r.jobs || [];
+    const av = availability(r.outages, from, to);
+    let cJobs = 0; let cHours = 0; let cAllHours = 0; let last = null;
+    for (const j of jobs) {
+      const at = new Date(j.at);
+      const h = j.hours || 0;
+      cAllHours += h;
+      if (!last || at > last) last = at;
+      if (at >= from && at < to) {
+        cJobs += 1; cHours += h;
+        const b = buckets.get(monthKey(at));
+        if (b) { b.jobs += 1; b.hours += h; }
+        const k = j.kind || 'OTHER';
+        const kb = kinds.get(k) || { kind: k, jobs: 0, hours: 0 };
+        kb.jobs += 1; kb.hours += h; kinds.set(k, kb);
+      }
+    }
+    const tb = types.get(r.type) || { type: r.type, craft: 0, jobs: 0, hours: 0 };
+    tb.craft += 1; tb.jobs += cJobs; tb.hours += cHours; types.set(r.type, tb);
+    allJobs += jobs.length; allHours += cAllHours; winJobs += cJobs; winHours += cHours; lostDays += av.days;
+    craft.push({
+      _id: r._id, code: r.code, name: r.name, type: r.type, status: r.status,
+      jobs: cJobs, hours: round1(cHours), jobsAllTime: jobs.length, hoursAllTime: round1(cAllHours),
+      outageDays: av.days, availabilityPct: av.availabilityPct, lastJobAt: last,
+    });
+  }
+
+  const spanDays = (to - from) / D;
+  craft.sort((a, b) => b.jobs - a.jobs || a.code.localeCompare(b.code));
+  const series = [...buckets.values()].map((b) => ({ ...b, hours: round1(b.hours) }));
+  ok(res, {
+    window: { from, to, months },
+    totals: {
+      craft: rows.length, jobs: winJobs, hours: round1(winHours),
+      jobsAllTime: allJobs, hoursAllTime: round1(allHours),
+      avgJobsPerMonth: round1(winJobs / months), avgHoursPerJob: winJobs ? round1(winHours / winJobs) : 0,
+      outageDays: round1(lostDays),
+      availabilityPct: rows.length ? round1(Math.max(0, 100 - (lostDays / (rows.length * spanDays)) * 100)) : 100,
+    },
+    series,
+    byKind: [...kinds.values()].sort((a, b) => b.jobs - a.jobs).map((k) => ({ ...k, hours: round1(k.hours) })),
+    byType: [...types.values()].map((t) => ({ ...t, hours: round1(t.hours) })),
+    craft,
+  });
+};
+
+/* One craft's service record — paged jobs plus the utilisation reading. */
+exports.resourceHistory = async (req, res) => {
+  const doc = await Resource.findById(req.params.id).lean();
+  if (!doc) throw new ApiError(404, 'Resource not found');
+  const months = clampMonths(req.query.months, 12);
+  const { bounds, from, to } = monthWindow(months);
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 25));
+
+  const all = (doc.jobs || []).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
+  const kinds = [...new Set(all.map((j) => j.kind).filter(Boolean))].sort();
+  const rows = req.query.kind ? all.filter((j) => j.kind === req.query.kind) : all;
+
+  const buckets = new Map(bounds.map((b) => [b.key, { month: b.key, label: b.label, jobs: 0, hours: 0 }]));
+  const byKind = new Map();
+  let hours = 0; let winJobs = 0; let winHours = 0;
+  for (const j of all) {
+    const at = new Date(j.at);
+    const h = j.hours || 0;
+    hours += h;
+    const k = j.kind || 'OTHER';
+    const kb = byKind.get(k) || { kind: k, jobs: 0, hours: 0 };
+    kb.jobs += 1; kb.hours += h; byKind.set(k, kb);
+    if (at >= from && at < to) {
+      winJobs += 1; winHours += h;
+      const b = buckets.get(monthKey(at));
+      if (b) { b.jobs += 1; b.hours += h; }
+    }
+  }
+  const series = [...buckets.values()].map((b) => ({ ...b, hours: round1(b.hours) }));
+  const busiest = series.reduce((best, b) => (best && best.jobs >= b.jobs ? best : b), null);
+  const av = availability(doc.outages, from, to);
+  const outages = (doc.outages || []).slice().sort((a, b) => new Date(b.from) - new Date(a.from));
+
+  ok(res, {
+    resource: {
+      _id: doc._id, code: doc.code, name: doc.name, type: doc.type, spec: doc.spec,
+      status: doc.status, master: doc.master, contact: doc.contact, remarks: doc.remarks,
+    },
+    summary: {
+      window: { from, to, months },
+      jobs: winJobs, hours: round1(winHours),
+      avgHours: winJobs ? round1(winHours / winJobs) : 0,
+      avgJobsPerMonth: round1(winJobs / months),
+      outageDays: av.days, availabilityPct: av.availabilityPct,
+      busiestMonth: busiest && busiest.jobs ? busiest : null,
+      lifetime: {
+        jobs: all.length, hours: round1(hours),
+        firstJobAt: all.length ? all[all.length - 1].at : null,
+        lastJobAt: all.length ? all[0].at : null,
+        outages: outages.length,
+        outageDays: round1(outages.reduce((s, o) => s + (o.days || 0), 0)),
+      },
+      series,
+      byKind: [...byKind.values()].sort((a, b) => b.jobs - a.jobs).map((k) => ({ ...k, hours: round1(k.hours) })),
+    },
+    outages,
+    jobs: rows.slice((page - 1) * limit, page * limit),
+  }, { total: rows.length, page, limit, kinds });
 };
 
 exports.setResourceStatus = async (req, res) => {

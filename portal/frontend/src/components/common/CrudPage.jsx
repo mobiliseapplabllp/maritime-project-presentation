@@ -19,7 +19,7 @@ import ExportMenu from './ExportMenu';
  * Full server-side CRUD page driven by config.
  * { title, sub, endpoint, columns, formFields (array|fn(editing)), defaults, permBase | perms:{create,edit,del},
  *   filters: [{name,label,options}], transformOut(values), rowActionsExtra(row), onRowClick, searchPlaceholder,
- *   drawerWidth, headerActions }
+ *   drawerWidth, headerActions, beforeTable (node rendered between the stat cards and the table) }
  */
 export default function CrudPage(cfg) {
   const dispatch = useDispatch();
@@ -122,6 +122,7 @@ export default function CrudPage(cfg) {
         }
       />
       {cfg.statsScope && <PageStats scope={cfg.statsScope} refreshKey={statsKey} />}
+      {cfg.beforeTable}
       <DataTable
         columns={columns} rows={state.rows} total={state.total}
         page={state.page} limit={state.limit} loading={state.loading}

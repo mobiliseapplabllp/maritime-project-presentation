@@ -18,9 +18,17 @@ async function run() {
     M.User.find().select('-passwordHash').lean(), M.Role.find().lean(),
     M.PortCall.find().lean(), M.Inspection.find().lean(), M.Invoice.find().lean(),
     M.Notification.find().lean(), M.Setting.findOne({ key: 'org' }).lean(),
-    M.AuditLog.find().sort({ at: -1 }).limit(60).lean(),
+    M.AuditLog.find().sort({ at: -1 }).limit(2500).lean(),
     M.Seafarer.find().lean(), M.Instrument.find().lean(), M.License.find().lean(), M.Incident.find().lean(), M.Resource.find().lean(), M.Company.find().lean(),
   ]);
+  const [auditTotal, auditOldest] = await Promise.all([
+    M.AuditLog.countDocuments(),
+    M.AuditLog.find().sort({ at: 1 }).limit(1).select('at').lean(),
+  ]);
+  const auditAll = await M.AuditLog.find().select('entity').lean();
+  const auditByEntity = {};
+  auditAll.forEach((r) => { auditByEntity[r.entity] = (auditByEntity[r.entity] || 0) + 1; });
+
   let dash; let riskScores; let riskTargeting; let riskWeights; let trafficPic;
   await dashboard.summary({}, { json: (p) => { dash = p; } });
   await risk.scores({}, { json: (p) => { riskScores = p; } });
@@ -38,6 +46,8 @@ async function run() {
       incidentTypes: C.INCIDENT_TYPES, incidentStatus: C.INCIDENT_STATUS, incidentSeverity: C.INCIDENT_SEVERITY,
       incidentCategories: C.INCIDENT_CATEGORIES, incidentPriorities: C.INCIDENT_PRIORITIES, incidentSources: C.INCIDENT_SOURCES,
       incidentTransitions: C.INCIDENT_TRANSITIONS, resourceTypes: C.RESOURCE_TYPES,
+      // audit is exported as the newest slice only — these describe the whole register
+      auditTotal, auditFirstAt: auditOldest[0] ? auditOldest[0].at : null, auditByEntity,
     },
     dashboard: dash.data,
     risk: { scores: riskScores.data, weights: riskWeights.data, targeting: riskTargeting.data },
@@ -48,7 +58,8 @@ async function run() {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, JSON.stringify(out));
   console.log('exported', dest, Math.round(fs.statSync(dest).size / 1024) + 'KB',
-    JSON.stringify({ portcalls: portcalls.length, invoices: invoices.length, audit: audit.length }));
+    JSON.stringify({ portcalls: portcalls.length, invoices: invoices.length,
+      audit: `${audit.length}/${auditTotal}`, craftJobs: resources.reduce((s2, r) => s2 + (r.jobs || []).length, 0) }));
   await mongoose.disconnect();
 }
 run().catch((e) => { console.error(e); process.exit(1); });

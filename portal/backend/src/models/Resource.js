@@ -12,6 +12,23 @@ const resourceSchema = new mongoose.Schema({
   master: { type: String, default: '' },                  // craft master / pilot name
   contact: { type: String, default: '' },                 // VHF channel or phone
   remarks: { type: String, default: '' },
+  // completed taskings — the craft's own service record, newest last
+  jobs: [{
+    at: Date,
+    endedAt: Date,
+    kind: { type: String, default: '' },      // BERTHING / UNBERTHING / SHIFTING / ESCORT / SURVEY / STANDBY
+    vcn: { type: String, default: '' },
+    vesselName: { type: String, default: '' },
+    berth: { type: String, default: '' },
+    hours: { type: Number, default: 0 },
+    remarks: { type: String, default: '' },
+  }],
+  // out-of-service windows — annual survey, dry docking, breakdowns
+  outages: [{
+    from: Date, to: Date,
+    reason: { type: String, default: '' },
+    days: { type: Number, default: 0 },
+  }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Resource', resourceSchema);

@@ -105,54 +105,101 @@ function statsFor(scope) {
   switch (scope) {
     case 'portcalls': {
       const active = D.portcalls.filter((c) => ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'].includes(c.status));
-      const sailed30 = D.portcalls.filter((c) => c.status === 'SAILED' && c.atd && c.ata && now - new Date(c.atd) <= 30 * DAY);
-      const turn = sailed30.length ? Math.round((sailed30.reduce((s, c) => s + (new Date(c.atd) - new Date(c.ata)), 0) / sailed30.length / HOUR) * 10) / 10 : 0;
+      const sailedAll = D.portcalls.filter((c) => c.status === 'SAILED');
+      const sailed30 = sailedAll.filter((c) => c.atd && c.ata && now - new Date(c.atd) <= 30 * DAY);
+      const avg = (rows, from, to) => (rows.length
+        ? Math.round((rows.reduce((s, c) => s + (new Date(c[to]) - new Date(c[from])), 0) / rows.length / HOUR) * 10) / 10 : 0);
+      const turn = avg(sailed30, 'ata', 'atd');
+      const wait = avg(sailed30.filter((c) => c.atb), 'ata', 'atb');
+      const ytd = sailedAll.filter((c) => new Date(c.atd) >= yearStart).length;
+      const firstAtd = sailedAll.reduce((m, c) => (!m || new Date(c.atd) < m ? new Date(c.atd) : m), null);
+      const since = firstAtd ? firstAtd.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      let mt = 0, teu = 0;
+      sailedAll.filter((c) => new Date(c.atd) >= monthStart).forEach((c) => {
+        (c.cargoOps || []).forEach((o) => { mt += o.qtyMT || 0; if (o.unit === 'TEU') teu += o.qty || 0; });
+      });
+      const mmt = mt >= 1e6 ? `${(mt / 1e6).toFixed(2)} M MT` : `${new Intl.NumberFormat('en-IN').format(Math.round(mt))} MT`;
+      const nf = (n) => new Intl.NumberFormat('en-IN').format(n);
       return [
         card('At berth', active.filter((c) => c.status === 'BERTHED').length, 'working cargo now', 'success'),
         card('At anchorage', active.filter((c) => c.status === 'AT_ANCHORAGE').length, 'awaiting berth', 'warning'),
         card('Expected 72 h', active.filter((c) => ['ANNOUNCED', 'CONFIRMED'].includes(c.status) && new Date(c.eta) > now && new Date(c.eta) < new Date(now.getTime() + 72 * HOUR)).length, 'announced + confirmed'),
         card('Avg turnaround', `${turn} h`, 'sailed calls, 30 days'),
+        card('Total port calls', nf(D.portcalls.length), `on record since ${since}`),
+        card('Calls sailed', nf(sailedAll.length), `${nf(ytd)} in ${now.getFullYear()}`),
+        card('Cargo this month', mmt, teu ? `${nf(teu)} TEU handled` : 'across all commodities'),
+        card('Avg pre-berthing wait', `${wait} h`, 'anchorage to berth, 30 days', wait > 24 ? 'warning' : 'default'),
       ];
     }
     case 'berths': {
       const op = D.berths.filter((b) => b.status === 'OPERATIONAL');
       const occ = new Set(D.portcalls.filter((c) => c.status === 'BERTHED').map((c) => String(c.berth))).size;
+      const bSince12 = new Date(now - 365 * DAY);
+      const bOut12 = D.berths.flatMap((b) => (b.outages || []).filter((o) => new Date(o.from) >= bSince12));
+      const bOutDays = Math.round(bOut12.reduce((sm, o) => sm + (o.days || 0), 0));
+      const bAvail = D.berths.length ? Math.max(0, Math.round((1 - bOutDays / (D.berths.length * 365)) * 1000) / 10) : 100;
       return [
         card('Berths', D.berths.length, `${D.berths.length - op.length} under maintenance`),
         card('Occupied now', occ, 'vessels alongside', 'success'),
         card('Occupancy', `${op.length ? Math.round((occ / op.length) * 100) : 0}%`, 'of operational berths'),
         card('Free & operational', op.length - occ, 'ready for allocation'),
+        card('Longest quay', `${Math.max(...D.berths.map((b) => b.loaMax || 0))} m`, 'max LOA accepted'),
+        card('Deepest berth', `${Math.max(...D.berths.map((b) => b.draftMax || 0))} m`, 'max declared draft'),
+        card('Outages (12 m)', bOut12.length, `${bOutDays} days lost`, bOut12.length ? 'warning' : 'success'),
+        card('Berth availability', `${bAvail}%`, 'operational time, 12 months', bAvail < 95 ? 'warning' : 'success'),
       ];
     }
     case 'vessels': {
       const active = D.vessels.filter((v) => v.status === 'ACTIVE');
       const alerts = active.filter((v) => (v.certificates || []).some((c) => certStatus(c.expiryDate) !== 'VALID')).length;
+      const nfv = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const byV = {};
+      D.portcalls.forEach((c) => { byV[String(c.vessel)] = (byV[String(c.vessel)] || 0) + 1; });
+      const topId = Object.keys(byV).sort((a, b) => byV[b] - byV[a])[0];
+      const topV = D.vessels.find((v) => String(v._id) === topId);
+      const dueDock = D.vessels.filter((v) => v.nextDryDock
+        && new Date(v.nextDryDock) < new Date(now.getTime() + 182 * DAY)).length;
       const avgAge = active.length ? Math.round(active.reduce((s, v) => s + (now.getFullYear() - (v.built || now.getFullYear())), 0) / active.length) : 0;
       return [
         card('Active vessels', active.length, `${D.vessels.length - active.length} inactive`),
         card('Certificate alerts', alerts, 'vessels needing review', alerts ? 'warning' : 'success'),
         card('Average age', `${avgAge} yrs`, 'active fleet'),
         card('Vessel types', new Set(active.map((v) => v.type)).size, 'in the registry'),
+        card('Calls on record', nfv(D.portcalls.length), 'by these vessels'),
+        card('Busiest caller', topV ? topV.name : '—', topV ? `${byV[topId]} calls` : ''),
+        card('Dry dock ≤6 m', dueDock, 'class survey window', dueDock ? 'warning' : 'success'),
+        card('Liner callers', D.vessels.filter((v) => v.liner).length, 'documented scheduled services'),
       ];
     }
     case 'certificates': {
-      const all = D.vessels.filter((v) => v.status === 'ACTIVE').flatMap((v) => (v.certificates || []).map((c) => certStatus(c.expiryDate)));
+      const vs = D.vessels.filter((v) => v.status === 'ACTIVE');
+      const all = vs.flatMap((v) => (v.certificates || []).map((c) => certStatus(c.expiryDate)));
       return [
         card('Certificates', all.length, 'across active fleet'),
         card('Valid', all.filter((x) => x === 'VALID').length, '', 'success'),
         card('Expiring ≤30 d', all.filter((x) => x === 'EXPIRING').length, 'plan renewals', 'warning'),
         card('Expired', all.filter((x) => x === 'EXPIRED').length, 'immediate action', 'error'),
+        card('Vessels covered', vs.length, 'active fleet'),
+        card('Certificate types', new Set(vs.flatMap((v) => (v.certificates || []).map((c) => c.certType))).size, 'distinct instruments'),
+        card('Avg per vessel', vs.length ? Math.round((all.length / vs.length) * 10) / 10 : 0, 'certificates held'),
+        card('Renewals ≤90 d', vs.flatMap((v) => v.certificates || []).filter((c) => c.expiryDate
+          && new Date(c.expiryDate) > now && new Date(c.expiryDate) < new Date(now.getTime() + 90 * DAY)).length, 'plan survey slots'),
       ];
     }
     case 'seafarers': {
       const sf = D.seafarers || [];
       const alerts = sf.filter((x) => (x.certificates || []).some((c) => certStatus(c.expiryDate) !== 'VALID')).length;
+      const sfStints = sf.reduce((sm, x) => sm + (x.seaService || []).length, 0);
       const avgDays = sf.length ? Math.round(sf.reduce((s, x) => s + (x.seaService || []).reduce((a, y) => a + (new Date(y.to) - new Date(y.from)) / DAY, 0), 0) / sf.length) : 0;
       return [
         card('Registered', sf.length, 'seafarers on the roll'),
         card('On board', sf.filter((x) => x.currentVessel).length, 'currently assigned', 'success'),
         card('Certificate alerts', alerts, 'medical / STCW review', alerts ? 'warning' : 'success'),
         card('Avg sea service', `${new Intl.NumberFormat('en-IN').format(avgDays)} d`, 'per seafarer'),
+        card('Service records', new Intl.NumberFormat('en-IN').format(sfStints), 'contracts on file'),
+        card('Ranks represented', new Set(sf.map((x) => x.rank)).size, 'across the roll'),
+        card('Ashore', sf.filter((x) => !x.currentVessel).length, 'available for assignment'),
+        card('Nationalities', new Set(sf.map((x) => x.nationality).filter(Boolean)).size, 'on the register'),
       ];
     }
     case 'legislation': {
@@ -163,44 +210,95 @@ function statsFor(scope) {
         card('Issued this year', ins.filter((i) => i.issuedDate && new Date(i.issuedDate) >= yearStart).length, 'circulars & notices'),
         card('Need acknowledgment', ins.filter((i) => i.ackRequired && i.status === 'IN_FORCE').length, 'organisation-wide'),
         card('Pending — you', pendingMine, 'awaiting your acknowledgment', pendingMine ? 'warning' : 'success'),
+        card('Total register', ins.length, 'acts, rules, notices, circulars'),
+        card('Superseded', ins.filter((i) => i.status === 'SUPERSEDED').length, 'replaced by later issues'),
+        card('Withdrawn', ins.filter((i) => i.status === 'WITHDRAWN').length, 'no longer in effect'),
+        card('Instrument types', new Set(ins.map((i) => i.type)).size, 'in the register'),
       ];
     }
     case 'facilities': {
       const lic = D.licenses || [];
       const soon = lic.filter((l) => l.status === 'ISSUED' && l.expiryDate && new Date(l.expiryDate) < new Date(now.getTime() + 90 * DAY)).length;
+      const nfl = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const appliedOn = lic.map((l) => l.appliedDate).filter(Boolean).map((d) => new Date(d));
+      const firstLic = appliedOn.length
+        ? new Date(Math.min(...appliedOn)).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      const rated = lic.filter((l) => l.performanceRating > 0);
+      const avgRate = rated.length ? Math.round((rated.reduce((sm, l) => sm + l.performanceRating, 0) / rated.length) * 10) / 10 : 0;
+      const auditsN = lic.reduce((sm, l) => sm + (l.audits || []).length, 0);
       return [
         card('Issued', lic.filter((l) => l.status === 'ISSUED').length, 'active licences', 'success'),
         card('In pipeline', lic.filter((l) => ['APPLIED', 'UNDER_REVIEW'].includes(l.status)).length, 'applied / under review'),
         card('Suspended / revoked', lic.filter((l) => ['SUSPENDED', 'REVOKED'].includes(l.status)).length, 'enforcement actions', 'warning'),
         card('Expiring ≤90 d', soon, 'renewals due', soon ? 'warning' : 'success'),
+        card('Licences on record', lic.length, `since ${firstLic}`),
+        card('Categories', new Set(lic.map((l) => l.entityType)).size, 'classes of operator'),
+        card('Avg rating', avgRate ? `${avgRate} / 5` : '—', 'performance across issued'),
+        card('Audits logged', nfl(auditsN), 'annual safety audits'),
       ];
     }
     case 'inspections': {
       const openF = D.inspections.reduce((s, i) => s + (i.findings || []).filter((f) => f.status === 'OPEN').length, 0);
+      const nfi = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const startedOn = D.inspections.map((i) => i.startedAt).filter(Boolean).map((d) => new Date(d));
+      const firstIns = startedOn.length
+        ? new Date(Math.min(...startedOn)).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      const closedIns = D.inspections.filter((i) => i.status === 'CLOSED');
+      const detRate = closedIns.length ? Math.round((closedIns.filter((i) => i.detention).length / closedIns.length) * 1000) / 10 : 0;
+      const satPct = closedIns.length ? Math.round((closedIns.filter((i) => i.result === 'SATISFACTORY').length / closedIns.length) * 100) : 0;
+      const totalF = D.inspections.reduce((sm, i) => sm + (i.findings || []).length, 0);
       return [
         card('Open inspections', D.inspections.filter((i) => i.status !== 'CLOSED').length, 'planned + in progress'),
         card('Closed this month', D.inspections.filter((i) => i.closedAt && new Date(i.closedAt) >= monthStart).length, ''),
         card('Open findings', openF, 'deficiencies to rectify', openF ? 'warning' : 'success'),
         card('Detentions YTD', D.inspections.filter((i) => i.detention && i.closedAt && new Date(i.closedAt) >= yearStart).length, '', 'error'),
+        card('Inspections on record', nfi(D.inspections.length), `since ${firstIns}`),
+        card('Detention rate', `${detRate}%`, 'of closed inspections', detRate > 8 ? 'warning' : 'success'),
+        card('Findings raised', nfi(totalF), `${nfi(totalF - openF)} rectified`),
+        card('Satisfactory', `${satPct}%`, 'closed with no deficiency', 'success'),
       ];
     }
     case 'incidents': {
       const inc = D.incidents || [];
+      const nfc = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const rep0 = inc.map((i) => i.reportedAt).filter(Boolean).map((d) => new Date(d));
+      const firstInc = rep0.length
+        ? new Date(Math.min(...rep0)).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      const doneInc = inc.filter((i) => i.closedAt && i.reportedAt);
+      const closePct = inc.length ? Math.round((inc.filter((i) => i.status === 'CLOSED').length / inc.length) * 100) : 0;
+      const avgClose = doneInc.length
+        ? Math.round((doneInc.reduce((sm, i) => sm + (new Date(i.closedAt) - new Date(i.reportedAt)), 0) / doneInc.length / DAY) * 10) / 10 : 0;
       return [
         card('Open / unacknowledged', inc.filter((i) => ['OPEN', 'ACKNOWLEDGED'].includes(i.status)).length, 'awaiting response', 'error'),
         card('In response', inc.filter((i) => ['RESPONDING', 'MONITORING'].includes(i.status)).length, 'assets tasked', 'warning'),
         card('Closed this month', inc.filter((i) => i.closedAt && new Date(i.closedAt) >= monthStart).length, '', 'success'),
         card('High severity YTD', inc.filter((i) => ['HIGH', 'CRITICAL'].includes(i.severity) && new Date(i.reportedAt) >= yearStart).length, 'high + critical'),
+        card('Cases on record', nfc(inc.length), `since ${firstInc}`),
+        card('Closed', nfc(inc.filter((i) => i.status === 'CLOSED').length), `${closePct}% of all cases`, 'success'),
+        card('Near misses', nfc(inc.filter((i) => i.type === 'NEAR_MISS').length), 'reported — a good sign'),
+        card('Avg close time', avgClose ? `${avgClose} d` : '—', 'report to closure'),
       ];
     }
     case 'invoices': {
       const out = D.invoices.filter((i) => i.status === 'ISSUED');
       const overdue = out.filter((i) => i.issuedAt && now - new Date(i.issuedAt) > 30 * DAY);
+      const nfin = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const issuedInv = D.invoices.filter((i) => i.issuedAt);
+      const firstInv = issuedInv.length
+        ? new Date(Math.min(...issuedInv.map((i) => new Date(i.issuedAt)))).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      const billedAll = issuedInv.reduce((sm, i) => sm + i.total, 0);
+      const collectedAll = D.invoices.filter((i) => i.paidAt).reduce((sm, i) => sm + i.total, 0);
+      const collPct = billedAll ? Math.round((collectedAll / billedAll) * 1000) / 10 : 0;
+      const billedYtd = issuedInv.filter((i) => new Date(i.issuedAt) >= yearStart).reduce((sm, i) => sm + i.total, 0);
       return [
         card('Outstanding', inr(out.reduce((s, i) => s + i.total, 0)), `${out.length} issued invoices`, 'warning'),
         card('Overdue >30 d', overdue.length, inr(overdue.reduce((s, i) => s + i.total, 0)), overdue.length ? 'error' : 'success'),
         card('Drafts', D.invoices.filter((i) => i.status === 'DRAFT').length, 'awaiting issue'),
         card('Collected MTD', inr(D.invoices.filter((i) => i.paidAt && new Date(i.paidAt) >= monthStart).reduce((s, i) => s + i.total, 0)), '', 'success'),
+        card('Invoices raised', nfin(D.invoices.length), `since ${firstInv}`),
+        card('Billed to date', inr(billedAll), 'issued + paid, all years'),
+        card('Collection rate', `${collPct}%`, 'of everything billed', collPct >= 95 ? 'success' : 'warning'),
+        card('Billed YTD', inr(billedYtd), `${now.getFullYear()} to date`),
       ];
     }
     case 'risk': {
@@ -213,20 +311,105 @@ function statsFor(scope) {
         card('Fleet average', avg, 'score across active fleet'),
       ];
     }
-    case 'masters':
+    case 'masters': {
+      const nfm = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const cats = new Set(D.lookups.map((x) => x.category)).size;
+      const revs = D.tariffs.reduce((sm, x) => sm + (x.revisions || []).length, 0);
+      const qs = D.templates.reduce((sm, x) => sm + (x.items || []).length, 0);
       return [
         card('Berths', D.berths.length),
         card('Lookup entries', D.lookups.length),
         card('Active tariffs', D.tariffs.filter((t) => t.active !== false).length),
         card('Checklist templates', D.templates.length),
+        card('Reference categories', cats, 'distinct lookup sets'),
+        card('Tariff revisions', nfm(revs), 'rate changes published'),
+        card('Checklist questions', nfm(qs), 'across all templates'),
+        card('Marine craft', (D.resources || []).length, 'tugs, launches, pilots'),
       ];
-    case 'users':
+    }
+    case 'users': {
+      const dormant = D.users.filter((u) => u.lastLoginAt && now - new Date(u.lastLoginAt) > 90 * DAY).length;
       return [
         card('Users', D.users.length, 'accounts'),
         card('Active', D.users.filter((u) => u.active).length, '', 'success'),
         card('Disabled', D.users.filter((u) => !u.active).length, ''),
         card('Signed in ≤7 d', D.users.filter((u) => u.lastLoginAt && now - new Date(u.lastLoginAt) < 7 * DAY).length, 'recent activity'),
+        card('Departments', new Set(D.users.map((u) => u.department).filter(Boolean)).size, 'represented'),
+        card('Roles in use', new Set(D.users.map((u) => String(u.role)).filter(Boolean)).size, 'distinct permission sets'),
+        card('Never signed in', D.users.filter((u) => !u.lastLoginAt).length, 'accounts pending first use'),
+        card('Dormant >90 d', dormant, 'candidates for review', dormant ? 'warning' : 'success'),
       ];
+    }
+    case 'tariffs': {
+      const items = D.tariffs || [];
+      const nft = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const revs = items.flatMap((t) => (t.revisions || []).map((r) => ({ ...r, code: t.code })));
+      const datedRevs = revs.filter((r) => r.effectiveFrom).sort((a, b) => new Date(a.effectiveFrom) - new Date(b.effectiveFrom));
+      const firstRev = datedRevs.length ? new Date(datedRevs[0].effectiveFrom).getFullYear() : '—';
+      const lastRev = datedRevs[datedRevs.length - 1];
+      const rises = revs.filter((r) => typeof r.changePct === 'number');
+      const avgRise = rises.length ? Math.round((rises.reduce((sm, r) => sm + r.changePct, 0) / rises.length) * 10) / 10 : 0;
+      return [
+        card('Tariff items', items.length, 'published schedule'),
+        card('Active', items.filter((t) => t.active !== false).length, 'currently chargeable', 'success'),
+        card('Rate revisions', nft(revs.length), `published since ${firstRev}`),
+        card('Last revision', lastRev ? new Date(lastRev.effectiveFrom).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—',
+          lastRev ? `${lastRev.code} ${lastRev.changePct > 0 ? '+' : ''}${lastRev.changePct}%` : ''),
+        card('Avg revision', `${avgRise > 0 ? '+' : ''}${avgRise}%`, 'per published change'),
+        card('Marine services', items.filter((t) => t.category === 'MARINE').length, 'pilotage, towage, dues'),
+        card('Cargo tariffs', items.filter((t) => t.category === 'CARGO').length, 'handling & storage'),
+        card('Charging units', new Set(items.map((t) => t.unit)).size, 'distinct bases of charge'),
+      ];
+    }
+    case 'marine': {
+      const craft = D.resources || [];
+      const nfr = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const jobs = craft.flatMap((r) => r.jobs || []);
+      const jobAt = jobs.filter((j) => j.at).map((j) => new Date(j.at));
+      const firstJob = jobAt.length
+        ? new Date(Math.min(...jobAt)).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      const j30 = jobs.filter((j) => j.at && new Date(j.at) >= new Date(now - 30 * DAY)).length;
+      const hours = jobs.reduce((sm, j) => sm + (j.hours || 0), 0);
+      const mSince12 = new Date(now - 365 * DAY);
+      const outDays = craft.reduce((sm, r) => sm
+        + (r.outages || []).filter((o) => new Date(o.from) >= mSince12).reduce((t, o) => t + (o.days || 0), 0), 0);
+      const avail = craft.length ? Math.max(0, Math.round((1 - outDays / (craft.length * 365)) * 1000) / 10) : 100;
+      return [
+        card('Craft & pilots', craft.length, 'on the port roster'),
+        card('Available', craft.filter((r) => r.status === 'AVAILABLE').length, 'ready to task', 'success'),
+        card('Tasked now', craft.filter((r) => r.status === 'TASKED').length, 'on a job', 'warning'),
+        card('Maintenance', craft.filter((r) => r.status === 'MAINTENANCE').length, 'survey or repair'),
+        card('Jobs on record', nfr(jobs.length), `since ${firstJob}`),
+        card('Assist hours', nfr(Math.round(hours)), 'logged across the fleet'),
+        card('Jobs (30 d)', nfr(j30), 'recent taskings'),
+        card('Fleet availability', `${avail}%`, `${Math.round(outDays)} craft-days lost, 12 m`, avail < 95 ? 'warning' : 'success'),
+      ];
+    }
+    case 'audit': {
+      const rows = D.audit || [];
+      const nfa = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
+      const ats = rows.filter((r) => r.at).map((r) => new Date(r.at));
+      const totalAudit = snap.meta.auditTotal || rows.length;
+      const oldestAt = snap.meta.auditFirstAt ? new Date(snap.meta.auditFirstAt)
+        : (ats.length ? new Date(Math.min(...ats)) : null);
+      const firstAt = oldestAt ? oldestAt.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—';
+      const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const d7 = new Date(now - 7 * DAY), d30 = new Date(now - 30 * DAY);
+      const byEntity = snap.meta.auditByEntity || {};
+      if (!Object.keys(byEntity).length) rows.forEach((r) => { byEntity[r.entity] = (byEntity[r.entity] || 0) + 1; });
+      const topEntity = Object.keys(byEntity).sort((a, b) => byEntity[b] - byEntity[a])[0];
+      const CHANGE = ['CREATE', 'UPDATE', 'DELETE'];
+      return [
+        card('Entries', nfa(totalAudit), `since ${firstAt}`),
+        card('Today', nfa(rows.filter((r) => new Date(r.at) >= dayStart).length), 'recorded so far'),
+        card('Last 7 days', nfa(rows.filter((r) => new Date(r.at) >= d7).length), 'rolling week'),
+        card('Active users', new Set(rows.filter((r) => new Date(r.at) >= d30).map((r) => r.actor && r.actor.id).filter(Boolean)).size, 'left a trail in 30 days'),
+        card('Entities covered', Object.keys(byEntity).length, 'modules under audit'),
+        card('Sign-ins (30 d)', nfa(rows.filter((r) => r.action === 'LOGIN' && new Date(r.at) >= d30).length), 'authenticated sessions'),
+        card('Changes (30 d)', nfa(rows.filter((r) => CHANGE.includes(r.action) && new Date(r.at) >= d30).length), 'create, update, delete'),
+        card('Most-touched', topEntity || '—', topEntity ? `${nfa(byEntity[topEntity])} entries` : ''),
+      ];
+    }
     default:
       return null;
   }
@@ -1422,6 +1605,289 @@ function demoPublicVerify(licenseNo) {
   };
 }
 
+/* ---- history readings over the masters: craft service records, tariff rate
+ * revisions and berth outages. Mirrors opsController + masterController so the
+ * published demo bundle serves the same shapes from the snapshot. ---- */
+const HIST_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const h1 = (n) => Math.round((Number(n) || 0) * 10) / 10;
+const hKey = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}`; };
+const hLabel = (k) => `${HIST_MON[Number(String(k).slice(5, 7)) - 1]} ${String(k).slice(2, 4)}`;
+const hMonths = (v, dflt = 12, max = 48) => Math.min(max, Math.max(1, parseInt(v, 10) || dflt));
+
+function hWindow(n, now = new Date()) {
+  const bounds = [];
+  for (let i = n - 1; i >= 0; i -= 1) {
+    const from = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const to = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    bounds.push({ key: hKey(from), label: hLabel(hKey(from)), from, to });
+  }
+  return { bounds, from: bounds[0].from, to: bounds[bounds.length - 1].to };
+}
+function hOverlap(from, to, winFrom, winTo) {
+  if (!from || !to) return 0;
+  const a = Math.max(new Date(from).getTime(), new Date(winFrom).getTime());
+  const b = Math.min(new Date(to).getTime(), new Date(winTo).getTime());
+  return b > a ? (b - a) / DAY : 0;
+}
+function hAvailability(outages, from, to) {
+  const span = (new Date(to) - new Date(from)) / DAY;
+  const days = (outages || []).reduce((s, o) => s + hOverlap(o.from, o.to, from, to), 0);
+  return { days: h1(days), availabilityPct: span > 0 ? h1(Math.max(0, 100 - (days / span) * 100)) : 100 };
+}
+// same order the API uses: .sort('type code')
+const sortedResources = () => (D.resources || []).slice()
+  .sort((a, b) => String(a.type).localeCompare(String(b.type)) || String(a.code).localeCompare(String(b.code)));
+
+// GET /ops/resources — board rows with the service digest, jobs left off
+function demoResources(params) {
+  const months = hMonths(params.months, 12);
+  const { from, to } = hWindow(months);
+  const since30 = new Date(Date.now() - 30 * DAY);
+  const data = sortedResources().map((row) => {
+    const { jobs = [], ...r } = clone(row);
+    const av = hAvailability(r.outages, from, to);
+    let hours = 0; let last = null; let winJobs = 0; let winHours = 0; let jobs30d = 0;
+    for (const j of jobs) {
+      const at = new Date(j.at);
+      hours += j.hours || 0;
+      if (!last || at > last) last = at;
+      if (at >= from && at < to) { winJobs += 1; winHours += j.hours || 0; }
+      if (at >= since30) jobs30d += 1;
+    }
+    return { ...r,
+      service: { jobs: jobs.length, hours: h1(hours), windowJobs: winJobs, windowHours: h1(winHours),
+        jobs30d, lastJobAt: last, outages: (r.outages || []).length,
+        outageDays: av.days, availabilityPct: av.availabilityPct } };
+  });
+  return { data, meta: { window: { from, to, months } } };
+}
+
+// GET /ops/resources/utilisation
+function demoResourceUtilisation(params) {
+  const months = hMonths(params.months, 12);
+  const { bounds, from, to } = hWindow(months);
+  const rows = sortedResources();
+  const buckets = new Map(bounds.map((b) => [b.key, { month: b.key, label: b.label, jobs: 0, hours: 0 }]));
+  const kinds = new Map(); const types = new Map(); const craft = [];
+  let allJobs = 0; let allHours = 0; let winJobs = 0; let winHours = 0; let lostDays = 0;
+  for (const r of rows) {
+    const jobs = r.jobs || [];
+    const av = hAvailability(r.outages, from, to);
+    let cJobs = 0; let cHours = 0; let cAllHours = 0; let last = null;
+    for (const j of jobs) {
+      const at = new Date(j.at); const h = j.hours || 0;
+      cAllHours += h;
+      if (!last || at > last) last = at;
+      if (at >= from && at < to) {
+        cJobs += 1; cHours += h;
+        const b = buckets.get(hKey(at));
+        if (b) { b.jobs += 1; b.hours += h; }
+        const k = j.kind || 'OTHER';
+        const kb = kinds.get(k) || { kind: k, jobs: 0, hours: 0 };
+        kb.jobs += 1; kb.hours += h; kinds.set(k, kb);
+      }
+    }
+    const tb = types.get(r.type) || { type: r.type, craft: 0, jobs: 0, hours: 0 };
+    tb.craft += 1; tb.jobs += cJobs; tb.hours += cHours; types.set(r.type, tb);
+    allJobs += jobs.length; allHours += cAllHours; winJobs += cJobs; winHours += cHours; lostDays += av.days;
+    craft.push({ _id: r._id, code: r.code, name: r.name, type: r.type, status: r.status,
+      jobs: cJobs, hours: h1(cHours), jobsAllTime: jobs.length, hoursAllTime: h1(cAllHours),
+      outageDays: av.days, availabilityPct: av.availabilityPct, lastJobAt: last });
+  }
+  const spanDays = (to - from) / DAY;
+  craft.sort((a, b) => b.jobs - a.jobs || a.code.localeCompare(b.code));
+  return {
+    window: { from, to, months },
+    totals: { craft: rows.length, jobs: winJobs, hours: h1(winHours), jobsAllTime: allJobs, hoursAllTime: h1(allHours),
+      avgJobsPerMonth: h1(winJobs / months), avgHoursPerJob: winJobs ? h1(winHours / winJobs) : 0,
+      outageDays: h1(lostDays),
+      availabilityPct: rows.length ? h1(Math.max(0, 100 - (lostDays / (rows.length * spanDays)) * 100)) : 100 },
+    series: [...buckets.values()].map((b) => ({ ...b, hours: h1(b.hours) })),
+    byKind: [...kinds.values()].sort((a, b) => b.jobs - a.jobs).map((k) => ({ ...k, hours: h1(k.hours) })),
+    byType: [...types.values()].map((t) => ({ ...t, hours: h1(t.hours) })),
+    craft,
+  };
+}
+
+// GET /ops/resources/:id/history
+function demoResourceHistory(id, params) {
+  const doc = (D.resources || []).find((r) => String(r._id) === id);
+  if (!doc) throw new Error('Resource not found');
+  const months = hMonths(params.months, 12);
+  const { bounds, from, to } = hWindow(months);
+  const page = Math.max(1, parseInt(params.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(params.limit, 10) || 25));
+  const all = (doc.jobs || []).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
+  const kinds = [...new Set(all.map((j) => j.kind).filter(Boolean))].sort();
+  const rows = params.kind ? all.filter((j) => j.kind === params.kind) : all;
+  const buckets = new Map(bounds.map((b) => [b.key, { month: b.key, label: b.label, jobs: 0, hours: 0 }]));
+  const byKind = new Map();
+  let hours = 0; let winJobs = 0; let winHours = 0;
+  for (const j of all) {
+    const at = new Date(j.at); const h = j.hours || 0;
+    hours += h;
+    const k = j.kind || 'OTHER';
+    const kb = byKind.get(k) || { kind: k, jobs: 0, hours: 0 };
+    kb.jobs += 1; kb.hours += h; byKind.set(k, kb);
+    if (at >= from && at < to) {
+      winJobs += 1; winHours += h;
+      const b = buckets.get(hKey(at));
+      if (b) { b.jobs += 1; b.hours += h; }
+    }
+  }
+  const series = [...buckets.values()].map((b) => ({ ...b, hours: h1(b.hours) }));
+  const busiest = series.reduce((best, b) => (best && best.jobs >= b.jobs ? best : b), null);
+  const av = hAvailability(doc.outages, from, to);
+  const outages = (doc.outages || []).slice().sort((a, b) => new Date(b.from) - new Date(a.from));
+  return {
+    data: {
+      resource: { _id: doc._id, code: doc.code, name: doc.name, type: doc.type, spec: doc.spec,
+        status: doc.status, master: doc.master, contact: doc.contact, remarks: doc.remarks },
+      summary: {
+        window: { from, to, months },
+        jobs: winJobs, hours: h1(winHours),
+        avgHours: winJobs ? h1(winHours / winJobs) : 0,
+        avgJobsPerMonth: h1(winJobs / months),
+        outageDays: av.days, availabilityPct: av.availabilityPct,
+        busiestMonth: busiest && busiest.jobs ? busiest : null,
+        lifetime: { jobs: all.length, hours: h1(hours),
+          firstJobAt: all.length ? all[all.length - 1].at : null,
+          lastJobAt: all.length ? all[0].at : null,
+          outages: outages.length,
+          outageDays: h1(outages.reduce((s, o) => s + (o.days || 0), 0)) },
+        series,
+        byKind: [...byKind.values()].sort((a, b) => b.jobs - a.jobs).map((k) => ({ ...k, hours: h1(k.hours) })),
+      },
+      outages: clone(outages),
+      jobs: clone(rows.slice((page - 1) * limit, page * limit)),
+    },
+    meta: { total: rows.length, page, limit, kinds },
+  };
+}
+
+// GET /tariffs/:id/history
+function demoTariffHistory(id) {
+  const doc = (D.tariffs || []).find((t) => String(t._id) === id);
+  if (!doc) throw new Error('TariffItem not found');
+  const revisions = clone((doc.revisions || []).slice()
+    .sort((a, b) => new Date(a.effectiveFrom) - new Date(b.effectiveFrom)));
+  const first = revisions[0];
+  const baseRate = first ? (first.previousRate ?? first.rate) : doc.rate;
+  const series = [{ label: 'Base', rate: baseRate, effectiveFrom: null, changePct: null, circular: '' }];
+  for (const r of revisions) {
+    const d = new Date(r.effectiveFrom);
+    series.push({ label: `${HIST_MON[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`,
+      rate: r.rate, effectiveFrom: r.effectiveFrom, changePct: r.changePct, circular: r.circular || '' });
+  }
+  if (revisions.length && doc.rate !== revisions[revisions.length - 1].rate) {
+    series.push({ label: 'Current', rate: doc.rate, effectiveFrom: null, changePct: null, circular: '' });
+  }
+  const last = revisions[revisions.length - 1];
+  const spanYears = first ? Math.max(1, (new Date(last.effectiveFrom) - new Date(first.effectiveFrom)) / (365.25 * DAY) + 1) : 0;
+  return {
+    item: { _id: doc._id, code: doc.code, name: doc.name, category: doc.category,
+      unit: doc.unit, rate: doc.rate, currency: doc.currency, active: doc.active },
+    revisions,
+    series,
+    summary: {
+      revisions: revisions.length, baseRate, currentRate: doc.rate,
+      firstEffectiveFrom: first ? first.effectiveFrom : null,
+      lastEffectiveFrom: last ? last.effectiveFrom : null,
+      lastChangePct: last ? last.changePct : null,
+      lastCircular: last ? last.circular : '',
+      totalChangePct: h1(baseRate ? ((doc.rate - baseRate) / baseRate) * 100 : 0),
+      avgChangePct: revisions.length ? h1(revisions.reduce((s, r) => s + (r.changePct || 0), 0) / revisions.length) : 0,
+      cagrPct: baseRate > 0 && spanYears > 0 ? h1((((doc.rate / baseRate) ** (1 / spanYears)) - 1) * 100) : 0,
+    },
+  };
+}
+
+// GET /berths/:id/outages
+function demoBerthOutages(id, params) {
+  const doc = maps.berths.get(id);
+  if (!doc) throw new Error('Berth not found');
+  const months = hMonths(params.months, 12);
+  const { bounds, from, to } = hWindow(months);
+  const outages = clone((doc.outages || []).slice().sort((a, b) => new Date(b.from) - new Date(a.from)));
+  const series = bounds.map((b) => ({ month: b.key, label: b.label,
+    days: h1(outages.reduce((s, o) => s + hOverlap(o.from, o.to, b.from, b.to), 0)),
+    outages: outages.filter((o) => new Date(o.from) < b.to && new Date(o.to) > b.from).length }));
+  const byKind = new Map();
+  for (const o of outages) {
+    const k = o.kind || 'OTHER';
+    const e = byKind.get(k) || { kind: k, outages: 0, days: 0 };
+    e.outages += 1; e.days += o.days || 0; byKind.set(k, e);
+  }
+  const av = hAvailability(outages, from, to);
+  const inWindow = outages.filter((o) => new Date(o.from) < to && new Date(o.to) > from);
+  const longest = outages.reduce((best, o) => (best && best.days >= (o.days || 0) ? best : o), null);
+  return {
+    berth: { _id: doc._id, code: doc.code, name: doc.name, terminal: doc.terminal,
+      berthType: doc.berthType, loaMax: doc.loaMax, draftMax: doc.draftMax, status: doc.status },
+    summary: {
+      window: { from, to, months },
+      outages: inWindow.length, days: av.days, availabilityPct: av.availabilityPct,
+      lifetime: { outages: outages.length,
+        days: h1(outages.reduce((s, o) => s + (o.days || 0), 0)),
+        firstFrom: outages.length ? outages[outages.length - 1].from : null,
+        lastTo: outages.length ? outages[0].to : null },
+      byKind: [...byKind.values()].sort((a, b) => b.days - a.days).map((k) => ({ ...k, days: h1(k.days) })),
+      series, longest,
+    },
+    outages,
+  };
+}
+
+// GET /berths/downtime
+function demoBerthDowntime(params) {
+  const months = hMonths(params.months, 12);
+  const { bounds, from, to } = hWindow(months);
+  const rows = D.berths.slice().sort((a, b) => a.code.localeCompare(b.code));
+  const spanDays = (to - from) / DAY;
+  const series = bounds.map((b) => ({ month: b.key, label: b.label, days: 0, outages: 0 }));
+  const byKind = new Map(); const byTerminal = new Map(); const berths = [];
+  let lostDays = 0; let windowOutages = 0;
+  for (const b of rows) {
+    const outages = b.outages || [];
+    const av = hAvailability(outages, from, to);
+    let count = 0;
+    for (const o of outages) {
+      if (new Date(o.from) < to && new Date(o.to) > from) {
+        count += 1;
+        const k = o.kind || 'OTHER';
+        const e = byKind.get(k) || { kind: k, outages: 0, days: 0 };
+        e.outages += 1; e.days += hOverlap(o.from, o.to, from, to); byKind.set(k, e);
+      }
+      bounds.forEach((bd, i) => {
+        const d = hOverlap(o.from, o.to, bd.from, bd.to);
+        if (d > 0) { series[i].days += d; series[i].outages += 1; }
+      });
+    }
+    lostDays += av.days; windowOutages += count;
+    const tb = byTerminal.get(b.terminal) || { terminal: b.terminal, berths: 0, outages: 0, days: 0 };
+    tb.berths += 1; tb.outages += count; tb.days += av.days; byTerminal.set(b.terminal, tb);
+    berths.push({ _id: b._id, code: b.code, name: b.name, terminal: b.terminal, berthType: b.berthType, status: b.status,
+      outages: count, days: av.days, availabilityPct: av.availabilityPct,
+      lifetimeOutages: outages.length, lifetimeDays: h1(outages.reduce((s, o) => s + (o.days || 0), 0)) });
+  }
+  berths.sort((a, b) => b.days - a.days || a.code.localeCompare(b.code));
+  return {
+    window: { from, to, months },
+    estate: { berths: rows.length, outages: windowOutages, days: h1(lostDays),
+      berthDays: Math.round(rows.length * spanDays),
+      availabilityPct: rows.length ? h1(Math.max(0, 100 - (lostDays / (rows.length * spanDays)) * 100)) : 100,
+      underMaintenanceNow: rows.filter((b) => b.status === 'MAINTENANCE').length,
+      worst: berths[0] || null },
+    byKind: [...byKind.values()].sort((a, b) => b.days - a.days)
+      .map((k) => ({ ...k, days: h1(k.days), sharePct: lostDays ? h1((k.days / lostDays) * 100) : 0 })),
+    byTerminal: [...byTerminal.values()].map((t) => ({ ...t, days: h1(t.days),
+      availabilityPct: t.berths ? h1(Math.max(0, 100 - (t.days / (t.berths * spanDays)) * 100)) : 100 }))
+      .sort((a, b) => b.days - a.days),
+    series: series.map((s) => ({ ...s, days: h1(s.days) })),
+    berths,
+  };
+}
+
 const READ_ONLY = 'Read-only demo — CRUD, workflow transitions and billing run in the full portal (see the repository README)';
 
 const demo = {
@@ -1474,7 +1940,9 @@ const demo = {
     if (url === '/vessels/fleet-dashboard') return { success: true, data: fleetDashboard() };
     if (url === '/ops/twin') return { success: true, data: opsTwin() };
     if (url === '/ops/schedule') return { success: true, data: opsSchedule(params) };
-    if (url === '/ops/resources') return { success: true, data: clone(D.resources || []) };
+    if (url === '/ops/resources') { const rr = demoResources(params); return { success: true, ...rr }; }
+    if (url === '/ops/resources/utilisation') return { success: true, data: demoResourceUtilisation(params) };
+    if (url === '/berths/downtime') return { success: true, data: demoBerthDowntime(params) };
     if (url === '/reports/catalog') return { success: true, data: clone(DEMO_REPORT_CATALOG) };
     if (url.startsWith('/reports/run/')) return { success: true, data: demoRunReport(url.slice('/reports/run/'.length)) };
     if (url.startsWith('/module-settings/')) {
@@ -1489,6 +1957,9 @@ const demo = {
     if (url === '/incidents/risk-matrix') return { success: true, data: demoRiskMatrix(Number(params.days)) };
     if (url === '/ops/berth-plan') return { success: true, data: demoBerthPlan(params) };
     if (url === '/vessels/survey-planner') return { success: true, data: demoSurveyPlanner() };
+    { const mm = url.match(/^\/ops\/resources\/([a-f0-9]{24})\/history$/); if (mm) { const rr = demoResourceHistory(mm[1], params); return { success: true, ...rr }; } }
+    { const mm = url.match(/^\/tariffs\/([a-f0-9]{24})\/history$/); if (mm) return { success: true, data: demoTariffHistory(mm[1]) }; }
+    { const mm = url.match(/^\/berths\/([a-f0-9]{24})\/outages$/); if (mm) return { success: true, data: demoBerthOutages(mm[1], params) }; }
     { const mm = url.match(/^\/port-calls\/([a-f0-9]{24})\/sof$/); if (mm) return { success: true, data: demoSof(mm[1]) }; }
     { const mm = url.match(/^\/port-calls\/([a-f0-9]{24})\/pda$/); if (mm) return { success: true, data: demoPdaView(mm[1]) }; }
     { const mm = url.match(/^\/public\/verify\/(.+)$/); if (mm) return { success: true, data: demoPublicVerify(decodeURIComponent(mm[1])) }; }

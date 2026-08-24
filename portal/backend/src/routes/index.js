@@ -105,6 +105,11 @@ const master = (path, ctrl, viewPerm, managePerm) => {
   r.put(`/${path}/:id`, requirePerm(managePerm), w(ctrl.update));
   r.delete(`/${path}/:id`, requirePerm(managePerm), w(ctrl.remove));
 };
+// history readings on the masters — registered before the generic /:id routes
+r.get('/berths/downtime', requirePerm('masters.view'), w(masters.berthDowntime));
+r.get('/berths/:id/outages', requirePerm('masters.view'), w(masters.berthOutages));
+r.get('/tariffs/:id/history', requirePerm('tariffs.view'), w(masters.tariffHistory));
+
 master('berths', masters.berths, 'masters.view', 'masters.manage');
 master('lookups', masters.lookups, 'masters.view', 'masters.manage');
 master('checklist-templates', masters.checklists, 'masters.view', 'masters.manage');
@@ -179,6 +184,8 @@ r.post('/tracking/alerts/:id/ack', requirePerm('nmc.manage'), w(tracking.ackAler
 r.get('/ops/twin', requirePerm('portcalls.view'), w(opsx.twin));
 r.get('/ops/schedule', requirePerm('portcalls.view'), w(opsx.schedule));
 r.get('/ops/resources', requirePerm('portcalls.view'), w(opsx.resources));
+r.get('/ops/resources/utilisation', requirePerm('portcalls.view'), w(opsx.resourceUtilisation));
+r.get('/ops/resources/:id/history', requirePerm('portcalls.view'), w(opsx.resourceHistory));
 r.get('/ops/berth-plan', requirePerm('portcalls.view'), w(opsx.berthPlan));
 r.get('/port-calls/:id/sof', requirePerm('portcalls.view'), w(opsx.sof));
 r.post('/port-calls/:id/pda', requirePerm('invoices.create'), w(opsx.generatePda));

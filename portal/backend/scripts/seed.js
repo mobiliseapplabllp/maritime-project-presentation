@@ -115,7 +115,7 @@ async function run() {
     })),
     ...staffDefs.map(([name, designation, role], i) => ({
       name, email: emailOf(name), passwordHash: hash, role: roleByName[role], designation, phone: mkPhone(i + 10),
-      lastLoginAt: rnd() < 0.7 ? new Date(NOW.getTime() - ri(1, 160) * H) : undefined,
+      lastLoginAt: rnd() < 0.9 ? new Date(NOW.getTime() - ri(1, 900) * H) : undefined,
     })),
   ]);
   const userByName = Object.fromEntries(users.map((u) => [u.name, u]));
@@ -155,7 +155,7 @@ async function run() {
       genDocs.push({
         name, email, passwordHash: hash, role: roleByName[roleName], designation, department: dept,
         phone: mkPhone(40 + gi), active: gi % 23 !== 22,
-        lastLoginAt: rnd() < 0.65 ? new Date(NOW.getTime() - ri(1, 400) * H) : undefined,
+        lastLoginAt: rnd() < 0.82 ? new Date(NOW.getTime() - ri(1, 5200) * H) : undefined,
       });
       gi += 1;
     }
@@ -177,6 +177,9 @@ async function run() {
   const hseOfficers = ['Dr. Kavita Raval', 'Jaydeep Rathod', 'Bhavna Joshi', 'Sanjay Vaghela'].map((n) => userByName[n]);
   const dutyOfficers = ['Lt. Aditi Rathore', 'Lt. Vikram Solanki', 'Heena Chudasama', 'Harshad Mange'].map((n) => userByName[n]);
   const marineOfficers = ['Capt. Rajiv Nair', 'Vinod Menon', 'Capt. Pradeep Chauhan', 'Capt. Devraj Sodha'].map((n) => userByName[n]);
+  const surveyOfficers = ['Cdr. Suresh Patel', 'Narendra Shah', 'Lt. Rakesh Joshi'].map((n) => userByName[n]).filter(Boolean);
+  const financeOfficers = ['Meenakshi Iyer', 'Ashish Sharma'].map((n) => userByName[n]).filter(Boolean);
+  const namedUsers = users;   // the 7 login accounts — used to weight the sign-in trail
 
   // ---------- lookups ----------
   const lk = (category, code, label, meta = {}) => ({ category, code, label, meta });
@@ -310,7 +313,10 @@ async function run() {
   ]);
 
   // ---------- tariffs ----------
-  await M.TariffItem.insertMany([
+  // Tariff schedules are revised annually by circular. `rate` is today's rate;
+  // the revision list is built by working backwards from it, so the published
+  // history and the current figure can never disagree.
+  const tariffDefs = [
     { code: 'PD',  name: 'Port dues', category: 'MARINE', unit: 'per GRT', rate: 12.5 },
     { code: 'BH',  name: 'Berth hire', category: 'MARINE', unit: 'per GRT per day', rate: 4.2 },
     { code: 'PIL', name: 'Pilotage (in/out)', category: 'MARINE', unit: 'per movement', rate: 85000 },
@@ -322,7 +328,26 @@ async function run() {
     { code: 'WFR', name: 'Wharfage — ro-ro units', category: 'CARGO', unit: 'per unit', rate: 1450 },
     { code: 'WTR', name: 'Fresh water supply', category: 'MISC', unit: 'per MT', rate: 260 },
     { code: 'GBG', name: 'Garbage reception (MARPOL)', category: 'MISC', unit: 'per call', rate: 18000 },
-  ]);
+  ];
+  const round2r = (n) => (n >= 1000 ? Math.round(n / 100) * 100 : Math.round(n * 100) / 100);
+  await M.TariffItem.insertMany(tariffDefs.map((t, ti) => {
+    // walk back one revision per year to the start of the record
+    const revs = [];
+    let cur = t.rate;
+    const firstYear = HIST_START.getFullYear();
+    for (let y = NOW.getFullYear(); y >= firstYear; y--) {
+      const pct = 4 + ((ti * 3 + y) % 5);                 // 4-8% annual revision
+      const prev = round2r(cur / (1 + pct / 100));
+      revs.push({ effectiveFrom: new Date(y, 3, 1),        // published for the 1 April tariff year
+        rate: cur, previousRate: prev, changePct: Math.round(pct * 10) / 10,
+        circular: `CIRC-TAR-${String((ti % 9) + 1).padStart(2, '0')}/${y}`,
+        note: `Annual tariff revision — ${pct}% on ${t.name.toLowerCase()}` });
+      cur = prev;
+    }
+    revs.reverse();
+    return { ...t, revisions: revs };
+  }));
+  console.log(`tariffs: ${tariffDefs.length} (with annual revisions)`);
 
   // ---------- checklist templates ----------
   const tpl = await M.ChecklistTemplate.insertMany([
@@ -407,11 +432,34 @@ async function run() {
     // dedicated Ro-Ro — India's largest automobile export hub
     ['RR-1','Ro-Ro Berth 1','Ro-Ro Terminal','RORO',230,12],
   ];
-  const berths = await M.Berth.insertMany(berthDefs.map(([code, name, terminal, berthType, loaMax, draftMax]) => ({
-    code, name, terminal, berthType, loaMax, draftMax,
-    status: code === 'MP-4' ? 'MAINTENANCE' : 'OPERATIONAL',
-    remarks: code === 'MP-4' ? 'Fender replacement — expected back in service next month' : '',
-  })));
+  const OUTAGE_KINDS = [
+    ['PLANNED', 'Scheduled fender and bollard renewal'],
+    ['PLANNED', 'Quay crane rail alignment'],
+    ['BREAKDOWN', 'Shore gangway hydraulic failure'],
+    ['DREDGING', 'Maintenance dredging of the berth pocket'],
+    ['WEATHER', 'Berth vacated — cyclone contingency'],
+    ['PLANNED', 'Cope-line concrete repair'],
+    ['BREAKDOWN', 'Conveyor gallery belt replacement'],
+  ];
+  const berths = await M.Berth.insertMany(berthDefs.map(([code, name, terminal, berthType, loaMax, draftMax], bi) => {
+    // each berth takes a couple of outages a year; the June-2023 entries line up
+    // with the Cyclone Biparjoy closure that the notices register also records
+    const outages = [];
+    for (let back = HIST_DAYS - ri(10, 90); back > 20; back -= ri(150, 260)) {
+      const from = new Date(NOW.getTime() - back * D);
+      const [kind, reason] = OUTAGE_KINDS[(bi + outages.length) % OUTAGE_KINDS.length];
+      const days = kind === 'WEATHER' ? ri(2, 4) : kind === 'BREAKDOWN' ? ri(1, 5) : ri(4, 14);
+      outages.push({ from, to: new Date(from.getTime() + days * D), days, kind, reason,
+        by: 'Civil & Marine Works' });
+    }
+    outages.reverse();
+    return {
+      code, name, terminal, berthType, loaMax, draftMax,
+      status: code === 'MP-4' ? 'MAINTENANCE' : 'OPERATIONAL',
+      remarks: code === 'MP-4' ? 'Fender replacement — expected back in service next month' : '',
+      outages,
+    };
+  }));
   const berthsByType = (t) => berths.filter((b) => b.berthType === t && b.status === 'OPERATIONAL');
 
   // ---------- vessels ----------
@@ -475,7 +523,13 @@ async function run() {
       });
       const flag = i % 3 === 0 ? 'India' : pick(flags);
       const eng = engines[i % engines.length];
-      const ldd = new Date(NOW.getTime() - ri(200, 850) * D);
+      // Class requires a docking survey twice in each 5-year special-survey cycle —
+      // no more than 36 months apart. A ship whose docking had already lapsed would
+      // be off-hire, not calling at Mundra, so roll the cycle forward to the most
+      // recent docking and let the spread fall inside it.
+      const DOCK_CYCLE = Math.round(2.5 * 365);
+      let ldd = new Date(NOW.getTime() - ri(120, 1700) * D);
+      while (ldd.getTime() + DOCK_CYCLE * D < NOW.getTime()) ldd = new Date(ldd.getTime() + DOCK_CYCLE * D);
       return {
         name, imo: String(9700001 + i), mmsi: String(419000100 + i), callSign: `AT${String.fromCharCode(65 + (i % 26))}${2200 + i}`,
         flag, type, built: 2005 + (i % 17), dwt, grt, loa,
@@ -489,7 +543,7 @@ async function run() {
         engine: { maker: eng[0], model: eng[1], powerKW: eng[2] },
         serviceSpeedKn: type === 'CONT' ? ri(19, 23) : type === 'RORO' ? ri(17, 19) : ri(12, 15),
         teuCapacity: type === 'CONT' ? Math.round(dwt / 11) : undefined,
-        lastDryDock: ldd, nextDryDock: new Date(ldd.getTime() + 2.5 * 365 * D),
+        lastDryDock: ldd, nextDryDock: new Date(ldd.getTime() + DOCK_CYCLE * D),
         certificates: certs,
       };
     }),
@@ -789,14 +843,18 @@ async function run() {
   // spread ~20/yr across the whole history (chronological order preserved) instead of
   // taking the first 20 matches, which would all land in 2023 once the pool triples
   const eligibleForIns = sailed.filter((c) => !linerIds.has(String(c.vessel)));
-  const N_INS_HIST = Math.round(20 * HIST_DAYS / 360);
+  // PSC/FSI/ISM/MLC surveys run at roughly 15% of eligible calls — the Indian
+  // Ocean MoU inspection regime, not a token sample.
+  const N_INS_HIST = Math.max(20, Math.round(eligibleForIns.length * 0.15));
   const strideIns = Math.max(1, Math.floor(eligibleForIns.length / N_INS_HIST));
   const pastForIns = eligibleForIns.filter((_, i) => i % strideIns === 0).slice(0, N_INS_HIST);
   pastForIns.forEach((call, idx) => {
     const type = rnd() < 0.55 ? 'PSC' : rnd() < 0.5 ? 'FSI' : pick(['ISM','MLC']);
     const template = tpl.find((t) => t.inspectionType === type) || tpl[0];
     const startedAt = new Date(call.atb.getTime() + 5 * H);
-    const detained = idx % 10 === 4;
+    // ~6% detention rate — in line with the Indian Ocean MoU regional figure the
+    // analytics benchmark cites, rather than an implausible one-in-ten
+    const detained = idx % 16 === 4;
     const nFind = detained ? ri(3, 5) : rnd() < 0.5 ? 0 : ri(1, 3);
     const findings = Array.from({ length: nFind }, (_, i2) => {
       const code = defCodes[(idx + i2 * 3) % defCodes.length];
@@ -851,14 +909,14 @@ async function run() {
   await M.Inspection.insertMany(insDocs, { timestamps: false });
   console.log(`inspections: ${insDocs.length}`);
 
-  // ---------- notifications ----------
+  // ---------- notifications (live ones; the back-history is appended later,
+  // once incidents, inspections and invoices exist to derive it from) ----------
   const nDocs = [
-    { title: 'MV Mundra Express — SMC expires in 11 days', body: 'Safety Management Certificate expiry approaching. Plan renewal audit.', severity: 'warning', link: '/certificates', audiencePerm: 'certificates.view' },
-    { title: 'MLC certificate EXPIRED — MV Vindhya Pride', body: 'Maritime Labour Certificate lapsed 12 days ago. Vessel must not be accepted without dispensation.', severity: 'error', link: '/certificates', audiencePerm: 'certificates.view' },
-    { title: 'Berth MP-4 under maintenance', body: 'Fender replacement in progress — excluded from allocation.', severity: 'info', link: '/berth-board', audiencePerm: 'portcalls.view' },
-    { title: 'Overdue invoices pending collection', body: 'Issued invoices older than 30 days need follow-up with agents.', severity: 'warning', link: '/invoices', audiencePerm: 'invoices.view' },
+    { title: 'MV Mundra Express — SMC expires in 11 days', body: 'Safety Management Certificate expiry approaching. Plan renewal audit.', severity: 'warning', link: '/certificates', audiencePerm: 'certificates.view', createdAt: new Date(NOW.getTime() - 5 * H), updatedAt: new Date(NOW.getTime() - 5 * H) },
+    { title: 'MLC certificate EXPIRED — MV Vindhya Pride', body: 'Maritime Labour Certificate lapsed 12 days ago. Vessel must not be accepted without dispensation.', severity: 'error', link: '/certificates', audiencePerm: 'certificates.view', createdAt: new Date(NOW.getTime() - 30 * H), updatedAt: new Date(NOW.getTime() - 30 * H) },
+    { title: 'Berth MP-4 under maintenance', body: 'Fender replacement in progress — excluded from allocation.', severity: 'info', link: '/berth-board', audiencePerm: 'portcalls.view', createdAt: new Date(NOW.getTime() - 26 * H), updatedAt: new Date(NOW.getTime() - 26 * H) },
+    { title: 'Overdue invoices pending collection', body: 'Issued invoices older than 30 days need follow-up with agents.', severity: 'warning', link: '/invoices', audiencePerm: 'invoices.view', createdAt: new Date(NOW.getTime() - 9 * H), updatedAt: new Date(NOW.getTime() - 9 * H) },
   ];
-  await M.Notification.insertMany(nDocs);
 
   // ---------- seafarers ----------
   const sfNames = [['Rajesh Verma','Master'],['Anil Deshmukh','Chief Officer'],['S. Krishnan','Chief Engineer'],
@@ -905,7 +963,7 @@ async function run() {
   console.log(`seafarers: ${seafarers.length}`);
 
   // ---------- legislation & circulars (real instruments + demo circulars) ----------
-  await M.Instrument.insertMany([
+  const instrumentDocs = [
     { refNo: 'MSA-1958', title: 'Merchant Shipping Act, 1958 (as amended)', type: 'ACT', category: 'Principal legislation',
       status: 'IN_FORCE', issuedBy: 'Parliament of India', issuedDate: new Date('1958-10-30'), effectiveDate: new Date('1960-01-01'),
       summary: 'Principal Indian statute governing merchant shipping — registration, certification, safety, crew and liability.',
@@ -952,8 +1010,9 @@ async function run() {
       summary: 'Verified Gross Mass to be declared and weighed at the terminal gate for all export containers per SOLAS Ch VI reg 2.',
       body: 'Shipping agents and CHAs shall submit VGM via Method 1 (weighing the packed container) at the terminal gate weighbridge; Method 2 (calculated) declarations must carry the shipper\'s certified weighing procedure on file. Containers without a VGM record on file will not be permitted to load.',
       tags: ['solas', 'vgm', 'container'], ackRequired: true },
-  ]);
-  console.log('instruments: 12');
+  ];
+  await M.Instrument.insertMany(instrumentDocs);
+  console.log(`instruments: ${instrumentDocs.length}`);
 
   // ---------- facilities & companies (licences) ----------
   const licDefs = [
@@ -1070,6 +1129,44 @@ async function run() {
     ['SVL-01', 'Bocha Survey-1', 'SURVEY_LAUNCH', 'Hydrographic survey launch', 'Jayesh Tandel', 'VHF Ch 71'],
   ];
   const berthedForRes = allCalls.filter((c) => c.status === 'BERTHED');
+  // Every sailed call needed pilots in and out, tugs to berth and unberth, and
+  // line boats — so each craft's service record is dealt from the real call
+  // history rather than invented, and the fleet's utilisation reconciles with
+  // the traffic the port actually handled.
+  const berthCodeById = Object.fromEntries(berths.map((b) => [String(b._id), b.code]));
+  const sailedForJobs = allCalls.filter((c) => c.status === 'SAILED' && c.atb && c.atd)
+    .sort((a, b) => a.atb - b.atb);
+  const jobsByCode = Object.fromEntries(resourceDefs.map(([code]) => [code, []]));
+  const tugCodes = resourceDefs.filter(([, , t]) => t === 'TUG').map(([c]) => c);
+  const launchCodes = resourceDefs.filter(([, , t]) => t === 'PILOT_LAUNCH').map(([c]) => c);
+  const pilotCodes = resourceDefs.filter(([, , t]) => t === 'PILOT').map(([c]) => c);
+  const mooringCodes = resourceDefs.filter(([, , t]) => t === 'MOORING_BOAT').map(([c]) => c);
+  const vNameById = Object.fromEntries(vessels.map((v) => [String(v._id), v.name]));
+
+  sailedForJobs.forEach((c, ci) => {
+    const bcode = berthCodeById[String(c.berth)] || '';
+    const vname = vNameById[String(c.vessel)] || '';
+    const big = ['CONT', 'TANK', 'BULK'].includes((vMap[String(c.vessel)] || {}).type);
+    const push = (code, kind, at, hrs, remarks) => {
+      if (!code || !at) return;
+      jobsByCode[code].push({ at: new Date(at), endedAt: new Date(new Date(at).getTime() + hrs * H),
+        kind, vcn: c.vcn, vesselName: vname, berth: bcode, hours: Math.round(hrs * 10) / 10, remarks: remarks || '' });
+    };
+    // inward: pilot boards from a launch, tugs make fast, mooring gang runs lines
+    push(pilotCodes[ci % pilotCodes.length], 'PILOTAGE', c.atb, ri(2, 4), 'Inward pilotage');
+    push(launchCodes[ci % launchCodes.length], 'PILOT_TRANSFER', new Date(c.atb.getTime() - 1.5 * H), ri(1, 2), 'Pilot to boarding ground');
+    push(tugCodes[ci % tugCodes.length], 'BERTHING', c.atb, ri(2, 3), `${big ? 2 : 1} tug assist`);
+    if (big) push(tugCodes[(ci + 2) % tugCodes.length], 'BERTHING', c.atb, ri(2, 3), 'Second tug');
+    push(mooringCodes[ci % mooringCodes.length], 'LINE_HANDLING', c.atb, ri(1, 2), 'Made fast');
+    // outward
+    push(pilotCodes[(ci + 1) % pilotCodes.length], 'PILOTAGE', c.atd, ri(2, 4), 'Outward pilotage');
+    push(tugCodes[(ci + 1) % tugCodes.length], 'UNBERTHING', c.atd, ri(2, 3), 'Unberthing assist');
+    push(mooringCodes[(ci + 1) % mooringCodes.length], 'LINE_HANDLING', c.atd, ri(1, 2), 'Let go');
+  });
+
+  // annual survey / docking windows per craft — why utilisation dips
+  const outageReasons = ['Annual survey and class docking', 'Gearbox overhaul', 'Hull cleaning and propeller polish',
+    'Engine top overhaul', 'FiFi system recertification', 'Winch and towing gear renewal'];
   await M.Resource.insertMany(resourceDefs.map(([code, name, type, spec, master, contact], i) => {
     let status = 'AVAILABLE'; let currentTask = '';
     if (code === 'TUG-04') { status = 'MAINTENANCE'; }
@@ -1079,10 +1176,24 @@ async function run() {
       const c = berthedForRes[i % berthedForRes.length];
       currentTask = `${c.vcn} — ${type === 'PILOT' ? 'pilotage' : 'assist'} in progress`;
     }
+    // craft dock roughly yearly; pilots take leave rather than dock
+    const outages = [];
+    if (type !== 'PILOT') {
+      for (let back = HIST_DAYS - ri(20, 120); back > 30; back -= ri(320, 400)) {
+        const from = new Date(NOW.getTime() - back * D);
+        const days = ri(4, 16);
+        outages.push({ from, to: new Date(from.getTime() + days * D), days,
+          reason: outageReasons[(i + outages.length) % outageReasons.length] });
+      }
+      outages.reverse();
+    }
+    const jobs = (jobsByCode[code] || []).sort((a, b) => a.at - b.at);
     return { code, name, type, spec, status, currentTask, master, contact,
-      remarks: code === 'TUG-04' ? 'Annual survey — gearbox overhaul at Gulf Marine Repairs' : '' };
+      remarks: code === 'TUG-04' ? 'Annual survey — gearbox overhaul at Gulf Marine Repairs' : '',
+      jobs, outages };
   }));
-  console.log(`resources: ${resourceDefs.length}`);
+  const totalJobs = Object.values(jobsByCode).reduce((s, j) => s + j.length, 0);
+  console.log(`resources: ${resourceDefs.length} (${totalJobs} craft jobs logged)`);
 
   // ---------- incident management (12-month case history + live cases) ----------
   const BERTH_POS_MAP = {
@@ -1352,26 +1463,138 @@ async function run() {
     { id: 'seed3', name: 'Meenakshi Iyer', email: 'finance@mundraport.in' },
     { id: 'seed4', name: 'Ashish Sharma', email: 'admin@mundraport.in' },
   ];
+  // The trail is derived from what actually happened in the seeded world — every
+  // entry points at a real record's real timestamp — so the audit register reads
+  // as the by-product of 3.6 years of operation rather than a synthetic list.
   const auditDocs = [];
-  const recent = allCalls.filter((c) => ['BERTHED', 'AT_ANCHORAGE', 'CONFIRMED', 'ANNOUNCED'].includes(c.status));
-  recent.slice(0, 8).forEach((c, i) => {
-    const last = c.statusHistory[c.statusHistory.length - 1];
-    auditDocs.push({ actor: actors[i % 2], action: last.from ? 'TRANSITION' : 'CREATE', entity: 'PortCall',
-      entityId: String(c._id), entityLabel: last.from ? `${c.vcn}: ${last.from} -> ${last.to}` : c.vcn,
-      at: last.at, ip: '10.20.4.11' });
+  const opsActors = [...dutyOfficers, ...marineOfficers].filter(Boolean);
+  const actorFor = (pool, i) => {
+    const u = pool[i % pool.length];
+    return u ? { id: String(u._id), name: u.name, email: u.email } : actors[i % actors.length];
+  };
+  const ipFor = (i) => `10.20.${4 + (i % 3)}.${11 + (i % 40)}`;
+  const audit = (at, actor, action, entity, entityLabel, extra) => {
+    if (!at || new Date(at) > NOW) return;
+    auditDocs.push({ actor, action, entity, entityLabel, at: new Date(at), ip: ipFor(auditDocs.length), ...(extra || {}) });
+  };
+
+  // port-call lifecycle — the highest-volume operational trail
+  allCalls.forEach((c, i) => {
+    (c.statusHistory || []).forEach((h, hi) => {
+      audit(h.at, actorFor(opsActors, i + hi), h.from ? 'TRANSITION' : 'CREATE', 'PortCall',
+        h.from ? `${c.vcn}: ${h.from} → ${h.to}` : c.vcn, { entityId: String(c._id) });
+    });
   });
-  const recentInv = invDocs.filter((x) => x.status === 'ISSUED').slice(-4);
-  recentInv.forEach((x, i) => auditDocs.push({ actor: actors[2], action: 'ISSUE', entity: 'Invoice',
-    entityId: '', entityLabel: x.number, at: new Date(NOW.getTime() - (i + 2) * 3 * H), ip: '10.20.4.31' }));
-  auditDocs.push(
-    { actor: actors[1], action: 'FINDING_ADD', entity: 'Inspection', entityLabel: 'INS-2026-012 — 10111', at: new Date(NOW.getTime() - 3 * H), ip: '10.20.4.22' },
-    { actor: actors[3], action: 'UPDATE', entity: 'Berth', entityLabel: 'MP-4', at: new Date(NOW.getTime() - 26 * H),
-      before: { status: 'OPERATIONAL' }, after: { status: 'MAINTENANCE', remarks: 'Fender replacement' }, ip: '10.20.4.2' },
-    { actor: actors[3], action: 'UPDATE', entity: 'Role', entityLabel: 'Shipping Agent', at: new Date(NOW.getTime() - 50 * H), ip: '10.20.4.2' },
-    { actor: actors[0], action: 'LOGIN', entity: 'User', entityLabel: 'harbour@mundraport.in', at: new Date(NOW.getTime() - 1 * H), ip: '10.20.4.11' },
-  );
+  // billing
+  invDocs.forEach((x, i) => {
+    if (x.issuedAt) audit(x.issuedAt, actorFor(financeOfficers, i), 'ISSUE', 'Invoice', x.number);
+    if (x.paidAt) audit(x.paidAt, actorFor(financeOfficers, i + 1), 'PAY', 'Invoice',
+      `${x.number} — ${x.paymentRef}`);
+  });
+  // surveys
+  insDocs.forEach((x, i) => {
+    if (x.startedAt) audit(x.startedAt, actorFor(surveyOfficers, i), 'CREATE', 'Inspection', x.number);
+    (x.findings || []).forEach((f, fi) => audit(x.startedAt, actorFor(surveyOfficers, i + fi), 'FINDING_ADD',
+      'Inspection', `${x.number} — ${f.deficiencyCode}`));
+    if (x.closedAt) audit(x.closedAt, actorFor(surveyOfficers, i + 2), 'CLOSE', 'Inspection',
+      `${x.number} — ${x.result}`);
+  });
+  // incidents
+  incidentDocs.forEach((x, i) => {
+    (x.statusHistory || []).forEach((h, hi) => audit(h.at, actorFor(hseOfficers, i + hi),
+      h.from ? 'TRANSITION' : 'CREATE', 'Incident', h.from ? `${x.number}: ${h.from} → ${h.to}` : x.number));
+  });
+  // licensing
+  licDocs.forEach((l, i) => (l.history || []).forEach((h, hi) => audit(h.at, actors[(i + hi) % actors.length],
+    h.from ? 'TRANSITION' : 'CREATE', 'License', h.from ? `${l.licenseNo}: ${h.from} → ${h.to}` : l.licenseNo)));
+  // notices published — the port's own circulars only. The real conventions and
+  // statutes in the register (SOLAS, MARPOL, the MS Act) were not authored here,
+  // so they get no "created by" entry.
+  instrumentDocs.filter((n) => new Date(n.issuedDate) >= HIST_START)
+    .forEach((n, i) => audit(n.issuedDate, actors[i % actors.length], 'CREATE', 'Instrument', n.refNo));
+
+  // sign-ins — working days only, weighted to the people who live in the system
+  const loginPool = [...namedUsers.filter((u) => u.email), ...opsActors].filter(Boolean).slice(0, 26);
+  for (let d = HIST_DAYS; d >= 0; d--) {
+    const day = new Date(NOW.getTime() - d * D);
+    const dow = day.getDay();
+    const n = dow === 0 ? ri(0, 2) : ri(3, 9);           // Sundays are quiet
+    for (let k = 0; k < n; k++) {
+      const u = pick(loginPool);
+      if (!u) continue;
+      const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), ri(7, 19), ri(0, 59));
+      audit(at, { id: String(u._id), name: u.name, email: u.email }, 'LOGIN', 'User', u.email);
+    }
+  }
+
+  // occasional master-data and configuration edits
+  const masterEdits = [
+    ['Berth', 'MP-4', { status: 'OPERATIONAL' }, { status: 'MAINTENANCE', remarks: 'Fender replacement' }],
+    ['Berth', 'WB-2', { draftMax: 17.5 }, { draftMax: 18.0, remarks: 'Post-dredging re-declaration' }],
+    ['TariffItem', 'PD — Port dues', { rate: 9.1 }, { rate: 9.6 }],
+    ['TariffItem', 'TUG — Towage', { rate: 41000 }, { rate: 44000 }],
+    ['Role', 'Shipping Agent', null, null],
+    ['Role', 'Terminal Supervisor', null, null],
+    ['Setting', 'Risk model weights', null, null],
+    ['ChecklistTemplate', 'PSC Initial Inspection', null, null],
+    ['Lookup', 'deficiencyCode — 11101', null, null],
+    ['Company', 'Adipur Stevedores Co-op', { status: 'ACTIVE' }, { status: 'SUSPENDED' }],
+  ];
+  masterEdits.forEach(([entity, label, before, after], i) => {
+    const at = new Date(NOW.getTime() - ri(20, HIST_DAYS - 30) * D - ri(0, 23) * H);
+    audit(at, actors[3], before ? 'UPDATE' : 'UPDATE', entity, label,
+      before ? { before, after } : undefined);
+  });
+
   auditDocs.sort((a, b) => a.at - b.at);
   await M.AuditLog.insertMany(auditDocs);
+  console.log(`audit entries: ${auditDocs.length}`);
+
+  // ---------- notification back-history ----------
+  // Derived from the events that would actually have raised an alert, so the
+  // bell has a believable trail rather than only today's four.
+  const allUserIds = (await M.User.find().select('_id').lean()).map((u) => String(u._id));
+  const readSpread = (at) => {
+    // the older the notice, the more people have cleared it
+    const ageD = (NOW - new Date(at)) / D;
+    const share = ageD > 60 ? 0.95 : ageD > 14 ? 0.7 : ageD > 2 ? 0.35 : 0.1;
+    return allUserIds.filter(() => rnd() < share);
+  };
+  const pushN = (at, title, body, severity, link, audiencePerm) => {
+    if (!at || new Date(at) > NOW) return;
+    nDocs.push({ title, body, severity, link, audiencePerm,
+      readBy: readSpread(at), createdAt: new Date(at), updatedAt: new Date(at) });
+  };
+  // high-severity incidents raised an alert when they were reported
+  incidentDocs.filter((x) => ['HIGH', 'CRITICAL'].includes(x.severity)).forEach((x) => {
+    pushN(x.reportedAt, `${x.severity === 'CRITICAL' ? 'CRITICAL' : 'High-severity'} incident — ${x.number}`,
+      x.title, x.severity === 'CRITICAL' ? 'error' : 'warning', '/incidents', 'incidents.view');
+  });
+  // detentions and deficiency-bearing surveys
+  insDocs.filter((x) => x.detention).forEach((x) => {
+    pushN(x.closedAt, `Vessel detained after ${x.type} inspection — ${x.number}`,
+      'Detention recorded. Release requires all action-code 30 deficiencies cleared and re-inspection.',
+      'error', '/inspections', 'inspections.view');
+  });
+  // monthly collections reminder — the finance drumbeat
+  for (let mBack = HIST_MONTHS; mBack >= 1; mBack--) {
+    const at = new Date(NOW.getFullYear(), NOW.getMonth() - mBack, 3, 9, 30);
+    pushN(at, 'Monthly collections review', 'Issued invoices older than 30 days need follow-up with agents.',
+      'warning', '/invoices', 'invoices.view');
+  }
+  // notices requiring acknowledgment
+  instrumentDocs.filter((n) => n.ackRequired).forEach((n) => {
+    pushN(n.issuedDate, `Acknowledgment required — ${n.refNo}`, n.title, 'info', '/legislation', 'legislation.view');
+  });
+  // licence renewals falling due
+  licDocs.filter((l) => l.expiryDate).forEach((l) => {
+    const due = new Date(new Date(l.expiryDate).getTime() - 90 * D);
+    pushN(due, `Licence renewal due — ${l.entityName}`,
+      `${l.licenseNo} expires within 90 days. Renewal audit to be scheduled.`, 'warning', '/facilities', 'facilities.view');
+  });
+  nDocs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  await M.Notification.insertMany(nDocs, { timestamps: false });
+  console.log(`notifications: ${nDocs.length}`);
 
   const counts = {
     roles: await M.Role.countDocuments(), users: await M.User.countDocuments(),

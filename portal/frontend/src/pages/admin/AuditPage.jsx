@@ -3,6 +3,7 @@ import { Chip } from '@mui/material';
 import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
 import api from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
+import PageStats from '../../components/common/PageStats';
 import DataTable from '../../components/common/DataTable';
 import FormFields from '../../components/common/FormFields';
 import JsonDialog from '../../components/common/JsonDialog';
@@ -25,6 +26,7 @@ export default function AuditPage() {
   return (
     <>
       <PageHeader icon={HistoryRoundedIcon} iconColor="#0A2239" title="Audit log" sub="Every write in the system — who, what, when, before and after" />
+      <PageStats scope="audit" />
       <DataTable
         columns={[
           { key: 'at', label: 'When', render: (r) => fmtDT(r.at), mono: true },
