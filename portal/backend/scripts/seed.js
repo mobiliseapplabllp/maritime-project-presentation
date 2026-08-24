@@ -16,6 +16,11 @@ const H = 3600 * 1000, D = 24 * H;
 
 const NOW = new Date();
 const yearOf = (d) => new Date(d).getFullYear();
+// History spans Jan 2023 through now, so dashboards/trends read like a mature
+// multi-year operation rather than one seeded year.
+const HIST_START = new Date(2023, 0, 1);
+const HIST_MONTHS = (NOW.getFullYear() - HIST_START.getFullYear()) * 12 + (NOW.getMonth() - HIST_START.getMonth());
+const HIST_DAYS = Math.floor((NOW - HIST_START) / D);
 
 async function run() {
   await connectDB();
@@ -460,7 +465,7 @@ async function run() {
         if (i === 2 && j === 2) expiry = new Date(NOW.getTime() + 11 * D);      // SMC expiring
         if (i === 7 && j === 4) expiry = new Date(NOW.getTime() + 24 * D);      // IOPP expiring
         if (i === 12 && j === 5) expiry = new Date(NOW.getTime() + 18 * D);     // Load line expiring
-        if (i === 9 && j === 6) expiry = new Date(NOW.getTime() - 12 * D);      // MLC expired
+        if (i === 11 && j === 6) expiry = new Date(NOW.getTime() - 12 * D);     // MLC expired (MV Vindhya Pride — matches the seeded alert)
         if (i === 16 && j === 3) expiry = new Date(NOW.getTime() - 40 * D);     // ISSC expired
         return {
           certType, number: `${certType.split(' ').map((w) => w[0]).join('')}-${9100 + i * 13 + j}`,
@@ -555,7 +560,7 @@ async function run() {
     return list[Math.floor(rnd() * list.length)];
   };
 
-  const seq = { 2025: 0, 2026: 0 };
+  const seq = {};
   const vcnFor = (d) => { const y = yearOf(d); seq[y] = (seq[y] || 0) + 1; return `MUN-${y}-${String(seq[y]).padStart(4, '0')}`; };
   const callDocs = [];
   const mkServices = (vt, waitedH) => {
@@ -569,10 +574,13 @@ async function run() {
     return svcs;
   };
 
-  for (let mBack = 11; mBack >= 0; mBack--) {
+  for (let mBack = HIST_MONTHS; mBack >= 0; mBack--) {
     const mStart = new Date(NOW.getFullYear(), NOW.getMonth() - mBack, 1);
     const daysInM = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 0).getDate();
-    const n = ri(30, 36);
+    // traffic ramps from ri(18,24)/mo at the back of history (2023) to today's ri(30,36)/mo —
+    // a growing port, not a flat plateau, and matches current density exactly at mBack=0
+    const growth = 1 - mBack / HIST_MONTHS;
+    const n = ri(Math.round(18 + growth * 12), Math.round(24 + growth * 12));
     const monthCalls = [];
     for (let k = 0; k < n; k++) {
       const v = pick(vessels);
@@ -580,9 +588,12 @@ async function run() {
       const berth = berthFor(v.type, cargo.cargoType);
       const ata = new Date(mStart.getTime() + (rnd() * (daysInM - 5) + 1) * D + ri(0, 23) * H);
       if (ata > new Date(NOW.getTime() - 3 * D)) continue;              // keep history clear of "now"
+      // Cyclone Biparjoy — berths vacated and arrivals suspended (PORT-N-02/2023)
+      if (ata >= new Date(2023, 5, 12) && ata < new Date(2023, 5, 17)) continue;
       const waitedH = ri(3, 30);
       const atb = new Date(ata.getTime() + waitedH * H);
       const atd = new Date(atb.getTime() + durFor(v.type) * H);
+      if (atd > new Date(NOW.getTime() - 2 * H)) continue;              // a SAILED record must be fully in the past
       const isLoad = rnd() < 0.35;
       const ops = [{ cargoType: cargo.cargoType, operation: isLoad ? 'LOAD' : 'DISCHARGE', qty: cargo.qty, unit: cargo.unit,
         qtyMT: Math.round(cargo.qty * cargo.mtFactor), gangs: ri(2, 6), startedAt: new Date(atb.getTime() + 2 * H), completedAt: new Date(atd.getTime() - 3 * H) }];
@@ -753,14 +764,16 @@ async function run() {
     const y = yearOf(issuedAt);
     invSeq[y] = (invSeq[y] || 0) + 1;
     const ageD = (NOW - issuedAt) / D;
-    const status = ageD > 45 ? 'PAID' : ageD > 5 ? (rnd() < 0.6 ? 'PAID' : 'ISSUED') : 'DRAFT';
+    // an invoice can only be PAID once its payment lag has actually elapsed
+    const payLag = ri(7, 30);
+    const status = ageD > 45 ? 'PAID' : ageD > payLag ? (rnd() < 0.6 ? 'PAID' : 'ISSUED') : ageD > 5 ? 'ISSUED' : 'DRAFT';
     invDocs.push({
       number: `MUN/INV/${y}/${String(invSeq[y]).padStart(4, '0')}`,
       portCall: call._id, vessel: call.vessel,
       billTo: { name: call.agentName, address: 'Mundra, Kutch, Gujarat', gstin: '24XXXXX0000X1Z5 (sample)' },
       lines: totals.lines, subtotal: totals.subtotal, gstRate: GST_RATE, gstAmount: totals.gstAmount, total: totals.total,
       status, issuedAt: status === 'DRAFT' ? undefined : issuedAt,
-      paidAt: status === 'PAID' ? new Date(issuedAt.getTime() + ri(7, 30) * D) : undefined,
+      paidAt: status === 'PAID' ? new Date(issuedAt.getTime() + payLag * D) : undefined,
       paymentRef: status === 'PAID' ? `NEFT-${ri(100000, 999999)}` : '',
       createdAt: issuedAt, updatedAt: issuedAt,
     });
@@ -770,15 +783,20 @@ async function run() {
 
   // ---------- inspections ----------
   const insDocs = [];
-  let insSeqN = { 2025: 0, 2026: 0 };
+  let insSeqN = {};
   const defCodes = ['01101','04103','07105','10111','11101','13101','14104','18203'];
   const linerIds = new Set(linerFleet.map((v) => String(v._id)));
-  const pastForIns = sailed.filter((c) => !linerIds.has(String(c.vessel))).filter((_, i) => i % 5 === 2).slice(0, 20);
+  // spread ~20/yr across the whole history (chronological order preserved) instead of
+  // taking the first 20 matches, which would all land in 2023 once the pool triples
+  const eligibleForIns = sailed.filter((c) => !linerIds.has(String(c.vessel)));
+  const N_INS_HIST = Math.round(20 * HIST_DAYS / 360);
+  const strideIns = Math.max(1, Math.floor(eligibleForIns.length / N_INS_HIST));
+  const pastForIns = eligibleForIns.filter((_, i) => i % strideIns === 0).slice(0, N_INS_HIST);
   pastForIns.forEach((call, idx) => {
     const type = rnd() < 0.55 ? 'PSC' : rnd() < 0.5 ? 'FSI' : pick(['ISM','MLC']);
     const template = tpl.find((t) => t.inspectionType === type) || tpl[0];
     const startedAt = new Date(call.atb.getTime() + 5 * H);
-    const detained = idx === 4 || idx === 13;
+    const detained = idx % 10 === 4;
     const nFind = detained ? ri(3, 5) : rnd() < 0.5 ? 0 : ri(1, 3);
     const findings = Array.from({ length: nFind }, (_, i2) => {
       const code = defCodes[(idx + i2 * 3) % defCodes.length];
@@ -857,21 +875,30 @@ async function run() {
       if (i === 7 && j === 3) expiry = new Date(NOW.getTime() - 20 * D);   // BST expired
       return { certType, grade: certType === 'Certificate of Competency' ? (rank.includes('Engineer') ? 'MEO Class ' + (rank.startsWith('Chief') ? '1' : '2') : rank === 'Master' ? 'Master (FG)' : 'Class ' + (2 + (i % 2))) : '',
         number: `${certType.split(' ').map((w) => w[0]).join('')}-${20100 + i * 17 + j}`, issuer: 'DG Shipping, India',
-        issueDate: new Date(expiry.getTime() - 5 * 365 * D), expiryDate: expiry };
+        // MLC A1.2 / STCW A-I/9: seafarer medical certificates run 2 years max
+        issueDate: new Date(expiry.getTime() - (certType.startsWith('Medical') ? 2 : 5) * 365 * D), expiryDate: expiry };
     });
-    const svc = Array.from({ length: ri(2, 4) }, (_, k) => {
-      const to = new Date(NOW.getTime() - (30 + k * 300 + ri(0, 60)) * D);
+    // walk backward contract-by-contract until service history actually reaches
+    // HIST_START, rather than a fixed 2-4 stint count that only sometimes got there
+    const svc = [];
+    let cursor = NOW.getTime() - (30 + ri(0, 60)) * D;
+    for (let k = 0; k < 12 && cursor > HIST_START.getTime(); k++) {
+      const to = new Date(cursor);
       const from = new Date(to.getTime() - ri(120, 260) * D);
-      return { vesselName: pick(vessels).name, imo: String(9700001 + ri(0, 22)), rank, from, to, verified: rnd() < 0.7,
-        remarks: k === 0 ? 'Verified against crew list and movement records' : '' };
-    });
+      // service records stay on the fictional demo fleet (never the documented
+      // liner callers), and carry that vessel's own IMO
+      const served = pick(demoFleet);
+      svc.push({ vesselName: served.name, imo: served.imo, rank, from, to, verified: rnd() < 0.7,
+        remarks: k === 0 ? 'Verified against crew list and movement records' : '' });
+      cursor = from.getTime() - ri(20, 90) * D;
+    }
     return {
       cdcNo: `MUM-${String(52000 + i * 37)}`, indosNo: `${8}INL${3200 + i * 13}`, name, rank,
       dob: new Date(1968 + (i % 30), (i * 5) % 12, 3 + (i % 25)), nationality: i === 17 ? 'Nepal' : 'India',
       phone: `+91 98${String(20000000 + i * 991177).slice(0, 8)}`,
       email: `${name.toLowerCase().replace(/[^a-z]+/g, '.')}@crew.example.in`,
       status: i % 6 === 5 ? 'SHORE_LEAVE' : i % 9 === 8 ? 'SIGNED_OFF' : 'ACTIVE',
-      currentVessel: i % 3 === 0 ? pick(vessels)._id : undefined,
+      currentVessel: i % 3 === 0 ? pick(demoFleet)._id : undefined,
       certificates: certs, seaService: svc,
     };
   }));
@@ -911,8 +938,22 @@ async function run() {
     { refNo: 'ISPS-ADV-02/2026', title: 'Security level 1 in force — access control reminders', type: 'ORDER', category: 'Security',
       status: 'IN_FORCE', issuedBy: 'PFSO, Mundra', issuedDate: new Date(NOW.getTime() - 15 * D),
       summary: 'MARSEC Level 1 continues; dock passes to be displayed; crew shore leave via Gate 3 only.', tags: ['isps', 'security'], ackRequired: false },
+    { refNo: 'PORT-N-02/2023', title: 'Cyclone Biparjoy — contingency berthing restrictions, Kutch coast', type: 'NOTICE', category: 'Port operations',
+      status: 'WITHDRAWN', issuedBy: 'Harbour Master, Mundra', issuedDate: new Date('2023-06-12'), effectiveDate: new Date('2023-06-13'),
+      summary: 'Precautionary berthing suspension and vessel evacuation to sea ahead of Very Severe Cyclonic Storm Biparjoy making landfall near Jakhau, Kutch.',
+      body: 'Following IMD tracking of Very Severe Cyclonic Storm Biparjoy, all vessels alongside shall complete cargo operations and vacate berths by 1800 hrs on 14 June 2023, proceeding to open sea or a designated safe anchorage. Port operations will remain suspended until an all-clear survey of berths, cranes and navigational aids is completed after landfall.',
+      tags: ['cyclone', 'contingency', 'weather'], ackRequired: false },
+    { refNo: 'CIRC-03/2023', title: 'Pre-arrival notification format revised — IMO FAL forms', type: 'CIRCULAR', category: 'Port operations',
+      status: 'SUPERSEDED', issuedBy: 'Port Operations, Mundra', issuedDate: new Date('2023-09-04'),
+      summary: 'Interim paper/email FAL format ahead of the portal single-window rollout. Superseded by CIRC-12/2026.',
+      supersedes: '', tags: ['fal', 'pre-arrival'] },
+    { refNo: 'CIRC-07/2024', title: 'Container VGM verification procedure at the gate', type: 'CIRCULAR', category: 'Port operations',
+      status: 'IN_FORCE', issuedBy: 'Port Operations, Mundra', issuedDate: new Date('2024-03-18'), effectiveDate: new Date('2024-04-01'),
+      summary: 'Verified Gross Mass to be declared and weighed at the terminal gate for all export containers per SOLAS Ch VI reg 2.',
+      body: 'Shipping agents and CHAs shall submit VGM via Method 1 (weighing the packed container) at the terminal gate weighbridge; Method 2 (calculated) declarations must carry the shipper\'s certified weighing procedure on file. Containers without a VGM record on file will not be permitted to load.',
+      tags: ['solas', 'vgm', 'container'], ackRequired: true },
   ]);
-  console.log('instruments: 9');
+  console.log('instruments: 12');
 
   // ---------- facilities & companies (licences) ----------
   const licDefs = [
@@ -923,30 +964,49 @@ async function run() {
     ['Mundra Maritime Academy', 'TRAINING_INSTITUTE', 'ISSUED', 4], ['Adipur Stevedores Co-op', 'STEVEDORE', 'SUSPENDED', 2],
     ['BlueDepth Diving Works', 'DIVING_CONTRACTOR', 'UNDER_REVIEW', 0], ['Seven Seas Logistics', 'SHIPPING_AGENCY', 'APPLIED', 0],
   ];
-  let licSeq = 0;
-  await M.License.insertMany(licDefs.map(([entityName, entityType, status, rating], i) => {
-    licSeq += 1;
-    const applied = new Date(NOW.getTime() - (120 + i * 40) * D);
+  const licDocs = licDefs.map(([entityName, entityType, status, rating], i) => {
+    // established operators' licences spread across the full 2023-now window;
+    // pending/new applications stay recent so they don't look stalled for years
+    const established = status === 'ISSUED' || status === 'SUSPENDED';
+    const applied = established
+      ? new Date(NOW.getTime() - ri(380, HIST_DAYS) * D)
+      : new Date(NOW.getTime() - ri(20, 180) * D);
     const issued = ['ISSUED', 'SUSPENDED'].includes(status) ? new Date(applied.getTime() + 30 * D) : undefined;
+    // licences run on 2-year renewal cycles — roll the current term forward so a
+    // licence first issued in 2023 shows a live expiry, not one years in the past
+    let termStart = issued;
+    const renewals = [];
+    while (termStart && termStart.getTime() + 2 * 365 * D < NOW.getTime()) {
+      termStart = new Date(termStart.getTime() + 2 * 365 * D);
+      renewals.push(termStart);
+    }
     const history = [{ from: '', to: 'APPLIED', at: applied, by: 'seed', note: 'Application received' }];
     if (status !== 'APPLIED') history.push({ from: 'APPLIED', to: 'UNDER_REVIEW', at: new Date(applied.getTime() + 10 * D), by: 'seed', note: '' });
     if (issued) history.push({ from: 'UNDER_REVIEW', to: 'ISSUED', at: issued, by: 'seed', note: 'Licence issued' });
+    for (const r of renewals) history.push({ from: 'ISSUED', to: 'ISSUED', at: r, by: 'seed', note: 'Licence renewed for a further two years' });
     if (status === 'SUSPENDED') history.push({ from: 'ISSUED', to: 'SUSPENDED', at: new Date(NOW.getTime() - 20 * D), by: 'seed', note: 'Repeated stevedoring safety violations — gear certification lapsed' });
     return {
-      licenseNo: `LIC-${yearOf(applied)}-${String(licSeq).padStart(4, '0')}`,
       entityName, entityType, status,
       contactPerson: pick(['R. Shah', 'M. Khan', 'P. Joshi', 'S. Ahuja', 'D. Chauhan']),
       phone: '+91 2838 2' + String(10000 + i * 731).slice(0, 5), email: `office@${entityName.toLowerCase().replace(/[^a-z]+/g, '')}.example.in`,
       address: pick(['Port User Complex, Mundra', 'Adipur 370205', 'Gandhidham 370201', 'SEZ Zone-2, Mundra']),
       gstin: `24XXXXX${1000 + i}X1Z${i % 10} (sample)`,
       appliedDate: applied, issueDate: issued,
-      expiryDate: issued ? new Date(issued.getTime() + 2 * 365 * D) : undefined,
+      expiryDate: termStart ? new Date(termStart.getTime() + 2 * 365 * D) : undefined,
       conditions: status === 'ISSUED' ? 'Valid for Mundra port limits; subject to annual safety audit.' : '',
       performanceRating: rating,
       audits: issued ? [{ date: new Date(NOW.getTime() - 90 * D), auditor: 'Cdr. Suresh Patel', result: rating >= 4 ? 'SATISFACTORY' : rating >= 3 ? 'OBSERVATIONS' : 'NON_CONFORMITY', remarks: 'Annual audit' }] : [],
       history,
     };
-  }));
+  });
+  // number chronologically within each application year, like every other series
+  const licSeqByYear = {};
+  licDocs.sort((a, b) => a.appliedDate - b.appliedDate).forEach((d) => {
+    const y = yearOf(d.appliedDate);
+    licSeqByYear[y] = (licSeqByYear[y] || 0) + 1;
+    d.licenseNo = `LIC-${y}-${String(licSeqByYear[y]).padStart(4, '0')}`;
+  });
+  await M.License.insertMany(licDocs);
   console.log('licenses: 12');
 
   // ---------- port companies directory ----------
@@ -1112,8 +1172,10 @@ async function run() {
   const incidentDocs = [];
   const incSeqByYear = {};
   const incNumberFor = (d) => { const y = yearOf(d); incSeqByYear[y] = (incSeqByYear[y] || 0) + 1; return `INC-${y}-${String(incSeqByYear[y]).padStart(4, '0')}`; };
-  const N_INC = 108;
-  const incTimes = Array.from({ length: N_INC }, () => new Date(NOW.getTime() - Math.floor(rnd() * 358 + 2) * D - ri(0, 23) * H)).sort((a, b) => a - b);
+  // flat ~108/yr rate held across the full 2023-now window (kept flat deliberately —
+  // no narrative implication that the port got safer or less safe over time)
+  const N_INC = Math.round(108 * HIST_DAYS / 360);
+  const incTimes = Array.from({ length: N_INC }, () => new Date(NOW.getTime() - Math.floor(rnd() * (HIST_DAYS - 2) + 2) * D - ri(0, 23) * H)).sort((a, b) => a - b);
   for (let k = 0; k < N_INC; k++) {
     const t = pick(wPool);
     const reportedAt = incTimes[k];

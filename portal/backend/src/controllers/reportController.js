@@ -10,9 +10,15 @@ const GROUP_OF = { CONTAINERS: 'container', COAL: 'dryBulk', FERT: 'dryBulk', GR
 
 exports.mis = async (req, res) => {
   const to = req.query.to ? new Date(`${req.query.to}T23:59:59`) : new Date();
-  const from = req.query.from ? new Date(req.query.from) : new Date(to.getFullYear(), to.getMonth() - 11, 1);
+  let from = req.query.from ? new Date(req.query.from) : new Date(to.getFullYear(), to.getMonth() - 11, 1);
   if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || from >= to) {
     throw new ApiError(400, 'Provide a valid from/to date range');
+  }
+  // the month scaffold caps at 60 columns; anchor the cap to `to` so an over-long
+  // range keeps its newest months, and clamp the query window so KPIs still
+  // reconcile with the charts instead of silently covering more than they show
+  if ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth()) >= 60) {
+    from = new Date(to.getFullYear(), to.getMonth() - 59, 1);
   }
 
   const [sailed, invoices, inspections, vessels, seafarers, licenses, berths, defCodes] = await Promise.all([
@@ -31,7 +37,7 @@ exports.mis = async (req, res) => {
   // month scaffold
   const months = [];
   const cur = new Date(from.getFullYear(), from.getMonth(), 1);
-  while (cur <= to && months.length < 36) {
+  while (cur <= to && months.length < 60) {
     months.push({ key: monthKey(cur), month: monthLabel(cur) });
     cur.setMonth(cur.getMonth() + 1);
   }

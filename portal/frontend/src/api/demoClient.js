@@ -234,14 +234,19 @@ function statsFor(scope) {
 
 function misReport(params = {}) {
   const to = params.to ? new Date(`${params.to}T23:59:59`) : new Date();
-  const from = params.from ? new Date(params.from) : new Date(to.getFullYear(), to.getMonth() - 11, 1);
+  let from = params.from ? new Date(params.from) : new Date(to.getFullYear(), to.getMonth() - 11, 1);
+  // scaffold caps at 60 months anchored to `to` — over-long ranges keep their
+  // newest months and the query window clamps with it (mirrors the live API)
+  if ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth()) >= 60) {
+    from = new Date(to.getFullYear(), to.getMonth() - 59, 1);
+  }
   const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   const monthLabel = (d) => d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
   const GROUP_OF = { CONTAINERS: 'container', COAL: 'dryBulk', FERT: 'dryBulk', GRAIN: 'dryBulk', CRUDE: 'liquid', POL: 'liquid', EDIBLE: 'liquid' };
 
   const months = [];
   const cur = new Date(from.getFullYear(), from.getMonth(), 1);
-  while (cur <= to && months.length < 36) { months.push({ key: monthKey(cur), month: monthLabel(cur) }); cur.setMonth(cur.getMonth() + 1); }
+  while (cur <= to && months.length < 60) { months.push({ key: monthKey(cur), month: monthLabel(cur) }); cur.setMonth(cur.getMonth() + 1); }
   const byMonth = months.map((mm) => ({ ...mm, container: 0, dryBulk: 0, liquid: 0, other: 0, total: 0, teu: 0, calls: 0 }));
   const commodity = {}; const byTerminal = {}; const byVesselType = {};
   let turnSum = 0, turnN = 0, waitSum = 0;
@@ -1136,6 +1141,10 @@ function demoAuditDashboard() {
   const from = new Date(now.getFullYear(), now.getMonth() - 11, 1);
   const all = D.inspections;
   const closed = all.filter((i) => i.status === 'CLOSED');
+  // Mirrors the live API: workload mix windows on plannedAt, result KPIs window
+  // on closedAt — the same field the trend chart bins on, so cards reconcile
+  const recent = all.filter((i) => i.plannedAt && new Date(i.plannedAt) >= from);
+  const recentClosed = closed.filter((i) => i.closedAt && new Date(i.closedAt) >= from);
   const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   const months = [];
   const cur = new Date(from);
@@ -1145,16 +1154,18 @@ function demoAuditDashboard() {
   }
   const byType = {};
   let findingsTotal = 0; let findingsOpen = 0; let checklistYes = 0; let checklistItems = 0;
-  for (const i of all) {
+  for (const i of recent) {
     byType[i.type] = byType[i.type] || { type: i.type, total: 0, closed: 0, detained: 0 };
     byType[i.type].total += 1;
     if (i.status === 'CLOSED') byType[i.type].closed += 1;
     if (i.detention) byType[i.type].detained += 1;
-    findingsTotal += (i.findings || []).length;
-    findingsOpen += (i.findings || []).filter((f) => f.status === 'OPEN').length;
     checklistItems += (i.checklist || []).filter((c) => c.answer).length;
     checklistYes += (i.checklist || []).filter((c) => c.answer === 'YES').length;
   }
+  // avg findings per closed inspection: numerator and denominator from the same set
+  for (const i of recentClosed) findingsTotal += (i.findings || []).length;
+  // open findings is a live worklist, not a period metric — counted lifetime
+  for (const i of all) findingsOpen += (i.findings || []).filter((f) => f.status === 'OPEN').length;
   for (const i of closed) {
     if (!i.closedAt || !i.result) continue;
     const row = months.find((m) => m.key === monthKey(new Date(i.closedAt)));
@@ -1164,9 +1175,9 @@ function demoAuditDashboard() {
     kpis: {
       open: all.filter((i) => i.status !== 'CLOSED').length,
       closedYtd: closed.filter((i) => i.closedAt && new Date(i.closedAt) >= new Date(now.getFullYear(), 0, 1)).length,
-      satisfactionPct: closed.length ? Math.round((closed.filter((i) => i.result === 'SATISFACTORY').length / closed.length) * 100) : 0,
-      detentionRatePct: closed.length ? Math.round((closed.filter((i) => i.detention).length / closed.length) * 1000) / 10 : 0,
-      avgFindings: closed.length ? Math.round((findingsTotal / closed.length) * 10) / 10 : 0,
+      satisfactionPct: recentClosed.length ? Math.round((recentClosed.filter((i) => i.result === 'SATISFACTORY').length / recentClosed.length) * 100) : 0,
+      detentionRatePct: recentClosed.length ? Math.round((recentClosed.filter((i) => i.detention).length / recentClosed.length) * 1000) / 10 : 0,
+      avgFindings: recentClosed.length ? Math.round((findingsTotal / recentClosed.length) * 10) / 10 : 0,
       openFindings: findingsOpen,
       checklistCompliancePct: checklistItems ? Math.round((checklistYes / checklistItems) * 100) : 0,
     },
