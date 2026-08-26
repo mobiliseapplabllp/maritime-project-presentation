@@ -28,6 +28,7 @@ const reportLib = require('../controllers/reportLibraryController');
 const settingsCtl = require('../controllers/settingsController');
 const opsx = require('../controllers/opsController');
 const search = require('../controllers/searchController');
+const docs = require('../controllers/docsController');
 
 // express 4 doesn't catch async rejections — wrap every handler
 const w = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -38,6 +39,10 @@ r.get('/health', w(misc.health));
 r.post('/auth/login', w(auth.login));
 r.post('/auth/refresh', w(auth.refresh));
 r.get('/public/verify/:licenseNo', w(licenses.publicVerify));
+r.get('/openapi.json', docs.spec);
+r.get('/docs', docs.page);
+r.get('/docs/stats', docs.stats);
+r.get('/jurisdiction', w(docs.jurisdiction));
 
 // everything below requires a session
 r.use(authenticate);
