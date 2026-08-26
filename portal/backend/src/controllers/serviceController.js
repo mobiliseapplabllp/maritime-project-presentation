@@ -11,6 +11,7 @@ const { parseQuery, searchFilter } = require('../utils/paginate');
 const { audit } = require('../utils/audit');
 const { nextNumber } = require('../utils/numbering');
 const S = require('../domain/licenceSubjects');
+const { finaliseIssue } = require('../domain/instrumentIssue');
 
 const D = 86400000;
 
@@ -196,7 +197,7 @@ exports.issue = async (req, res) => {
   const entityType = def.issuesInstrument;
   const now = new Date();
   const months = S.validityMonthsFor(entityType);
-  const lic = await License.create({
+  const lic = new License({
     licenseNo: await nextNumber(License, 'licenseNo', `${S.numberPrefixFor(entityType)}-${now.getFullYear()}-`),
     subjectKind: doc.subjectKind,
     subjectRef: doc.subjectRef || undefined,
@@ -216,6 +217,10 @@ exports.issue = async (req, res) => {
       { from: 'APPLIED', to: 'ISSUED', at: now, by: req.user.name, note: `Issued on approval of ${doc.requestNo}` },
     ],
   });
+  // B2 — the same two things happen however an instrument reaches ISSUED: it is
+  // signed, and a statutory ship certificate is written onto the ship.
+  await finaliseIssue(lic);
+  await lic.save();
 
   doc.issuedInstrument = lic._id;
   doc.status = 'ISSUED';

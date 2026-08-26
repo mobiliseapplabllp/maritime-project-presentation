@@ -5,7 +5,10 @@ const bcrypt = require('bcryptjs');
 const { connectDB } = require('../src/config/db');
 const M = require('../src/models');
 const { buildInvoiceLines, computeTotals } = require('../src/domain/invoiceMath');
-const { GST_RATE, ALL_PERMISSIONS } = require('../src/config/constants');
+const { GST_RATE, ALL_PERMISSIONS, NUMBER_PREFIX_BY_TYPE } = require('../src/config/constants');
+const SC = require('../src/domain/statutoryCertificates');
+const SIGN = require('../src/domain/certificateSigning');
+const REG = require('../src/domain/vesselRegistry');
 
 // --- deterministic PRNG ---
 let s0 = 20260823;
@@ -44,18 +47,21 @@ async function run() {
         'portcalls.view','portcalls.create','portcalls.edit','portcalls.delete','portcalls.transition',
         'cargo.manage','inspections.view','invoices.view','tariffs.view','masters.view',
         'nmc.view','risk.view','seafarers.view','legislation.view','facilities.view','ai.use','reports.view',
+        'registry.view','services.view',
         'incidents.view','incidents.create','incidents.manage') },
     { name: 'Marine Surveyor', description: 'Inspections, certificates and vessel compliance', system: true,
       permissions: P('dashboard.view','vessels.view','certificates.view','certificates.manage',
         'portcalls.view','inspections.view','inspections.create','inspections.edit','inspections.close','masters.view',
         'seafarers.view','seafarers.create','seafarers.edit','risk.view','legislation.view','legislation.manage','facilities.view','ai.use','reports.view',
+        'registry.view','registry.assess','services.view','services.assess',
         'incidents.view','incidents.create','incidents.manage','incidents.close') },
     { name: 'Finance Officer', description: 'Tariffs, invoicing and collections', system: true,
       permissions: P('dashboard.view','portcalls.view','vessels.view','invoices.view','invoices.create',
         'invoices.issue','invoices.pay','invoices.delete','tariffs.view','tariffs.manage','masters.view',
         'legislation.view','facilities.view','ai.use','reports.view','incidents.view') },
     { name: 'Shipping Agent', description: 'External agent — announce calls, track invoices', system: true,
-      permissions: P('dashboard.view','vessels.view','portcalls.view','portcalls.create','invoices.view','legislation.view','ai.use') },
+      permissions: P('dashboard.view','vessels.view','portcalls.view','portcalls.create','invoices.view','legislation.view','ai.use',
+        'registry.view','registry.apply','services.view','services.apply') },
     { name: 'NMC Duty Officer', description: 'Surveillance centre — traffic picture, incidents, SAR', system: true,
       permissions: P('dashboard.view','nmc.view','nmc.manage','risk.view','vessels.view','portcalls.view','inspections.view','legislation.view','ai.use','reports.view',
         'incidents.view','incidents.create','incidents.manage','incidents.close') },
@@ -69,8 +75,15 @@ async function run() {
       permissions: P('dashboard.view','nmc.view','incidents.view','incidents.create','legislation.view','ai.use') },
     { name: 'Port Pilot', description: 'Pilotage — vessel movements and schedules',
       permissions: P('dashboard.view','portcalls.view','vessels.view','legislation.view','ai.use') },
+    { name: 'Registrar of Ships', description: 'Ship registration, statutory certificates and the service desk', system: true,
+      permissions: P('dashboard.view','registry.view','registry.apply','registry.assess','registry.grant',
+        'vessels.view','vessels.create','vessels.edit','certificates.view','certificates.manage',
+        'services.view','services.assess','services.approve','services.manage',
+        'facilities.view','facilities.manage','facilities.approve','seafarers.view',
+        'masters.view','legislation.view','reports.view','audit.view','ai.use') },
     { name: 'Management Viewer', description: 'Read-only management view across modules',
-      permissions: P('dashboard.view','portcalls.view','vessels.view','incidents.view','inspections.view','invoices.view','legislation.view','facilities.view','reports.view','nmc.view','risk.view','seafarers.view','ai.use') },
+      permissions: P('dashboard.view','portcalls.view','vessels.view','incidents.view','inspections.view','invoices.view','legislation.view','facilities.view','reports.view','nmc.view','risk.view','seafarers.view','ai.use',
+        'registry.view','services.view','agents.view') },
   ]);
   const roleByName = Object.fromEntries(roles.map((r) => [r.name, r._id]));
   const hash = await bcrypt.hash('Mundra@2026', 10);
@@ -1127,8 +1140,14 @@ async function run() {
     d.licenseNo = `${key}-${String(instSeq[key]).padStart(4, '0')}`;
   });
 
+  // Every issued instrument carries a signature over its own register entry, so
+  // there is no such thing as an unsigned certificate in the register — an
+  // unsigned one would verify as unsigned rather than as valid, which is worse
+  // than useless in front of a port state control officer.
+  [...licDocs, ...vesselInstruments].forEach((d) => { if (d.status === 'ISSUED') d.signature = SIGN.sign(d); });
   await M.License.insertMany([...licDocs, ...vesselInstruments]);
-  console.log(`licenses: ${licDocs.length} company + ${vesselInstruments.length} vessel instruments`);
+  console.log(`licenses: ${licDocs.length} company + ${vesselInstruments.length} vessel instruments, `
+    + `${[...licDocs, ...vesselInstruments].filter((d) => d.signature).length} signed`);
 
   // ---------- A2: service catalogue and lodged applications ----------
   // Every regulatory service shares one shape, so the catalogue is data. These
@@ -1196,6 +1215,38 @@ async function run() {
      'TOWAGE_CERTIFICATION', 75000, 21, false, ['Registration certificate', 'Tug particulars and class certificates', 'Master and crew certificates'],
      [['tugCount', 'Tugs in the fleet', 'number', true, []],
       ['bollardPull', 'Maximum bollard pull (tonnes)', 'number', true, []]]],
+    // B2 — the convention certificates as services. Their names, terms and
+    // survey regimes come from the conventions themselves, so the definitions
+    // are generated off the certificate register rather than typed out one at a
+    // time: adding a certificate to the register adds a service to the desk.
+    ...[
+      ['SAFETY_MANAGEMENT_CERTIFICATE', 'VESSEL', 'सुरक्षा प्रबंधन प्रमाणपत्र', 35000, 21,
+       ['Document of Compliance of the managing company', 'Safety management system manual', 'Internal audit report', 'Master\'s review']],
+      ['SHIP_SECURITY_CERTIFICATE', 'VESSEL', 'अंतर्राष्ट्रीय पोत सुरक्षा प्रमाणपत्र', 30000, 21,
+       ['Ship Security Assessment', 'Approved Ship Security Plan', 'SSO appointment and training records', 'Continuous Synopsis Record']],
+      ['INTERNATIONAL_LOAD_LINE', 'VESSEL', 'लोड लाइन प्रमाणपत्र', 28000, 21,
+       ['Load line survey report', 'Stability booklet', 'Freeboard assignment calculation']],
+      ['IOPP_CERTIFICATE', 'VESSEL', 'तेल प्रदूषण निवारण प्रमाणपत्र', 26000, 21,
+       ['Oil record book', 'Shipboard Oil Pollution Emergency Plan', 'Oily water separator type approval']],
+      ['MARITIME_LABOUR_CERTIFICATE', 'VESSEL', 'समुद्री श्रम प्रमाणपत्र', 32000, 30,
+       ['Declaration of Maritime Labour Compliance Part I', 'Declaration of Maritime Labour Compliance Part II', 'Seafarer employment agreements', 'Accommodation and catering inspection report']],
+      ['TONNAGE_CERTIFICATE', 'VESSEL', 'टनभार प्रमाणपत्र', 18000, 14,
+       ['Tonnage measurement calculation', 'General arrangement plan', 'Capacity plan']],
+      ['MINIMUM_SAFE_MANNING_DOCUMENT', 'VESSEL', 'न्यूनतम सुरक्षित नाविक दस्तावेज़', 12000, 14,
+       ['Manning proposal with watchkeeping arrangement', 'Trading area and voyage pattern', 'Machinery space attendance statement']],
+      ['DOCUMENT_OF_COMPLIANCE', 'COMPANY', 'अनुपालन दस्तावेज़', 90000, 45,
+       ['Safety management system manual', 'Internal audit programme and reports', 'Designated Person Ashore appointment', 'Fleet list with ship types']],
+    ].map(([type, subjectKind, nameLocal, fee, sla, docs]) => [
+      `CERT-${NUMBER_PREFIX_BY_TYPE[type]}`, `${SC.CERT_LABEL[type]} — issue or renew`, nameLocal, 1, subjectKind,
+      type, fee, sla, false, docs,
+      subjectKind === 'VESSEL'
+        ? [['surveyPort', 'Port at which the survey is to be held', 'text', true, []],
+           ['surveyDate', 'Requested survey date', 'date', true, []],
+           ['recognisedOrganisation', 'Recognised organisation acting for the flag', 'select', false,
+            ['Indian Register of Shipping', 'Lloyd\'s Register', 'DNV', 'Bureau Veritas', 'ClassNK', 'American Bureau of Shipping']]]
+        : [['fleetSize', 'Ships in the fleet', 'number', true, []],
+           ['shipTypes', 'Ship types operated', 'textarea', true, []]],
+    ]),
   ];
   const stagesFor = (slaDays) => [
     { key: 'SCREENING', label: 'Completeness screening', labelLocal: 'पूर्णता जाँच', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.2)) },
@@ -1204,7 +1255,9 @@ async function run() {
   ];
   const svcDocs = svcDefs.map(([code, name, nameLocal, domain, subjectKind, issues, fee, sla, auto, docs, fields]) => ({
     code, name, nameLocal, domain, subjectKind, issuesInstrument: issues,
-    description: `${name} under the authority's ${subjectKind.replace(/_/g, ' ').toLowerCase()} mandate.`,
+    description: SC.CONVENTION[issues]
+      ? `${name}, issued under ${SC.CONVENTION[issues]}.`
+      : `${name} under the authority's ${subjectKind.replace(/_/g, ' ').toLowerCase()} mandate.`,
     subjectRequired: true,
     formFields: fields.map(([key, label, type, required, options]) => ({ key, label, type, required, options })),
     requiredDocuments: docs.map((d, i) => ({ key: `doc${i + 1}`, label: d, mandatory: i < 2 })),
@@ -2021,6 +2074,608 @@ async function run() {
   await M.Notification.insertMany(nDocs, { timestamps: false });
   console.log(`notifications: ${nDocs.length}`);
 
+  // ---------- B1: the ship register ----------
+  // Registration is what gives a ship its nationality, and it is the record
+  // everything else hangs off. Only the Indian-flagged demo ships hold entries:
+  // a foreign-flagged ship calling at Mundra is on somebody else's register, and
+  // showing it on this one would be the kind of detail that gets noticed. The
+  // documented liner callers are excluded outright, as everywhere else.
+  const PORT = REG.defaultPort();
+  const SHARES = REG.shareRules().denominator;
+  const cin = (n) => `U61100GJ${2008 + (n % 15)}PLC0${String(12345 + n * 137).slice(0, 5)} (sample)`;
+  const netOf = (v) => Math.round(v.grt * (v.type === 'TANK' ? 0.55 : v.type === 'CONT' ? 0.46 : 0.52));
+  const surveyors = ['Capt. R. Venkataraman, Surveyor-in-Charge', 'Cdr. A. Deshpande, Ship Surveyor',
+    'Shri M. Parmar, Ship Surveyor', 'Capt. J. Thomas, Surveyor-in-Charge'];
+  const registryOfficers = ['Shri D. Chudasama, Registrar of Indian Ships',
+    'Smt. L. Nambiar, Dy. Registrar', 'Shri P. Vaghela, Registrar of Indian Ships'];
+
+  const ownersFor = (v, i) => (i % 3 === 1
+    ? [{ name: v.owner, address: 'Gandhidham, Kutch, Gujarat', nationality: 'Indian', shares: SHARES - 3, kind: 'BODY_CORPORATE', cin: cin(i) },
+      { name: v.operator, address: 'Mumbai, Maharashtra', nationality: 'Indian', shares: 3, kind: 'BODY_CORPORATE', cin: cin(i + 9) }]
+    : [{ name: v.owner, address: 'Gandhidham, Kutch, Gujarat', nationality: 'Indian', shares: SHARES, kind: 'BODY_CORPORATE', cin: cin(i) }]);
+
+  const evidenceFor = (keys, when, by) => keys.map(([key, label, ref]) => ({
+    key, label, reference: ref, issuedBy: by,
+    issuedOn: new Date(when.getTime() - ri(20, 120) * D),
+    fileName: `${key.toLowerCase().replace(/_/g, '-')}.pdf`,
+    verified: true, verifiedBy: pick(registryOfficers), verifiedAt: new Date(when.getTime() - ri(2, 10) * D),
+  }));
+
+  const FIRST_EVIDENCE = (v) => [
+    ['DECLARATION_OF_OWNERSHIP', 'Declaration of ownership', `DOO/${v.imo}`],
+    ['TITLE_DOCUMENT', "Builder's certificate", `BC/${v.yard.split(',')[0].replace(/\s/g, '')}/${v.built}`],
+    ['TONNAGE_CERTIFICATE', 'Tonnage measurement certificate', `TM/${v.imo}`],
+    ['SURVEY_CERTIFICATE', 'Certificate of survey', `SUR/${v.imo}`],
+    ['CLASS_CERTIFICATE', 'Classification certificate', `${v.classSociety}/${v.imo}`],
+    ['INSURANCE_CERTIFICATE', 'P&I cover note', `PI/${v.piClub.split(' ')[0]}/${v.imo}`],
+  ];
+
+  const regDocs = [];
+  const mkReg = (o) => {
+    const v = o.vessel;
+    const at = o.at;
+    const base = {
+      kind: o.kind, vessel: v._id, vesselName: o.vesselName || v.name, imo: v.imo,
+      portOfRegistry: o.port || PORT, portOfRegistryName: REG.portName(o.port || PORT),
+      applicant: {
+        name: v.owner, email: `registry@${v.owner.toLowerCase().replace(/[^a-z]/g, '').slice(0, 14)}.example.in`,
+        phone: '+91 2836 2' + String(30000 + (v.imo % 60000)).slice(0, 5), capacity: 'Managing owner',
+      },
+      owners: o.owners || [],
+      tonnage: o.tonnage || {},
+      evidence: o.evidence || [],
+      encumbrances: o.encumbrances || [],
+      amendment: o.amendment || {},
+      deletion: o.deletion || {},
+      status: o.status,
+      assignedTo: o.assignedTo || pick(registryOfficers),
+      fee: { amount: o.fee, currency: 'INR', paid: o.status === 'GRANTED' },
+      submittedAt: new Date(at.getTime() - o.leadDays * D),
+      dueAt: new Date(at.getTime() - o.leadDays * D + o.slaDays * D),
+      history: o.history,
+      createdAt: new Date(at.getTime() - o.leadDays * D),
+      updatedAt: at,
+    };
+    if (o.status === 'GRANTED') {
+      Object.assign(base, {
+        grantedOn: at, grantedBy: pick(registryOfficers), closedAt: at,
+        decision: { outcome: 'GRANTED', by: base.assignedTo, at, reason: '' },
+        checks: o.checks || [],
+      });
+    }
+    if (o.carvingNote) base.carvingNote = o.carvingNote;
+    if (o.checks && o.status !== 'GRANTED') base.checks = o.checks;
+    regDocs.push(base);
+    return base;
+  };
+
+  const passed = (rows) => rows.map(([check, detail]) => ({ check, passed: true, blocking: true, detail }));
+
+  // MT Bangus carries a documented cargo record, so it stays off the register
+  // along with the liner callers — a fabricated registry entry is exactly the
+  // kind of claim that should never attach to a real ship's name.
+  const registrable = demoFleet.filter((v) => v.flag === 'India' && v.name !== 'MT Bangus');
+  const registered = [];
+
+  registrable.forEach((v, i) => {
+    // A ship is registered when it is delivered, so the entry predates the
+    // operating history the rest of this dataset covers. That is what a register
+    // looks like: it outlives every other record about the ship.
+    const at = new Date(v.built, (i * 3) % 12, 4 + ((i * 7) % 20), 11, 15);
+    const owners = ownersFor(v, i);
+    const carvedOn = new Date(at.getTime() - ri(8, 20) * D);
+    mkReg({
+      vessel: v, kind: 'PERMANENT', status: 'GRANTED', at, leadDays: ri(34, 70), slaDays: 30, fee: 50000,
+      owners,
+      tonnage: { gross: v.grt, net: netOf(v), measuredBy: v.classSociety, certificateNo: `TM/${v.imo}`, measuredOn: new Date(at.getTime() - ri(60, 150) * D) },
+      evidence: evidenceFor(FIRST_EVIDENCE(v), at, v.classSociety),
+      carvingNote: {
+        number: '', issuedOn: new Date(carvedOn.getTime() - 14 * D), issuedBy: pick(registryOfficers),
+        compliedOn: carvedOn, surveyor: pick(surveyors),
+        remarks: 'Official number and registered tonnage cut into the main beam and verified.',
+      },
+      checks: passed([
+        ['Ship is not already on the register', 'No subsisting entry'],
+        ['Port of registry is a declared port', `${REG.portName(PORT)} (${PORT})`],
+        ['Ownership shares account for the whole ship', `${SHARES} of ${SHARES} shares allotted across ${owners.length} owner(s)`],
+        ['Registered owners within the statutory maximum', `${owners.length} owner(s), maximum ${REG.shareRules().maxOwners}`],
+        ['Every owner qualifies to own an Indian ship', `${owners.length} owner(s) qualify`],
+        ['Tonnage measured and certified', `${v.grt} GT / ${netOf(v)} NT, certificate TM/${v.imo}`],
+        ['Mandatory evidence on file', '4 mandatory document(s) lodged'],
+        ['Carving and marking note complied with', `Reported by a ship surveyor on ${carvedOn.toISOString().slice(0, 10)}`],
+      ]),
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(at.getTime() - 60 * D), by: v.owner, note: 'Permanent registration lodged' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(at.getTime() - 52 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_SCRUTINY', to: 'CARVING_NOTE_ISSUED', at: new Date(carvedOn.getTime() - 14 * D), by: 'Registry', note: 'Official number allocated' },
+        { from: 'CARVING_NOTE_ISSUED', to: 'SURVEY_COMPLETE', at: carvedOn, by: 'Registry', note: 'Carving and marking verified' },
+        { from: 'SURVEY_COMPLETE', to: 'APPROVED', at: new Date(at.getTime() - 3 * D), by: 'Registry', note: '' },
+        { from: 'APPROVED', to: 'GRANTED', at, by: 'Registry', note: 'Certificate of registry granted' },
+      ],
+    });
+    registered.push(v);
+  });
+
+  // Two foreign-flagged ships being brought onto the Indian flag — the journey
+  // that shows the deletion certificate from the previous registry doing work.
+  const inbound = demoFleet.filter((v) => v.flag !== 'India' && v.name !== 'MT Bangus').slice(0, 2);
+  if (inbound[0]) {
+    const v = inbound[0];
+    // Deliberately close to running out: a provisional certificate that lapses
+    // leaves a ship with no certificate of registry at all, which is the one
+    // registry expiry worth putting on a dashboard.
+    const at = new Date(NOW.getTime() - (Math.round(6 * 30.44) - 41) * D);
+    const owners = ownersFor(v, 0);
+    mkReg({
+      vessel: v, kind: 'PROVISIONAL', status: 'GRANTED', at, leadDays: ri(9, 16), slaDays: 7, fee: 15000,
+      owners,
+      tonnage: { gross: v.grt, net: netOf(v), measuredBy: v.classSociety, certificateNo: `TM/${v.imo}`, measuredOn: new Date(at.getTime() - 40 * D) },
+      evidence: evidenceFor([
+        ['DECLARATION_OF_OWNERSHIP', 'Declaration of ownership', `DOO/${v.imo}`],
+        ['TITLE_DOCUMENT', 'Bill of sale', `BOS/${v.imo}/${yearOf(at)}`],
+        ['TONNAGE_CERTIFICATE', 'Tonnage measurement certificate', `TM/${v.imo}`],
+      ], at, v.classSociety),
+      checks: passed([
+        ['Ship is not already on the register', 'No subsisting entry'],
+        ['Port of registry is a declared port', `${REG.portName(PORT)} (${PORT})`],
+        ['Ownership shares account for the whole ship', `${SHARES} of ${SHARES} shares allotted across ${owners.length} owner(s)`],
+        ['Every owner qualifies to own an Indian ship', `${owners.length} owner(s) qualify`],
+        ['Mandatory evidence on file', '2 mandatory document(s) lodged'],
+      ]),
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(at.getTime() - 12 * D), by: v.owner, note: 'Provisional registration lodged — ship acquired abroad' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(at.getTime() - 8 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_SCRUTINY', to: 'APPROVED', at: new Date(at.getTime() - 2 * D), by: 'Registry', note: '' },
+        { from: 'APPROVED', to: 'GRANTED', at, by: 'Registry', note: 'Provisional certificate of registry granted' },
+      ],
+    });
+  }
+  if (inbound[1]) {
+    const v = inbound[1];
+    // Live work: the number is allocated and cut, the surveyor has not reported.
+    const at = new Date(NOW.getTime() - 9 * D);
+    const owners = ownersFor(v, 1);
+    mkReg({
+      vessel: v, kind: 'PERMANENT', status: 'CARVING_NOTE_ISSUED', at, leadDays: 22, slaDays: 30, fee: 50000,
+      owners,
+      tonnage: { gross: v.grt, net: netOf(v), measuredBy: v.classSociety, certificateNo: `TM/${v.imo}`, measuredOn: new Date(at.getTime() - 30 * D) },
+      previousFlag: v.flag, previousRegistry: v.portOfRegistry, previousOfficialNumber: String(700000 + (v.imo % 90000)),
+      evidence: evidenceFor([...FIRST_EVIDENCE(v),
+        ['DELETION_CERTIFICATE', 'Deletion certificate from the previous registry', `DEL/${v.flag.slice(0, 3).toUpperCase()}/${yearOf(at)}/0148`],
+      ], at, v.classSociety),
+      carvingNote: {
+        number: '', issuedOn: new Date(at.getTime() - 4 * D), issuedBy: pick(registryOfficers),
+        remarks: 'Awaiting the surveyor\'s report of compliance.',
+      },
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(at.getTime() - 22 * D), by: v.owner, note: 'Permanent registration lodged on transfer of flag' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(at.getTime() - 15 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_SCRUTINY', to: 'CARVING_NOTE_ISSUED', at: new Date(at.getTime() - 4 * D), by: 'Registry', note: 'Official number allocated' },
+      ],
+    });
+  }
+
+  // Amendments — the alterations a register actually records.
+  const renamed = registered[0];
+  if (renamed) {
+    const at = new Date(NOW.getTime() - ri(300, 640) * D);
+    mkReg({
+      vessel: renamed, kind: 'AMENDMENT', status: 'GRANTED', at, leadDays: ri(12, 22), slaDays: 15, fee: 10000,
+      amendment: {
+        types: ['NAME'], approvalReference: `DGS/NAME/${yearOf(at)}/0${ri(210, 890)}`,
+        before: { name: `${renamed.name.replace(/^MV /, 'MV ').replace(/ .*$/, '')} Pride` },
+        after: { name: renamed.name },
+      },
+      evidence: evidenceFor([
+        ['AMENDMENT_APPLICATION', 'Application stating the alteration', `AMD/${renamed.imo}`],
+        ['SUPPORTING_EVIDENCE', 'Board resolution approving the change of name', `BR/${yearOf(at)}/44`],
+        ['NAME_APPROVAL', 'Prior approval of the new name', `DGS/NAME/${yearOf(at)}/0${ri(210, 890)}`],
+      ], at, 'Directorate General of Shipping'),
+      checks: passed([
+        ['Ship holds a subsisting registry entry', 'On the register'],
+        ['Nature of the alteration stated', 'name'],
+        ['New name approved in advance', 'Prior approval on file'],
+        ['Mandatory evidence on file', '3 mandatory document(s) lodged'],
+      ]),
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(at.getTime() - 18 * D), by: renamed.owner, note: 'Change of name' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(at.getTime() - 12 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_SCRUTINY', to: 'APPROVED', at: new Date(at.getTime() - 2 * D), by: 'Registry', note: '' },
+        { from: 'APPROVED', to: 'GRANTED', at, by: 'Registry', note: 'Certificate of registry reissued as altered' },
+      ],
+    });
+  }
+  const transferred = registered[3] || registered[1];
+  if (transferred) {
+    const at = new Date(NOW.getTime() - ri(90, 300) * D);
+    const newOwners = [
+      { name: transferred.operator, address: 'Mumbai, Maharashtra', nationality: 'Indian', shares: SHARES - 2, kind: 'BODY_CORPORATE', cin: cin(31) },
+      { name: 'Kutch Mariners Co-operative Society Ltd', address: 'Mandvi, Kutch, Gujarat', nationality: 'Indian', shares: 2, kind: 'COOPERATIVE_SOCIETY', cin: cin(47) },
+    ];
+    mkReg({
+      vessel: transferred, kind: 'AMENDMENT', status: 'GRANTED', at, leadDays: ri(11, 19), slaDays: 15, fee: 10000,
+      owners: newOwners,
+      amendment: {
+        types: ['OWNERSHIP'],
+        before: { owner: transferred.owner },
+        after: { owner: transferred.operator },
+      },
+      evidence: evidenceFor([
+        ['AMENDMENT_APPLICATION', 'Application stating the alteration', `AMD/${transferred.imo}`],
+        ['SUPPORTING_EVIDENCE', 'Transfer instrument', `TR/${yearOf(at)}/07`],
+        ['TITLE_DOCUMENT', 'Bill of sale', `BOS/${transferred.imo}/${yearOf(at)}`],
+      ], at, 'Registrar of Indian Ships'),
+      checks: passed([
+        ['Ship holds a subsisting registry entry', 'On the register'],
+        ['Ownership shares account for the whole ship', `${SHARES} of ${SHARES} shares allotted across 2 owner(s)`],
+        ['Every owner qualifies to own an Indian ship', '2 owner(s) qualify'],
+        ['Nature of the alteration stated', 'ownership'],
+      ]),
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(at.getTime() - 15 * D), by: transferred.owner, note: 'Transfer of shares' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(at.getTime() - 9 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_SCRUTINY', to: 'APPROVED', at: new Date(at.getTime() - 2 * D), by: 'Registry', note: '' },
+        { from: 'APPROVED', to: 'GRANTED', at, by: 'Registry', note: 'Register altered and certificate reissued' },
+      ],
+    });
+  }
+  // Open work on the desk.
+  const movingPort = registered[2];
+  if (movingPort) {
+    const at = NOW;
+    mkReg({
+      vessel: movingPort, kind: 'AMENDMENT', status: 'UNDER_SCRUTINY', at, leadDays: 6, slaDays: 15, fee: 10000,
+      amendment: { types: ['PORT_OF_REGISTRY'], before: { portOfRegistry: PORT }, after: { portOfRegistry: 'MUM' } },
+      evidence: evidenceFor([
+        ['AMENDMENT_APPLICATION', 'Application stating the alteration', `AMD/${movingPort.imo}`],
+        ['SUPPORTING_EVIDENCE', 'Board resolution — transfer of port of registry', `BR/${NOW.getFullYear()}/12`],
+      ], at, 'Registrar of Indian Ships'),
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(NOW.getTime() - 6 * D), by: movingPort.owner, note: 'Transfer of port of registry to Mumbai' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(NOW.getTime() - 4 * D), by: 'Registry', note: '' },
+      ],
+    });
+  }
+
+  // Two closures, deliberately in different states: one held up by a charge that
+  // has not been discharged, one cleared and waiting only for the grant. The
+  // first is the more useful of the two — it is the check doing its job.
+  const outstandingByVessel = {};
+  invDocs.filter((x) => x.status === 'ISSUED').forEach((x) => {
+    outstandingByVessel[String(x.vessel)] = (outstandingByVessel[String(x.vessel)] || 0) + x.total;
+  });
+  const mortgaged = registered.find((v) => v !== movingPort && v !== renamed && v !== transferred) || registered[4];
+  if (mortgaged) {
+    const at = NOW;
+    mkReg({
+      vessel: mortgaged, kind: 'DELETION', status: 'UNDER_SCRUTINY', at, leadDays: 11, slaDays: 15, fee: 5000,
+      deletion: { reason: 'SOLD_FOREIGN', newFlag: 'Panama', effectiveOn: new Date(NOW.getTime() + 20 * D) },
+      encumbrances: [{
+        kind: 'MORTGAGE', holder: 'Saurashtra Cooperative Bank Ltd', amount: 184000000, currency: 'INR',
+        registeredOn: new Date(NOW.getTime() - 900 * D), reference: `MTG/${PORT}/${NOW.getFullYear() - 2}/018`,
+      }],
+      evidence: evidenceFor([
+        ['CLOSURE_APPLICATION', 'Application for closure of registry', `CLS/${mortgaged.imo}`],
+        ['TITLE_DOCUMENT', 'Bill of sale to the foreign purchaser', `BOS/${mortgaged.imo}/${NOW.getFullYear()}`],
+      ], at, 'Registrar of Indian Ships'),
+      checks: [
+        { check: 'Ship holds a subsisting registry entry', passed: true, blocking: true, detail: 'On the register' },
+        { check: 'Mandatory evidence on file', passed: false, blocking: true, detail: 'Not lodged: Discharge of registered mortgage, Clearance of port dues and government charges' },
+        { check: 'No subsisting mortgage or charge', passed: false, blocking: true, detail: '1 undischarged: mortgage in favour of Saurashtra Cooperative Bank Ltd' },
+        { check: 'Ground for closure stated', passed: true, blocking: true, detail: 'sold foreign' },
+        { check: 'Receiving flag stated', passed: true, blocking: true, detail: 'Panama' },
+      ],
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(NOW.getTime() - 11 * D), by: mortgaged.owner, note: 'Closure of registry — sale to a foreign purchaser' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(NOW.getTime() - 8 * D), by: 'Registry', note: 'Mortgage discharge outstanding' },
+      ],
+    });
+  }
+  // The clean closure waits on the registrar's signature, so the grant can be
+  // demonstrated live. Chosen from the ships that owe the port nothing, because
+  // the dues check would otherwise refuse it — and would be right to.
+  const closureCandidates = registered.filter((v) => v !== mortgaged && v !== movingPort
+    && v !== renamed && v !== transferred);
+  const clearForClosure = closureCandidates
+    .sort((a, b) => (outstandingByVessel[String(a._id)] || 0) - (outstandingByVessel[String(b._id)] || 0))[0];
+  if (clearForClosure) {
+    // An owner does not get a ship off the register while it still owes the port
+    // money, and knows it — so the account is settled before the application is
+    // lodged. Settling it here rather than pretending the check passed keeps the
+    // seeded decision and the live re-check saying the same thing.
+    const settled = await M.Invoice.updateMany(
+      { vessel: clearForClosure._id, status: 'ISSUED' },
+      { $set: { status: 'PAID', paidAt: new Date(NOW.getTime() - 16 * D), paymentRef: `NEFT/${NOW.getFullYear()}/CLS-${clearForClosure.imo}` } },
+    );
+    console.log(`closure: ${clearForClosure.name} settled ${settled.modifiedCount || 0} outstanding invoice(s) before applying`);
+    const at = NOW;
+    mkReg({
+      vessel: clearForClosure, kind: 'DELETION', status: 'APPROVED', at, leadDays: 13, slaDays: 15, fee: 5000,
+      deletion: { reason: 'BROKEN_UP', effectiveOn: new Date(NOW.getTime() - 2 * D) },
+      evidence: evidenceFor([
+        ['CLOSURE_APPLICATION', 'Application for closure of registry', `CLS/${clearForClosure.imo}`],
+        ['DUES_CLEARANCE', 'Clearance of port dues and government charges', `DUE/${NOW.getFullYear()}/${clearForClosure.imo}`],
+      ], at, 'Registrar of Indian Ships'),
+      checks: passed([
+        ['Ship holds a subsisting registry entry', 'On the register'],
+        ['No subsisting mortgage or charge', 'Encumbrance register clear'],
+        ['Port dues and charges settled', 'Nothing outstanding'],
+        ['Ground for closure stated', 'broken up'],
+        ['Mandatory evidence on file', '2 mandatory document(s) lodged'],
+      ]),
+      history: [
+        { from: '', to: 'SUBMITTED', at: new Date(NOW.getTime() - 13 * D), by: clearForClosure.owner, note: 'Closure of registry — ship sold for demolition' },
+        { from: 'SUBMITTED', to: 'UNDER_SCRUTINY', at: new Date(NOW.getTime() - 9 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_SCRUTINY', to: 'APPROVED', at: new Date(NOW.getTime() - 1 * D), by: 'Registry', note: 'Cleared for closure' },
+      ],
+    });
+  }
+
+  // Numbering. Applications run in one chronological series per year; official
+  // numbers run in one unbroken series across the whole register and are
+  // allocated when the number is carved, not when the certificate is granted.
+  const regSeq = {};
+  const certSeq = {};
+  const cmnSeq = {};
+  let onNext = 900001;
+  regDocs.sort((a, b) => a.submittedAt - b.submittedAt).forEach((d) => {
+    const y = yearOf(d.submittedAt);
+    regSeq[y] = (regSeq[y] || 0) + 1;
+    d.applicationNo = `REG-${y}-${String(regSeq[y]).padStart(5, '0')}`;
+    if (d.carvingNote && d.carvingNote.issuedOn) {
+      const cy = yearOf(d.carvingNote.issuedOn);
+      const ck = `${d.portOfRegistry}/CMN/${cy}`;
+      cmnSeq[ck] = (cmnSeq[ck] || 0) + 1;
+      d.carvingNote.number = `${ck}/${String(cmnSeq[ck]).padStart(4, '0')}`;
+    }
+    // a first registration takes its official number at carving; a provisional
+    // one takes it at grant, there being nothing to carve
+    if ((d.kind === 'PERMANENT' && d.carvingNote && d.carvingNote.issuedOn)
+      || (d.kind === 'PROVISIONAL' && d.status === 'GRANTED')) {
+      d.officialNumber = String(onNext); onNext += 1;
+    }
+    if (d.status === 'GRANTED') {
+      const series = d.kind === 'PROVISIONAL' ? 'PCR' : d.kind === 'DELETION' ? 'DEL' : 'CR';
+      const gy = yearOf(d.grantedOn);
+      const k = `${d.portOfRegistry}/${series}/${gy}`;
+      certSeq[k] = (certSeq[k] || 0) + 1;
+      d.certificateNo = `${k}/${String(certSeq[k]).padStart(4, '0')}`;
+      if (d.kind === 'PROVISIONAL') {
+        d.certificateExpiresOn = new Date(d.grantedOn.getTime() + Math.round(6 * 30.44) * D);
+      }
+      if (d.kind === 'DELETION') { d.deletion.certificateNo = d.certificateNo; d.deletion.issuedOn = d.grantedOn; }
+    }
+  });
+  await M.VesselRegistration.insertMany(regDocs, { timestamps: false });
+
+  // Write the register onto the ships. The grant is the only thing entitled to
+  // do this, which is why it happens here and in the grant endpoint and nowhere
+  // else — the ship record and the register must never be able to disagree.
+  const regByVessel = {};
+  regDocs.filter((d) => d.status === 'GRANTED' && ['PERMANENT', 'PROVISIONAL'].includes(d.kind))
+    .forEach((d) => { regByVessel[String(d.vessel)] = d; });
+  const latestAmendment = {};
+  regDocs.filter((d) => d.status === 'GRANTED' && d.kind === 'AMENDMENT')
+    .forEach((d) => { latestAmendment[String(d.vessel)] = d; });
+
+  for (const [vid, d] of Object.entries(regByVessel)) {
+    const amend = latestAmendment[vid];
+    const set = {
+      'registry.state': d.kind === 'PROVISIONAL' ? 'PROVISIONAL' : 'REGISTERED',
+      'registry.officialNumber': d.officialNumber,
+      'registry.portOfRegistry': d.portOfRegistry,
+      'registry.certificateNo': (amend && amend.certificateNo) || d.certificateNo,
+      'registry.registeredOn': d.grantedOn,
+      portOfRegistry: REG.portName(d.portOfRegistry),
+      flag: 'India',
+    };
+    if (d.kind === 'PROVISIONAL') set['registry.certificateExpiresOn'] = d.certificateExpiresOn;
+    await M.Vessel.updateOne({ _id: vid }, { $set: set });
+  }
+  console.log(`ship register: ${regDocs.length} transactions, ${Object.keys(regByVessel).length} ships on the register`);
+
+  // ---------- B2: statutory certificates on the instrument register ----------
+  // A flag state issues these, so only the ships now on this register carry
+  // them. Each one is signed at issue and carries the survey endorsements its
+  // convention requires — because a certificate whose annual survey window has
+  // closed unendorsed has stopped being valid, whatever its expiry date says.
+  const registeredVessels = await M.Vessel.find({ 'registry.state': { $in: ['REGISTERED', 'PROVISIONAL'] } }).lean();
+  const SHIP_CERTS = ['SAFETY_MANAGEMENT_CERTIFICATE', 'SHIP_SECURITY_CERTIFICATE', 'INTERNATIONAL_LOAD_LINE',
+    'IOPP_CERTIFICATE', 'MARITIME_LABOUR_CERTIFICATE', 'TONNAGE_CERTIFICATE', 'MINIMUM_SAFE_MANNING_DOCUMENT'];
+  const ROs = ['Indian Register of Shipping', 'Lloyd\'s Register', 'DNV', 'Bureau Veritas', 'ClassNK'];
+  const statutory = [];
+
+  registeredVessels.forEach((v, vi) => {
+    // One ship is left with its survey schedule slipped, so the register has a
+    // live example of a certificate that reads valid on its face and is not.
+    const lapsed = vi === 1;
+    SHIP_CERTS.forEach((entityType, ci) => {
+      const term = SC.SURVEY_REGIME[entityType] && (entityType === 'TONNAGE_CERTIFICATE' || entityType === 'MINIMUM_SAFE_MANNING_DOCUMENT')
+        ? 1200 : 60;
+      // roll the five-year term forward so nothing is trading on a lapsed
+      // certificate, then let the endorsements fall where they fall
+      let issued = new Date(NOW.getTime() - ri(200, 1500) * D);
+      const termDays = Math.round(term * 30.44);
+      while (issued.getTime() + termDays * D < NOW.getTime()) issued = new Date(issued.getTime() + termDays * D);
+      const expiry = new Date(issued.getTime() + termDays * D);
+      const applied = new Date(issued.getTime() - ri(14, 40) * D);
+      const doc = {
+        subjectKind: 'VESSEL', subjectRef: v._id, subjectModel: 'Vessel', instrumentClass: 'CERTIFICATE',
+        entityName: `${v.name} (IMO ${v.imo})`, entityType, status: 'ISSUED',
+        contactPerson: v.manager || '', phone: '', email: '', address: '', gstin: '',
+        appliedDate: applied, issueDate: issued, expiryDate: expiry,
+        conditions: `Issued under ${SC.CONVENTION[entityType]}. Subject to the survey endorsements recorded on this certificate.`,
+        performanceRating: 0,
+        issueChecks: [
+          { check: 'Vessel is on the active register', passed: true, detail: `Official number ${v.registry.officialNumber}` },
+          { check: 'Statutory certificates in force', passed: true, detail: 'No expired certificate at issue' },
+          { check: 'Class docking survey current', passed: true, detail: v.nextDryDock ? `Next docking ${new Date(v.nextDryDock).toISOString().slice(0, 10)}` : 'Not recorded' },
+        ],
+        audits: [],
+        endorsements: [],
+        history: [
+          { from: '', to: 'APPLIED', at: applied, by: v.owner, note: 'Survey requested' },
+          { from: 'APPLIED', to: 'UNDER_REVIEW', at: new Date(applied.getTime() + 4 * D), by: 'seed', note: '' },
+          { from: 'UNDER_REVIEW', to: 'ISSUED', at: issued, by: 'seed', note: `${SC.CERT_LABEL[entityType]} issued` },
+        ],
+      };
+      // record every survey whose window has already closed, plus any window
+      // currently open that has been attended to
+      const ro = ROs[(vi + ci) % ROs.length];
+      SC.endorsementSchedule(entityType, issued, expiry).forEach((sv, si) => {
+        const windowClosed = sv.dueTo < NOW;
+        const windowOpen = sv.dueFrom <= NOW && !windowClosed;
+        if (lapsed && si >= 1) return;                       // this ship let its surveys slip
+        if (!windowClosed && !(windowOpen && si % 2 === 0)) return;
+        doc.endorsements.push({
+          kind: sv.kind, anniversary: sv.anniversary,
+          completedOn: new Date(sv.anniversary.getTime() - ri(0, 40) * D),
+          surveyor: pick(surveyors).split(',')[0], organisation: ro,
+          place: pick(['Mundra', 'Kandla', 'Mumbai', 'Kochi', 'Singapore']),
+          result: 'ENDORSED', remarks: '',
+        });
+      });
+      statutory.push(doc);
+    });
+  });
+
+  // The Document of Compliance is issued to the company operating the ship, not
+  // to the ship. It is here because it is the plainest demonstration that one
+  // engine issues against whatever the instrument is actually about.
+  const ismCompanies = [...new Set(registeredVessels.map((v) => v.manager).filter(Boolean))].slice(0, 4);
+  ismCompanies.forEach((company, i) => {
+    let issued = new Date(NOW.getTime() - ri(300, 1600) * D);
+    const termDays = Math.round(60 * 30.44);
+    while (issued.getTime() + termDays * D < NOW.getTime()) issued = new Date(issued.getTime() + termDays * D);
+    const expiry = new Date(issued.getTime() + termDays * D);
+    const doc = {
+      subjectKind: 'COMPANY', instrumentClass: 'CERTIFICATE',
+      entityName: company, entityType: 'DOCUMENT_OF_COMPLIANCE', status: 'ISSUED',
+      contactPerson: 'Designated Person Ashore', phone: '', email: '', address: company.split(', ')[1] || '', gstin: '',
+      appliedDate: new Date(issued.getTime() - ri(30, 60) * D), issueDate: issued, expiryDate: expiry,
+      conditions: 'Issued under the ISM Code for the ship types listed on the certificate.',
+      performanceRating: 0,
+      issueChecks: [{ check: 'Company is on the directory and not blacklisted', passed: true, detail: 'In good standing' }],
+      audits: [], endorsements: [],
+      history: [
+        { from: '', to: 'APPLIED', at: new Date(issued.getTime() - ri(30, 60) * D), by: company, note: 'Initial verification audit requested' },
+        { from: 'APPLIED', to: 'ISSUED', at: issued, by: 'seed', note: 'Document of Compliance issued' },
+      ],
+    };
+    SC.endorsementSchedule('DOCUMENT_OF_COMPLIANCE', issued, expiry).forEach((sv) => {
+      if (sv.dueTo >= NOW) return;
+      doc.endorsements.push({
+        kind: sv.kind, anniversary: sv.anniversary,
+        completedOn: new Date(sv.anniversary.getTime() - ri(0, 30) * D),
+        surveyor: pick(surveyors).split(',')[0], organisation: ROs[i % ROs.length],
+        place: (company.split(', ')[1] || 'Mumbai'), result: 'ENDORSED', remarks: '',
+      });
+    });
+    statutory.push(doc);
+  });
+
+  // Number each register in its own chronological series, then sign. Signing is
+  // last because the signature covers the certificate number.
+  const stSeq = {};
+  statutory.sort((a, b) => a.appliedDate - b.appliedDate).forEach((d) => {
+    const y = yearOf(d.appliedDate);
+    const k = `${NUMBER_PREFIX_BY_TYPE[d.entityType]}-${y}`;
+    stSeq[k] = (stSeq[k] || 0) + 1;
+    d.licenseNo = `${k}-${String(stSeq[k]).padStart(4, '0')}`;
+    d.signature = SIGN.sign(d);
+  });
+  await M.License.insertMany(statutory, { timestamps: false });
+
+  // Put each ship certificate onto the ship, so it shows up on the fleet expiry
+  // screens under the name the crew know it by rather than only in the register.
+  for (const d of statutory) {
+    if (d.subjectKind !== 'VESSEL') continue;
+    const label = SC.CERT_LABEL[d.entityType];
+    const v = await M.Vessel.findById(d.subjectRef);
+    if (!v) continue;
+    const entry = {
+      certType: label, number: d.licenseNo, issuer: 'Directorate General of Shipping',
+      issueDate: d.issueDate, expiryDate: d.expiryDate,
+      remarks: SC.nonExpiring(d.entityType)
+        ? `Issued under ${SC.CONVENTION[d.entityType]}. Not renewed on a term — reissued on any change to the ship.`
+        : `Issued on the register under ${SC.CONVENTION[d.entityType]}`,
+    };
+    const existing = v.certificates.find((c) => c.certType === label);
+    if (existing) Object.assign(existing, entry); else v.certificates.push(entry);
+    await v.save();
+  }
+  // The certificate of registry on the ship comes from the register, not from a
+  // separately maintained list.
+  for (const [vid, d] of Object.entries(regByVessel)) {
+    const v = await M.Vessel.findById(vid);
+    if (!v) continue;
+    const cor = v.certificates.find((c) => c.certType === 'Certificate of Registry');
+    const entry = {
+      certType: 'Certificate of Registry',
+      number: (latestAmendment[vid] && latestAmendment[vid].certificateNo) || d.certificateNo,
+      issuer: `Registrar of Indian Ships, ${REG.portName(d.portOfRegistry)}`,
+      issueDate: d.grantedOn,
+      expiryDate: d.kind === 'PROVISIONAL' ? d.certificateExpiresOn : new Date(d.grantedOn.getTime() + 100 * 365 * D),
+      remarks: `Official number ${d.officialNumber}`,
+    };
+    if (cor) Object.assign(cor, entry); else v.certificates.push(entry);
+    await v.save();
+  }
+  const notInForce = statutory.filter((d) => !SC.forceState(d).inForce).length;
+  console.log(`statutory certificates: ${statutory.length} issued and signed, ${notInForce} not in force on their survey schedule`);
+
+  // Applications behind the certificates, so the service desk shows the route a
+  // certificate actually took rather than instruments appearing from nowhere.
+  const certReqs = [];
+  const certApplicants = users.slice(0, 5);
+  statutory.filter((d) => d.subjectKind === 'VESSEL').slice(0, 18).forEach((d, i) => {
+    const def = svcByCode[`CERT-${NUMBER_PREFIX_BY_TYPE[d.entityType]}`];
+    if (!def) return;
+    const u = certApplicants[i % certApplicants.length];
+    certReqs.push({
+      service: def._id, serviceCode: def.code, serviceName: def.name, domain: def.domain,
+      applicant: { userId: String(u._id), name: u.name, email: u.email, phone: u.phone || '', organisation: 'Owner\'s representative' },
+      subjectKind: 'VESSEL', subjectRef: d.subjectRef, subjectModel: 'Vessel', subjectLabel: d.entityName,
+      formData: { surveyPort: pick(['Mundra', 'Kandla', 'Mumbai']), surveyDate: d.issueDate, recognisedOrganisation: pick(ROs) },
+      documents: def.requiredDocuments.map((rd) => ({
+        key: rd.key, label: rd.label, fileName: `${rd.key}.pdf`,
+        uploadedAt: d.appliedDate, verified: true, verifiedBy: 'Registry', verifiedAt: new Date(d.appliedDate.getTime() + 2 * D),
+      })),
+      status: 'ISSUED', currentStage: 'APPROVAL',
+      checks: d.issueChecks,
+      decision: { outcome: 'APPROVED', by: 'Registry', at: new Date(d.issueDate.getTime() - D), reason: '', automated: false },
+      fee: { amount: def.fee.amount, currency: 'INR', paid: true, paidAt: d.appliedDate, reference: `RCPT/${yearOf(d.appliedDate)}/${1000 + i}` },
+      submittedAt: d.appliedDate,
+      dueAt: new Date(d.appliedDate.getTime() + def.slaDays * D),
+      closedAt: d.issueDate,
+      history: [
+        { from: '', to: 'SUBMITTED', at: d.appliedDate, by: u.name, note: 'Survey requested' },
+        { from: 'SUBMITTED', to: 'UNDER_ASSESSMENT', at: new Date(d.appliedDate.getTime() + 2 * D), by: 'Registry', note: '' },
+        { from: 'UNDER_ASSESSMENT', to: 'APPROVED', at: new Date(d.issueDate.getTime() - D), by: 'Registry', note: 'Survey satisfactory' },
+        { from: 'APPROVED', to: 'ISSUED', at: d.issueDate, by: 'Registry', note: 'Certificate issued' },
+      ],
+      createdAt: d.appliedDate, updatedAt: d.issueDate,
+      instrumentNo: d.licenseNo,
+    });
+  });
+  // number in one chronological series with the applications already lodged
+  const lastReq = await M.ServiceRequest.find().sort({ requestNo: -1 }).limit(1).lean();
+  const certSeqStart = lastReq.length ? Number(String(lastReq[0].requestNo).slice(-5)) : 0;
+  certReqs.sort((a, b) => a.submittedAt - b.submittedAt).forEach((r, i) => {
+    r.requestNo = `SR-${yearOf(r.submittedAt)}-${String(certSeqStart + i + 1).padStart(5, '0')}`;
+  });
+  const savedCertReqs = await M.ServiceRequest.insertMany(
+    certReqs.map(({ instrumentNo, ...r }) => r), { timestamps: false });
+  // Link each application to the instrument it produced. An application marked
+  // issued with nothing to show for it is worse than no application at all.
+  const licIdByNo = Object.fromEntries((await M.License
+    .find({ licenseNo: { $in: certReqs.map((r) => r.instrumentNo) } }).select('licenseNo').lean())
+    .map((l) => [l.licenseNo, l._id]));
+  await Promise.all(savedCertReqs.map((r, i) => M.ServiceRequest.updateOne(
+    { _id: r._id }, { $set: { issuedInstrument: licIdByNo[certReqs[i].instrumentNo] } },
+  )));
+  console.log(`certificate applications: ${certReqs.length} lodged and issued`);
+
   const counts = {
     roles: await M.Role.countDocuments(), users: await M.User.countDocuments(),
     berths: await M.Berth.countDocuments(), lookups: await M.Lookup.countDocuments(),
@@ -2029,6 +2684,11 @@ async function run() {
     invoices: await M.Invoice.countDocuments(), templates: await M.ChecklistTemplate.countDocuments(),
     incidents: await M.Incident.countDocuments(), resources: await M.Resource.countDocuments(),
     companies: await M.Company.countDocuments(),
+    registrations: await M.VesselRegistration.countDocuments(),
+    onRegister: await M.Vessel.countDocuments({ 'registry.state': { $in: ['REGISTERED', 'PROVISIONAL'] } }),
+    instruments: await M.License.countDocuments(),
+    serviceDefs: await M.ServiceDefinition.countDocuments(),
+    serviceRequests: await M.ServiceRequest.countDocuments(),
   };
   console.log('SEED COMPLETE', JSON.stringify(counts));
   await mongoose.disconnect();

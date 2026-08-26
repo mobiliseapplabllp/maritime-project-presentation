@@ -20,6 +20,7 @@ module.exports = {
   Position: require('./Position'),
   Resource: require('./Resource'),
   Company: require('./Company'),
+  VesselRegistration: require('./VesselRegistration'),
   ServiceDefinition: require('./ServiceDefinition'),
   ServiceRequest: require('./ServiceRequest'),
   AgentConfig: require('./AgentConfig'),

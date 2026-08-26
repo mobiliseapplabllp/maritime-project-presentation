@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { REGISTRY_STATES } = require('../config/constants');
 
 const certificateSchema = new mongoose.Schema({
   certType: { type: String, required: true },   // e.g. 'Safety Management Certificate'
@@ -37,6 +38,21 @@ const vesselSchema = new mongoose.Schema({
   nextDryDock: Date,
   liner: { type: Boolean, default: false },     // mainline service caller (documented schedule entry)
   status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
+
+  /* B1 — where this ship stands on the national register. Written only by the
+   * registration engine when an application is granted, never edited directly:
+   * the register entry is the authority, and this is its denormalised face so
+   * that fleet screens and certificate checks read it without a join. */
+  registry: {
+    state: { type: String, enum: REGISTRY_STATES, default: 'UNREGISTERED', index: true },
+    officialNumber: { type: String, default: '' },
+    portOfRegistry: { type: String, default: '' },        // port-of-registry code
+    certificateNo: { type: String, default: '' },
+    registeredOn: Date,
+    certificateExpiresOn: Date,                           // provisional certificates only
+    closedOn: Date,
+    closureReason: { type: String, default: '' },
+  },
   certificates: [certificateSchema],
 }, { timestamps: true });
 

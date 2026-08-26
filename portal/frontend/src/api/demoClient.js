@@ -19,6 +19,21 @@ const maps = {
   portcalls: byId(D.portcalls), inspections: byId(D.inspections), invoices: byId(D.invoices),
   seafarers: byId(D.seafarers || []), instruments: byId(D.instruments || []),
   licenses: byId(D.licenses || []), incidents: byId(D.incidents || []),
+  registrations: byId(D.registrations || []),
+  serviceDefinitions: byId(D.serviceDefinitions || []),
+  serviceRequests: byId(D.serviceRequests || []),
+};
+
+/* B1/B2 — the register, the service desk and the agent log read from the
+ * snapshot exactly as the live service reads from the database. Everything the
+ * live service derives at read time — whether a certificate is in force, whether
+ * its signature still matches, where an application stands against its SLA — is
+ * derived by the exporter and travels in the snapshot, so the rule that decides
+ * whether a certificate is valid exists in one place rather than two. */
+const REGISTRY = snap.registry || {};
+const portName = (code) => {
+  const p = (REGISTRY.portsOfRegistry || []).find((x) => x.code === code);
+  return p ? p.name : code || '';
 };
 
 const decorateSeafarer = (sf) => {
@@ -607,10 +622,90 @@ const LISTS = {
     berth: i.berth ? pickFields(maps.berths.get(String(i.berth)), ['code', 'terminal']) : null,
   })), p, { search: ['number', 'title', 'vesselName', 'reportedBy'], filters: ['status', 'type', 'severity', 'category', 'priority'], sort: '-reportedAt' }),
   '/companies': (p) => listOf(D.companies || [], p, { search: ['code', 'name', 'contactPerson', 'gstin'], filters: ['category', 'status', 'city'], sort: 'name' }),
+  '/registrations': (p) => listOf(D.registrations || [], p, {
+    search: ['applicationNo', 'vesselName', 'imo', 'officialNumber'],
+    filters: ['status', 'kind', 'portOfRegistry'], sort: '-createdAt',
+  }),
+  '/services/definitions': (p) => listOf(D.serviceDefinitions || [], p, {
+    search: ['code', 'name', 'description'], filters: ['domain', 'subjectKind', 'active'], sort: 'name',
+  }),
+  '/services/requests': (p) => listOf(D.serviceRequests || [], p, {
+    search: ['requestNo', 'serviceName', 'subjectLabel'], filters: ['status', 'serviceCode', 'subjectKind', 'domain'], sort: '-createdAt',
+  }),
+  '/agents/decisions': (p) => listOf(D.aiDecisions || [], p, {
+    search: ['agentId', 'summary'], filters: ['agentId', 'action', 'outcome'], sort: '-at',
+  }),
 };
+
+/* B1 — a registration file, assembled the way the live service assembles it. */
+function registrationFile(id) {
+  const r = clone(maps.registrations.get(id));
+  if (!r) throw new Error('Registration not found');
+  const v = maps.vessels.get(String(r.vessel));
+  return {
+    ...r,
+    vessel: v ? pickFields(v, ['name', 'imo', 'flag', 'grt', 'type', 'registry', 'status']) : null,
+    portOfRegistryName: r.portOfRegistryName || portName(r.portOfRegistry),
+  };
+}
+
+/* B2 — one instrument with the facts an inspector reads: whether it is in
+ * force, where it stands against its survey schedule, and whether its signature
+ * still matches the register entry. */
+function instrumentFile(id) {
+  const l = clone(maps.licenses.get(id));
+  if (!l) throw new Error('Instrument not found');
+  return {
+    ...l,
+    signature: l.signature && l.signature.value
+      ? { ...l.signature, verification: l.signatureVerification } : null,
+  };
+}
 
 function detail(url) {
   let m;
+  if ((m = url.match(/^\/registrations\/([a-f0-9]{24})$/))) return registrationFile(m[1]);
+  if ((m = url.match(/^\/registrations\/([a-f0-9]{24})\/checks$/))) {
+    const r = maps.registrations.get(m[1]);
+    if (!r) throw new Error('Registration not found');
+    const checks = clone(r.checks || []);
+    return { applicationNo: r.applicationNo, kind: r.kind, checks, blocked: checks.filter((c) => c.blocking && !c.passed) };
+  }
+  if ((m = url.match(/^\/licenses\/([a-f0-9]{24})$/))) return instrumentFile(m[1]);
+  if ((m = url.match(/^\/licenses\/([a-f0-9]{24})\/endorsements$/))) {
+    const l = maps.licenses.get(m[1]);
+    if (!l) throw new Error('Instrument not found');
+    if (!l.statutory) throw new Error('This instrument is not a statutory certificate and carries no survey schedule');
+    return {
+      licenseNo: l.licenseNo, certificateName: l.certificateName, convention: l.convention,
+      regime: (snap.meta.surveyRegimes || {})[l.entityType],
+      issueDate: l.issueDate, expiryDate: l.expiryDate, nonExpiring: l.nonExpiring,
+      inForce: l.inForce, forceReason: l.forceReason,
+      recorded: clone(l.endorsements || []),
+      ...clone(l.endorsementState || { schedule: [], overdue: 0, due: 0, next: null, refused: 0 }),
+    };
+  }
+  if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/registrations$/))) {
+    return (D.registrations || []).filter((r) => String(r.vessel) === m[1])
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(clone);
+  }
+  if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/transcript$/))) {
+    const t = (REGISTRY.transcripts || {})[m[1]];
+    if (!t) throw new Error('This ship has never been on the register');
+    return clone(t);
+  }
+  if ((m = url.match(/^\/services\/requests\/([a-f0-9]{24})$/))) {
+    const r = clone(maps.serviceRequests.get(m[1]));
+    if (!r) throw new Error('Request not found');
+    r.service = clone(maps.serviceDefinitions.get(String(r.service))) || r.service;
+    return r;
+  }
+  if ((m = url.match(/^\/services\/definitions\/([a-f0-9]{24}|[A-Z0-9-]+)$/))) {
+    const d = maps.serviceDefinitions.get(m[1])
+      || (D.serviceDefinitions || []).find((x) => x.code === String(m[1]).toUpperCase());
+    if (!d) throw new Error('Service not found');
+    return clone(d);
+  }
   if ((m = url.match(/^\/vessels\/([a-f0-9]{24})$/))) {
     const v = clone(maps.vessels.get(m[1]));
     if (!v) throw new Error('Vessel not found');
@@ -1594,14 +1689,60 @@ function demoPdaView(callId) {
   return { call: { vcn: call.vcn, vessel: v ? { name: v.name, imo: v.imo, grt: v.grt } : null, agentName: call.agentName, eta: call.eta }, pda, variance };
 }
 
+/* Public verification. Valid means two things at once: the instrument is in
+ * force, and the register entry still matches the signature taken at issue. */
 function demoPublicVerify(licenseNo) {
   const doc = (D.licenses || []).find((l) => l.licenseNo === licenseNo);
   if (!doc) return { found: false, licenseNo };
-  const expired = doc.expiryDate && new Date(doc.expiryDate) < new Date();
+  const sig = doc.signatureVerification || { signed: false, valid: false, reason: 'Not digitally signed' };
+  const st = doc.endorsementState;
   return {
-    found: true, licenseNo: doc.licenseNo, entityName: doc.entityName, entityType: doc.entityType, status: doc.status,
-    issueDate: doc.issueDate, expiryDate: doc.expiryDate, valid: doc.status === 'ISSUED' && !expired,
-    reason: doc.status !== 'ISSUED' ? `Licence is ${doc.status.toLowerCase()}` : expired ? 'Licence has expired' : 'Licence is in force',
+    found: true,
+    licenseNo: doc.licenseNo,
+    entityName: doc.entityName,
+    entityType: doc.entityType,
+    certificateName: doc.certificateName || '',
+    convention: doc.convention || '',
+    subjectKind: doc.subjectKind || 'COMPANY',
+    instrumentClass: doc.instrumentClass || 'LICENCE',
+    statutory: !!doc.statutory,
+    nonExpiring: !!doc.nonExpiring,
+    status: doc.status,
+    issueDate: doc.issueDate,
+    expiryDate: doc.expiryDate,
+    valid: !!doc.inForce && (!sig.signed || sig.valid),
+    reason: !doc.inForce ? doc.forceReason
+      : sig.signed && !sig.valid ? sig.reason : 'Instrument is in force',
+    signature: {
+      signed: sig.signed, valid: sig.valid, keyId: sig.keyId || null,
+      signedAt: sig.signedAt || null, note: sig.reason,
+    },
+    endorsements: doc.statutory && st ? {
+      overdue: st.overdue, due: st.due,
+      next: st.next ? { kind: st.next.kind, dueFrom: st.next.dueFrom, dueTo: st.next.dueTo } : null,
+      completed: (doc.endorsements || []).filter((e) => e.result !== 'NOT_ENDORSED').length,
+    } : null,
+  };
+}
+
+/* B1 — the register lookup a bank or a purchaser makes against an official
+ * number, and the key anyone needs to check a signature for themselves. */
+function demoPublicRegistry(officialNumber) {
+  const v = (D.vessels || []).find((x) => x.registry && x.registry.officialNumber === officialNumber);
+  if (!v) return { found: false, officialNumber };
+  const r = v.registry;
+  const expired = r.certificateExpiresOn && new Date(r.certificateExpiresOn) < new Date();
+  const words = (x) => String(x || '').replace(/_/g, ' ').toLowerCase();
+  return {
+    found: true, officialNumber, name: v.name, imo: v.imo, flag: v.flag, type: v.type,
+    grossTonnage: v.grt, yearBuilt: v.built,
+    portOfRegistry: portName(r.portOfRegistry) || v.portOfRegistry,
+    certificateNo: r.certificateNo, registeredOn: r.registeredOn, state: r.state,
+    valid: r.state === 'REGISTERED' || (r.state === 'PROVISIONAL' && !expired),
+    reason: r.state === 'CLOSED' ? `Registry closed — ${words(r.closureReason)}`
+      : r.state === 'PROVISIONAL' ? (expired ? 'Provisional certificate has expired'
+        : `Provisional certificate, valid to ${String(r.certificateExpiresOn).slice(0, 10)}`)
+        : r.state === 'REGISTERED' ? 'Registered' : 'Not on the register',
   };
 }
 
@@ -1963,6 +2104,21 @@ const demo = {
     { const mm = url.match(/^\/port-calls\/([a-f0-9]{24})\/sof$/); if (mm) return { success: true, data: demoSof(mm[1]) }; }
     { const mm = url.match(/^\/port-calls\/([a-f0-9]{24})\/pda$/); if (mm) return { success: true, data: demoPdaView(mm[1]) }; }
     { const mm = url.match(/^\/public\/verify\/(.+)$/); if (mm) return { success: true, data: demoPublicVerify(decodeURIComponent(mm[1])) }; }
+    { const mm = url.match(/^\/public\/registry\/(.+)$/); if (mm) return { success: true, data: demoPublicRegistry(decodeURIComponent(mm[1])) }; }
+    if (url === '/public/signing-key') {
+      return { success: true, data: { ...clone(REGISTRY.signingKey || {}),
+        payload: 'licenseNo|entityType|subjectKind|subjectRef|entityName|issueDate(ISO)|expiryDate(ISO)|ISSUED',
+        note: 'The signed payload is not stored. It is recomputed from the register entry at verification time, so any alteration to the entry invalidates the signature.' } };
+    }
+    if (url === '/registrations/dashboard') return { success: true, data: clone(REGISTRY.dashboard || {}) };
+    if (url === '/registrations/reference') {
+      const { dashboard, transcripts, signingKey, ...ref } = REGISTRY;
+      return { success: true, data: clone(ref) };
+    }
+    if (url === '/services/catalogue') return { success: true, data: clone(snap.services?.catalogue || {}) };
+    if (url === '/services/dashboard') return { success: true, data: clone(snap.services?.dashboard || {}) };
+    if (url === '/agents/dashboard') return { success: true, data: clone(snap.agents?.dashboard || {}) };
+    if (url === '/agents') return { success: true, data: clone(D.agentConfigs || []), meta: { total: (D.agentConfigs || []).length } };
     const d = detail(url);
     if (d !== undefined) return { success: true, data: d };
     if (LISTS[url]) { const r = LISTS[url](params); return { success: true, ...r }; }

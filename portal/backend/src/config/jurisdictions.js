@@ -25,6 +25,51 @@ const INDIA = {
   currency: { code: 'INR', symbol: '₹', locale: 'en-IN', grouping: 'lakh-crore' },
   tax: { name: 'GST', ratePct: 18, registrationLabel: 'GSTIN', invoicePrefix: 'MUN/INV' },
   workingWeek: { weekend: ['Sunday'], note: 'Sunday weekend; national and state holidays from the holiday master' },
+  /* B1 — the registry constants the ship-registration engine reads. Every one
+   * of these is a statutory number rather than a design choice, which is why
+   * they sit in the jurisdiction profile: another administration changes them
+   * without touching the workflow. `confirmed` follows the same rule as the
+   * benchmarks — a figure that cannot be cited is surfaced as unverified rather
+   * than passed off as fact. */
+  registry: {
+    registrar: 'Registrar of Indian Ships',
+    statute: 'Merchant Shipping Act 1958, Part V (ss. 20-73)',
+    // Ports at which registration is made. Bombay, Calcutta and Madras are named
+    // in s.20; the remainder were declared ports of registry by notification.
+    portsOfRegistry: [
+      { code: 'KDL', name: 'Kandla', state: 'Gujarat', default: true },
+      { code: 'MUM', name: 'Mumbai', state: 'Maharashtra' },
+      { code: 'KOL', name: 'Kolkata', state: 'West Bengal' },
+      { code: 'CHN', name: 'Chennai', state: 'Tamil Nadu' },
+      { code: 'KOC', name: 'Kochi', state: 'Kerala' },
+      { code: 'MRM', name: 'Mormugao', state: 'Goa' },
+      { code: 'VTZ', name: 'Visakhapatnam', state: 'Andhra Pradesh' },
+      { code: 'JAM', name: 'Jamnagar', state: 'Gujarat' },
+      { code: 'PRP', name: 'Paradip', state: 'Odisha' },
+      { code: 'PBL', name: 'Port Blair', state: 'Andaman & Nicobar Islands' },
+      { code: 'TUT', name: 'Tuticorin', state: 'Tamil Nadu' },
+    ],
+    // Mundra sits in the Kandla registration district, so an application lodged
+    // here defaults to that registrar.
+    defaultPort: 'KDL',
+    // Property in a ship is divided into shares, and only so many persons may be
+    // registered as owners at one time. Both come from s.32. The exact divisor
+    // must be read off the current text of the section before go-live — it is
+    // configuration here precisely so it is not buried in code.
+    shareDenominator: { value: 10, confirmed: false,
+      source: 'Merchant Shipping Act 1958 s.32 — division of property in a ship. VERIFY against the section as currently in force.' },
+    maxRegisteredOwners: { value: 10, confirmed: false,
+      source: 'Merchant Shipping Act 1958 s.32 — maximum persons registered as owners at one time. VERIFY before go-live.' },
+    // A provisional certificate is a bridging instrument for a ship acquired
+    // abroad; it runs out and cannot be renewed indefinitely.
+    provisionalValidityMonths: { value: 6, confirmed: true,
+      source: 'Merchant Shipping Act 1958 — provisional certificate of registry, six months from issue' },
+    // Official numbers are allocated by the registrar. This deployment allocates
+    // from a demonstration series that deliberately sits outside the range in
+    // live Indian use, so no seeded ship can collide with a real one.
+    officialNumberBase: 900001,
+    nationalityRule: 'An Indian ship must be owned wholly by Indian citizens, by a company or body established under Indian law with its principal place of business in India, or by a co-operative society registered in India (Merchant Shipping Act 1958 s.21).',
+  },
   benchmarks: {
     turnaroundHours: { value: 50.4, confirmed: true,
       source: 'Indian major ports average ship turnaround ~2.1 days FY2023-24 — Ministry of Ports, Shipping & Waterways / IPA published statistics' },

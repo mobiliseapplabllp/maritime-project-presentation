@@ -8,7 +8,7 @@ const { Vessel, Seafarer, Company, Berth } = require('../models');
 const { certStatus } = require('./certStatus');
 const {
   LICENSE_TYPES_BY_SUBJECT, INSTRUMENT_CLASS_BY_TYPE, NUMBER_PREFIX_BY_CLASS,
-  NUMBER_PREFIX_BY_TYPE, SUBJECT_PERMS, VALIDITY_MONTHS,
+  NUMBER_PREFIX_BY_TYPE, SUBJECT_PERMS, VALIDITY_MONTHS, VALIDITY_MONTHS_BY_TYPE,
 } = require('../config/constants');
 
 const MODEL_BY_KIND = {
@@ -40,7 +40,10 @@ const instrumentClassFor = (type) => INSTRUMENT_CLASS_BY_TYPE[type] || 'LICENCE'
 const numberPrefixFor = (type) => NUMBER_PREFIX_BY_TYPE[type]
   || NUMBER_PREFIX_BY_CLASS[instrumentClassFor(type)] || 'LIC';
 const permBaseFor = (kind) => SUBJECT_PERMS[kind] || 'facilities';
-const validityMonthsFor = (type) => VALIDITY_MONTHS[instrumentClassFor(type)] || 24;
+// Class sets the default term; a handful of statutory certificates override it
+// because their term comes from the convention, not from our own conventions.
+const validityMonthsFor = (type) => VALIDITY_MONTHS_BY_TYPE[type]
+  || VALIDITY_MONTHS[instrumentClassFor(type)] || 24;
 const typeAllowedFor = (kind, type) => (LICENSE_TYPES_BY_SUBJECT[kind] || []).includes(type);
 
 /* ---------------------------------------------------------------- checks ---

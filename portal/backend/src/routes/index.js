@@ -29,6 +29,7 @@ const settingsCtl = require('../controllers/settingsController');
 const opsx = require('../controllers/opsController');
 const search = require('../controllers/searchController');
 const docs = require('../controllers/docsController');
+const registrations = require('../controllers/vesselRegistrationController');
 
 // express 4 doesn't catch async rejections — wrap every handler
 const w = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -39,6 +40,8 @@ r.get('/health', w(misc.health));
 r.post('/auth/login', w(auth.login));
 r.post('/auth/refresh', w(auth.refresh));
 r.get('/public/verify/:licenseNo', w(licenses.publicVerify));
+r.get('/public/signing-key', w(licenses.signingKey));
+r.get('/public/registry/:officialNumber', w(registrations.publicRegistry));
 r.get('/openapi.json', docs.spec);
 r.get('/docs', docs.page);
 r.get('/docs/stats', docs.stats);
@@ -60,6 +63,8 @@ r.get('/vessels/certificates/all', requirePerm('certificates.view'), w(vessels.a
 r.get('/vessels/fleet-dashboard', requirePerm('vessels.view'), w(vessels.fleetDashboard));
 r.get('/vessels/survey-planner', requirePerm('vessels.view'), w(vessels.surveyPlanner));
 r.get('/vessels/:id/instruments', requirePerm('vessels.view'), w(licenses.forSubject('VESSEL')));
+r.get('/vessels/:id/registrations', requirePerm('vessels.view'), w(registrations.forVessel));
+r.get('/vessels/:id/transcript', requirePerm('vessels.view'), w(registrations.transcript));
 r.get('/vessels/:id/voyages', requirePerm('vessels.view'), w(vessels.voyages));
 r.get('/vessels/:id/movements', requirePerm('vessels.view'), w(vessels.movements));
 r.get('/vessels/:id', requirePerm('vessels.view'), w(vessels.get));
@@ -169,6 +174,24 @@ r.delete('/licenses/:id', requirePerm('facilities.manage'), w(licenses.remove));
 r.get('/licenses/:id/checks', requirePerm('facilities.view'), w(licenses.checks));
 r.post('/licenses/:id/transition', requirePerm('facilities.approve'), w(licenses.transition));
 r.post('/licenses/:id/audits', requirePerm('facilities.manage'), w(licenses.addAudit));
+r.get('/licenses/:id/endorsements', requirePerm('certificates.view'), w(licenses.endorsements));
+r.post('/licenses/:id/endorsements', requirePerm('certificates.manage'), w(licenses.endorse));
+
+// ship registration — the Registrar of Indian Ships (Merchant Shipping Act 1958, Part V)
+r.get('/registrations/reference', requirePerm('registry.view'), w(registrations.reference));
+r.get('/registrations/dashboard', requirePerm('registry.view'), w(registrations.dashboard));
+r.get('/registrations', requirePerm('registry.view'), w(registrations.list));
+r.post('/registrations', requirePerm('registry.apply'), w(registrations.apply));
+r.get('/registrations/:id', requirePerm('registry.view'), w(registrations.get));
+r.put('/registrations/:id', requirePerm('registry.apply'), w(registrations.update));
+r.get('/registrations/:id/checks', requirePerm('registry.assess'), w(registrations.checks));
+r.post('/registrations/:id/transition', requirePerm('registry.assess'), w(registrations.transition));
+r.post('/registrations/:id/carving-compliance', requirePerm('registry.assess'), w(registrations.carvingCompliance));
+r.post('/registrations/:id/grant', requirePerm('registry.grant'), w(registrations.grant));
+r.post('/registrations/:id/evidence', requirePerm('registry.apply'), w(registrations.addEvidence));
+r.put('/registrations/:id/evidence/:evidenceId', requirePerm('registry.assess'), w(registrations.verifyEvidence));
+r.post('/registrations/:id/encumbrances', requirePerm('registry.assess'), w(registrations.addEncumbrance));
+r.put('/registrations/:id/encumbrances/:encumbranceId', requirePerm('registry.assess'), w(registrations.dischargeEncumbrance));
 
 // incident management — case files with lifecycle, comms, documents, tasks
 r.get('/incidents/dashboard', requirePerm('incidents.view'), w(incidents.dashboard));

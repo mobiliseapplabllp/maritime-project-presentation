@@ -6,6 +6,9 @@ const { audit } = require('../utils/audit');
 const { nextNumber } = require('../utils/numbering');
 const { hasPerm } = require('../domain/rbac');
 const S = require('../domain/licenceSubjects');
+const St = require('../domain/statutoryCertificates');
+const Sign = require('../domain/certificateSigning');
+const { finaliseIssue } = require('../domain/instrumentIssue');
 
 // "LICENCE" reads as shouting in user-facing copy; sentence-case it.
 const clsLabel = (doc) => {
@@ -26,10 +29,13 @@ const base = makeCrud(License, {
 // issued against, so a navigation licence answers to vessels.* and a company
 // accreditation to facilities.*. The route-level guard covers the default
 // (facilities) case; this covers everything else.
-function assertSubjectPerm(req, subjectKind, action) {
+// `also` names permissions that govern a particular kind of instrument rather
+// than a kind of subject — a survey endorsement answers to certificates.*
+// whichever register the certificate sits on.
+function assertSubjectPerm(req, subjectKind, action, also = []) {
   const perm = `${S.permBaseFor(subjectKind)}.${action}`;
-  const fallback = `facilities.${action}`;
-  if (hasPerm(req.user.perms, perm) || hasPerm(req.user.perms, fallback)) return;
+  const candidates = [perm, `facilities.${action}`, ...also];
+  if (candidates.some((c) => hasPerm(req.user.perms, c))) return;
   throw new ApiError(403, `You don't have permission to do this (${perm})`);
 }
 
@@ -78,6 +84,100 @@ module.exports = {
     ok(res, rows, { total: rows.length, subjectKind });
   },
 
+  /* B2 — one instrument, with everything a holder or an inspector needs to see
+   * about it: whether it is actually in force, where it stands against its
+   * survey schedule, and whether its signature still matches the record. */
+  get: async (req, res) => {
+    const doc = await License.findById(req.params.id).lean();
+    if (!doc) throw new ApiError(404, 'Instrument not found');
+    assertSubjectPerm(req, doc.subjectKind || 'COMPANY', 'view', ['certificates.view']);
+    const force = St.forceState(doc);
+    ok(res, {
+      ...doc,
+      statutory: St.isStatutory(doc.entityType),
+      nonExpiring: St.nonExpiring(doc.entityType),
+      convention: St.CONVENTION[doc.entityType] || '',
+      certificateName: St.CERT_LABEL[doc.entityType] || '',
+      inForce: force.inForce,
+      forceReason: force.reason,
+      endorsementState: force.endorsements || null,
+      signature: doc.signature && doc.signature.value
+        ? { ...doc.signature, verification: Sign.verify(doc) } : null,
+    });
+  },
+
+  /* B2 — the survey schedule for a statutory certificate, resolved against what
+   * has actually been endorsed. This is the working view for a surveyor. */
+  endorsements: async (req, res) => {
+    const doc = await License.findById(req.params.id).lean();
+    if (!doc) throw new ApiError(404, 'Instrument not found');
+    assertSubjectPerm(req, doc.subjectKind || 'COMPANY', 'view', ['certificates.view']);
+    if (!St.isStatutory(doc.entityType)) {
+      throw new ApiError(400, 'This instrument is not a statutory certificate and carries no survey schedule');
+    }
+    const force = St.forceState(doc);
+    ok(res, {
+      licenseNo: doc.licenseNo,
+      certificateName: St.CERT_LABEL[doc.entityType],
+      convention: St.CONVENTION[doc.entityType],
+      regime: St.SURVEY_REGIME[doc.entityType],
+      issueDate: doc.issueDate,
+      expiryDate: doc.expiryDate,
+      nonExpiring: St.nonExpiring(doc.entityType),
+      inForce: force.inForce,
+      forceReason: force.reason,
+      recorded: doc.endorsements || [],
+      ...(force.endorsements || St.endorsementState(doc)),
+    });
+  },
+
+  /* B2 — record a survey endorsement.
+   *
+   * A survey that finds the ship not in compliance is recorded exactly as one
+   * that does: NOT_ENDORSED is a result, not a failure to record. A certificate
+   * carrying a refused endorsement stops being in force immediately, which is
+   * why it is worth being able to record it at all. */
+  endorse: async (req, res) => {
+    const doc = await License.findById(req.params.id);
+    if (!doc) throw new ApiError(404, 'Instrument not found');
+    assertSubjectPerm(req, doc.subjectKind || 'COMPANY', 'manage', ['certificates.manage']);
+    if (!St.isStatutory(doc.entityType)) {
+      throw new ApiError(400, 'Only a statutory certificate carries survey endorsements');
+    }
+    if (doc.status !== 'ISSUED') {
+      throw new ApiError(409, `A ${doc.status.toLowerCase()} certificate cannot be endorsed`);
+    }
+    const { kind, completedOn, surveyor, organisation, place, result, remarks, anniversary } = req.body || {};
+    if (!kind || !surveyor) throw new ApiError(400, 'The survey type and the surveyor are required');
+    if (result === 'NOT_ENDORSED' && !remarks) {
+      throw new ApiError(400, 'A refused endorsement must record why');
+    }
+    const when = completedOn ? new Date(completedOn) : new Date();
+    // Attach the endorsement to the scheduled survey it answers, so a survey
+    // held inside its window closes that window rather than floating free.
+    const schedule = St.endorsementSchedule(doc.entityType, doc.issueDate, doc.expiryDate);
+    const target = anniversary ? new Date(anniversary)
+      : (schedule.filter((x) => x.kind === kind)
+        .sort((a, b) => Math.abs(a.anniversary - when) - Math.abs(b.anniversary - when))[0] || {}).anniversary;
+    doc.endorsements.push({
+      kind, anniversary: target, completedOn: when, surveyor,
+      organisation: organisation || '', place: place || '',
+      result: result || 'ENDORSED', remarks: remarks || '',
+    });
+    await doc.save();
+    if (result === 'NOT_ENDORSED') {
+      Notification.create({
+        title: `Certificate not endorsed — ${doc.entityName}`,
+        body: `${doc.licenseNo} (${St.CERT_LABEL[doc.entityType]}): ${remarks}`,
+        severity: 'error', link: `/certificates`,
+        audiencePerm: `${S.permBaseFor(doc.subjectKind || 'COMPANY')}.view`,
+      }).catch(() => {});
+    }
+    audit(req, { action: 'ENDORSE', entity: 'License', entityId: doc._id, entityLabel: `${doc.licenseNo} — ${kind} ${result || 'ENDORSED'}` });
+    const force = St.forceState(doc.toObject());
+    created(res, { instrument: doc, inForce: force.inForce, forceReason: force.reason });
+  },
+
   /* A1 — dry-run the issue checks without changing anything, so an assessing
    * officer sees what will block before committing to a decision. */
   checks: async (req, res) => {
@@ -124,6 +224,8 @@ module.exports = {
       doc.issueDate = new Date();
       doc.expiryDate = expiryDate ? new Date(expiryDate)
         : new Date(Date.now() + months * 30.44 * 86400000);
+      // B2 — sign the record and put a statutory ship certificate onto the ship
+      await finaliseIssue(doc);
     }
     doc.history.push({ from, to, at: new Date(), by: req.user.name, note: note || '' });
     await doc.save();
@@ -160,20 +262,57 @@ module.exports.publicVerify = async (req, res) => {
   const licenseNo = String(req.params.licenseNo || '').trim();
   const doc = await License.findOne({ licenseNo }).lean();
   if (!doc) return ok(res, { found: false, licenseNo });
-  const expired = doc.expiryDate && new Date(doc.expiryDate) < new Date();
   const cls = clsLabel(doc);
+  const force = St.forceState(doc);
+  const statutory = St.isStatutory(doc.entityType);
+  // B2 — the signature is checked against the record as it now stands, so a
+  // register entry altered after issue fails verification here even though the
+  // instrument still reads as in force.
+  const signature = Sign.verify(doc);
   ok(res, {
     found: true,
     licenseNo: doc.licenseNo,
     entityName: doc.entityName,
     entityType: doc.entityType,
+    certificateName: St.CERT_LABEL[doc.entityType] || '',
+    convention: St.CONVENTION[doc.entityType] || '',
     subjectKind: doc.subjectKind || 'COMPANY',
     instrumentClass: doc.instrumentClass || 'LICENCE',
+    statutory,
+    nonExpiring: St.nonExpiring(doc.entityType),
     status: doc.status,
     issueDate: doc.issueDate,
     expiryDate: doc.expiryDate,
-    valid: doc.status === 'ISSUED' && !expired,
-    reason: doc.status !== 'ISSUED' ? `${cls} is ${doc.status.toLowerCase()}`
-      : expired ? `${cls} has expired` : `${cls} is in force`,
+    // Valid means both: the instrument is in force, and the record proves it has
+    // not been altered since it was signed.
+    valid: force.inForce && (!signature.signed || signature.valid),
+    reason: !force.inForce ? force.reason
+      : signature.signed && !signature.valid ? signature.reason
+        : `${cls} is in force`,
+    signature: {
+      signed: signature.signed, valid: signature.valid,
+      keyId: signature.keyId || null, signedAt: signature.signedAt || null,
+      note: signature.reason,
+    },
+    endorsements: statutory && force.endorsements ? {
+      overdue: force.endorsements.overdue,
+      due: force.endorsements.due,
+      next: force.endorsements.next
+        ? { kind: force.endorsements.next.kind, dueFrom: force.endorsements.next.dueFrom, dueTo: force.endorsements.next.dueTo }
+        : null,
+      completed: (doc.endorsements || []).filter((e) => e.result !== 'NOT_ENDORSED').length,
+    } : null,
   });
 };
+
+/* B2 — the public key the registry signs with.
+ *
+ * Published unauthenticated on purpose: a signature no third party can check
+ * independently is a claim, not a proof. Anyone holding a certificate can take
+ * the register entry, this key and any Ed25519 implementation and verify it
+ * without asking this platform for permission. */
+module.exports.signingKey = (_req, res) => ok(res, {
+  ...Sign.publicKey(),
+  payload: 'licenseNo|entityType|subjectKind|subjectRef|entityName|issueDate(ISO)|expiryDate(ISO)|ISSUED',
+  note: 'The signed payload is not stored. It is recomputed from the register entry at verification time, so any alteration to the entry invalidates the signature.',
+});

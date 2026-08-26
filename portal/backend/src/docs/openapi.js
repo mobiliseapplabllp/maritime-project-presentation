@@ -32,6 +32,7 @@ const TAG_BY_ROOT = {
   risk: 'Risk intelligence', licenses: 'Licensing & instruments',
   companies: 'Port companies', services: 'Service requests',
   agents: 'AI agents & autonomy', ai: 'AI assistant',
+  registrations: 'Ship registration',
   invoices: 'Revenue & billing', tariffs: 'Tariff master',
   reports: 'MIS reports', users: 'Users', roles: 'Roles & permissions',
   audit: 'Audit trail', settings: 'Settings', 'module-settings': 'Module settings',
@@ -77,6 +78,11 @@ const ACTIONS = {
   documents: 'Supporting documents', audits: 'Audit records', instruments: 'Issued instruments',
   history: 'History', outages: 'Out-of-service windows', voyages: 'Voyages', movements: 'Movements',
   certificates: 'Certificates', utilisation: 'Utilisation', downtime: 'Downtime',
+  grant: 'Grant and write the register', reference: 'Form reference data',
+  evidence: 'Supporting evidence', encumbrances: 'Registered charges',
+  'carving-compliance': 'Record carving and marking compliance',
+  endorsements: 'Survey endorsements', transcript: 'Transcript of registry',
+  registrations: 'Registry transactions', 'signing-key': 'Certificate signing key',
 };
 
 const singular = (w) => (w.endsWith('ies') ? `${w.slice(0, -3)}y` : w.endsWith('s') ? w.slice(0, -1) : w);
