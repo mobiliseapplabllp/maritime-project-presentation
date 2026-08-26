@@ -23,6 +23,7 @@ import {
   INCIDENT_STATUS_META, SEVERITY_META,
 } from '../../utils/status';
 import { fmtD, fmtDT, fmtNum, toInputD, fromNow } from '../../utils/format';
+import { REG_STATUS_META, REGISTRY_STATE_META } from '../registry/RegistrationsList';
 
 const Item = ({ label, value }) => (
   <Box>
@@ -47,6 +48,9 @@ export default function VesselDetail() {
   const [voyages, setVoyages] = useState(null);
   const [movements, setMovements] = useState(null);
   const [riskRow, setRiskRow] = useState(undefined);   // undefined = not loaded, null = none
+  // B1 — the ship's standing on the national register, read from the register
+  // itself rather than from anything cached on the ship record
+  const [registry, setRegistry] = useState(undefined);
   const [certDlg, setCertDlg] = useState(null);
   const [certVals, setCertVals] = useState({});
   const [delCert, setDelCert] = useState(null);
@@ -55,7 +59,7 @@ export default function VesselDetail() {
   const err = (e) => dispatch(notify({ message: e.message, severity: 'error' }));
   const load = useCallback(() => api.get(`/vessels/${id}`).then((r) => setV(r.data)).catch(err), [id]); // eslint-disable-line
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { setVoyages(null); setMovements(null); setRiskRow(undefined); setTab(0); }, [id]);
+  useEffect(() => { setVoyages(null); setMovements(null); setRiskRow(undefined); setRegistry(undefined); setTab(0); }, [id]);
 
   // lazy tab data
   useEffect(() => {
@@ -63,6 +67,12 @@ export default function VesselDetail() {
     if (tab === 3 && !movements) api.get(`/vessels/${id}/movements`).then((r) => setMovements(r.data)).catch(err);
     if (tab === 7 && riskRow === undefined && hasPerm(user, 'risk.view')) {
       api.get('/risk/scores').then((r) => setRiskRow(r.data.find((x) => String(x.vesselId || x.id) === String(id)) || null)).catch(() => setRiskRow(null));
+    }
+    if (tab === 8 && registry === undefined) {
+      Promise.all([
+        api.get(`/vessels/${id}/transcript`).then((r) => r.data).catch(() => null),
+        api.get(`/vessels/${id}/registrations`).then((r) => r.data).catch(() => []),
+      ]).then(([transcript, rows]) => setRegistry({ transcript, rows }));
     }
   }, [tab, id]); // eslint-disable-line
 
@@ -123,6 +133,7 @@ export default function VesselDetail() {
           <Tab label={`Crew on board (${(v.crewOnBoard || []).length})`} />
           <Tab label={`Incidents (${(v.recentIncidents || []).length})`} />
           <Tab label="Risk profile" />
+          <Tab label="Registry" />
         </Tabs>
 
         {tab === 0 && (
@@ -348,6 +359,128 @@ export default function VesselDetail() {
                 ))}
               </>
             )}
+          </Box>
+        )}
+
+        {/* B1 — where this ship stands on the national register, assembled from
+            the granted applications rather than from anything stored on the ship. */}
+        {tab === 8 && (
+          <Box sx={{ p: 2.5 }}>
+            {registry === undefined && <LinearProgress />}
+            {registry && (!registry.transcript
+              || !((registry.transcript.registry || {}).state)
+              || (registry.transcript.registry || {}).state === 'UNREGISTERED') && (
+              <Typography color="text.secondary" sx={{ fontSize: 13.5, maxWidth: 640 }}>
+                {v.name} has never been entered on the Indian register. A foreign-flagged ship calling at Mundra
+                is on its own flag&apos;s register — its certificate of registry, and the statutory certificates
+                that hang off it, are issued by that administration and not by this one.
+              </Typography>
+            )}
+            {registry && registry.transcript && ((registry.transcript.registry || {}).state || 'UNREGISTERED') !== 'UNREGISTERED' && (() => {
+              const t = registry.transcript;
+              const st = t.registry || {};
+              return (
+                <>
+                  <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
+                    <StatusChip value={st.state} map={REGISTRY_STATE_META} />
+                    <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
+                      {t.registrar}{t.portOfRegistry ? ` · ${t.portOfRegistry.name}` : ''}
+                    </Typography>
+                  </Stack>
+                  <Grid container spacing={2.5} sx={{ mb: 2 }}>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="caption" color="text.secondary">Official number</Typography>
+                      <Typography sx={{ fontWeight: 700, fontFamily: 'ui-monospace, monospace' }}>{st.officialNumber || '—'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="caption" color="text.secondary">Certificate of registry</Typography>
+                      <Typography sx={{ fontWeight: 700, fontFamily: 'ui-monospace, monospace' }}>{st.certificateNo || '—'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="caption" color="text.secondary">First registered</Typography>
+                      <Typography sx={{ fontWeight: 700 }}>{fmtD(t.firstRegistered)}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="caption" color="text.secondary">
+                        {st.state === 'PROVISIONAL' ? 'Provisional certificate expires' : st.state === 'CLOSED' ? 'Registry closed' : 'Tonnage'}
+                      </Typography>
+                      <Typography sx={{ fontWeight: 700 }}>
+                        {st.state === 'PROVISIONAL' ? fmtD(st.certificateExpiresOn)
+                          : st.state === 'CLOSED' ? fmtD(st.closedOn)
+                            : t.tonnage ? `${fmtNum(t.tonnage.gross)} GT / ${fmtNum(t.tonnage.net)} NT` : '—'}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  {t.closure && (
+                    <Chip
+                      size="small" color="error" sx={{ mb: 2 }}
+                      label={`Closed — ${String(t.closure.reason || '').replace(/_/g, ' ').toLowerCase()}${t.closure.newFlag ? ` to ${t.closure.newFlag}` : ''} · ${t.closure.certificateNo}`}
+                    />
+                  )}
+
+                  <Typography sx={{ fontSize: 12.5, fontWeight: 700, mb: 0.5 }}>
+                    Registered ownership
+                    {t.shareLedger ? ` — ${t.shareLedger.held} of ${t.shareLedger.denominator} shares` : ''}
+                  </Typography>
+                  <TableContainer sx={{ mb: 2 }}>
+                    <Table size="small">
+                      <TableHead><TableRow><TableCell>Owner</TableCell><TableCell>Kind</TableCell><TableCell>Registration</TableCell><TableCell align="right">Shares</TableCell></TableRow></TableHead>
+                      <TableBody>
+                        {(t.owners || []).map((o, i2) => (
+                          <TableRow key={i2}>
+                            <TableCell sx={{ fontWeight: 600 }}>{o.name}</TableCell>
+                            <TableCell>{String(o.kind || '').replace(/_/g, ' ').toLowerCase()}</TableCell>
+                            <TableCell sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 12 }}>{o.cin || o.pan || '—'}</TableCell>
+                            <TableCell align="right">{o.shares}</TableCell>
+                          </TableRow>
+                        ))}
+                        {!(t.owners || []).length && <TableRow><TableCell colSpan={4} sx={{ color: 'text.secondary' }}>No ownership recorded.</TableCell></TableRow>}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  {(t.encumbrances || []).length > 0 && (
+                    <>
+                      <Typography sx={{ fontSize: 12.5, fontWeight: 700, mb: 0.5 }}>Subsisting charges</Typography>
+                      <TableContainer sx={{ mb: 2 }}>
+                        <Table size="small">
+                          <TableHead><TableRow><TableCell>Charge</TableCell><TableCell>In favour of</TableCell><TableCell>Registered</TableCell><TableCell>Reference</TableCell></TableRow></TableHead>
+                          <TableBody>
+                            {t.encumbrances.map((e, i2) => (
+                              <TableRow key={i2}>
+                                <TableCell>{String(e.kind || '').toLowerCase()}</TableCell>
+                                <TableCell sx={{ fontWeight: 600 }}>{e.holder}</TableCell>
+                                <TableCell>{fmtD(e.registeredOn)}</TableCell>
+                                <TableCell sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 12 }}>{e.reference || '—'}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </>
+                  )}
+
+                  <Typography sx={{ fontSize: 12.5, fontWeight: 700, mb: 0.5 }}>Registry transactions</Typography>
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead><TableRow><TableCell>Application</TableCell><TableCell>Transaction</TableCell><TableCell>Status</TableCell><TableCell>Certificate</TableCell><TableCell>Granted</TableCell></TableRow></TableHead>
+                      <TableBody>
+                        {(registry.rows || []).map((r) => (
+                          <TableRow key={r._id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/registry/${r._id}`)}>
+                            <TableCell sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5, fontWeight: 600 }}>{r.applicationNo}</TableCell>
+                            <TableCell>{String(r.kind || '').toLowerCase()}</TableCell>
+                            <TableCell><StatusChip value={r.status} map={REG_STATUS_META} /></TableCell>
+                            <TableCell sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }}>{r.certificateNo || '—'}</TableCell>
+                            <TableCell>{fmtD(r.grantedOn)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </>
+              );
+            })()}
           </Box>
         )}
       </Card>

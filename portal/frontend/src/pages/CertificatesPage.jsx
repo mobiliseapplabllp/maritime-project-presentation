@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Chip, Stack } from '@mui/material';
+import { Chip, Stack, Tooltip } from '@mui/material';
+import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import WorkspacePremiumRoundedIcon from '@mui/icons-material/WorkspacePremiumRounded';
 import api from '../api/client';
 import PageStats from '../components/common/PageStats';
@@ -13,18 +14,18 @@ import { fmtD } from '../utils/format';
 
 export default function CertificatesPage() {
   const navigate = useNavigate();
-  const [state, setState] = useState({ rows: [], total: 0, page: 1, limit: 25, q: '', status: '', loading: true });
+  const [state, setState] = useState({ rows: [], total: 0, page: 1, limit: 25, q: '', status: '', notInForce: false, loading: true });
 
   useEffect(() => {
     setState((x) => ({ ...x, loading: true }));
-    api.get('/vessels/certificates/all', { params: { page: state.page, limit: state.limit, q: state.q || undefined, status: state.status || undefined } })
+    api.get('/vessels/certificates/all', { params: { page: state.page, limit: state.limit, q: state.q || undefined, status: state.status || undefined, notInForce: state.notInForce ? 'true' : undefined } })
       .then((r) => setState((x) => ({ ...x, rows: r.data.map((c, i) => ({ ...c, _id: `${c.certId}-${i}` })), total: r.meta.total, loading: false })))
       .catch(() => setState((x) => ({ ...x, loading: false })));
-  }, [state.page, state.limit, state.q, state.status]); // eslint-disable-line
+  }, [state.page, state.limit, state.q, state.status, state.notInForce]); // eslint-disable-line
 
   return (
     <>
-      <PageHeader icon={WorkspacePremiumRoundedIcon} iconColor="#3B6FB6" title="Fleet certificates" sub="Statutory certificates across all active vessels, ordered by expiry" />
+      <PageHeader icon={WorkspacePremiumRoundedIcon} iconColor="#3B6FB6" title="Fleet certificates" sub="Statutory certificates across all active vessels, ordered by expiry. A certificate this administration issued also carries its survey endorsements and its signature." />
       <PageStats scope="certificates" />
       <DataTable
         columns={[
@@ -35,6 +36,23 @@ export default function CertificatesPage() {
           { key: 'issuer', label: 'Issuer' },
           { key: 'expiryDate', label: 'Expires', render: (r) => fmtD(r.expiryDate) },
           { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} map={CERT_STATUS_META} /> },
+          /* B2 — the column that earns its place: a certificate can be unexpired
+             and still not in force because a survey window closed unendorsed. */
+          { key: 'inForce', label: 'On the register', render: (r) => {
+            if (!r.onRegister) return <span style={{ color: 'var(--mui-palette-text-secondary)', fontSize: 12 }}>Issued elsewhere</span>;
+            return (
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                {r.inForce
+                  ? <Chip size="small" color="success" label="In force" sx={{ height: 21, fontSize: 11 }} />
+                  : <Tooltip title={r.forceReason || ''}><Chip size="small" color="error" label="Not in force" sx={{ height: 21, fontSize: 11 }} /></Tooltip>}
+                {r.signed && (
+                  <Tooltip title="Digitally signed — the register entry still matches the signature taken at issue">
+                    <VerifiedRoundedIcon sx={{ fontSize: 17, color: 'success.main' }} />
+                  </Tooltip>
+                )}
+              </Stack>
+            );
+          } },
         ]}
         rows={state.rows} total={state.total} page={state.page} limit={state.limit} loading={state.loading}
         onPage={(page) => setState((x) => ({ ...x, page }))}
@@ -50,6 +68,12 @@ export default function CertificatesPage() {
                 variant={state.status === s ? 'filled' : 'outlined'}
                 onClick={() => setState((x) => ({ ...x, status: s, page: 1 }))} />
             ))}
+            <Chip
+              size="small" label="Survey overdue"
+              color={state.notInForce ? 'error' : 'default'}
+              variant={state.notInForce ? 'filled' : 'outlined'}
+              onClick={() => setState((x) => ({ ...x, notInForce: !x.notInForce, page: 1 }))}
+            />
           </Stack>
         }
       />

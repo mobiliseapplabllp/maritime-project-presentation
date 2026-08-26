@@ -118,6 +118,36 @@ function statsFor(scope) {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const yearStart = new Date(now.getFullYear(), 0, 1);
   switch (scope) {
+    case 'registry': {
+      const regs = D.registrations || [];
+      const open = regs.filter((r) => !['GRANTED', 'REJECTED', 'WITHDRAWN'].includes(r.status));
+      const breached = open.filter((r) => r.dueAt && new Date(r.dueAt) < now);
+      const closed = regs.filter((r) => r.closedAt && r.submittedAt);
+      const avgDays = closed.length
+        ? Math.round((closed.reduce((s2, r) => s2 + (new Date(r.closedAt) - new Date(r.submittedAt)), 0) / closed.length / DAY) * 10) / 10 : 0;
+      const st = (v) => (v.registry && v.registry.state) || 'UNREGISTERED';
+      const registered = D.vessels.filter((v) => st(v) === 'REGISTERED').length;
+      const provisional = D.vessels.filter((v) => st(v) === 'PROVISIONAL');
+      const lapsing = provisional.filter((v) => v.registry.certificateExpiresOn
+        && new Date(v.registry.certificateExpiresOn) < new Date(now.getTime() + 60 * DAY)).length;
+      const issued = (D.licenses || []).filter((l) => l.status === 'ISSUED');
+      const statutory = issued.filter((l) => l.statutory);
+      const notInForce = statutory.filter((l) => !l.inForce);
+      const signed = issued.filter((l) => l.signature && l.signature.value).length;
+      return [
+        card('On the register', registered, `${D.vessels.length - registered - provisional.length} ships not registered here`),
+        card('Provisional entries', provisional.length,
+          lapsing ? `${lapsing} certificate(s) lapse inside 60 days` : 'none lapsing soon', lapsing ? 'warning' : 'default'),
+        card('Open applications', open.length, `${regs.length} transactions on record`),
+        card('Past due', breached.length, breached.length ? 'beyond the registry SLA' : 'all inside SLA', breached.length ? 'warning' : 'success'),
+        card('Granted', regs.filter((r) => r.status === 'GRANTED').length, `${regs.filter((r) => r.status === 'REJECTED').length} refused`),
+        card('Avg decision time', `${avgDays} d`, 'submission to decision'),
+        card('Statutory certificates', statutory.length, `${signed} of ${issued.length} instruments signed`),
+        card('Not in force', notInForce.length,
+          notInForce.length ? 'survey endorsement overdue or refused' : 'every certificate current',
+          notInForce.length ? 'warning' : 'success'),
+      ];
+    }
     case 'portcalls': {
       const active = D.portcalls.filter((c) => ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'].includes(c.status));
       const sailedAll = D.portcalls.filter((c) => c.status === 'SAILED');
@@ -691,8 +721,17 @@ function detail(url) {
   }
   if ((m = url.match(/^\/vessels\/([a-f0-9]{24})\/transcript$/))) {
     const t = (REGISTRY.transcripts || {})[m[1]];
-    if (!t) throw new Error('This ship has never been on the register');
-    return clone(t);
+    if (t) return clone(t);
+    // A ship that has never been on the register still gets an answer — "not on
+    // this register" is a fact worth stating, not an error.
+    const v = maps.vessels.get(m[1]);
+    if (!v) throw new Error('Vessel not found');
+    return {
+      vessel: pickFields(v, ['name', 'imo', 'flag', 'type', 'grt', 'built']),
+      registry: { state: 'UNREGISTERED' }, registrar: REGISTRY.registrar,
+      portOfRegistry: null, firstRegistered: null, tonnage: null,
+      owners: [], shareLedger: null, encumbrances: [], closure: null, entries: [],
+    };
   }
   if ((m = url.match(/^\/services\/requests\/([a-f0-9]{24})$/))) {
     const r = clone(maps.serviceRequests.get(m[1]));
@@ -2057,11 +2096,33 @@ const demo = {
       return { success: true, data: items, meta: { unread: items.filter((n) => !n.read).length } };
     }
     if (url === '/vessels/certificates/all') {
-      let rows = D.vessels.filter((v) => v.status === 'ACTIVE').flatMap((v) => (v.certificates || []).map((c) => ({
-        vesselId: v._id, vesselName: v.name, imo: v.imo, certId: c._id, certType: c.certType,
-        number: c.number, issuer: c.issuer, issueDate: c.issueDate, expiryDate: c.expiryDate, status: certStatus(c.expiryDate),
-      })));
+      // B2 — join the register in, so the expiry screen can also say when a
+      // certificate is unexpired and still not in force
+      const byNo = new Map((D.licenses || [])
+        .filter((l) => l.instrumentClass === 'CERTIFICATE' && l.subjectKind === 'VESSEL')
+        .map((l) => [l.licenseNo, l]));
+      const nowC = new Date();
+      let rows = D.vessels.filter((v) => v.status === 'ACTIVE').flatMap((v) => (v.certificates || []).map((c) => {
+        const inst = byNo.get(c.number);
+        const reg = v.registry || {};
+        const corOnRegister = c.certType === 'Certificate of Registry' && reg.certificateNo === c.number;
+        const corInForce = corOnRegister && reg.state !== 'CLOSED'
+          && !(reg.state === 'PROVISIONAL' && reg.certificateExpiresOn && new Date(reg.certificateExpiresOn) < nowC);
+        return {
+          vesselId: v._id, vesselName: v.name, imo: v.imo, certId: c._id, certType: c.certType,
+          number: c.number, issuer: c.issuer, issueDate: c.issueDate, expiryDate: c.expiryDate, status: certStatus(c.expiryDate),
+          instrumentId: inst ? inst._id : null,
+          onRegister: !!inst || corOnRegister,
+          signed: !!(inst && inst.signature && inst.signature.value),
+          inForce: inst ? !!inst.inForce : corOnRegister ? corInForce : null,
+          forceReason: inst ? inst.forceReason
+            : corOnRegister ? (corInForce ? 'Registry entry current'
+              : reg.state === 'CLOSED' ? 'Registry closed' : 'Provisional certificate has expired') : '',
+          endorsementsOverdue: inst && inst.endorsementState ? inst.endorsementState.overdue : 0,
+        };
+      }));
       if (params.status) rows = rows.filter((r) => r.status === params.status);
+      if (params.notInForce === 'true') rows = rows.filter((r) => r.onRegister && !r.inForce);
       if (params.q) {
         const q = String(params.q).toLowerCase();
         rows = rows.filter((r) => [r.vesselName, r.certType, r.number].some((x) => String(x || '').toLowerCase().includes(q)));

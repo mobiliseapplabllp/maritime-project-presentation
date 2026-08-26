@@ -35,6 +35,8 @@ const SeafarersList = lazy(() => import('./pages/seafarers/SeafarersList'));
 const CrewDashboard = lazy(() => import('./pages/seafarers/CrewDashboard'));
 const SeafarerDetail = lazy(() => import('./pages/seafarers/SeafarerDetail'));
 const LegislationPage = lazy(() => import('./pages/legislation/LegislationPage'));
+const RegistrationsList = lazy(() => import('./pages/registry/RegistrationsList'));
+const RegistrationDetail = lazy(() => import('./pages/registry/RegistrationDetail'));
 const FacilitiesList = lazy(() => import('./pages/facilities/FacilitiesList'));
 const FacilityDetail = lazy(() => import('./pages/facilities/FacilityDetail'));
 const TrafficMap = lazy(() => import('./pages/nmc/TrafficMap'));
@@ -120,6 +122,8 @@ export default function App() {
           <Route path="/legislation" element={<Guard perm="legislation.view"><LegislationPage /></Guard>} />
           <Route path="/companies" element={<Guard perm="facilities.view"><CompaniesPage /></Guard>} />
           <Route path="/companies/:id" element={<Guard perm="facilities.view"><CompanyDetail /></Guard>} />
+          <Route path="/registry" element={<Guard perm="registry.view"><RegistrationsList /></Guard>} />
+          <Route path="/registry/:id" element={<Guard perm="registry.view"><RegistrationDetail /></Guard>} />
           <Route path="/facilities" element={<Guard perm="facilities.view"><FacilitiesList /></Guard>} />
           <Route path="/facilities/:id" element={<Guard perm="facilities.view"><FacilityDetail /></Guard>} />
           <Route path="/nmc/map" element={<Guard perm="nmc.view"><TrafficMap /></Guard>} />

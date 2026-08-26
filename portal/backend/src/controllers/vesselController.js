@@ -1,6 +1,7 @@
 const { makeCrud } = require('./crudFactory');
-const { Vessel, PortCall, Inspection, Incident, Seafarer, Position } = require('../models');
+const { Vessel, PortCall, Inspection, Incident, Seafarer, Position, License } = require('../models');
 const { certStatus } = require('../domain/certStatus');
+const SC = require('../domain/statutoryCertificates');
 const { ApiError, ok, created } = require('../utils/respond');
 const { audit } = require('../utils/audit');
 
@@ -174,14 +175,47 @@ module.exports = {
 
   // Fleet-wide certificate register with derived status
   allCertificates: async (req, res) => {
-    const vessels = await Vessel.find({ status: 'ACTIVE' }).select('name imo certificates').lean();
-    let rows = vessels.flatMap((v) => (v.certificates || []).map((c) => ({
-      vesselId: v._id, vesselName: v.name, imo: v.imo,
-      certId: c._id, certType: c.certType, number: c.number, issuer: c.issuer,
-      issueDate: c.issueDate, expiryDate: c.expiryDate, status: certStatus(c.expiryDate),
-    })));
+    const [vessels, instruments] = await Promise.all([
+      Vessel.find({ status: 'ACTIVE' }).select('name imo certificates registry').lean(),
+      License.find({ instrumentClass: 'CERTIFICATE', subjectKind: 'VESSEL' })
+        .select('licenseNo entityType status issueDate expiryDate endorsements signature').lean(),
+    ]);
+    /* B2 — a certificate this administration issued is on the register as well
+     * as on the ship, and the register knows two things the ship's own list
+     * cannot: whether the survey endorsements are up to date, and whether the
+     * record still matches the signature taken at issue. Both are worth more
+     * than the expiry date, because a certificate can be unexpired and still
+     * not in force. */
+    const byNo = new Map(instruments.map((i) => [i.licenseNo, i]));
+    const now = new Date();
+    let rows = vessels.flatMap((v) => (v.certificates || []).map((c) => {
+      const inst = byNo.get(c.number);
+      const force = inst ? SC.forceState(inst) : null;
+      // The certificate of registry is on this register too, but it comes from
+      // the registration engine rather than the instrument register, so its
+      // standing is read off the ship's registry entry.
+      const isCoR = c.certType === 'Certificate of Registry';
+      const reg = v.registry || {};
+      const corOnRegister = isCoR && reg.certificateNo === c.number;
+      const corInForce = corOnRegister && reg.state !== 'CLOSED'
+        && !(reg.state === 'PROVISIONAL' && reg.certificateExpiresOn && new Date(reg.certificateExpiresOn) < now);
+      return {
+        vesselId: v._id, vesselName: v.name, imo: v.imo,
+        certId: c._id, certType: c.certType, number: c.number, issuer: c.issuer,
+        issueDate: c.issueDate, expiryDate: c.expiryDate, status: certStatus(c.expiryDate),
+        instrumentId: inst ? inst._id : null,
+        onRegister: !!inst || corOnRegister,
+        signed: !!(inst && inst.signature && inst.signature.value),
+        inForce: inst ? force.inForce : corOnRegister ? corInForce : null,
+        forceReason: inst ? force.reason
+          : corOnRegister ? (corInForce ? 'Registry entry current'
+            : reg.state === 'CLOSED' ? 'Registry closed' : 'Provisional certificate has expired') : '',
+        endorsementsOverdue: force && force.endorsements ? force.endorsements.overdue : 0,
+      };
+    }));
     const { status, q } = req.query;
     if (status) rows = rows.filter((r) => r.status === status);
+    if (req.query.notInForce === 'true') rows = rows.filter((r) => r.onRegister && !r.inForce);
     if (q) {
       const rx = new RegExp(String(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       rows = rows.filter((r) => rx.test(r.vesselName) || rx.test(r.certType) || rx.test(r.number || ''));

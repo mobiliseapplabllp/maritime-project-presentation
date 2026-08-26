@@ -1,5 +1,6 @@
 /* Per-module stat cards — the small dashboards shown at the top of every page. */
-const { PortCall, Berth, Vessel, Seafarer, Instrument, License, Inspection, Incident, Invoice, User, TariffItem, Lookup, ChecklistTemplate, Resource, AuditLog } = require('../models');
+const { PortCall, Berth, Vessel, Seafarer, Instrument, License, Inspection, Incident, Invoice, User, TariffItem, Lookup, ChecklistTemplate, Resource, AuditLog, VesselRegistration } = require('../models');
+const SC = require('../domain/statutoryCertificates');
 const { certStatus } = require('../domain/certStatus');
 const { ApiError, ok } = require('../utils/respond');
 
@@ -79,6 +80,49 @@ const SCOPES = {
       card('Berth availability', `${avail}%`, 'operational time, 12 months', avail < 95 ? 'warning' : 'success'),
     ];
   } },
+  /* B1/B2 — the registrar's own numbers. The last two cards are the pair worth
+   * reading together: a certificate can be signed, unexpired and still not in
+   * force because a survey window closed unendorsed, and that is exactly the
+   * gap a port state control officer looks for. */
+  registry: { perm: 'registry.view', compute: async () => {
+    const now = new Date();
+    const [rows, fleet, certs] = await Promise.all([
+      VesselRegistration.find().select('kind status submittedAt closedAt dueAt').lean(),
+      Vessel.find().select('registry').lean(),
+      License.find({ status: 'ISSUED' }).select('entityType issueDate expiryDate status endorsements signature').lean(),
+    ]);
+    const open = rows.filter((r) => !['GRANTED', 'REJECTED', 'WITHDRAWN'].includes(r.status));
+    const breached = open.filter((r) => r.dueAt && new Date(r.dueAt) < now);
+    const closed = rows.filter((r) => r.closedAt && r.submittedAt);
+    const avgDays = closed.length
+      ? Math.round((closed.reduce((s, r) => s + (new Date(r.closedAt) - new Date(r.submittedAt)), 0) / closed.length / D) * 10) / 10
+      : 0;
+    const state = (v) => (v.registry && v.registry.state) || 'UNREGISTERED';
+    const registered = fleet.filter((v) => state(v) === 'REGISTERED').length;
+    const provisional = fleet.filter((v) => state(v) === 'PROVISIONAL');
+    const lapsing = provisional.filter((v) => v.registry.certificateExpiresOn
+      && new Date(v.registry.certificateExpiresOn) < new Date(now.getTime() + 60 * D)).length;
+    const statutory = certs.filter((c) => SC.isStatutory(c.entityType));
+    const notInForce = statutory.filter((c) => !SC.forceState(c, now).inForce);
+    const signed = certs.filter((c) => c.signature && c.signature.value).length;
+    return [
+      card('On the register', registered, `${fleet.length - registered - provisional.length} ships not registered here`),
+      card('Provisional entries', provisional.length,
+        lapsing ? `${lapsing} certificate(s) lapse inside 60 days` : 'none lapsing soon',
+        lapsing ? 'warning' : 'default'),
+      card('Open applications', open.length, `${rows.length} transactions on record`),
+      card('Past due', breached.length, breached.length ? 'beyond the registry SLA' : 'all inside SLA',
+        breached.length ? 'warning' : 'success'),
+      card('Granted', rows.filter((r) => r.status === 'GRANTED').length,
+        `${rows.filter((r) => r.status === 'REJECTED').length} refused`),
+      card('Avg decision time', `${avgDays} d`, 'submission to decision'),
+      card('Statutory certificates', statutory.length, `${signed} of ${certs.length} instruments signed`),
+      card('Not in force', notInForce.length,
+        notInForce.length ? 'survey endorsement overdue or refused' : 'every certificate current',
+        notInForce.length ? 'warning' : 'success'),
+    ];
+  } },
+
   vessels: { perm: 'vessels.view', compute: async () => {
     const vessels = await Vessel.find().select('status built certificates type liner name nextDryDock').lean();
     const nfv = (n) => new Intl.NumberFormat('en-IN').format(n || 0);

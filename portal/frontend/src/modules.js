@@ -35,6 +35,7 @@ import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
 import SettingsSuggestRoundedIcon from '@mui/icons-material/SettingsSuggestRounded';
 import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded';
 import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
+import AppRegistrationRoundedIcon from '@mui/icons-material/AppRegistrationRounded';
 
 export const MODULES = [
   {
@@ -69,6 +70,7 @@ export const MODULES = [
       items: [
         { to: '/fleet', label: 'Fleet Dashboard', icon: SpaceDashboardRoundedIcon, perm: 'vessels.view', end: true },
         { to: '/vessels', label: 'Vessel Register', icon: DirectionsBoatFilledRoundedIcon, perm: 'vessels.view' },
+        { to: '/registry', label: 'Ship Registration', icon: AppRegistrationRoundedIcon, perm: 'registry.view' },
         { to: '/certificates', label: 'Certificates', icon: WorkspacePremiumRoundedIcon, perm: 'certificates.view' },
         { to: '/vessels/survey-planner', label: 'Survey & Dry-Dock Planner', icon: EventRepeatRoundedIcon, perm: 'vessels.view' },
         { to: '/risk', label: 'Vessel Risk Register', icon: InsightsRoundedIcon, perm: 'risk.view', end: true },
