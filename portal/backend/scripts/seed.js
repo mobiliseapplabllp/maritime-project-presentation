@@ -1135,6 +1135,10 @@ async function run() {
   // definitions cover the seven business domains; adding a service is a record,
   // not a release.
   const svcDefs = [
+    // C3/C4/G1/H1 — these four are configuration on the A1/A2 engines rather
+    // than new code: a definition, a subject kind, and the instrument each
+    // produces. That is the point of building the engines first.
+
     ['VESSEL-NAV-LIC', 'Navigation Licence — issue', 'رخصة الملاحة — إصدار', 1, 'VESSEL', 'NAVIGATION_LICENCE',
      2500, 10, false, ['Vessel registry extract', 'Insurance certificate', 'Class certificate'],
      [['voyageArea', 'Intended area of operation', 'select', true, ['Port limits', 'Coastal', 'International']],
@@ -1166,6 +1170,30 @@ async function run() {
      'MARINE_SURVEYOR', 5000, 21, false, ['Trade licence', 'Equipment approvals', 'Technician certificates'],
      [['category', 'Service category', 'select', true,
        ['Compass calibration', 'LSA servicing', 'FFA servicing', 'Small vessel survey', 'Pest control', 'Towage']]]],
+    // H1 — each UAE specialised category is its own accreditation with its own
+    // evidence requirements, not a dropdown on a generic one
+    ['FAC-COMPASS', 'Magnetic Compass Correction — accreditation', 'اعتماد تصحيح البوصلة', 7, 'COMPANY',
+     'COMPASS_CALIBRATION', 4000, 21, false,
+     ['Trade licence', 'Compass adjuster certificates', 'Deviation card samples'],
+     [['adjusters', 'Qualified adjusters on staff', 'number', true, []]]],
+    ['FAC-LSA', 'Life-Saving Appliance Servicing — accreditation', 'اعتماد صيانة معدات الإنقاذ', 7, 'COMPANY',
+     'LSA_SERVICING', 6000, 21, false,
+     ['Trade licence', 'Manufacturer authorisation letters', 'Servicing station inventory', 'Technician certificates'],
+     [['makesServiced', 'Manufacturers authorised for', 'textarea', true, []]]],
+    ['FAC-FFA', 'Fire-Fighting Appliance Servicing — accreditation', 'اعتماد صيانة معدات الإطفاء', 7, 'COMPANY',
+     'FFA_SERVICING', 6000, 21, false,
+     ['Trade licence', 'Manufacturer authorisation letters', 'Hydrostatic test facility approval'],
+     [['makesServiced', 'Manufacturers authorised for', 'textarea', true, []]]],
+    ['FAC-SMALL-SURVEY', 'Small Vessel Survey — accreditation', 'اعتماد مسح السفن الصغيرة', 7, 'COMPANY',
+     'SMALL_VESSEL_SURVEY', 5000, 21, false, ['Trade licence', 'Surveyor qualifications', 'Professional indemnity cover'],
+     [['surveyorCount', 'Qualified surveyors', 'number', true, []]]],
+    ['FAC-PEST', 'Vessel Pest Control — accreditation', 'اعتماد مكافحة الآفات', 7, 'COMPANY',
+     'PEST_CONTROL', 3500, 21, false, ['Trade licence', 'Municipality pest control permit', 'Chemical handling certificates'],
+     [['chemicals', 'Approved chemicals used', 'textarea', true, []]]],
+    ['FAC-TOWAGE', 'Towage Certificate — issue', 'شهادة القطر', 7, 'COMPANY',
+     'TOWAGE_CERTIFICATION', 7500, 21, false, ['Trade licence', 'Tug particulars and class certificates', 'Master and crew certificates'],
+     [['tugCount', 'Tugs in the fleet', 'number', true, []],
+      ['bollardPull', 'Maximum bollard pull (tonnes)', 'number', true, []]]],
   ];
   const stagesFor = (slaDays) => [
     { key: 'SCREENING', label: 'Completeness screening', labelAr: 'فحص الاكتمال', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.2)) },
@@ -1344,7 +1372,7 @@ async function run() {
     ['BDW', 'BlueDepth Diving Works', 'SERVICE_PROVIDER', ['DIVING_CONTRACTOR'], false, 3.0],
     ['SGT', 'Sagar Tank Cleaning Services', 'SERVICE_PROVIDER', ['STEVEDORE'], false, 3.5],
   ];
-  await M.Company.insertMany(companyDefs.map(([code, name, category, types, real, rating], i) => ({
+  const companyRows = await M.Company.insertMany(companyDefs.map(([code, name, category, types, real, rating], i) => ({
     code, name, category, types, real, rating,
     contactPerson: real ? '—' : pick(['Ramesh Shah', 'Mukhtar Khan', 'Priti Joshi', 'Sunil Ahuja', 'Dilip Chauhan', 'Kavita Mehta']),
     phone: real ? '' : '+91 2838 2' + String(20000 + i * 613).slice(0, 5),
@@ -1358,6 +1386,148 @@ async function run() {
     remarks: real ? 'Terminal joint-venture operator — public record' : '',
   })));
   console.log(`companies: ${companyDefs.length}`);
+
+  // ---------- C3/C4/G1/H1: applications against the non-vessel services ----------
+  // Seafarer certification, MET accreditation, ISPS statements of compliance and
+  // the specialised company categories all run the same engine as the vessel
+  // services — only the subject and the definition differ.
+  const svc2 = Object.fromEntries((await M.ServiceDefinition.find().lean()).map((d) => [d.code, d]));
+  const fictionalCos = companyRows.filter((c) => !c.realWorld);
+  const ispsBerths = berths.filter((b) => b.status === 'OPERATIONAL').slice(0, 6);
+  const more = [];
+
+  const pushReq = (def, subjectKind, subjectRef, subjectModel, subjectLabel, status, form) => {
+    const open = !['ISSUED', 'REJECTED'].includes(status);
+    const submitted = open
+      ? new Date(NOW.getTime() - ri(1, Math.round(def.slaDays * 1.3)) * D)
+      : new Date(NOW.getTime() - ri(25, 500) * D);
+    const closed = open ? undefined : new Date(submitted.getTime() + ri(3, def.slaDays + 6) * D);
+    const app = pick(users);
+    const hist = [{ from: '', to: 'SUBMITTED', at: submitted, by: app.name, note: 'Application lodged' }];
+    if (status !== 'SUBMITTED') hist.push({ from: 'SUBMITTED', to: 'UNDER_ASSESSMENT', at: new Date(submitted.getTime() + D), by: 'seed', note: '' });
+    if (!open) {
+      hist.push({ from: 'UNDER_ASSESSMENT', to: status === 'ISSUED' ? 'APPROVED' : 'REJECTED', at: closed, by: 'seed',
+        note: status === 'ISSUED' ? '' : 'Evidence incomplete at the date of assessment' });
+      if (status === 'ISSUED') hist.push({ from: 'APPROVED', to: 'ISSUED', at: closed, by: 'seed', note: 'Instrument issued' });
+    }
+    more.push({
+      service: def._id, serviceCode: def.code, serviceName: def.name, domain: def.domain,
+      applicant: { userId: String(app._id), name: app.name, email: app.email, phone: '', organisation: subjectLabel },
+      subjectKind, subjectRef, subjectModel, subjectLabel,
+      formData: form || {},
+      documents: def.requiredDocuments.map((dq) => ({ key: dq.key, label: dq.label, fileName: `${dq.key}.pdf`, verified: status === 'ISSUED' })),
+      status,
+      currentStage: status === 'SUBMITTED' ? 'SCREENING' : status === 'UNDER_ASSESSMENT' ? 'TECHNICAL' : 'APPROVAL',
+      decision: open ? undefined
+        : { outcome: status === 'ISSUED' ? 'APPROVED' : 'REJECTED', by: 'seed', at: closed, reason: '', automated: false },
+      fee: { amount: def.fee.amount, currency: 'AED', paid: status === 'ISSUED', paidAt: closed },
+      submittedAt: submitted, dueAt: new Date(submitted.getTime() + def.slaDays * D), closedAt: closed,
+      history: hist,
+    });
+  };
+
+  const st = ['ISSUED', 'ISSUED', 'UNDER_ASSESSMENT', 'ISSUED', 'SUBMITTED', 'ISSUED', 'INFO_REQUESTED', 'REJECTED'];
+  // C3 — seafarer certification and endorsements
+  seafarers.slice(0, 10).forEach((sf, i) => {
+    const def = svc2[i % 2 === 0 ? 'SEAFARER-COC' : 'SEAFARER-ENDORSEMENT'];
+    pushReq(def, 'SEAFARER', sf._id, 'Seafarer', `${sf.name} (CDC ${sf.cdcNo || '—'})`, st[i % st.length],
+      { grade: sf.rank, seaServiceMonths: ri(12, 60) });
+  });
+  // C4 — MET institution accreditation, against training institutes on the directory
+  fictionalCos.filter((c) => /training|academy|institute/i.test(c.name)).slice(0, 3).forEach((c, i) => {
+    pushReq(svc2['MET-ACCREDITATION'], 'MET_INSTITUTION', c._id, 'Company', c.name, st[i % st.length],
+      { programmes: 'STCW Basic Safety Training; Advanced Fire Fighting; Medical First Aid' });
+  });
+  // G1 — ISPS statements of compliance, one per operational facility
+  ispsBerths.forEach((b, i) => {
+    pushReq(svc2['PORT-ISPS-SOC'], 'PORT_FACILITY', b._id, 'Berth', `${b.name} (${b.code})`, st[i % st.length],
+      { facilityTypes: b.berthType });
+  });
+  // H1 — the six UAE specialised categories
+  const h1 = ['FAC-COMPASS', 'FAC-LSA', 'FAC-FFA', 'FAC-SMALL-SURVEY', 'FAC-PEST', 'FAC-TOWAGE'];
+  h1.forEach((code, i) => {
+    const c = fictionalCos[(i * 3) % fictionalCos.length];
+    pushReq(svc2[code], 'COMPANY', c._id, 'Company', c.name, st[i % st.length],
+      { adjusters: ri(2, 6), makesServiced: 'Viking, Survitec', surveyorCount: ri(2, 8), tugCount: ri(2, 6), bollardPull: ri(35, 75) });
+  });
+
+  const lastNo = await M.ServiceRequest.findOne().sort({ requestNo: -1 }).select('requestNo').lean();
+  const seqStart = {};
+  more.sort((a, b) => a.submittedAt - b.submittedAt).forEach((d) => {
+    const y = yearOf(d.submittedAt);
+    if (seqStart[y] === undefined) seqStart[y] = 500;   // a distinct block from the vessel series
+    seqStart[y] += 1;
+    d.requestNo = `SR-${y}-${String(seqStart[y]).padStart(5, '0')}`;
+  });
+  await M.ServiceRequest.insertMany(more);
+
+  // An application marked ISSUED must have an instrument behind it. Link to one
+  // already on the register where the subject and type match, and mint one
+  // where they do not — otherwise the register and the service desk disagree,
+  // and clicking through from an issued application finds nothing.
+  const issuedReqs = await M.ServiceRequest.find({ status: 'ISSUED' });
+  const defsById = Object.fromEntries((await M.ServiceDefinition.find().lean()).map((d) => [String(d._id), d]));
+  const spare = await M.License.find({ status: 'ISSUED' }).lean();
+  const takenLic = new Set();
+  const mintClass = { NAVIGATION_LICENCE: 'LICENCE', FOREIGN_VESSEL_PERMIT: 'PERMIT', VESSEL_NOC: 'NOC',
+    CERTIFICATE_OF_COMPETENCY: 'CERTIFICATE', CERTIFICATE_OF_PROFICIENCY: 'CERTIFICATE',
+    FLAG_STATE_ENDORSEMENT: 'ENDORSEMENT', ISPS_STATEMENT_OF_COMPLIANCE: 'CERTIFICATE',
+    MET_INSTITUTION_ACCREDITATION: 'ACCREDITATION', MET_PROGRAMME_APPROVAL: 'ACCREDITATION' };
+  const mintPrefix = { NAVIGATION_LICENCE: 'NAV', FOREIGN_VESSEL_PERMIT: 'PRM', VESSEL_NOC: 'NOC',
+    CERTIFICATE_OF_COMPETENCY: 'COC', CERTIFICATE_OF_PROFICIENCY: 'COP', FLAG_STATE_ENDORSEMENT: 'FSE',
+    ISPS_STATEMENT_OF_COMPLIANCE: 'ISPS', MET_INSTITUTION_ACCREDITATION: 'MET', MET_PROGRAMME_APPROVAL: 'MPA' };
+  const mintMonths = { LICENCE: 24, PERMIT: 6, NOC: 3, CERTIFICATE: 60, ACCREDITATION: 12, ENDORSEMENT: 60 };
+  const mintSeq = {};
+  const minted = [];
+  let linked = 0;
+
+  for (const rq of issuedReqs) {
+    const def = defsById[String(rq.service)];
+    if (!def || !def.issuesInstrument) continue;
+    const match = spare.find((l) => !takenLic.has(String(l._id))
+      && l.entityType === def.issuesInstrument
+      && String(l.subjectRef || '') === String(rq.subjectRef || ''));
+    if (match) {
+      takenLic.add(String(match._id));
+      rq.issuedInstrument = match._id;
+      linked += 1;
+    } else {
+      const type = def.issuesInstrument;
+      const cls = mintClass[type] || 'LICENCE';
+      const y = yearOf(rq.closedAt || rq.submittedAt);
+      const key = `${mintPrefix[type] || 'LIC'}-${y}`;
+      mintSeq[key] = (mintSeq[key] || 900) + 1;   // a block clear of the seeded series
+      const termDays = Math.round((mintMonths[cls] || 24) * 30.44);
+      const issuedOn = rq.closedAt || rq.submittedAt;
+      const lic = {
+        licenseNo: `${key}-${String(mintSeq[key]).padStart(4, '0')}`,
+        subjectKind: rq.subjectKind, subjectRef: rq.subjectRef, subjectModel: rq.subjectModel,
+        instrumentClass: cls, entityName: rq.subjectLabel, entityType: type, status: 'ISSUED',
+        contactPerson: rq.applicant.name, email: rq.applicant.email || '',
+        appliedDate: rq.submittedAt, issueDate: issuedOn,
+        expiryDate: new Date(issuedOn.getTime() + termDays * D),
+        conditions: 'Issued on approval of the linked application.',
+        issueChecks: [{ check: 'Application assessed and approved', passed: true, detail: `Via ${rq.requestNo}` }],
+        history: [
+          { from: '', to: 'APPLIED', at: rq.submittedAt, by: rq.applicant.name, note: `Via ${rq.requestNo}` },
+          { from: 'APPLIED', to: 'ISSUED', at: issuedOn, by: 'seed', note: `Issued on approval of ${rq.requestNo}` },
+        ],
+      };
+      minted.push(lic);
+      rq.issuedInstrument = null;   // filled after insert
+      rq._mintNo = lic.licenseNo;
+    }
+  }
+  if (minted.length) {
+    const inserted = await M.License.insertMany(minted);
+    const byNo = Object.fromEntries(inserted.map((l) => [l.licenseNo, l._id]));
+    issuedReqs.forEach((rq) => { if (rq._mintNo) rq.issuedInstrument = byNo[rq._mintNo]; });
+  }
+  await Promise.all(issuedReqs.filter((rq) => rq.issuedInstrument).map((rq) => rq.save()));
+  const orphans = issuedReqs.filter((rq) => !rq.issuedInstrument
+    && defsById[String(rq.service)] && defsById[String(rq.service)].issuesInstrument).length;
+  console.log(`service applications: +${more.length} non-vessel · issued applications linked to instruments: ${linked} existing + ${minted.length} minted, ${orphans} unlinked`);
+
 
   // ---------- marine resources (tugs · pilot launches · mooring boats · pilots) ----------
   // Fleet mirrors the researched Mundra marine craft mix: 5 tugs (2 above 50 T BP),
