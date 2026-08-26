@@ -1130,6 +1130,197 @@ async function run() {
   await M.License.insertMany([...licDocs, ...vesselInstruments]);
   console.log(`licenses: ${licDocs.length} company + ${vesselInstruments.length} vessel instruments`);
 
+  // ---------- A2: service catalogue and lodged applications ----------
+  // Every regulatory service shares one shape, so the catalogue is data. These
+  // definitions cover the seven business domains; adding a service is a record,
+  // not a release.
+  const svcDefs = [
+    ['VESSEL-NAV-LIC', 'Navigation Licence — issue', 'رخصة الملاحة — إصدار', 1, 'VESSEL', 'NAVIGATION_LICENCE',
+     2500, 10, false, ['Vessel registry extract', 'Insurance certificate', 'Class certificate'],
+     [['voyageArea', 'Intended area of operation', 'select', true, ['Port limits', 'Coastal', 'International']],
+      ['startDate', 'Requested commencement', 'date', true, []]]],
+    ['VESSEL-FOREIGN-PERMIT', 'Foreign Vessel Permit', 'تصريح سفينة أجنبية', 1, 'VESSEL', 'FOREIGN_VESSEL_PERMIT',
+     4000, 7, false, ['Flag state certificate', 'P&I cover note', 'Last PSC report'],
+     [['purpose', 'Purpose of call', 'select', true, ['Cargo', 'Bunkering', 'Repair', 'Layup']],
+      ['durationDays', 'Duration (days)', 'number', true, []]]],
+    ['VESSEL-NOC', 'Vessel No Objection Certificate', 'شهادة عدم ممانعة', 1, 'VESSEL', 'VESSEL_NOC',
+     1000, 3, true, ['Movement plan'],
+     [['movementType', 'Movement', 'select', true, ['Shifting', 'Dry dock', 'Layup', 'Departure']]]],
+    ['SEAFARER-COC', 'Certificate of Competency — issue or revalidate', 'شهادة الكفاءة', 2, 'SEAFARER',
+     'CERTIFICATE_OF_COMPETENCY', 800, 14, false,
+     ['Sea service testimonial', 'Medical fitness certificate', 'STCW course certificates', 'Passport copy'],
+     [['grade', 'Certificate grade applied for', 'select', true, ['Master', 'Chief Mate', 'OOW', 'Chief Engineer', 'Second Engineer']],
+      ['seaServiceMonths', 'Approved sea service (months)', 'number', true, []]]],
+    ['SEAFARER-ENDORSEMENT', 'Flag State Endorsement (STCW I/10)', 'تصديق دولة العلم', 2, 'SEAFARER',
+     'FLAG_STATE_ENDORSEMENT', 600, 10, false, ['Foreign CoC', 'Medical fitness certificate'],
+     [['issuingCountry', 'Issuing administration', 'text', true, []]]],
+    ['MET-ACCREDITATION', 'MET Institution Accreditation', 'اعتماد مؤسسة تدريب بحري', 2, 'MET_INSTITUTION',
+     'MET_INSTITUTION_ACCREDITATION', 15000, 45, false,
+     ['Trade licence', 'Quality Standards System manual', 'Instructor qualifications', 'Facility inventory'],
+     [['programmes', 'Programmes offered', 'textarea', true, []]]],
+    ['PORT-ISPS-SOC', 'Port Facility Statement of Compliance', 'بيان امتثال منشأة الميناء', 6, 'PORT_FACILITY',
+     'ISPS_STATEMENT_OF_COMPLIANCE', 12000, 30, false,
+     ['Port Facility Security Assessment', 'Port Facility Security Plan', 'PFSO appointment letter'],
+     [['facilityTypes', 'Vessel types served', 'text', true, []]]],
+    ['FACILITY-ACCREDITATION', 'Specialised Company Accreditation', 'اعتماد شركة متخصصة', 7, 'COMPANY',
+     'MARINE_SURVEYOR', 5000, 21, false, ['Trade licence', 'Equipment approvals', 'Technician certificates'],
+     [['category', 'Service category', 'select', true,
+       ['Compass calibration', 'LSA servicing', 'FFA servicing', 'Small vessel survey', 'Pest control', 'Towage']]]],
+  ];
+  const stagesFor = (slaDays) => [
+    { key: 'SCREENING', label: 'Completeness screening', labelAr: 'فحص الاكتمال', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.2)) },
+    { key: 'TECHNICAL', label: 'Technical assessment', labelAr: 'التقييم الفني', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.5)) },
+    { key: 'APPROVAL', label: 'Approval', labelAr: 'الاعتماد', perm: 'services.approve', slaDays: Math.max(1, Math.round(slaDays * 0.3)) },
+  ];
+  const svcDocs = svcDefs.map(([code, name, nameAr, domain, subjectKind, issues, fee, sla, auto, docs, fields]) => ({
+    code, name, nameAr, domain, subjectKind, issuesInstrument: issues,
+    description: `${name} under the authority's ${subjectKind.replace(/_/g, ' ').toLowerCase()} mandate.`,
+    subjectRequired: true,
+    formFields: fields.map(([key, label, type, required, options]) => ({ key, label, type, required, options })),
+    requiredDocuments: docs.map((d, i) => ({ key: `doc${i + 1}`, label: d, mandatory: i < 2 })),
+    stages: stagesFor(sla),
+    fee: { amount: fee, currency: 'AED' }, slaDays: sla, autoApprovable: auto, active: true,
+  }));
+  const svcSaved = await M.ServiceDefinition.insertMany(svcDocs);
+  const svcByCode = Object.fromEntries(svcSaved.map((d) => [d.code, d]));
+
+  // lodged applications across the history, in the states a live desk shows
+  const applicants = users.slice(0, 6);
+  const reqDocs = [];
+  const reqStates = ['ISSUED', 'ISSUED', 'ISSUED', 'UNDER_ASSESSMENT', 'SUBMITTED', 'INFO_REQUESTED', 'REJECTED', 'ISSUED'];
+  demoFleet.slice(0, 14).forEach((v, i) => {
+    const def = svcByCode[i % 3 === 0 ? 'VESSEL-NAV-LIC' : i % 3 === 1 ? 'VESSEL-FOREIGN-PERMIT' : 'VESSEL-NOC'];
+    const status = reqStates[i % reqStates.length];
+    // closed work spreads across the history; open work is recent, with a
+    // couple deliberately past due so the SLA breach path has something in it
+    const open = !['ISSUED', 'REJECTED'].includes(status);
+    const submitted = open
+      ? new Date(NOW.getTime() - ri(1, Math.round(def.slaDays * 1.4)) * D)
+      : new Date(NOW.getTime() - ri(20, 400) * D);
+    const closed = ['ISSUED', 'REJECTED'].includes(status)
+      ? new Date(submitted.getTime() + ri(2, def.slaDays + 4) * D) : undefined;
+    const app = applicants[i % applicants.length];
+    const hist = [{ from: '', to: 'SUBMITTED', at: submitted, by: app.name, note: 'Application lodged' }];
+    if (status !== 'SUBMITTED') hist.push({ from: 'SUBMITTED', to: 'UNDER_ASSESSMENT', at: new Date(submitted.getTime() + D), by: 'seed', note: '' });
+    if (status === 'INFO_REQUESTED') hist.push({ from: 'UNDER_ASSESSMENT', to: 'INFO_REQUESTED', at: new Date(submitted.getTime() + 2 * D), by: 'seed', note: 'Insurance certificate illegible — please resubmit' });
+    if (['ISSUED', 'REJECTED'].includes(status)) {
+      hist.push({ from: 'UNDER_ASSESSMENT', to: status === 'ISSUED' ? 'APPROVED' : 'REJECTED', at: closed, by: 'seed', note: status === 'ISSUED' ? '' : 'Class certificate expired at the date of application' });
+      if (status === 'ISSUED') hist.push({ from: 'APPROVED', to: 'ISSUED', at: closed, by: 'seed', note: 'Instrument issued' });
+    }
+    reqDocs.push({
+      service: def._id, serviceCode: def.code, serviceName: def.name, domain: def.domain,
+      applicant: { userId: String(app._id), name: app.name, email: app.email, phone: '', organisation: pick(agents) },
+      subjectKind: 'VESSEL', subjectRef: v._id, subjectModel: 'Vessel',
+      subjectLabel: `${v.name} (IMO ${v.imo})`,
+      formData: { note: 'Seeded application' },
+      documents: def.requiredDocuments.map((d) => ({ key: d.key, label: d.label, fileName: `${d.key}.pdf`, verified: status === 'ISSUED' })),
+      status,
+      currentStage: status === 'SUBMITTED' ? 'SCREENING' : status === 'UNDER_ASSESSMENT' ? 'TECHNICAL' : 'APPROVAL',
+      decision: ['ISSUED', 'REJECTED'].includes(status)
+        ? { outcome: status === 'ISSUED' ? 'APPROVED' : 'REJECTED', by: 'seed', at: closed, reason: '', automated: false } : undefined,
+      fee: { amount: def.fee.amount, currency: 'AED', paid: status === 'ISSUED', paidAt: closed },
+      submittedAt: submitted, dueAt: new Date(submitted.getTime() + def.slaDays * D), closedAt: closed,
+      history: hist,
+    });
+  });
+  const reqSeq = {};
+  reqDocs.sort((a, b) => a.submittedAt - b.submittedAt).forEach((d) => {
+    const y = yearOf(d.submittedAt);
+    reqSeq[y] = (reqSeq[y] || 0) + 1;
+    d.requestNo = `SR-${y}-${String(reqSeq[y]).padStart(5, '0')}`;
+  });
+  await M.ServiceRequest.insertMany(reqDocs);
+  console.log(`services: ${svcDocs.length} definitions, ${reqDocs.length} applications`);
+
+  // ---------- A3: agent roster, autonomy and the decision register ----------
+  const agentDefs = [
+    ['collector', 'Harbour Collector', 'Ingestion', 4, 'AUTONOMOUS', 0.80],
+    ['curator', 'Facts Curator', 'Data', 4, 'AUTONOMOUS', 0.80],
+    ['sentinel', 'Berth Sentinel', 'Monitoring', 4, 'ASSISTED', 0.85],
+    ['auditor', 'Marine Auditor', 'Assessment', 5, 'ASSISTED', 0.88],
+    ['planner', 'Berth Planner', 'Planning', 4, 'SUPERVISED', 0.90],
+    ['analyst', 'Trade Analyst', 'Analysis', 4, 'ASSISTED', 0.85],
+    ['examiner', 'QA Examiner', 'Quality', 5, 'AUTONOMOUS', 0.75],
+    ['validator', 'QA Validator', 'Quality', 5, 'AUTONOMOUS', 0.75],
+    ['supervisor', 'Duty Officer', 'Orchestration', 4, 'SUPERVISED', 0.92],
+  ];
+  const agentCfgs = agentDefs.map(([agentId, name, role, domain, autonomyLevel, confidenceThreshold]) => ({
+    agentId, name, role, domain, autonomyLevel, confidenceThreshold,
+    enabled: true, suspended: false, maxActionsPerHour: 100, escalateTo: 'agents.review',
+    changes: [{ field: 'autonomyLevel', from: 'SUPERVISED', to: autonomyLevel,
+      at: new Date(NOW.getTime() - ri(30, 200) * D), by: 'AI Governance Committee',
+      reason: 'Raised after accuracy review — agreement rate sustained above target' }],
+  }));
+
+  // a decision register with the dispositions a real review queue carries
+  const decActions = [
+    ['sentinel', 'Flagged sustained waiting-time rise at CT3', 'Waiting time at CT3 rose to 26.4 h against a 12-week baseline of 17.1 h.'],
+    ['auditor', 'Scored terminal service against benchmark', 'Berth-day output 14,900 MT against the 16,500 MT major-port benchmark.'],
+    ['analyst', 'Identified cargo mix shift', 'Container share moved 4.2 points against the trailing year.'],
+    ['examiner', 'Rejected a draft finding as unsupported', 'Cited figure did not reconcile with the source panel.'],
+    ['collector', 'Rebuilt operational panels', 'Four panels refreshed from the latest snapshot.'],
+  ];
+  // every agent carries a decision history, not just the five with scripted
+  // actions — an empty register on half the roster reads as broken
+  const genericAction = {
+    curator: ['Curated a fact for the analysis pack', 'Figure reconciled against the source panel.'],
+    planner: ['Proposed a berth window allocation', 'Window fits declared LOA and draft with 40 minutes clearance.'],
+    validator: ['Validated a generated narrative', 'Every cited figure traced to the panel that produced it.'],
+    supervisor: ['Sequenced an agent run', 'Collector completed; handed to Curator with fresh data.'],
+  };
+  // one lookup per agent, then a straight round-robin so every agent on the
+  // roster carries a decision history
+  const actionFor = {};
+  decActions.forEach(([id, action, explanation]) => { actionFor[id] = [action, explanation]; });
+  Object.entries(genericAction).forEach(([id, pair]) => { actionFor[id] = pair; });
+  const roster = agentDefs.map((a) => a[0]);
+  const decDocs = [];
+  for (let i = 0; i < 180; i++) {
+    const agentId = roster[i % roster.length];
+    const [action, explanation] = actionFor[agentId];
+    const cfg = agentCfgs.find((a) => a.agentId === agentId);
+    const confidence = Math.round((0.62 + rnd() * 0.36) * 100) / 100;
+    let disposition;
+    if (cfg.autonomyLevel === 'AUTONOMOUS') disposition = 'AUTO_APPLIED';
+    else if (cfg.autonomyLevel === 'ASSISTED') disposition = confidence >= cfg.confidenceThreshold ? 'AUTO_APPLIED' : 'ESCALATED';
+    else disposition = i % 7 === 0 ? 'AWAITING_REVIEW' : (i % 11 === 0 ? 'OVERRIDDEN' : 'APPROVED_BY_HUMAN');
+    decDocs.push({
+      agentId, agentName: cfg.name, action,
+      subjectType: 'Panel', subjectId: '', subjectLabel: pick(['CT3', 'MICT', 'AMCT', 'West Basin', 'Port']),
+      inputs: { window: '12 months' }, output: { flagged: disposition !== 'AWAITING_REVIEW' },
+      explanation,
+      factors: [
+        { factor: 'Deviation from baseline', weight: 0.5, value: 'above', contribution: 0.5 },
+        { factor: 'Persistence', weight: 0.3, value: '3 consecutive weeks', contribution: 0.3 },
+        { factor: 'Sample size', weight: 0.2, value: 'sufficient', contribution: 0.2 },
+      ],
+      confidence, autonomyLevel: cfg.autonomyLevel, threshold: cfg.confidenceThreshold,
+      disposition,
+      escalationReason: disposition === 'ESCALATED' ? `Confidence ${confidence} below threshold ${cfg.confidenceThreshold}` : '',
+      reviewedBy: ['APPROVED_BY_HUMAN', 'OVERRIDDEN'].includes(disposition) ? pick(users).name : '',
+      reviewedAt: ['APPROVED_BY_HUMAN', 'OVERRIDDEN'].includes(disposition) ? new Date(NOW.getTime() - ri(1, 300) * D) : undefined,
+      overrideReason: disposition === 'OVERRIDDEN' ? 'Local works already accounted for the variance' : '',
+      modelId: 'claude-sonnet-5', modelVersion: '2026-08',
+      latencyMs: ri(400, 3200),
+      at: new Date(NOW.getTime() - ri(1, 300) * D),
+    });
+  }
+  // roll the recorded dispositions into each agent's rolling stats
+  agentCfgs.forEach((a) => {
+    const mine = decDocs.filter((d) => d.agentId === a.agentId);
+    a.stats = {
+      decisions: mine.length,
+      autoApplied: mine.filter((d) => d.disposition === 'AUTO_APPLIED').length,
+      escalated: mine.filter((d) => d.disposition === 'ESCALATED').length,
+      overridden: mine.filter((d) => d.disposition === 'OVERRIDDEN').length,
+      avgConfidence: mine.length ? Math.round((mine.reduce((s2, d) => s2 + d.confidence, 0) / mine.length) * 1000) / 1000 : 0,
+      lastRunAt: new Date(NOW.getTime() - ri(1, 48) * H),
+    };
+  });
+  await M.AgentConfig.insertMany(agentCfgs);
+  await M.AiDecision.insertMany(decDocs);
+  console.log(`agents: ${agentCfgs.length} configured, ${decDocs.length} AI decisions recorded`);
+
   // ---------- port companies directory ----------
   const companyDefs = [
     // documented terminal operators (public JV structure) — flagged real

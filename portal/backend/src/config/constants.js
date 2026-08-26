@@ -23,6 +23,8 @@ const PERMISSION_GROUPS = [
   { module: 'risk',         label: 'Risk Intelligence',       actions: ['view', 'manage'] },
   { module: 'ai',           label: 'AI Assistant',            actions: ['use'] },
   { module: 'reports',      label: 'MIS Reports',             actions: ['view'] },
+  { module: 'services',     label: 'Service Requests',        actions: ['view', 'apply', 'assess', 'approve', 'manage'] },
+  { module: 'agents',       label: 'AI Agents & Autonomy',    actions: ['view', 'configure', 'review'] },
 ];
 
 const ALL_PERMISSIONS = PERMISSION_GROUPS.flatMap((g) => g.actions.map((a) => `${g.module}.${a}`));
@@ -175,6 +177,21 @@ const LICENSE_TRANSITIONS = {
   REJECTED: [], REVOKED: [],
 };
 
+// A2 — the service request lifecycle. Every one of the 80+ services runs this
+// same path, whatever it is about.
+const REQUEST_STATUS = ['DRAFT', 'SUBMITTED', 'UNDER_ASSESSMENT', 'INFO_REQUESTED',
+  'APPROVED', 'REJECTED', 'ISSUED', 'WITHDRAWN'];
+const REQUEST_TRANSITIONS = {
+  DRAFT:            ['SUBMITTED', 'WITHDRAWN'],
+  SUBMITTED:        ['UNDER_ASSESSMENT', 'WITHDRAWN'],
+  UNDER_ASSESSMENT: ['INFO_REQUESTED', 'APPROVED', 'REJECTED'],
+  INFO_REQUESTED:   ['UNDER_ASSESSMENT', 'WITHDRAWN'],
+  APPROVED:         ['ISSUED'],
+  REJECTED:         [],
+  ISSUED:           [],
+  WITHDRAWN:        [],
+};
+
 const INCIDENT_CATEGORIES = ['MARINE', 'HSE', 'SECURITY', 'ENVIRONMENT', 'EQUIPMENT', 'PERSONNEL', 'CARGO', 'NAVIGATION'];
 const INCIDENT_TYPES = ['SAR', 'POLLUTION', 'OIL_SPILL', 'SECURITY_BREACH', 'CASUALTY', 'MEDICAL_EVAC', 'NEAR_MISS',
   'FIRE', 'COLLISION', 'GROUNDING', 'PERSONNEL_INJURY', 'EQUIPMENT_FAILURE', 'CARGO_DAMAGE', 'NAV_HAZARD', 'MOORING_FAILURE'];
@@ -204,6 +221,7 @@ module.exports = {
   LICENSE_TYPES, LICENSE_STATUS, LICENSE_TRANSITIONS,
   SUBJECT_KINDS, INSTRUMENT_CLASSES, LICENSE_TYPES_BY_SUBJECT, INSTRUMENT_CLASS_BY_TYPE,
   NUMBER_PREFIX_BY_CLASS, NUMBER_PREFIX_BY_TYPE, SUBJECT_PERMS, VALIDITY_MONTHS,
+  REQUEST_STATUS, REQUEST_TRANSITIONS,
   INCIDENT_CATEGORIES, INCIDENT_TYPES, INCIDENT_STATUS, INCIDENT_SEVERITY,
   INCIDENT_PRIORITIES, INCIDENT_SOURCES, INCIDENT_TRANSITIONS, RESOURCE_TYPES, DEFAULT_RISK_WEIGHTS,
   PORTCALL_STATUS, PORTCALL_TRANSITIONS,

@@ -22,6 +22,8 @@ const stats = require('../controllers/statsController');
 const reports = require('../controllers/reportController');
 const cards = require('../controllers/cardController');
 const companies = require('../controllers/companyController');
+const services = require('../controllers/serviceController');
+const agents = require('../controllers/agentController');
 const reportLib = require('../controllers/reportLibraryController');
 const settingsCtl = require('../controllers/settingsController');
 const opsx = require('../controllers/opsController');
@@ -193,6 +195,29 @@ r.get('/port-calls/:id/sof', requirePerm('portcalls.view'), w(opsx.sof));
 r.post('/port-calls/:id/pda', requirePerm('invoices.create'), w(opsx.generatePda));
 r.get('/port-calls/:id/pda', requirePerm('invoices.view'), w(opsx.pdaVariance));
 r.put('/ops/resources/:id', requirePerm('portcalls.edit'), w(opsx.setResourceStatus));
+
+// A2 — service catalogue and requests: the one front door for every service
+r.get('/services/catalogue', requirePerm('services.view'), w(services.catalogue));
+r.get('/services/dashboard', requirePerm('services.view'), w(services.dashboard));
+r.get('/services/definitions', requirePerm('services.view'), w(services.listDefinitions));
+r.post('/services/definitions', requirePerm('services.manage'), w(services.upsertDefinition));
+r.get('/services/definitions/:id', requirePerm('services.view'), w(services.getDefinition));
+r.get('/services/requests', requirePerm('services.view'), w(services.list));
+r.post('/services/requests', requirePerm('services.apply'), w(services.submit));
+r.get('/services/requests/:id', requirePerm('services.view'), w(services.get));
+r.post('/services/requests/:id/transition', requirePerm('services.assess'), w(services.transition));
+r.post('/services/requests/:id/issue', requirePerm('services.approve'), w(services.issue));
+r.post('/services/requests/:id/documents', requirePerm('services.apply'), w(services.addDocument));
+r.put('/services/requests/:id/documents/:docId', requirePerm('services.assess'), w(services.verifyDocument));
+
+// A3 — agent autonomy, the AI decision register and the human review queue
+r.get('/agents', requirePerm('agents.view'), w(agents.list));
+r.get('/agents/dashboard', requirePerm('agents.view'), w(agents.dashboard));
+r.get('/agents/decisions', requirePerm('agents.view'), w(agents.listDecisions));
+r.post('/agents/decisions/:id/review', requirePerm('agents.review'), w(agents.review));
+r.get('/agents/:agentId', requirePerm('agents.view'), w(agents.get));
+r.put('/agents/:agentId', requirePerm('agents.configure'), w(agents.configure));
+r.post('/agents/:agentId/suspend', requirePerm('agents.configure'), w(agents.suspend));
 
 // port companies directory
 r.get('/companies', requirePerm('facilities.view'), w(companies.list));

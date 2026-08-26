@@ -20,4 +20,8 @@ module.exports = {
   Position: require('./Position'),
   Resource: require('./Resource'),
   Company: require('./Company'),
+  ServiceDefinition: require('./ServiceDefinition'),
+  ServiceRequest: require('./ServiceRequest'),
+  AgentConfig: require('./AgentConfig'),
+  AiDecision: require('./AiDecision'),
 };
