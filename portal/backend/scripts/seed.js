@@ -1135,79 +1135,81 @@ async function run() {
   // definitions cover the seven business domains; adding a service is a record,
   // not a release.
   const svcDefs = [
-    // C3/C4/G1/H1 — these four are configuration on the A1/A2 engines rather
-    // than new code: a definition, a subject kind, and the instrument each
-    // produces. That is the point of building the engines first.
-
-    ['VESSEL-NAV-LIC', 'Navigation Licence — issue', 'رخصة الملاحة — إصدار', 1, 'VESSEL', 'NAVIGATION_LICENCE',
-     2500, 10, false, ['Vessel registry extract', 'Insurance certificate', 'Class certificate'],
+    // C3/C4/G1/H1 — these are configuration on the A1/A2 engines rather than
+    // new code: a definition, a subject kind, and the instrument each produces.
+    // Every service below is a real approval an Indian maritime administration
+    // issues — DG Shipping for flag-state and training matters, the Gujarat
+    // Maritime Board and the port for local service providers.
+    ['VESSEL-NAV-LIC', 'Coastal Navigation Licence — issue', 'तटीय नौवहन लाइसेंस — जारी करना', 1, 'VESSEL',
+     'NAVIGATION_LICENCE', 25000, 10, false,
+     ['Certificate of Registry', 'Insurance certificate', 'Class certificate'],
      [['voyageArea', 'Intended area of operation', 'select', true, ['Port limits', 'Coastal', 'International']],
       ['startDate', 'Requested commencement', 'date', true, []]]],
-    ['VESSEL-FOREIGN-PERMIT', 'Foreign Vessel Permit', 'تصريح سفينة أجنبية', 1, 'VESSEL', 'FOREIGN_VESSEL_PERMIT',
-     4000, 7, false, ['Flag state certificate', 'P&I cover note', 'Last PSC report'],
+    ['VESSEL-FOREIGN-PERMIT', 'Foreign Flag Vessel Licence — coastal trade', 'विदेशी ध्वज पोत लाइसेंस', 1, 'VESSEL',
+     'FOREIGN_VESSEL_PERMIT', 50000, 7, false,
+     ['Flag state certificate', 'P&I cover note', 'Last port state control report'],
      [['purpose', 'Purpose of call', 'select', true, ['Cargo', 'Bunkering', 'Repair', 'Layup']],
       ['durationDays', 'Duration (days)', 'number', true, []]]],
-    ['VESSEL-NOC', 'Vessel No Objection Certificate', 'شهادة عدم ممانعة', 1, 'VESSEL', 'VESSEL_NOC',
-     1000, 3, true, ['Movement plan'],
+    ['VESSEL-NOC', 'Vessel Movement No Objection Certificate', 'पोत संचलन अनापत्ति प्रमाणपत्र', 1, 'VESSEL',
+     'VESSEL_NOC', 5000, 3, true, ['Movement plan'],
      [['movementType', 'Movement', 'select', true, ['Shifting', 'Dry dock', 'Layup', 'Departure']]]],
-    ['SEAFARER-COC', 'Certificate of Competency — issue or revalidate', 'شهادة الكفاءة', 2, 'SEAFARER',
-     'CERTIFICATE_OF_COMPETENCY', 800, 14, false,
-     ['Sea service testimonial', 'Medical fitness certificate', 'STCW course certificates', 'Passport copy'],
-     [['grade', 'Certificate grade applied for', 'select', true, ['Master', 'Chief Mate', 'OOW', 'Chief Engineer', 'Second Engineer']],
+    ['SEAFARER-COC', 'Certificate of Competency — issue or revalidate', 'सक्षमता प्रमाणपत्र', 2, 'SEAFARER',
+     'CERTIFICATE_OF_COMPETENCY', 8000, 14, false,
+     ['Sea service testimonial', 'Medical fitness certificate', 'STCW course certificates', 'CDC and passport copy'],
+     [['grade', 'Certificate grade applied for', 'select', true,
+       ['Master', 'Chief Mate', 'Officer in Charge of a Navigational Watch', 'Chief Engineer', 'Second Engineer']],
       ['seaServiceMonths', 'Approved sea service (months)', 'number', true, []]]],
-    ['SEAFARER-ENDORSEMENT', 'Flag State Endorsement (STCW I/10)', 'تصديق دولة العلم', 2, 'SEAFARER',
-     'FLAG_STATE_ENDORSEMENT', 600, 10, false, ['Foreign CoC', 'Medical fitness certificate'],
+    ['SEAFARER-ENDORSEMENT', 'Flag State Endorsement — STCW Regulation I/10', 'ध्वज राज्य पृष्ठांकन', 2, 'SEAFARER',
+     'FLAG_STATE_ENDORSEMENT', 5000, 10, false, ['Foreign Certificate of Competency', 'Medical fitness certificate'],
      [['issuingCountry', 'Issuing administration', 'text', true, []]]],
-    ['MET-ACCREDITATION', 'MET Institution Accreditation', 'اعتماد مؤسسة تدريب بحري', 2, 'MET_INSTITUTION',
-     'MET_INSTITUTION_ACCREDITATION', 15000, 45, false,
-     ['Trade licence', 'Quality Standards System manual', 'Instructor qualifications', 'Facility inventory'],
-     [['programmes', 'Programmes offered', 'textarea', true, []]]],
-    ['PORT-ISPS-SOC', 'Port Facility Statement of Compliance', 'بيان امتثال منشأة الميناء', 6, 'PORT_FACILITY',
-     'ISPS_STATEMENT_OF_COMPLIANCE', 12000, 30, false,
+    ['MET-APPROVAL', 'Maritime Training Institute — approval', 'समुद्री प्रशिक्षण संस्थान अनुमोदन', 2, 'MET_INSTITUTION',
+     'MET_INSTITUTION_ACCREDITATION', 200000, 45, false,
+     ['Registration certificate', 'Quality Standards System manual', 'Instructor qualifications', 'Facility and simulator inventory'],
+     [['programmes', 'Courses offered', 'textarea', true, []]]],
+    ['PORT-ISPS-SOC', 'Port Facility Statement of Compliance — ISPS', 'बंदरगाह सुविधा अनुपालन विवरण', 6, 'PORT_FACILITY',
+     'ISPS_STATEMENT_OF_COMPLIANCE', 150000, 30, false,
      ['Port Facility Security Assessment', 'Port Facility Security Plan', 'PFSO appointment letter'],
      [['facilityTypes', 'Vessel types served', 'text', true, []]]],
-    ['FACILITY-ACCREDITATION', 'Specialised Company Accreditation', 'اعتماد شركة متخصصة', 7, 'COMPANY',
-     'MARINE_SURVEYOR', 5000, 21, false, ['Trade licence', 'Equipment approvals', 'Technician certificates'],
-     [['category', 'Service category', 'select', true,
-       ['Compass calibration', 'LSA servicing', 'FFA servicing', 'Small vessel survey', 'Pest control', 'Towage']]]],
-    // H1 — each UAE specialised category is its own accreditation with its own
-    // evidence requirements, not a dropdown on a generic one
-    ['FAC-COMPASS', 'Magnetic Compass Correction — accreditation', 'اعتماد تصحيح البوصلة', 7, 'COMPANY',
-     'COMPASS_CALIBRATION', 4000, 21, false,
-     ['Trade licence', 'Compass adjuster certificates', 'Deviation card samples'],
+    ['FACILITY-SURVEYOR', 'Marine Surveyor — approval', 'समुद्री सर्वेक्षक अनुमोदन', 7, 'COMPANY',
+     'MARINE_SURVEYOR', 50000, 21, false, ['Registration certificate', 'Surveyor qualifications', 'Professional indemnity cover'],
+     [['disciplines', 'Survey disciplines', 'textarea', true, []]]],
+    // specialised marine service providers the administration approves
+    ['FAC-COMPASS', 'Magnetic Compass Adjuster — approval', 'चुंबकीय दिक्सूचक समायोजक अनुमोदन', 7, 'COMPANY',
+     'COMPASS_CALIBRATION', 40000, 21, false,
+     ['Registration certificate', 'Compass adjuster certificates', 'Deviation card samples'],
      [['adjusters', 'Qualified adjusters on staff', 'number', true, []]]],
-    ['FAC-LSA', 'Life-Saving Appliance Servicing — accreditation', 'اعتماد صيانة معدات الإنقاذ', 7, 'COMPANY',
-     'LSA_SERVICING', 6000, 21, false,
-     ['Trade licence', 'Manufacturer authorisation letters', 'Servicing station inventory', 'Technician certificates'],
+    ['FAC-LSA', 'Life-Saving Appliance Servicing Station — approval', 'जीवनरक्षक उपकरण सेवा केंद्र अनुमोदन', 7, 'COMPANY',
+     'LSA_SERVICING', 60000, 21, false,
+     ['Registration certificate', 'Manufacturer authorisation letters', 'Servicing station inventory', 'Technician certificates'],
      [['makesServiced', 'Manufacturers authorised for', 'textarea', true, []]]],
-    ['FAC-FFA', 'Fire-Fighting Appliance Servicing — accreditation', 'اعتماد صيانة معدات الإطفاء', 7, 'COMPANY',
-     'FFA_SERVICING', 6000, 21, false,
-     ['Trade licence', 'Manufacturer authorisation letters', 'Hydrostatic test facility approval'],
+    ['FAC-FFA', 'Fire-Fighting Appliance Servicing Station — approval', 'अग्निशमन उपकरण सेवा केंद्र अनुमोदन', 7, 'COMPANY',
+     'FFA_SERVICING', 60000, 21, false,
+     ['Registration certificate', 'Manufacturer authorisation letters', 'Hydrostatic test facility approval'],
      [['makesServiced', 'Manufacturers authorised for', 'textarea', true, []]]],
-    ['FAC-SMALL-SURVEY', 'Small Vessel Survey — accreditation', 'اعتماد مسح السفن الصغيرة', 7, 'COMPANY',
-     'SMALL_VESSEL_SURVEY', 5000, 21, false, ['Trade licence', 'Surveyor qualifications', 'Professional indemnity cover'],
+    ['FAC-SMALL-SURVEY', 'Small Vessel Survey — approval', 'लघु पोत सर्वेक्षण अनुमोदन', 7, 'COMPANY',
+     'SMALL_VESSEL_SURVEY', 45000, 21, false, ['Registration certificate', 'Surveyor qualifications', 'Professional indemnity cover'],
      [['surveyorCount', 'Qualified surveyors', 'number', true, []]]],
-    ['FAC-PEST', 'Vessel Pest Control — accreditation', 'اعتماد مكافحة الآفات', 7, 'COMPANY',
-     'PEST_CONTROL', 3500, 21, false, ['Trade licence', 'Municipality pest control permit', 'Chemical handling certificates'],
+    ['FAC-PEST', 'Vessel Pest Control and Deratting — approval', 'पोत कीट नियंत्रण अनुमोदन', 7, 'COMPANY',
+     'PEST_CONTROL', 35000, 21, false, ['Registration certificate', 'Pest control licence', 'Chemical handling certificates'],
      [['chemicals', 'Approved chemicals used', 'textarea', true, []]]],
-    ['FAC-TOWAGE', 'Towage Certificate — issue', 'شهادة القطر', 7, 'COMPANY',
-     'TOWAGE_CERTIFICATION', 7500, 21, false, ['Trade licence', 'Tug particulars and class certificates', 'Master and crew certificates'],
+    ['FAC-TOWAGE', 'Towage Operator — licence', 'कर्षण संचालक लाइसेंस', 7, 'COMPANY',
+     'TOWAGE_CERTIFICATION', 75000, 21, false, ['Registration certificate', 'Tug particulars and class certificates', 'Master and crew certificates'],
      [['tugCount', 'Tugs in the fleet', 'number', true, []],
       ['bollardPull', 'Maximum bollard pull (tonnes)', 'number', true, []]]],
   ];
   const stagesFor = (slaDays) => [
-    { key: 'SCREENING', label: 'Completeness screening', labelAr: 'فحص الاكتمال', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.2)) },
-    { key: 'TECHNICAL', label: 'Technical assessment', labelAr: 'التقييم الفني', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.5)) },
-    { key: 'APPROVAL', label: 'Approval', labelAr: 'الاعتماد', perm: 'services.approve', slaDays: Math.max(1, Math.round(slaDays * 0.3)) },
+    { key: 'SCREENING', label: 'Completeness screening', labelLocal: 'पूर्णता जाँच', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.2)) },
+    { key: 'TECHNICAL', label: 'Technical assessment', labelLocal: 'तकनीकी मूल्यांकन', perm: 'services.assess', slaDays: Math.max(1, Math.round(slaDays * 0.5)) },
+    { key: 'APPROVAL', label: 'Approval', labelLocal: 'अनुमोदन', perm: 'services.approve', slaDays: Math.max(1, Math.round(slaDays * 0.3)) },
   ];
-  const svcDocs = svcDefs.map(([code, name, nameAr, domain, subjectKind, issues, fee, sla, auto, docs, fields]) => ({
-    code, name, nameAr, domain, subjectKind, issuesInstrument: issues,
+  const svcDocs = svcDefs.map(([code, name, nameLocal, domain, subjectKind, issues, fee, sla, auto, docs, fields]) => ({
+    code, name, nameLocal, domain, subjectKind, issuesInstrument: issues,
     description: `${name} under the authority's ${subjectKind.replace(/_/g, ' ').toLowerCase()} mandate.`,
     subjectRequired: true,
     formFields: fields.map(([key, label, type, required, options]) => ({ key, label, type, required, options })),
     requiredDocuments: docs.map((d, i) => ({ key: `doc${i + 1}`, label: d, mandatory: i < 2 })),
     stages: stagesFor(sla),
-    fee: { amount: fee, currency: 'AED' }, slaDays: sla, autoApprovable: auto, active: true,
+    fee: { amount: fee, currency: 'INR' }, slaDays: sla, autoApprovable: auto, active: true,
   }));
   const svcSaved = await M.ServiceDefinition.insertMany(svcDocs);
   const svcByCode = Object.fromEntries(svcSaved.map((d) => [d.code, d]));
@@ -1246,7 +1248,7 @@ async function run() {
       currentStage: status === 'SUBMITTED' ? 'SCREENING' : status === 'UNDER_ASSESSMENT' ? 'TECHNICAL' : 'APPROVAL',
       decision: ['ISSUED', 'REJECTED'].includes(status)
         ? { outcome: status === 'ISSUED' ? 'APPROVED' : 'REJECTED', by: 'seed', at: closed, reason: '', automated: false } : undefined,
-      fee: { amount: def.fee.amount, currency: 'AED', paid: status === 'ISSUED', paidAt: closed },
+      fee: { amount: def.fee.amount, currency: 'INR', paid: status === 'ISSUED', paidAt: closed },
       submittedAt: submitted, dueAt: new Date(submitted.getTime() + def.slaDays * D), closedAt: closed,
       history: hist,
     });
@@ -1420,7 +1422,7 @@ async function run() {
       currentStage: status === 'SUBMITTED' ? 'SCREENING' : status === 'UNDER_ASSESSMENT' ? 'TECHNICAL' : 'APPROVAL',
       decision: open ? undefined
         : { outcome: status === 'ISSUED' ? 'APPROVED' : 'REJECTED', by: 'seed', at: closed, reason: '', automated: false },
-      fee: { amount: def.fee.amount, currency: 'AED', paid: status === 'ISSUED', paidAt: closed },
+      fee: { amount: def.fee.amount, currency: 'INR', paid: status === 'ISSUED', paidAt: closed },
       submittedAt: submitted, dueAt: new Date(submitted.getTime() + def.slaDays * D), closedAt: closed,
       history: hist,
     });
@@ -1435,7 +1437,7 @@ async function run() {
   });
   // C4 — MET institution accreditation, against training institutes on the directory
   fictionalCos.filter((c) => /training|academy|institute/i.test(c.name)).slice(0, 3).forEach((c, i) => {
-    pushReq(svc2['MET-ACCREDITATION'], 'MET_INSTITUTION', c._id, 'Company', c.name, st[i % st.length],
+    pushReq(svc2['MET-APPROVAL'], 'MET_INSTITUTION', c._id, 'Company', c.name, st[i % st.length],
       { programmes: 'STCW Basic Safety Training; Advanced Fire Fighting; Medical First Aid' });
   });
   // G1 — ISPS statements of compliance, one per operational facility
@@ -1443,7 +1445,7 @@ async function run() {
     pushReq(svc2['PORT-ISPS-SOC'], 'PORT_FACILITY', b._id, 'Berth', `${b.name} (${b.code})`, st[i % st.length],
       { facilityTypes: b.berthType });
   });
-  // H1 — the six UAE specialised categories
+  // H1 — the specialised marine service provider approvals
   const h1 = ['FAC-COMPASS', 'FAC-LSA', 'FAC-FFA', 'FAC-SMALL-SURVEY', 'FAC-PEST', 'FAC-TOWAGE'];
   h1.forEach((code, i) => {
     const c = fictionalCos[(i * 3) % fictionalCos.length];

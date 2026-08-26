@@ -38,7 +38,7 @@ exports.getDefinition = async (req, res) => {
 /** The catalogue grouped by RFP domain — what the service landing page reads. */
 exports.catalogue = async (_req, res) => {
   const rows = await ServiceDefinition.find({ active: true })
-    .select('code name nameAr domain subjectKind issuesInstrument fee slaDays autoApprovable').lean();
+    .select('code name nameLocal domain subjectKind issuesInstrument fee slaDays autoApprovable').lean();
   const byDomain = {};
   rows.forEach((r) => { (byDomain[r.domain] = byDomain[r.domain] || []).push(r); });
   ok(res, {
@@ -133,7 +133,7 @@ exports.submit = async (req, res) => {
     documents: (b.documents || []).map((d) => ({ key: d.key, label: d.label || '', fileName: d.fileName || '' })),
     status: isDraft ? 'DRAFT' : 'SUBMITTED',
     currentStage: (def.stages || [])[0] ? def.stages[0].key : '',
-    fee: { amount: def.fee?.amount || 0, currency: def.fee?.currency || 'AED' },
+    fee: { amount: def.fee?.amount || 0, currency: def.fee?.currency || 'INR' },
     submittedAt: isDraft ? undefined : now,
     dueAt: isDraft ? undefined : new Date(now.getTime() + (def.slaDays || 10) * D),
     history: [{ from: '', to: isDraft ? 'DRAFT' : 'SUBMITTED', at: now, by: req.user.name, note: 'Application lodged' }],

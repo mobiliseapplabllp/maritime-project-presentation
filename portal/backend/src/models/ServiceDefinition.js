@@ -9,13 +9,14 @@ const { SUBJECT_KINDS, LICENSE_TYPES } = require('../config/constants');
  * an instrument is produced through the A1 engine.
  *
  * Because that shape is constant, a service is data rather than code. Adding a
- * service means adding a definition, not a release. Arabic labels sit alongside
- * English on every user-visible string so the same definition drives both. */
+ * service means adding a definition, not a release. Every user-visible string
+ * carries a local-language label beside the English one, so a single definition
+ * drives both interfaces whatever the deployment's second language is. */
 
 const fieldSchema = new mongoose.Schema({
   key: { type: String, required: true },
   label: { type: String, required: true },
-  labelAr: { type: String, default: '' },
+  labelLocal: { type: String, default: '' },
   type: { type: String, enum: ['text', 'number', 'date', 'select', 'checkbox', 'textarea'], default: 'text' },
   options: [String],
   required: { type: Boolean, default: false },
@@ -25,7 +26,7 @@ const fieldSchema = new mongoose.Schema({
 const docSchema = new mongoose.Schema({
   key: { type: String, required: true },
   label: { type: String, required: true },
-  labelAr: { type: String, default: '' },
+  labelLocal: { type: String, default: '' },
   mandatory: { type: Boolean, default: true },
   acceptedFormats: { type: String, default: 'PDF, JPG, PNG' },
 }, { _id: false });
@@ -33,7 +34,7 @@ const docSchema = new mongoose.Schema({
 const stageSchema = new mongoose.Schema({
   key: { type: String, required: true },     // SCREENING / TECHNICAL_REVIEW / APPROVAL
   label: { type: String, required: true },
-  labelAr: { type: String, default: '' },
+  labelLocal: { type: String, default: '' },
   perm: { type: String, default: '' },        // permission that may action this stage
   slaDays: { type: Number, default: 3 },
 }, { _id: false });
@@ -41,10 +42,10 @@ const stageSchema = new mongoose.Schema({
 const serviceDefinitionSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true, uppercase: true, trim: true },
   name: { type: String, required: true },
-  nameAr: { type: String, default: '' },
+  nameLocal: { type: String, default: '' },
   domain: { type: Number, min: 1, max: 7, required: true },   // the RFP business domain
   description: { type: String, default: '' },
-  descriptionAr: { type: String, default: '' },
+  descriptionLocal: { type: String, default: '' },
 
   // what the service is about, and what it produces
   subjectKind: { type: String, enum: SUBJECT_KINDS, required: true },
@@ -56,7 +57,7 @@ const serviceDefinitionSchema = new mongoose.Schema({
   requiredDocuments: [docSchema],
   stages: [stageSchema],
 
-  fee: { amount: { type: Number, default: 0 }, currency: { type: String, default: 'AED' } },
+  fee: { amount: { type: Number, default: 0 }, currency: { type: String, default: 'INR' } },
   slaDays: { type: Number, default: 10 },          // end-to-end target
   // an applicant may lodge this without an officer ever touching it when every
   // check passes — the straight-through path the national AI directive wants

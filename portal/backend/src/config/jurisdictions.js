@@ -1,21 +1,26 @@
-/* F5 — jurisdiction profiles.
+/* Jurisdiction profile.
  *
  * Everything that changes when the platform is deployed for a different
- * maritime administration lives here: the benchmark set every KPI is read
- * against, the port-state-control regime, the tax and currency conventions, and
- * the working week. Selecting a profile is a setting, not a release.
+ * maritime administration lives in one profile: the benchmark set every KPI is
+ * read against, the port-state-control regime, the tax and currency
+ * conventions, and the working week. Selecting one is a setting, not a release.
  *
- * Provenance matters more than completeness. Each figure carries its source,
- * and any figure we have not been able to source is marked `confirmed: false`
- * so it surfaces as unverified rather than passing silently as fact. Nothing
- * unconfirmed should be quoted in a client-facing document without checking it.
+ * This deployment is Mundra Port, India. India is the only profile registered
+ * here, deliberately — a demonstration should carry no data belonging to a
+ * jurisdiction it is not for. Adding another administration means adding a
+ * profile object to PROFILES and nothing else; the mechanism is the deliverable,
+ * not the number of profiles shipped.
+ *
+ * Provenance matters more than completeness. Each figure carries its published
+ * source, and any figure that cannot be sourced is marked `confirmed: false` so
+ * it surfaces as unverified rather than passing silently as fact.
  */
 
 const INDIA = {
   code: 'IN',
   name: 'India',
   authority: 'Directorate General of Shipping',
-  regulatorNote: 'Merchant Shipping Act 1958; Indian Ports Act 1908; Major Port Authorities Act 2021',
+  regulatorNote: 'Merchant Shipping Act 1958; Indian Ports Act 1908. Mundra is a private port under the Gujarat Maritime Board, so tariffs are commercially set rather than TAMP-regulated.',
   pscRegime: { code: 'IOMOU', name: 'Indian Ocean MoU' },
   currency: { code: 'INR', symbol: '₹', locale: 'en-IN', grouping: 'lakh-crore' },
   tax: { name: 'GST', ratePct: 18, registrationLabel: 'GSTIN', invoicePrefix: 'MUN/INV' },
@@ -38,38 +43,7 @@ const INDIA = {
   },
 };
 
-const UAE = {
-  code: 'AE',
-  name: 'United Arab Emirates',
-  authority: 'Federal maritime administration',
-  regulatorNote: 'Federal Decree-Law 43/2023 (Maritime Law); ISPS Statement of Compliance issued with ICP',
-  pscRegime: { code: 'RIYADHMOU', name: 'Riyadh MoU' },
-  currency: { code: 'AED', symbol: 'AED', locale: 'en-AE', grouping: 'western' },
-  tax: { name: 'VAT', ratePct: 5, registrationLabel: 'TRN', invoicePrefix: 'INV' },
-  workingWeek: { weekend: ['Friday', 'Saturday'], note: 'Per the RFP definition, a working day excludes Friday, Saturday and UAE public holidays' },
-  benchmarks: {
-    // Global and regional figures we can source stand as they are. UAE-specific
-    // operational statistics are not published on the same basis as India's IPA
-    // series, so they are carried unconfirmed until the Client supplies them
-    // during scoping — deliberately visible rather than quietly assumed.
-    turnaroundHours: { value: 36.0, confirmed: false,
-      source: 'PLACEHOLDER — indicative Gulf container terminal turnaround. Confirm against Client operational data before use' },
-    outputPerShipBerthDayMt: { value: 22000, confirmed: false,
-      source: 'PLACEHOLDER — indicative for deep-draft Gulf terminals. Confirm against Client operational data before use' },
-    preBerthingWaitHours: { value: 4.0, confirmed: false,
-      source: 'PLACEHOLDER — confirm the measurement basis (port account vs total anchorage) with the Client' },
-    idleTimeAtBerthPct: { value: 15.0, confirmed: false,
-      source: 'PLACEHOLDER — confirm against Client operational data' },
-    pscDetentionRatePct: { value: null, confirmed: false,
-      source: 'Riyadh MoU annual report figure to be obtained. Not populated rather than guessed' },
-    berthOccupancyHealthyPct: { value: [40, 70], confirmed: true,
-      source: 'UNCTAD guidance band — global, applies regardless of jurisdiction' },
-    collectionEfficiencyPct: { value: 95, confirmed: true,
-      source: 'Standard commercial port receivables collection target (industry norm)' },
-  },
-};
-
-const PROFILES = { IN: INDIA, AE: UAE };
+const PROFILES = { IN: INDIA };
 const DEFAULT_JURISDICTION = 'IN';
 
 const getProfile = (code) => PROFILES[String(code || DEFAULT_JURISDICTION).toUpperCase()] || INDIA;

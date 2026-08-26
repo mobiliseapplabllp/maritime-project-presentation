@@ -61,7 +61,7 @@ const serviceRequestSchema = new mongoose.Schema({
 
   fee: {
     amount: { type: Number, default: 0 },
-    currency: { type: String, default: 'AED' },
+    currency: { type: String, default: 'INR' },
     paid: { type: Boolean, default: false },
     paidAt: Date,
     reference: { type: String, default: '' },
