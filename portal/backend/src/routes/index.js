@@ -52,6 +52,7 @@ r.post('/vessels', requirePerm('vessels.create'), w(vessels.create));
 r.get('/vessels/certificates/all', requirePerm('certificates.view'), w(vessels.allCertificates));
 r.get('/vessels/fleet-dashboard', requirePerm('vessels.view'), w(vessels.fleetDashboard));
 r.get('/vessels/survey-planner', requirePerm('vessels.view'), w(vessels.surveyPlanner));
+r.get('/vessels/:id/instruments', requirePerm('vessels.view'), w(licenses.forSubject('VESSEL')));
 r.get('/vessels/:id/voyages', requirePerm('vessels.view'), w(vessels.voyages));
 r.get('/vessels/:id/movements', requirePerm('vessels.view'), w(vessels.movements));
 r.get('/vessels/:id', requirePerm('vessels.view'), w(vessels.get));
@@ -158,6 +159,7 @@ r.post('/licenses', requirePerm('facilities.manage'), w(licenses.create));
 r.get('/licenses/:id', requirePerm('facilities.view'), w(licenses.get));
 r.put('/licenses/:id', requirePerm('facilities.manage'), w(licenses.update));
 r.delete('/licenses/:id', requirePerm('facilities.manage'), w(licenses.remove));
+r.get('/licenses/:id/checks', requirePerm('facilities.view'), w(licenses.checks));
 r.post('/licenses/:id/transition', requirePerm('facilities.approve'), w(licenses.transition));
 r.post('/licenses/:id/audits', requirePerm('facilities.manage'), w(licenses.addAudit));
 

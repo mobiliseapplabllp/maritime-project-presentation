@@ -1046,6 +1046,7 @@ async function run() {
     if (status === 'SUSPENDED') history.push({ from: 'ISSUED', to: 'SUSPENDED', at: new Date(NOW.getTime() - 20 * D), by: 'seed', note: 'Repeated stevedoring safety violations — gear certification lapsed' });
     return {
       entityName, entityType, status,
+      subjectKind: 'COMPANY', instrumentClass: 'LICENCE',
       contactPerson: pick(['R. Shah', 'M. Khan', 'P. Joshi', 'S. Ahuja', 'D. Chauhan']),
       phone: '+91 2838 2' + String(10000 + i * 731).slice(0, 5), email: `office@${entityName.toLowerCase().replace(/[^a-z]+/g, '')}.example.in`,
       address: pick(['Port User Complex, Mundra', 'Adipur 370205', 'Gandhidham 370201', 'SEZ Zone-2, Mundra']),
@@ -1065,8 +1066,69 @@ async function run() {
     licSeqByYear[y] = (licSeqByYear[y] || 0) + 1;
     d.licenseNo = `LIC-${y}-${String(licSeqByYear[y]).padStart(4, '0')}`;
   });
-  await M.License.insertMany(licDocs);
-  console.log('licenses: 12');
+  // ---------- A1/B3: vessel instruments on the same engine ----------
+  // Navigation licences, foreign vessel permits and NOCs are the same regulated
+  // instrument as a company licence — different subject, different numbering
+  // series, different validity, one lifecycle. Issued against the fictional
+  // fleet only; the documented liner callers carry no issued instruments.
+  const instClass = { NAVIGATION_LICENCE: 'LICENCE', FOREIGN_VESSEL_PERMIT: 'PERMIT', VESSEL_NOC: 'NOC' };
+  const instPrefix = { NAVIGATION_LICENCE: 'NAV', FOREIGN_VESSEL_PERMIT: 'PRM', VESSEL_NOC: 'NOC' };
+  const instMonths = { LICENCE: 24, PERMIT: 6, NOC: 3 };
+  const vesselInstruments = [];
+  demoFleet.forEach((v, i) => {
+    // every active vessel on the register holds a navigation licence; a third
+    // also carry a current permit or NOC
+    const kinds = ['NAVIGATION_LICENCE'];
+    if (i % 3 === 1) kinds.push('FOREIGN_VESSEL_PERMIT');
+    if (i % 5 === 2) kinds.push('VESSEL_NOC');
+    kinds.forEach((entityType) => {
+      const cls = instClass[entityType];
+      const applied = new Date(NOW.getTime() - ri(40, Math.min(HIST_DAYS, 900)) * D);
+      const issued = new Date(applied.getTime() + ri(6, 20) * D);
+      // roll the term forward so no vessel is trading on a lapsed instrument
+      let termStart = issued;
+      const termDays = Math.round(instMonths[cls] * 30.44);
+      while (termStart.getTime() + termDays * D < NOW.getTime()) {
+        termStart = new Date(termStart.getTime() + termDays * D);
+      }
+      const certs = (v.certificates || []).map((c) => c.expiryDate);
+      const anyExpired = certs.some((d) => d && d < NOW);
+      vesselInstruments.push({
+        subjectKind: 'VESSEL', subjectRef: v._id, subjectModel: 'Vessel', instrumentClass: cls,
+        entityName: `${v.name} (IMO ${v.imo})`, entityType, status: 'ISSUED',
+        contactPerson: v.agent || '', email: '', address: '', gstin: '',
+        appliedDate: applied, issueDate: termStart,
+        expiryDate: new Date(termStart.getTime() + termDays * D),
+        conditions: cls === 'NOC' ? 'Valid for the declared movement only.'
+          : 'Valid within Mundra port limits and approach channel.',
+        performanceRating: 0,
+        issueChecks: [
+          { check: 'Vessel is on the active register', passed: true, detail: 'Active' },
+          { check: 'Statutory certificates in force', passed: !anyExpired,
+            detail: anyExpired ? 'Expired certificate on record at issue' : `${certs.length} certificates, none expired` },
+          { check: 'Class docking survey current', passed: true,
+            detail: v.nextDryDock ? `Next docking ${new Date(v.nextDryDock).toISOString().slice(0, 10)}` : 'Not recorded' },
+        ],
+        audits: [],
+        history: [
+          { from: '', to: 'APPLIED', at: applied, by: 'seed', note: 'Application received' },
+          { from: 'APPLIED', to: 'UNDER_REVIEW', at: new Date(applied.getTime() + 3 * D), by: 'seed', note: '' },
+          { from: 'UNDER_REVIEW', to: 'ISSUED', at: issued, by: 'seed', note: `${cls.toLowerCase()} issued` },
+        ],
+      });
+    });
+  });
+  // number each instrument class in its own chronological series per year
+  const instSeq = {};
+  vesselInstruments.sort((a, b) => a.appliedDate - b.appliedDate).forEach((d) => {
+    const y = yearOf(d.appliedDate);
+    const key = `${instPrefix[d.entityType]}-${y}`;
+    instSeq[key] = (instSeq[key] || 0) + 1;
+    d.licenseNo = `${key}-${String(instSeq[key]).padStart(4, '0')}`;
+  });
+
+  await M.License.insertMany([...licDocs, ...vesselInstruments]);
+  console.log(`licenses: ${licDocs.length} company + ${vesselInstruments.length} vessel instruments`);
 
   // ---------- port companies directory ----------
   const companyDefs = [
