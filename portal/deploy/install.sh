@@ -107,6 +107,13 @@ port_holder() {
   fi
   printf '%s' "$out"
 }
+# Is whatever holds this port our own portal container from an earlier run?
+# Compose names the project after the directory, which is always "portal".
+ours_on_port() {
+  docker ps -q --filter "publish=$1" \
+    --filter "label=com.docker.compose.project=portal" 2>/dev/null | head -1 || true
+}
+
 [ "$EDGE" = auto ] && EDGE=$(detect_edge)
 
 if [ "$EDGE" = nginx ]; then
@@ -126,28 +133,26 @@ else
     ok "edge: $EDGE — chosen explicitly; ports 80/443 are free but left alone"
   fi
   ok "portal will bind 127.0.0.1:$APP_PORT only; nothing on the host is stopped"
-  APP_HOLDER=$(port_holder "$APP_PORT")
-  if [ -z "$APP_HOLDER" ]; then
-    ok "application port $APP_PORT free"
-  elif [ "$APP_PORT_SET" = yes ]; then
-    block "port $APP_PORT is in use by $APP_HOLDER — choose another with APP_PORT="
-  else
-    CHOSEN=""
-    for cand in $(seq 5201 5260); do
-      [ -z "$(port_holder "$cand")" ] && { CHOSEN=$cand; break; }
-    done
-    if [ -n "$CHOSEN" ]; then
-      warn "port $APP_PORT is in use by ${APP_HOLDER%%,*}…"
-      APP_PORT="$CHOSEN"
-      ok "using port $APP_PORT instead"
-    else
-      block "port $APP_PORT is in use and nothing free between 5201 and 5260"
+  # A re-run has to land on the port the last run settled on. That port is
+  # held by our own container from that run, so a plain "is it free?" walk
+  # would shuffle the portal one place along on every reinstall.
+  if [ "$APP_PORT_SET" != yes ]; then
+    PREV_PORT=$(sed -n 's/^APP_PORT=\([0-9]\{1,5\}\).*/\1/p' \
+      "$APP_DIR/portal/.env.prod" 2>/dev/null | head -1 || true)
+    if [ -n "${PREV_PORT:-}" ] && [ "$PREV_PORT" != "$APP_PORT" ]; then
+      APP_PORT="$PREV_PORT"
+      ok "reusing application port $APP_PORT from the previous install"
     fi
   fi
+
   # The application port matters as much as 80 and 443. On a shared host 5200 is
   # just as likely to be taken, and a container that cannot bind fails at start
   # rather than at preflight, after the image has already been built.
   APP_HOLDER=$(port_holder "$APP_PORT")
+  if [ -n "$APP_HOLDER" ] && [ -n "$(ours_on_port "$APP_PORT")" ]; then
+    ok "application port $APP_PORT held by this portal — it will be replaced"
+    APP_HOLDER=""
+  fi
   if [ -z "$APP_HOLDER" ]; then
     ok "application port $APP_PORT free"
   elif [ "$APP_PORT_SET" = yes ]; then
