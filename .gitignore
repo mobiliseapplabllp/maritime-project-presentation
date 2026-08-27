@@ -10,3 +10,12 @@ portal/.dev/data/
 portal/**/node_modules/
 portal/**/.env
 portal/frontend/dist/
+
+# deployment: written on the server by portal/deploy/install.sh, never committed.
+# .env.prod carries JWT_SECRET, JWT_REFRESH_SECRET, CERT_SIGNING_SECRET and the
+# database password; the .example files stay tracked as the documentation of it.
+portal/.env.*
+!portal/.env.*.example
+portal/deploy/certs/
+portal/deploy/certbot/
+portal/deploy/letsencrypt/
