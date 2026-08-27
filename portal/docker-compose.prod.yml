@@ -25,7 +25,8 @@ services:
       # Signs issued certificates. NOT rotated with the JWT secrets — rotating it
       # breaks verification of every certificate already issued. See DEPLOYMENT.md.
       CERT_SIGNING_SECRET: ${CERT_SIGNING_SECRET:?set in .env.prod}
-      SEED_IF_EMPTY: "0"   # production data is never auto-seeded
+      # 0 for a real production instance; the installer sets 1 for a demo host
+      SEED_IF_EMPTY: ${SEED_IF_EMPTY:-0}
       CORS_ORIGIN: ${CORS_ORIGIN:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     expose: ["5200"]
@@ -38,6 +39,7 @@ services:
     volumes:
       - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./deploy/certs:/etc/nginx/certs:ro
+      - ./deploy/certbot:/var/www/certbot:ro
 
 volumes:
   mundra-mongo-prod:
