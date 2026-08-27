@@ -1574,6 +1574,10 @@ async function run() {
     }
   }
   if (minted.length) {
+    // An instrument minted here reaches ISSUED the same way any other does, so
+    // it is signed the same way. Missing this left 16 certificates in the
+    // register verifying as unsigned, which is worse than not issuing them.
+    minted.forEach((d) => { if (d.status === 'ISSUED') d.signature = SIGN.sign(d); });
     const inserted = await M.License.insertMany(minted);
     const byNo = Object.fromEntries(inserted.map((l) => [l.licenseNo, l._id]));
     issuedReqs.forEach((rq) => { if (rq._mintNo) rq.issuedInstrument = byNo[rq._mintNo]; });
