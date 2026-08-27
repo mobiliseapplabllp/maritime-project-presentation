@@ -1,0 +1,15 @@
+# The host already runs a web server on 80/443 — Apache, nginx or Caddy serving
+# other sites. Overlay this on the production file: the portal binds to loopback
+# only and the existing edge proxies to it, so nothing on the host is disturbed.
+#
+#   docker compose -f docker-compose.prod.yml -f docker-compose.behind-proxy.yml \
+#     --env-file .env.prod up -d --build
+services:
+  portal:
+    # loopback only: the port is not reachable from the network, so the host's
+    # own web server is the only way in and TLS cannot be bypassed
+    ports: ["127.0.0.1:${APP_PORT:-5200}:5200"]
+
+  nginx:
+    # a profile that is never enabled keeps this service defined but never started
+    profiles: ["bundled-edge"]

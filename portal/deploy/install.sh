@@ -15,6 +15,8 @@ REPO="${REPO:-https://github.com/mobiliseapplabllp/maritime-project-presentation
 BRANCH="${BRANCH:-claude/maritime-project-presentation-g9sphj}"
 MODE="${MODE:-demo}"             # demo = seeded Mundra dataset · prod = empty database
 TLS="${TLS:-auto}"               # auto | letsencrypt | selfsigned | existing
+EDGE="${EDGE:-auto}"             # auto | nginx | apache | none
+APP_PORT="${APP_PORT:-5200}"     # loopback port when the host's web server fronts us
 INSTALL_DOCKER="${INSTALL_DOCKER:-no}"   # yes = allow this script to install Docker
 GH_TOKEN="${GH_TOKEN:-}"         # required — this is a private repository
 CHECK_ONLY="${CHECK_ONLY:-no}"   # yes = report readiness and change nothing
@@ -77,7 +79,19 @@ for t in git openssl curl; do
   command -v "$t" >/dev/null 2>&1 && ok "$t present" || block "$t is not installed"
 done
 
-# -- ports. nginx wants both; anything already bound stops the deployment dead.
+# -- edge. If the host already serves 80/443 we go behind it rather than
+# fighting it: on a shared box, stopping Apache to free a port breaks whatever
+# else it was serving.
+detect_edge() {
+  local h80 h443
+  h80=$(port_holder 80); h443=$(port_holder 443)
+  if printf '%s%s' "$h80" "$h443" | grep -qiE 'apache|httpd'; then echo apache
+  elif printf '%s%s' "$h80" "$h443" | grep -qiE 'nginx|caddy'; then echo none
+  elif [ -n "$h80$h443" ]; then echo none
+  else echo nginx; fi
+}
+
+# -- ports.
 # ss is not on every minimal server, so fall back through netstat to a plain
 # connect probe. None of these may fail the run.
 port_holder() {
@@ -92,14 +106,35 @@ port_holder() {
   fi
   printf '%s' "$out"
 }
-for port in 80 443; do
-  HOLDER=$(port_holder "$port")
-  if [ -n "$HOLDER" ]; then
-    block "port $port is already in use by $HOLDER"
+[ "$EDGE" = auto ] && EDGE=$(detect_edge)
+
+if [ "$EDGE" = nginx ]; then
+  for port in 80 443; do
+    if [ -n "$(port_holder "$port")" ]; then
+      block "port $port is in use — re-run with EDGE=apache or EDGE=none to sit behind it"
+    else
+      ok "port $port free"
+    fi
+  done
+  ok "edge: bundled nginx container will terminate TLS"
+else
+  SUM=$(printf '%s %s' "$(port_holder 80)" "$(port_holder 443)" | tr -s ' ' | tr -d ' ' | cut -c1-52)
+  if [ -n "$SUM" ]; then
+    ok "edge: $EDGE — the host already serves 80/443 ($SUM…)"
   else
-    ok "port $port free"
+    ok "edge: $EDGE — chosen explicitly; ports 80/443 are free but left alone"
   fi
-done
+  ok "portal will bind 127.0.0.1:$APP_PORT only; nothing on the host is stopped"
+  if [ "$EDGE" = apache ]; then
+    if command -v apache2ctl >/dev/null 2>&1 || command -v apachectl >/dev/null 2>&1; then
+      ok "apache control binary found — a vhost for $DOMAIN will be written"
+    else
+      block "EDGE=apache but no apache2ctl/apachectl on PATH"
+    fi
+  else
+    warn "EDGE=none — you will need to point your own web server at 127.0.0.1:$APP_PORT"
+  fi
+fi
 
 # -- disk. Images, the database and 3.6 years of seeded history need room.
 AVAIL_MB=$(df -Pm "$(dirname "$APP_DIR")" 2>/dev/null | awk 'NR==2{print $4}' || true)
@@ -228,16 +263,30 @@ ENV
   warn "Back .env.prod up now. Changing that value later invalidates them all."
 fi
 
+COMPOSE_FILES=(-f docker-compose.prod.yml)
+[ "$EDGE" != nginx ] && COMPOSE_FILES+=(-f docker-compose.behind-proxy.yml)
+dc() { docker compose "${COMPOSE_FILES[@]}" --env-file .env.prod "$@"; }
+grep -q '^APP_PORT=' .env.prod 2>/dev/null || echo "APP_PORT=$APP_PORT" >> .env.prod
+
 # ── 4 · TLS ──────────────────────────────────────────────────────────────
 say "TLS certificate for $DOMAIN"
 have_cert() { [ -s deploy/certs/fullchain.pem ] && [ -s deploy/certs/privkey.pem ]; }
 
+# Standalone needs port 80 to itself; behind an existing web server we use the
+# webroot it is already serving, so nothing has to be stopped.
 issue_letsencrypt() {
   [ -n "$EMAIL" ] || die "Let's Encrypt needs EMAIL=you@example.com"
-  docker run --rm -p 80:80 \
-    -v "$PWD/deploy/letsencrypt:/etc/letsencrypt" \
-    certbot/certbot certonly --standalone --non-interactive --agree-tos \
-    -m "$EMAIL" -d "$DOMAIN"
+  mkdir -p /var/www/certbot/.well-known/acme-challenge
+  if [ "$EDGE" = nginx ]; then
+    docker run --rm -p 80:80 -v "$PWD/deploy/letsencrypt:/etc/letsencrypt" \
+      certbot/certbot certonly --standalone --non-interactive --agree-tos \
+      -m "$EMAIL" -d "$DOMAIN"
+  else
+    docker run --rm -v "$PWD/deploy/letsencrypt:/etc/letsencrypt" \
+      -v /var/www/certbot:/var/www/certbot \
+      certbot/certbot certonly --webroot -w /var/www/certbot --non-interactive \
+      --agree-tos -m "$EMAIL" -d "$DOMAIN"
+  fi
   cp "deploy/letsencrypt/live/$DOMAIN/fullchain.pem" deploy/certs/
   cp "deploy/letsencrypt/live/$DOMAIN/privkey.pem"   deploy/certs/
 }
@@ -257,14 +306,14 @@ if have_cert && [ "$TLS" != letsencrypt ]; then
 elif [ "$TLS" = selfsigned ]; then
   make_selfsigned; ok "Self-signed certificate created"
 elif [ "$TLS" = letsencrypt ]; then
-  issue_letsencrypt; ok "Let's Encrypt certificate issued"
+  issue_letsencrypt; LE_ISSUED=yes; ok "Let's Encrypt certificate issued"
 else
   # auto: only try Let's Encrypt if the name resolves publicly. It cannot
   # validate a host that is reachable only inside a private network.
   PUBLIC_IP="$(getent hosts "$DOMAIN" 2>/dev/null | awk '{print $1; exit}' || true)"
   if [ -n "$PUBLIC_IP" ] && [ -n "$EMAIL" ] &&
      ! printf '%s' "$PUBLIC_IP" | grep -qE '^(10\.|127\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)'; then
-    if issue_letsencrypt; then ok "Let's Encrypt certificate issued"
+    if issue_letsencrypt; then LE_ISSUED=yes; ok "Let's Encrypt certificate issued"
     else warn "Let's Encrypt failed — falling back to self-signed"; make_selfsigned; fi
   else
     warn "$DOMAIN resolves to ${PUBLIC_IP:-nothing} — not publicly reachable"
@@ -274,15 +323,87 @@ else
   fi
 fi
 
+# ── 4b · Apache vhost ────────────────────────────────────────────────────
+# Written in two passes. The :80 vhost goes up first so the ACME challenge can
+# be answered; only once a certificate exists is the :443 vhost added. Doing it
+# in one pass leaves Apache refusing to reload over a certificate file that is
+# not there yet.
+APACHE_SITE="/etc/apache2/sites-available/${DOMAIN}.conf"
+apache_reload() {
+  apache2ctl configtest 2>&1 | grep -qi 'syntax ok' || {
+    apache2ctl configtest; die "Apache config test failed — vhost left at $APACHE_SITE"; }
+  systemctl reload apache2
+}
+write_apache_http() {
+  mkdir -p /var/www/certbot/.well-known/acme-challenge
+  cat > "$APACHE_SITE" <<VHOST
+# Mundra Port Operations Portal — managed by portal/deploy/install.sh
+<VirtualHost *:80>
+    ServerName $DOMAIN
+    Alias /.well-known/acme-challenge/ /var/www/certbot/.well-known/acme-challenge/
+    <Directory "/var/www/certbot">
+        Require all granted
+        Options -Indexes
+    </Directory>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+    RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+    ErrorLog \${APACHE_LOG_DIR}/${DOMAIN}-error.log
+    CustomLog \${APACHE_LOG_DIR}/${DOMAIN}-access.log combined
+</VirtualHost>
+VHOST
+  a2ensite "${DOMAIN}.conf" >/dev/null
+  apache_reload
+}
+write_apache_https() {
+  local fullchain="$1" privkey="$2"
+  cat >> "$APACHE_SITE" <<VHOST
+
+<VirtualHost *:443>
+    ServerName $DOMAIN
+    SSLEngine on
+    SSLCertificateFile    $fullchain
+    SSLCertificateKeyFile $privkey
+    SSLProtocol -all +TLSv1.2 +TLSv1.3
+
+    ProxyPreserveHost On
+    ProxyRequests Off
+    ProxyPass        / http://127.0.0.1:$APP_PORT/
+    ProxyPassReverse / http://127.0.0.1:$APP_PORT/
+    ProxyTimeout 75
+    RequestHeader set X-Forwarded-Proto "https"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    ErrorLog \${APACHE_LOG_DIR}/${DOMAIN}-error.log
+    CustomLog \${APACHE_LOG_DIR}/${DOMAIN}-access.log combined
+</VirtualHost>
+VHOST
+  apache_reload
+}
+
+if [ "$EDGE" = apache ]; then
+  say "Apache vhost for $DOMAIN"
+  for m in proxy proxy_http headers ssl rewrite; do a2enmod "$m" >/dev/null 2>&1 || true; done
+  ok "modules enabled: proxy, proxy_http, headers, ssl, rewrite"
+  write_apache_http
+  ok "HTTP vhost live (ACME challenge answerable)"
+  if [ "${LE_ISSUED:-no}" = yes ]; then
+    write_apache_https "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "/etc/letsencrypt/live/$DOMAIN/privkey.pem"
+    ok "HTTPS vhost live on the Let's Encrypt certificate"
+  else
+    write_apache_https "$PWD/deploy/certs/fullchain.pem" "$PWD/deploy/certs/privkey.pem"
+    ok "HTTPS vhost live on the self-signed certificate"
+  fi
+fi
+
 # ── 5 · run ──────────────────────────────────────────────────────────────
 say "Starting the stack"
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+dc up -d --build
 ok "Containers up"
 
 say "Waiting for the portal to answer"
 for i in $(seq 1 90); do
-  if docker compose -f docker-compose.prod.yml --env-file .env.prod \
-       exec -T portal node -e \
+  if dc exec -T portal node -e \
        'require("http").get("http://127.0.0.1:5200/api/health",r=>process.exit(r.statusCode===200?0:1)).on("error",()=>process.exit(1))' \
        2>/dev/null; then ok "Portal healthy after ${i}s"; break; fi
   [ "$i" -eq 90 ] && die "Portal did not become healthy — docker compose logs portal"
@@ -292,13 +413,11 @@ done
 # ── 6 · data ─────────────────────────────────────────────────────────────
 if [ "$MODE" = demo ]; then
   say "Demo dataset"
-  USERS=$(docker compose -f docker-compose.prod.yml --env-file .env.prod \
-    exec -T mongo mongosh --quiet mundra_portal --eval 'db.users.countDocuments()' 2>/dev/null | tr -dc '0-9')
+  USERS=$(dc exec -T mongo mongosh --quiet mundra_portal --eval 'db.users.countDocuments()' 2>/dev/null | tr -dc '0-9' || true)
   if [ "${USERS:-0}" -gt 0 ]; then
     ok "Database already holds $USERS users — not reseeding"
   else
-    docker compose -f docker-compose.prod.yml --env-file .env.prod \
-      exec -T portal node scripts/seed.js
+    dc exec -T portal node scripts/seed.js
     ok "Seeded the Mundra dataset"
   fi
 fi
@@ -306,26 +425,39 @@ fi
 # ── 7 · backups and renewal ──────────────────────────────────────────────
 say "Backups and certificate renewal"
 mkdir -p /var/backups/portal
+if [ "$EDGE" = apache ]; then RELOAD_CMD="systemctl reload apache2"
+elif [ "$EDGE" = nginx ]; then RELOAD_CMD="cd $APP_DIR/portal && docker compose -f docker-compose.prod.yml -f docker-compose.behind-proxy.yml --env-file .env.prod restart nginx"
+else RELOAD_CMD="true   # reload your own web server here"; fi
 cat > /etc/cron.d/mundra-portal <<CRON
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # nightly database dump, 14-day retention
-0 2 * * * root cd $APP_DIR/portal && docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T mongo mongodump --archive --quiet | gzip > /var/backups/portal/mundra-\$(date +\%F).gz && find /var/backups/portal -name 'mundra-*.gz' -mtime +14 -delete
+0 2 * * * root cd $APP_DIR/portal && docker compose ${COMPOSE_FILES[*]} --env-file .env.prod exec -T mongo mongodump --archive --quiet | gzip > /var/backups/portal/mundra-\$(date +\%F).gz && find /var/backups/portal -name 'mundra-*.gz' -mtime +14 -delete
 # monthly certificate renewal
-0 3 1 * * root cd $APP_DIR/portal && docker run --rm -v "\$PWD/deploy/letsencrypt:/etc/letsencrypt" -v "\$PWD/deploy/certbot:/var/www/certbot" certbot/certbot renew --webroot -w /var/www/certbot --quiet && cp deploy/letsencrypt/live/$DOMAIN/*.pem deploy/certs/ 2>/dev/null && docker compose -f docker-compose.prod.yml --env-file .env.prod restart nginx
+0 3 1 * * root cd $APP_DIR/portal && docker run --rm -v "\$PWD/deploy/letsencrypt:/etc/letsencrypt" -v /var/www/certbot:/var/www/certbot certbot/certbot renew --webroot -w /var/www/certbot --quiet && cp -f deploy/letsencrypt/live/$DOMAIN/*.pem deploy/certs/ 2>/dev/null; $RELOAD_CMD
 CRON
 chmod 644 /etc/cron.d/mundra-portal
 ok "Nightly dump to /var/backups/portal, monthly cert renewal"
 
 # ── 8 · verify ───────────────────────────────────────────────────────────
-say "Verifying from the outside"
-CODE=$(curl -sk -o /dev/null -w '%{http_code}' "https://127.0.0.1/api/health" || echo 000)
-[ "$CODE" = 200 ] && ok "https://127.0.0.1/api/health → 200" || warn "health check returned $CODE"
+say "Verifying"
+APP_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:$APP_PORT/api/health" 2>/dev/null || echo 000)
+[ "$APP_CODE" = 200 ] && ok "application on 127.0.0.1:$APP_PORT → 200" \
+                      || warn "application returned $APP_CODE on the loopback port"
+EDGE_CODE=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 10 -H "Host: $DOMAIN" \
+  "https://127.0.0.1/api/health" 2>/dev/null || echo 000)
+if [ "$EDGE_CODE" = 200 ]; then
+  ok "through TLS as $DOMAIN → 200"
+else
+  warn "edge returned $EDGE_CODE — check the vhost and that $DOMAIN points at this host"
+fi
 
 cat <<SUMMARY
 
 ────────────────────────────────────────────────────────────────
   Portal        https://$DOMAIN
+  Edge          $EDGE$([ "$EDGE" = apache ] && echo " — vhost at $APACHE_SITE" || true)
+  Application   127.0.0.1:$APP_PORT $([ "$EDGE" != nginx ] && echo '(loopback only)' || true)
   Mode          $MODE $([ "$MODE" = demo ] && echo '(seeded Mundra dataset)' || echo '(empty database)')
   Directory     $APP_DIR/portal
   Secrets       $APP_DIR/portal/.env.prod   ← back this up
@@ -335,7 +467,7 @@ cat <<SUMMARY
   Sign in       admin@mundraport.in / Mundra@2026
                 CHANGE THAT PASSWORD BEFORE ANYONE ELSE SEES THE HOST
 
-  Logs          cd $APP_DIR/portal && docker compose -f docker-compose.prod.yml --env-file .env.prod logs -f
+  Logs          cd $APP_DIR/portal && docker compose ${COMPOSE_FILES[*]} --env-file .env.prod logs -f
   Restart       … restart
   Update        git pull && … up -d --build
 ────────────────────────────────────────────────────────────────
