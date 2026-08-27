@@ -16,7 +16,6 @@ BRANCH="${BRANCH:-claude/maritime-project-presentation-g9sphj}"
 MODE="${MODE:-demo}"             # demo = seeded Mundra dataset · prod = empty database
 TLS="${TLS:-auto}"               # auto | letsencrypt | selfsigned | existing
 EDGE="${EDGE:-auto}"             # auto | nginx | apache | none
-APP_PORT_SET="${APP_PORT:+yes}"  # did the operator pin it, or are we free to choose?
 APP_PORT_SET="${APP_PORT:+yes}"  # pinned by the operator, or ours to choose?
 APP_PORT="${APP_PORT:-5200}"     # loopback port when the host's web server fronts us
 INSTALL_DOCKER="${INSTALL_DOCKER:-no}"   # yes = allow this script to install Docker
@@ -379,6 +378,19 @@ fi
 # in one pass leaves Apache refusing to reload over a certificate file that is
 # not there yet.
 APACHE_SITE="/etc/apache2/sites-available/${DOMAIN}.conf"
+
+# Apache treats <VirtualHost *:443> and <VirtualHost 10.0.0.5:443> as separate
+# sets: a request arriving on the specific address never sees the wildcard
+# vhosts, so ours would be invisible and the request would land on whatever the
+# default server is. Match whatever convention this server already uses.
+detect_vhost_addr() {
+  local addr
+  addr=$(apache2ctl -S 2>/dev/null |
+    sed -n 's/^\([0-9][0-9.]*\):443[[:space:]]*is a NameVirtualHost.*/\1/p' |
+    head -1 || true)
+  [ -n "$addr" ] && printf '%s' "$addr" || printf '*'
+}
+VHOST_ADDR="${VHOST_ADDR:-$(detect_vhost_addr)}"
 apache_reload() {
   apache2ctl configtest 2>&1 | grep -qi 'syntax ok' || {
     apache2ctl configtest; die "Apache config test failed — vhost left at $APACHE_SITE"; }
@@ -388,7 +400,7 @@ write_apache_http() {
   mkdir -p /var/www/certbot/.well-known/acme-challenge
   cat > "$APACHE_SITE" <<VHOST
 # Mundra Port Operations Portal — managed by portal/deploy/install.sh
-<VirtualHost *:80>
+<VirtualHost ${VHOST_ADDR}:80>
     ServerName $DOMAIN
     Alias /.well-known/acme-challenge/ /var/www/certbot/.well-known/acme-challenge/
     <Directory "/var/www/certbot">
@@ -409,7 +421,7 @@ write_apache_https() {
   local fullchain="$1" privkey="$2"
   cat >> "$APACHE_SITE" <<VHOST
 
-<VirtualHost *:443>
+<VirtualHost ${VHOST_ADDR}:443>
     ServerName $DOMAIN
     SSLEngine on
     SSLCertificateFile    $fullchain
@@ -435,6 +447,11 @@ if [ "$EDGE" = apache ]; then
   say "Apache vhost for $DOMAIN"
   for m in proxy proxy_http headers ssl rewrite; do a2enmod "$m" >/dev/null 2>&1 || true; done
   ok "modules enabled: proxy, proxy_http, headers, ssl, rewrite"
+  if [ "$VHOST_ADDR" = '*' ]; then
+    ok "vhost address: * (no address-specific vhosts on this server)"
+  else
+    ok "vhost address: $VHOST_ADDR (matching the existing vhosts on this server)"
+  fi
   write_apache_http
   ok "HTTP vhost live (ACME challenge answerable)"
   if [ "${LE_ISSUED:-no}" = yes ]; then
@@ -489,18 +506,33 @@ CRON
 chmod 644 /etc/cron.d/mundra-portal
 ok "Nightly dump to /var/backups/portal, monthly cert renewal"
 
+# A name that does not resolve makes the server unable to reach its own portal:
+# smoke.sh, a browser on the box and curl all fail on the name even though the
+# vhost is correct. A hosts entry costs nothing and is trivially reversible. We
+# add one only when the name resolves nowhere at all — never when it resolves to
+# something else, because that is somebody's deliberate DNS.
+if [ -z "${RESOLVED:-}" ] && ! grep -q "[[:space:]]$DOMAIN\([[:space:]]\|$\)" /etc/hosts 2>/dev/null; then
+  HOSTS_IP="$VHOST_ADDR"; [ "$HOSTS_IP" = '*' ] && HOSTS_IP=127.0.0.1
+  printf '%s %s  # mundra-portal — remove with: sed -i "/mundra-portal/d" /etc/hosts\n' \
+    "$HOSTS_IP" "$DOMAIN" >> /etc/hosts
+  ok "hosts entry added: $HOSTS_IP $DOMAIN (this server can now use the name)"
+fi
+
 # ── 8 · verify ───────────────────────────────────────────────────────────
 say "Verifying"
 APP_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:$APP_PORT/api/health" 2>/dev/null)
 [ "$APP_CODE" = 200 ] && ok "application on 127.0.0.1:$APP_PORT → 200" \
                       || warn "application returned $APP_CODE on the loopback port"
-EDGE_CODE=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 10 -H "Host: $DOMAIN" \
-  "https://127.0.0.1/api/health" 2>/dev/null)
+VERIFY_HOST="$VHOST_ADDR"; [ "$VERIFY_HOST" = '*' ] && VERIFY_HOST=127.0.0.1
+# --resolve rather than -H Host: Apache picks the SSL vhost by SNI, and a Host
+# header leaves SNI pointing at the IP, which can select the wrong certificate.
+EDGE_CODE=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 10 \
+  --resolve "$DOMAIN:443:$VERIFY_HOST" "https://$DOMAIN/api/health" 2>/dev/null)
 if [ "$EDGE_CODE" = 200 ]; then
-  ok "through TLS as $DOMAIN → 200"
+  ok "through TLS as $DOMAIN on $VERIFY_HOST → 200"
 else
   if [ "$EDGE_CODE" = 000 ] || [ -z "$EDGE_CODE" ]; then
-    warn "nothing answered on 127.0.0.1:443 — is Apache listening on all interfaces?"
+    warn "nothing answered on $VERIFY_HOST:443 — is Apache listening there?"
     warn "  check: ss -lntp | grep ':443 '   and   apache2ctl -S"
   else
     warn "edge returned HTTP $EDGE_CODE — check the vhost order in apache2ctl -S"
