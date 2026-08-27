@@ -557,7 +557,8 @@ cat <<SUMMARY
   Backups       /var/backups/portal (nightly, 14 days)
 
   Sign in       admin@mundraport.in / Mundra@2026
-                CHANGE THAT PASSWORD BEFORE ANYONE ELSE SEES THE HOST
+                That password is published in the repository. Change it now:
+                bash $APP_DIR/portal/deploy/change-admin-password.sh https://$DOMAIN
 
   Logs          cd $APP_DIR/portal && docker compose ${COMPOSE_FILES[*]} --env-file .env.prod logs -f
   Restart       … restart

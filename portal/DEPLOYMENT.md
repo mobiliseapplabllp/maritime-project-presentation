@@ -73,6 +73,25 @@ via cron and `docker compose restart nginx`.)
 - Changes reach production only as approved releases promoted from UAT.
 - See `SECURITY.md` for the hardening inventory and pre-release checklist.
 
+## The seeded administrator account
+
+The demo dataset ships with `admin@mundraport.in` / `Mundra@2026`, and that
+password is in this repository for anyone to read. On any host somebody else
+can reach, change it before you do anything else:
+
+```bash
+bash deploy/change-admin-password.sh https://<domain>
+```
+
+It prompts rather than taking arguments, so nothing lands in your shell history
+or the process list, and it proves the change by signing in with the new
+password and confirming the old one is refused. The change is recorded in the
+audit log as `PASSWORD_CHANGE`.
+
+Rotating this password is unrelated to the two secrets above — it changes one
+bcrypt hash in the database and nothing else. Sessions already issued stay
+valid until they expire.
+
 ## The certificate signing key
 
 Every instrument the registry issues is signed with Ed25519 over the register
