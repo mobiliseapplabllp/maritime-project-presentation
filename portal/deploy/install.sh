@@ -306,6 +306,9 @@ fi
 
 COMPOSE_FILES=(-f docker-compose.prod.yml)
 [ "$EDGE" != nginx ] && COMPOSE_FILES+=(-f docker-compose.behind-proxy.yml)
+# exported so compose interpolation cannot fall back to a stale value in
+# .env.prod if the two ever disagree
+export APP_PORT
 dc() { docker compose "${COMPOSE_FILES[@]}" --env-file .env.prod "$@"; }
 # rewrite rather than append: a re-run that picks a different port must not be
 # overruled by the value the first run left behind
