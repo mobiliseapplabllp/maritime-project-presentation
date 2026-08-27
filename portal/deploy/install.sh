@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-command deployment for the Mundra Port Operations Portal.
 #
-#   sudo DOMAIN=apdev.example.com ./install.sh check     ← inspect, change nothing
+#   sudo GH_TOKEN=... DOMAIN=apdev.example.com ./install.sh check   ← inspect only
 #   sudo MODE=demo DOMAIN=apdev.example.com EMAIL=ops@example.com ./install.sh
 #
 # Brings up the portal, MongoDB and an nginx TLS edge on one host. Safe to run
@@ -16,6 +16,7 @@ BRANCH="${BRANCH:-claude/maritime-project-presentation-g9sphj}"
 MODE="${MODE:-demo}"             # demo = seeded Mundra dataset · prod = empty database
 TLS="${TLS:-auto}"               # auto | letsencrypt | selfsigned | existing
 INSTALL_DOCKER="${INSTALL_DOCKER:-no}"   # yes = allow this script to install Docker
+GH_TOKEN="${GH_TOKEN:-}"         # required — this is a private repository
 CHECK_ONLY="${CHECK_ONLY:-no}"   # yes = report readiness and change nothing
 
 say()  { printf '\n\033[1;36m==>\033[0m %s\n' "$*"; }
@@ -27,6 +28,13 @@ die()  { printf '\n\033[1;31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 [ "${1:-}" = "check" ] && CHECK_ONLY=yes || true
 [ "$(id -u)" -eq 0 ] || die "Run as root (sudo $0)"
 [ -n "$DOMAIN" ] || die "Set DOMAIN=your.domain.name"
+
+# The repository is private. Authenticate with a header rather than a token in
+# the remote URL, so nothing secret is left behind in .git/config for the next
+# person who reads it.
+GIT_AUTH=()
+[ -n "$GH_TOKEN" ] && GIT_AUTH=(-c "http.extraHeader=Authorization: Bearer $GH_TOKEN")
+git_auth() { git "${GIT_AUTH[@]}" "$@"; }
 
 # ── 1 · preflight ────────────────────────────────────────────────────────
 # Everything is inspected and reported before anything is changed. On a server
@@ -126,6 +134,31 @@ else
   ok "$DOMAIN → $RESOLVED (public) — Let's Encrypt can validate"
 fi
 
+# A copy placed here by hand (rsync, scp, a tarball) is perfectly valid source.
+if [ -f "$APP_DIR/portal/docker-compose.prod.yml" ] && [ ! -d "$APP_DIR/.git" ]; then
+  HAVE_LOCAL_SOURCE=yes
+fi
+
+# -- repository access. Private repo: without a token nothing else matters.
+REPO_CODE=$(curl -sS -o /dev/null --max-time 15 -w '%{http_code}' \
+  ${GH_TOKEN:+-H "Authorization: Bearer $GH_TOKEN"} \
+  "https://api.github.com/repos/mobiliseapplabllp/maritime-project-presentation" 2>/dev/null || true)
+if [ "${HAVE_LOCAL_SOURCE:-no}" = yes ]; then
+  ok "source already present in $APP_DIR — GitHub not needed"
+elif [ "$REPO_CODE" = 200 ]; then
+  ok "repository readable$([ -n "$GH_TOKEN" ] && echo " (token accepted)")"
+elif [ -z "$GH_TOKEN" ]; then
+  block "this repository is private and no GH_TOKEN was given."
+  bad  "  Either set GH_TOKEN=<token with Contents: read>,"
+  bad  "  or copy the source to $APP_DIR yourself and re-run (rsync from your laptop)."
+else
+  case "$REPO_CODE" in
+    401|403) block "GitHub rejected the token (HTTP $REPO_CODE) — it may be expired or lack access" ;;
+    404) block "repository not visible to this token — it needs Contents: read on mobiliseapplabllp/maritime-project-presentation" ;;
+    *)   block "cannot reach the GitHub API (HTTP ${REPO_CODE:-none})" ;;
+  esac
+fi
+
 # -- existing install
 if [ -d "$APP_DIR/.git" ]; then
   warn "$APP_DIR already holds a checkout — it will be updated, not replaced"
@@ -161,14 +194,16 @@ fi
 
 # ── 2 · source ───────────────────────────────────────────────────────────
 say "Fetching the application"
-if [ -d "$APP_DIR/.git" ]; then
-  git -C "$APP_DIR" fetch origin "$BRANCH" --quiet
+if [ "${HAVE_LOCAL_SOURCE:-no}" = yes ]; then
+  ok "Using the copy already in $APP_DIR (not a git checkout — updates are yours to manage)"
+elif [ -d "$APP_DIR/.git" ]; then
+  git_auth -C "$APP_DIR" fetch origin "$BRANCH" --quiet
   git -C "$APP_DIR" checkout "$BRANCH" --quiet
   git -C "$APP_DIR" reset --hard "origin/$BRANCH" --quiet
   ok "Updated $APP_DIR to $(git -C "$APP_DIR" rev-parse --short HEAD)"
 else
   mkdir -p "$(dirname "$APP_DIR")"
-  git clone -b "$BRANCH" --quiet "$REPO" "$APP_DIR"
+  git_auth clone -b "$BRANCH" --quiet "$REPO" "$APP_DIR"
   ok "Cloned to $APP_DIR"
 fi
 cd "$APP_DIR/portal"
