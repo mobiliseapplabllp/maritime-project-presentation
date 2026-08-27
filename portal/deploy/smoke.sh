@@ -32,8 +32,18 @@ chk "health endpoint answers" "$(code "$BASE/api/health")" "200"
 
 if [[ "$BASE" == https://* ]]; then
   TLS=$(curl -s -o /dev/null -w '%{ssl_verify_result}' --max-time 20 "${H[@]}" "$BASE/api/health" 2>/dev/null)
-  if [ "$TLS" = 0 ]; then pass "TLS certificate trusted by this host"
-  else printf '  \033[33m!\033[0m %-46s %s\n' "TLS certificate not trusted" "verify_result=$TLS (self-signed?)"; fi
+  CA_FILE="$(dirname "$0")/certs/internal-ca.crt"
+  if [ "$TLS" = 0 ]; then
+    pass "TLS certificate trusted by this host"
+  elif [ -s "$CA_FILE" ] && curl -s -o /dev/null --cacert "$CA_FILE" --max-time 20 \
+       "${H[@]}" "$BASE/api/health" 2>/dev/null; then
+    # Not in the system trust store, but it does verify against the internal CA
+    # root this deployment issued from — which is the expected state until that
+    # root is installed on the machine doing the browsing.
+    pass "TLS verifies against the internal CA" "install internal-ca.crt to clear the browser warning"
+  else
+    printf '  \033[33m!\033[0m %-46s %s\n' "TLS certificate not trusted" "verify_result=$TLS (self-signed?)"
+  fi
 fi
 
 REDIR=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${H[@]}" "${BASE/https:/http:}/api/health" 2>/dev/null)

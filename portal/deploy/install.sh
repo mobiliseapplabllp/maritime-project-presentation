@@ -14,7 +14,7 @@ APP_DIR="${APP_DIR:-/opt/portal}"
 REPO="${REPO:-https://github.com/mobiliseapplabllp/maritime-project-presentation.git}"
 BRANCH="${BRANCH:-claude/maritime-project-presentation-g9sphj}"
 MODE="${MODE:-demo}"             # demo = seeded Mundra dataset · prod = empty database
-TLS="${TLS:-auto}"               # auto | letsencrypt | selfsigned | existing
+TLS="${TLS:-auto}"               # auto | letsencrypt | internal-ca | selfsigned | existing
 EDGE="${EDGE:-auto}"             # auto | nginx | apache | none
 APP_PORT_SET="${APP_PORT:+yes}"  # pinned by the operator, or ours to choose?
 APP_PORT="${APP_PORT:-5200}"     # loopback port when the host's web server fronts us
@@ -355,25 +355,41 @@ make_selfsigned() {
   chmod 600 deploy/certs/privkey.pem
 }
 
-if have_cert && [ "$TLS" != letsencrypt ]; then
+# A private CA, rather than a bare self-signed certificate. Both are untrusted
+# out of the box, but only one of them can be *made* trusted: install the root
+# once on each machine that views the portal and the warning is gone for good.
+# That is the only route to a real padlock on a host with no public DNS.
+issue_internal_ca() {
+  bash deploy/issue-internal-cert.sh "$DOMAIN" >/dev/null || return 1
+  INTERNAL_CA=yes
+}
+
+if have_cert && [ "$TLS" != letsencrypt ] && [ "$TLS" != internal-ca ]; then
   ok "Certificate already present in deploy/certs — reusing it"
+  [ -s deploy/certs/internal-ca.crt ] && INTERNAL_CA=yes
 elif [ "$TLS" = selfsigned ]; then
   make_selfsigned; ok "Self-signed certificate created"
+elif [ "$TLS" = internal-ca ]; then
+  issue_internal_ca || die "could not issue from the internal CA"
+  ok "Certificate issued from the internal CA"
 elif [ "$TLS" = letsencrypt ]; then
   issue_letsencrypt; LE_ISSUED=yes; ok "Let's Encrypt certificate issued"
 else
   # auto: only try Let's Encrypt if the name resolves publicly. It cannot
-  # validate a host that is reachable only inside a private network.
+  # validate a host that is reachable only inside a private network, and it
+  # cannot validate a name whose domain is not registered at all.
   PUBLIC_IP="$(getent hosts "$DOMAIN" 2>/dev/null | awk '{print $1; exit}' || true)"
   if [ -n "$PUBLIC_IP" ] && [ -n "$EMAIL" ] &&
      ! printf '%s' "$PUBLIC_IP" | grep -qE '^(10\.|127\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)'; then
     if issue_letsencrypt; then LE_ISSUED=yes; ok "Let's Encrypt certificate issued"
-    else warn "Let's Encrypt failed — falling back to self-signed"; make_selfsigned; fi
+    else warn "Let's Encrypt failed — issuing from the internal CA instead"; issue_internal_ca; fi
   else
-    warn "$DOMAIN resolves to ${PUBLIC_IP:-nothing} — not publicly reachable"
-    warn "Using a self-signed certificate. Replace deploy/certs/*.pem with a real"
-    warn "pair from your CA, or re-run with TLS=letsencrypt once DNS is public."
-    make_selfsigned
+    warn "$DOMAIN resolves to ${PUBLIC_IP:-nothing} — no public certificate is possible"
+    if issue_internal_ca; then
+      ok "Issued from the internal CA — install the root to get a trusted padlock"
+    else
+      warn "internal CA failed — falling back to self-signed"; make_selfsigned
+    fi
   fi
 fi
 
@@ -507,6 +523,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 0 2 * * * root cd $APP_DIR/portal && docker compose ${COMPOSE_FILES[*]} --env-file .env.prod exec -T mongo mongodump --archive --quiet | gzip > /var/backups/portal/mundra-\$(date +\%F).gz && find /var/backups/portal -name 'mundra-*.gz' -mtime +14 -delete
 # monthly certificate renewal
 0 3 1 * * root cd $APP_DIR/portal && docker run --rm -v "\$PWD/deploy/letsencrypt:/etc/letsencrypt" -v /var/www/certbot:/var/www/certbot certbot/certbot renew --webroot -w /var/www/certbot --quiet && cp -f deploy/letsencrypt/live/$DOMAIN/*.pem deploy/certs/ 2>/dev/null; $RELOAD_CMD
+# internal CA: reissue the server certificate within 30 days of expiry. The root
+# is untouched, so every copy already installed on a laptop keeps working.
+0 4 1 * * root cd $APP_DIR/portal && bash deploy/issue-internal-cert.sh $DOMAIN --if-due >/dev/null 2>&1 && $RELOAD_CMD
 CRON
 chmod 644 /etc/cron.d/mundra-portal
 ok "Nightly dump to /var/backups/portal, monthly cert renewal"
@@ -544,6 +563,37 @@ else
   fi
 fi
 
+# Built here rather than inside the summary heredoc: a command substitution
+# nested in a heredoc mangles the escaping, and a broken awk program in a
+# banner is a silly way to lose an IP address.
+CA_NOTE=""
+if [ "${INTERNAL_CA:-no}" = yes ]; then
+  HOST_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || true)
+  [ -n "$HOST_IP" ] || HOST_IP="$VHOST_ADDR"
+  CA_NOTE=$(cat <<CANOTE
+
+  ─ Trusted padlock ─────────────────────────────────────────────
+  This host has no public DNS, so no public CA can sign for it. The
+  certificate comes from a private CA instead. Install its root on
+  each machine that opens the portal and the warning disappears:
+
+    scp root@$HOST_IP:$APP_DIR/portal/deploy/certs/internal-ca.crt .
+
+    macOS    sudo security add-trusted-cert -d -r trustRoot \\
+               -k /Library/Keychains/System.keychain internal-ca.crt
+    Windows  certutil -addstore -f Root internal-ca.crt   (as Administrator)
+    Ubuntu   sudo cp internal-ca.crt /usr/local/share/ca-certificates/ \\
+               && sudo update-ca-certificates
+    Firefox  Settings → Privacy & Security → Certificates → View
+             Certificates → Authorities → Import → tick websites
+
+  Keep internal-ca.key private and never regenerate it — doing so
+  invalidates every copy of the root already installed.
+  ───────────────────────────────────────────────────────────────
+CANOTE
+)
+fi
+
 cat <<SUMMARY
 
 ────────────────────────────────────────────────────────────────
@@ -554,6 +604,7 @@ cat <<SUMMARY
   Directory     $APP_DIR/portal
   Secrets       $APP_DIR/portal/.env.prod   ← back this up
   Certificates  $APP_DIR/portal/deploy/certs
+${CA_NOTE}
   Backups       /var/backups/portal (nightly, 14 days)
 
   Sign in       admin@mundraport.in / Mundra@2026
