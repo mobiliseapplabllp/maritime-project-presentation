@@ -73,6 +73,22 @@ via cron and `docker compose restart nginx`.)
 - Changes reach production only as approved releases promoted from UAT.
 - See `SECURITY.md` for the hardening inventory and pre-release checklist.
 
+## Surveying a deployed host
+
+```bash
+sudo DOMAIN=<domain> bash deploy/audit.sh
+```
+
+Read-only: it changes nothing, starts nothing and stops nothing. It reports the
+host, disk, checkout, Docker state, collection counts, the Apache vhost map, the
+certificates and their expiry, listening ports, firewall, cron and the last
+lines of the application log.
+
+Secret *values* are never printed — only which keys are set and how long they
+are — so the output is safe to paste into a chat or a ticket. It also checks the
+one invariant worth checking: that `CERT_SIGNING_SECRET` is set and differs from
+`JWT_SECRET`.
+
 ## TLS on a host with no public DNS
 
 A public certificate authority will only sign for a name it can validate, and
