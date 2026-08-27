@@ -491,15 +491,20 @@ ok "Nightly dump to /var/backups/portal, monthly cert renewal"
 
 # ── 8 · verify ───────────────────────────────────────────────────────────
 say "Verifying"
-APP_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:$APP_PORT/api/health" 2>/dev/null || echo 000)
+APP_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:$APP_PORT/api/health" 2>/dev/null)
 [ "$APP_CODE" = 200 ] && ok "application on 127.0.0.1:$APP_PORT → 200" \
                       || warn "application returned $APP_CODE on the loopback port"
 EDGE_CODE=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 10 -H "Host: $DOMAIN" \
-  "https://127.0.0.1/api/health" 2>/dev/null || echo 000)
+  "https://127.0.0.1/api/health" 2>/dev/null)
 if [ "$EDGE_CODE" = 200 ]; then
   ok "through TLS as $DOMAIN → 200"
 else
-  warn "edge returned $EDGE_CODE — check the vhost and that $DOMAIN points at this host"
+  if [ "$EDGE_CODE" = 000 ] || [ -z "$EDGE_CODE" ]; then
+    warn "nothing answered on 127.0.0.1:443 — is Apache listening on all interfaces?"
+    warn "  check: ss -lntp | grep ':443 '   and   apache2ctl -S"
+  else
+    warn "edge returned HTTP $EDGE_CODE — check the vhost order in apache2ctl -S"
+  fi
 fi
 
 cat <<SUMMARY
