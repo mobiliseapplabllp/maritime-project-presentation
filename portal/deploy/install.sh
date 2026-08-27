@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # One-command deployment for the Mundra Port Operations Portal.
 #
+#   sudo DOMAIN=apdev.example.com ./install.sh check     ← inspect, change nothing
 #   sudo MODE=demo DOMAIN=apdev.example.com EMAIL=ops@example.com ./install.sh
 #
 # Brings up the portal, MongoDB and an nginx TLS edge on one host. Safe to run
@@ -12,26 +13,151 @@ EMAIL="${EMAIL:-}"
 APP_DIR="${APP_DIR:-/opt/portal}"
 REPO="${REPO:-https://github.com/mobiliseapplabllp/maritime-project-presentation.git}"
 BRANCH="${BRANCH:-claude/maritime-project-presentation-g9sphj}"
-MODE="${MODE:-demo}"     # demo = seeded Mundra dataset · prod = empty database
-TLS="${TLS:-auto}"       # auto | letsencrypt | selfsigned | existing
+MODE="${MODE:-demo}"             # demo = seeded Mundra dataset · prod = empty database
+TLS="${TLS:-auto}"               # auto | letsencrypt | selfsigned | existing
+INSTALL_DOCKER="${INSTALL_DOCKER:-no}"   # yes = allow this script to install Docker
+CHECK_ONLY="${CHECK_ONLY:-no}"   # yes = report readiness and change nothing
 
 say()  { printf '\n\033[1;36m==>\033[0m %s\n' "$*"; }
 ok()   { printf '    \033[32m✓\033[0m %s\n' "$*"; }
 warn() { printf '    \033[33m!\033[0m %s\n' "$*"; }
+bad()  { printf '    \033[31m✗\033[0m %s\n' "$*"; }
 die()  { printf '\n\033[1;31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 
+[ "${1:-}" = "check" ] && CHECK_ONLY=yes || true
 [ "$(id -u)" -eq 0 ] || die "Run as root (sudo $0)"
 [ -n "$DOMAIN" ] || die "Set DOMAIN=your.domain.name"
 
-# ── 1 · Docker ───────────────────────────────────────────────────────────
-say "Checking Docker"
-if ! command -v docker >/dev/null 2>&1; then
-  warn "Docker not found — installing"
+# ── 1 · preflight ────────────────────────────────────────────────────────
+# Everything is inspected and reported before anything is changed. On a server
+# that already runs other things, finding out about a port clash halfway
+# through a deployment is worse than not starting.
+BLOCKERS=0
+block() { bad "$*"; BLOCKERS=$((BLOCKERS + 1)); }
+
+OS_NAME=$( (. /etc/os-release 2>/dev/null && printf '%s' "$PRETTY_NAME") || uname -s )
+say "Preflight — $(hostname), ${OS_NAME:-unknown}"
+
+# -- Docker
+if command -v docker >/dev/null 2>&1; then
+  ok "docker present — $(docker --version 2>/dev/null | cut -d, -f1 || echo installed)"
+  if docker info >/dev/null 2>&1; then
+    ok "docker daemon responding"
+  elif systemctl list-unit-files docker.service >/dev/null 2>&1; then
+    warn "docker installed but the daemon is not running — will start it"
+    NEED_DOCKER_START=yes
+  else
+    block "docker installed but the daemon is not responding, and there is no docker.service"
+  fi
+  if docker compose version >/dev/null 2>&1; then
+    ok "compose v2 — $(docker compose version --short 2>/dev/null || echo present)"
+  else
+    block "docker compose v2 plugin missing (install docker-compose-plugin)"
+  fi
+else
+  if [ "$INSTALL_DOCKER" = yes ]; then
+    warn "docker not installed — will install it (INSTALL_DOCKER=yes)"
+    NEED_DOCKER_INSTALL=yes
+  else
+    block "docker is not installed. Install it with your platform's package manager,"
+    bad  "  or re-run with INSTALL_DOCKER=yes to let this script fetch get.docker.com"
+  fi
+fi
+
+# -- tools
+for t in git openssl curl; do
+  command -v "$t" >/dev/null 2>&1 && ok "$t present" || block "$t is not installed"
+done
+
+# -- ports. nginx wants both; anything already bound stops the deployment dead.
+# ss is not on every minimal server, so fall back through netstat to a plain
+# connect probe. None of these may fail the run.
+port_holder() {
+  local port="$1" out=""
+  if command -v ss >/dev/null 2>&1; then
+    out=$(ss -lntp 2>/dev/null | awk -v p=":$port\$" '$4 ~ p {print $NF; exit}' || true)
+  elif command -v netstat >/dev/null 2>&1; then
+    out=$(netstat -lntp 2>/dev/null | awk -v p=":$port\$" '$4 ~ p {print $NF; exit}' || true)
+  fi
+  if [ -z "$out" ] && timeout 2 bash -c "cat < /dev/null > /dev/tcp/127.0.0.1/$port" 2>/dev/null; then
+    out="an unidentified process"
+  fi
+  printf '%s' "$out"
+}
+for port in 80 443; do
+  HOLDER=$(port_holder "$port")
+  if [ -n "$HOLDER" ]; then
+    block "port $port is already in use by $HOLDER"
+  else
+    ok "port $port free"
+  fi
+done
+
+# -- disk. Images, the database and 3.6 years of seeded history need room.
+AVAIL_MB=$(df -Pm "$(dirname "$APP_DIR")" 2>/dev/null | awk 'NR==2{print $4}' || true)
+if [ "${AVAIL_MB:-0}" -lt 5000 ]; then
+  block "only ${AVAIL_MB}MB free on $(dirname "$APP_DIR") — 5GB or more recommended"
+else
+  ok "$((AVAIL_MB / 1024))GB free on $(dirname "$APP_DIR")"
+fi
+
+# -- outbound. A server behind a VPN often cannot reach Docker Hub or GitHub,
+# and both are needed to build.
+# Any HTTP status proves we got through; only a connection failure (000) means
+# blocked. The registry root answers 404 when perfectly healthy, so probe /v2/.
+for probe in "github.com|https://github.com/" "Docker Hub|https://registry-1.docker.io/v2/"; do
+  NAME="${probe%%|*}"; URL="${probe#*|}"
+  CODE=$(curl -sS -o /dev/null --max-time 12 -w '%{http_code}' "$URL" 2>/dev/null || true)
+  if [ -n "$CODE" ] && [ "$CODE" != "000" ]; then
+    ok "$NAME reachable (HTTP $CODE)"
+  else
+    block "cannot reach $NAME — the build needs it. Behind a proxy? export HTTPS_PROXY"
+  fi
+done
+
+# -- DNS, and whether Let's Encrypt can possibly work
+RESOLVED=$(getent hosts "$DOMAIN" 2>/dev/null | awk '{print $1; exit}' || true)
+if [ -z "$RESOLVED" ]; then
+  warn "$DOMAIN does not resolve here — a self-signed certificate will be used"
+elif printf '%s' "$RESOLVED" | grep -qE '^(10\.|127\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)'; then
+  warn "$DOMAIN → $RESOLVED (private) — Let's Encrypt cannot validate this host"
+  warn "  self-signed unless you supply a CA certificate in deploy/certs"
+else
+  ok "$DOMAIN → $RESOLVED (public) — Let's Encrypt can validate"
+fi
+
+# -- existing install
+if [ -d "$APP_DIR/.git" ]; then
+  warn "$APP_DIR already holds a checkout — it will be updated, not replaced"
+  [ -f "$APP_DIR/portal/.env.prod" ] && ok "existing .env.prod found — secrets preserved"
+else
+  ok "$APP_DIR is a clean target"
+fi
+
+echo
+if [ "$BLOCKERS" -gt 0 ]; then
+  die "$BLOCKERS blocker(s) above. Nothing has been changed. Fix them and re-run."
+fi
+ok "Preflight clear"
+
+if [ "$CHECK_ONLY" = yes ]; then
+  say "CHECK_ONLY — stopping here. Nothing was changed."
+  exit 0
+fi
+
+# ── 1b · Docker, only now that preflight passed ──────────────────────────
+if [ "${NEED_DOCKER_INSTALL:-no}" = yes ]; then
+  say "Installing Docker"
   curl -fsSL https://get.docker.com | sh
   systemctl enable --now docker
+  docker compose version >/dev/null 2>&1 || die "compose v2 plugin still missing after install"
+  ok "Docker installed"
+elif [ "${NEED_DOCKER_START:-no}" = yes ]; then
+  say "Starting Docker"
+  systemctl enable --now docker
+  docker info >/dev/null 2>&1 || die "docker daemon still not responding"
+  ok "Docker running"
 fi
-docker compose version >/dev/null 2>&1 || die "Docker Compose v2 plugin is missing"
-ok "$(docker --version)"
 
 # ── 2 · source ───────────────────────────────────────────────────────────
 say "Fetching the application"
