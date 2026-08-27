@@ -69,5 +69,36 @@ via cron and `docker compose restart nginx`.)
 - Production is never auto-seeded (`SEED_IF_EMPTY=0`) and never edited by hand.
 - Rotate `JWT_SECRET` / `JWT_REFRESH_SECRET` on any secrets exposure; all
   sessions re-authenticate on rotation.
+- **Never rotate `CERT_SIGNING_SECRET`.** See below.
 - Changes reach production only as approved releases promoted from UAT.
 - See `SECURITY.md` for the hardening inventory and pre-release checklist.
+
+## The certificate signing key
+
+Every instrument the registry issues is signed with Ed25519 over the register
+entry itself, and public verification recomputes that entry rather than reading
+a stored payload. That is what makes the record tamper-evident: alter a
+certificate's holder, expiry or number after issue and verification fails.
+
+The signing key is derived from `CERT_SIGNING_SECRET`. It has one rule:
+
+> Generate it once, before the first certificate is issued, and never change it.
+
+Rotating it does not invalidate a session — it invalidates **every certificate
+ever issued**, which will then verify as *"signed by a key this registry no
+longer holds"*. There is no way to re-sign historical records without changing
+their issue dates, so the damage is permanent.
+
+Two consequences worth stating plainly:
+
+- Keep it out of the JWT rotation runbook. `JWT_SECRET` is meant to be rotated;
+  this is not, and the two must never be the same value. If `CERT_SIGNING_SECRET`
+  is unset the code falls back to `JWT_SECRET`, which is convenient in
+  development and dangerous in production — so all three compose files now set
+  it explicitly, and prod and UAT refuse to start without it.
+- Back it up with the same care as the database. Losing it is equivalent to
+  losing the register's signature history.
+
+Publish the public half — `GET /api/public/signing-key` serves it
+unauthenticated, so anyone holding a certificate can verify it without asking
+this platform for permission.

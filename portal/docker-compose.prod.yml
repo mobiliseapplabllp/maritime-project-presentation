@@ -22,6 +22,9 @@ services:
       MONGO_URI: mongodb://mongo:27017/mundra_portal
       JWT_SECRET: ${JWT_SECRET:?set in .env.prod}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set in .env.prod}
+      # Signs issued certificates. NOT rotated with the JWT secrets — rotating it
+      # breaks verification of every certificate already issued. See DEPLOYMENT.md.
+      CERT_SIGNING_SECRET: ${CERT_SIGNING_SECRET:?set in .env.prod}
       SEED_IF_EMPTY: "0"   # production data is never auto-seeded
       CORS_ORIGIN: ${CORS_ORIGIN:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
