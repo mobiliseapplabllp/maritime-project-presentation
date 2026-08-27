@@ -16,6 +16,8 @@ BRANCH="${BRANCH:-claude/maritime-project-presentation-g9sphj}"
 MODE="${MODE:-demo}"             # demo = seeded Mundra dataset · prod = empty database
 TLS="${TLS:-auto}"               # auto | letsencrypt | selfsigned | existing
 EDGE="${EDGE:-auto}"             # auto | nginx | apache | none
+APP_PORT_SET="${APP_PORT:+yes}"  # did the operator pin it, or are we free to choose?
+APP_PORT_SET="${APP_PORT:+yes}"  # pinned by the operator, or ours to choose?
 APP_PORT="${APP_PORT:-5200}"     # loopback port when the host's web server fronts us
 INSTALL_DOCKER="${INSTALL_DOCKER:-no}"   # yes = allow this script to install Docker
 GH_TOKEN="${GH_TOKEN:-}"         # required — this is a private repository
@@ -125,6 +127,45 @@ else
     ok "edge: $EDGE — chosen explicitly; ports 80/443 are free but left alone"
   fi
   ok "portal will bind 127.0.0.1:$APP_PORT only; nothing on the host is stopped"
+  APP_HOLDER=$(port_holder "$APP_PORT")
+  if [ -z "$APP_HOLDER" ]; then
+    ok "application port $APP_PORT free"
+  elif [ "$APP_PORT_SET" = yes ]; then
+    block "port $APP_PORT is in use by $APP_HOLDER — choose another with APP_PORT="
+  else
+    CHOSEN=""
+    for cand in $(seq 5201 5260); do
+      [ -z "$(port_holder "$cand")" ] && { CHOSEN=$cand; break; }
+    done
+    if [ -n "$CHOSEN" ]; then
+      warn "port $APP_PORT is in use by ${APP_HOLDER%%,*}…"
+      APP_PORT="$CHOSEN"
+      ok "using port $APP_PORT instead"
+    else
+      block "port $APP_PORT is in use and nothing free between 5201 and 5260"
+    fi
+  fi
+  # The application port matters as much as 80 and 443. On a shared host 5200 is
+  # just as likely to be taken, and a container that cannot bind fails at start
+  # rather than at preflight, after the image has already been built.
+  APP_HOLDER=$(port_holder "$APP_PORT")
+  if [ -z "$APP_HOLDER" ]; then
+    ok "application port $APP_PORT free"
+  elif [ "$APP_PORT_SET" = yes ]; then
+    block "port $APP_PORT is in use by ${APP_HOLDER%%,*} — pick another with APP_PORT="
+  else
+    CHOSEN=""
+    for cand in $(seq 5201 5260); do
+      [ -z "$(port_holder "$cand")" ] && { CHOSEN=$cand; break; }
+    done
+    if [ -n "$CHOSEN" ]; then
+      warn "port $APP_PORT is in use by ${APP_HOLDER%%,*}…"
+      APP_PORT="$CHOSEN"
+      ok "using port $APP_PORT instead"
+    else
+      block "port $APP_PORT is in use and nothing free between 5201 and 5260"
+    fi
+  fi
   if [ "$EDGE" = apache ]; then
     if command -v apache2ctl >/dev/null 2>&1 || command -v apachectl >/dev/null 2>&1; then
       ok "apache control binary found — a vhost for $DOMAIN will be written"
@@ -266,7 +307,13 @@ fi
 COMPOSE_FILES=(-f docker-compose.prod.yml)
 [ "$EDGE" != nginx ] && COMPOSE_FILES+=(-f docker-compose.behind-proxy.yml)
 dc() { docker compose "${COMPOSE_FILES[@]}" --env-file .env.prod "$@"; }
-grep -q '^APP_PORT=' .env.prod 2>/dev/null || echo "APP_PORT=$APP_PORT" >> .env.prod
+# rewrite rather than append: a re-run that picks a different port must not be
+# overruled by the value the first run left behind
+if grep -q '^APP_PORT=' .env.prod 2>/dev/null; then
+  sed -i "s/^APP_PORT=.*/APP_PORT=$APP_PORT/" .env.prod
+else
+  echo "APP_PORT=$APP_PORT" >> .env.prod
+fi
 
 # ── 4 · TLS ──────────────────────────────────────────────────────────────
 say "TLS certificate for $DOMAIN"
