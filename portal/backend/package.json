@@ -1,8 +1,8 @@
 {
-  "name": "mundra-portal-backend",
+  "name": "maritime-portal-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Mundra Port Operations Portal - API",
+  "description": "Maritime Operations Portal - API",
   "main": "server.js",
   "scripts": {
     "devdb": "../.dev/bin/ferretdb --handler=sqlite --sqlite-url=file:../.dev/data/ --telemetry=disable",
