@@ -1,11 +1,8 @@
 terminal,latest_calls,trend_calls_per_yr,volatility
-AMCT-2,1,-0.2,2.08
-Adani Mundra Container Terminal,2,0.4,2.1
-CT-3 (AICT),6,0.6,2.55
-CT-4 (ACMT JV),1,0.6,1.64
-Liquid Berths,5,-0.1,1.71
-MICT (DP World JV),2,0.2,2.0
-Multipurpose Terminal,3,0.2,2.25
-Ro-Ro Terminal,1,0.3,1.67
-Single Point Moorings,1,0.2,1.76
-West Basin Coal Terminal,4,0.3,2.31
+CT-3 (AICT),6,0.2,1.69
+CT-4 (ACMT JV),2,0.1,2.67
+Liquid Berths,2,0.4,1.7
+Multipurpose Terminal,1,1.0,3.4
+Ro-Ro Terminal,4,-0.1,1.54
+Single Point Moorings,2,0.1,1.62
+West Basin Coal Terminal,5,0.4,1.82

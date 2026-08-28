@@ -9,7 +9,7 @@ const app = require('../server');
 const { connectDB } = require('../src/config/db');
 
 const login = async (email) => {
-  const res = await request(app).post('/api/auth/login').send({ email, password: 'Mundra@2026' });
+  const res = await request(app).post('/api/auth/login').send({ email, password: 'Demo@2026' });
   assert.equal(res.status, 200, `login failed for ${email}: ${res.text}`);
   return res.body.data.token;
 };
@@ -20,14 +20,14 @@ let admin, agent, surveyor, finance;
 test.before(async () => {
   await connectDB();
   [admin, agent, surveyor, finance] = await Promise.all([
-    login('admin@mundraport.in'), login('agent@mundraport.in'),
-    login('surveyor@mundraport.in'), login('finance@mundraport.in'),
+    login('admin@maritime.example'), login('agent@maritime.example'),
+    login('surveyor@maritime.example'), login('finance@maritime.example'),
   ]);
 });
 test.after(async () => { await mongoose.disconnect(); });
 
 test('auth: wrong password is 401, no token no entry', async () => {
-  const bad = await request(app).post('/api/auth/login').send({ email: 'admin@mundraport.in', password: 'nope' });
+  const bad = await request(app).post('/api/auth/login').send({ email: 'admin@maritime.example', password: 'nope' });
   assert.equal(bad.status, 401);
   const noTok = await request(app).get('/api/vessels');
   assert.equal(noTok.status, 401);
@@ -55,7 +55,7 @@ test('port call lifecycle: create -> illegal jump 409 -> confirm -> berth confli
   assert.equal(created.status, 201, created.text);
   const id = created.body.data._id;
   assert.equal(created.body.data.status, 'ANNOUNCED');
-  assert.match(created.body.data.vcn, /^MUN-\d{4}-\d{4}$/);
+  assert.match(created.body.data.vcn, /^[A-Z]{3}-\d{4}-\d{4}$/);
 
   const jump = await request(app).post(`/api/port-calls/${id}/transition`).set(auth(admin)).send({ to: 'SAILED' });
   assert.equal(jump.status, 409);
@@ -121,7 +121,7 @@ test('certificates register derives statuses and audit log records actions', asy
 });
 
 test('v3 rbac: nmc officer sees incidents; agent does not; finance cannot create seafarers', async () => {
-  const nmc = await login('nmc@mundraport.in');
+  const nmc = await login('nmc@maritime.example');
   const inc = await request(app).get('/api/incidents').set(auth(nmc));
   assert.equal(inc.status, 200);
   assert.ok(inc.body.data.length >= 4);
@@ -146,7 +146,7 @@ test('v3 licenses: lifecycle transitions enforced', async () => {
 });
 
 test('v3 risk engine: explainable scores with factor decomposition', async () => {
-  const surveyorTok = await login('surveyor@mundraport.in');
+  const surveyorTok = await login('surveyor@maritime.example');
   const res = await request(app).get('/api/risk/scores').set(auth(surveyorTok));
   assert.equal(res.status, 200);
   assert.ok(res.body.data.length >= 15);

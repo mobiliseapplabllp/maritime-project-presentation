@@ -57,7 +57,7 @@ export async function exportPdf({ name, title, subtitle, sections, landscape = f
   doc.rect(0, 0, pageW, 64, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
-  doc.text('Mundra Port — Operations Portal', 40, 28);
+  doc.text('Maritime Operations Portal', 40, 28);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
   doc.text(title || name, 40, 46);
   doc.setFontSize(8); doc.setTextColor(200, 214, 226);

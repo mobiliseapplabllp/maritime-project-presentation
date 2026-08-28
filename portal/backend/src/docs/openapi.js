@@ -187,7 +187,7 @@ function buildSpec({ baseUrl = '/api' } = {}) {
   return {
     openapi: '3.0.3',
     info: {
-      title: 'Mundra Port Operations Portal API',
+      title: 'Maritime Operations Portal API',
       version: pkg.version || '1.0.0',
       description: [
         'Every capability in the platform is reachable through this API. Responses share one envelope:',

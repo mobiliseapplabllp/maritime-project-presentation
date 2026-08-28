@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Box, Typography, keyframes } from '@mui/material';
 import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
 import { onBusy } from '../../api/busy';
-import { ADANI_GRADIENT } from '../../theme';
+import { BRAND_GRADIENT } from '../../theme';
 
 const slide = keyframes`0%{transform:translateX(-100%)}100%{transform:translateX(250%)}`;
 const spin = keyframes`0%{transform:rotate(0)}100%{transform:rotate(360deg)}`;
 const pulse = keyframes`0%,100%{opacity:.55}50%{opacity:1}`;
 
-/** 2.5px Adani-gradient activity bar pinned under the header — lights on any API traffic. */
+/** 2.5px gradient activity bar pinned under the header — lights on any API traffic. */
 export function GlobalProgress() {
   const [busy, setBusy] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -21,7 +21,7 @@ export function GlobalProgress() {
   return (
     <Box sx={{ position: 'relative', height: 2.5, overflow: 'hidden', bgcolor: 'transparent' }}>
       {visible && (
-        <Box sx={{ position: 'absolute', inset: 0, width: '40%', background: ADANI_GRADIENT, animation: `${slide} 1s ease-in-out infinite`, borderRadius: 2 }} />
+        <Box sx={{ position: 'absolute', inset: 0, width: '40%', background: BRAND_GRADIENT, animation: `${slide} 1s ease-in-out infinite`, borderRadius: 2 }} />
       )}
     </Box>
   );

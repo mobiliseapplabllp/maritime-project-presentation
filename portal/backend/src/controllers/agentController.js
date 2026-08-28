@@ -210,6 +210,26 @@ exports.review = async (req, res) => {
 };
 
 /** Agent performance dashboard — the §6.6 AI SLA metrics. */
+/** Run an agent over the records it is responsible for, now. */
+exports.run = async (req, res) => {
+  const runner = require('../services/agentRunner');
+  const cfg = await AgentConfig.findOne({ agentId: req.params.agentId });
+  if (!cfg) throw new ApiError(404, 'Agent not found');
+  if (!runner.isRunnable(req.params.agentId)) {
+    throw new ApiError(400, 'This agent runs on its own schedule and cannot be triggered here');
+  }
+  if (!cfg.enabled) throw new ApiError(400, 'Agent is disabled');
+  const decisions = await runner.run(req.params.agentId);
+  audit(req, { action: 'UPDATE', entity: 'AgentConfig', entityId: cfg._id,
+    entityLabel: `${cfg.name} run on demand — ${decisions.length} decision(s) recorded` });
+  ok(res, {
+    ran: cfg.name,
+    recorded: decisions.length,
+    byDisposition: decisions.reduce((a, d) => ({ ...a, [d.disposition]: (a[d.disposition] || 0) + 1 }), {}),
+    decisions: decisions.slice(0, 20),
+  });
+};
+
 exports.dashboard = async (_req, res) => {
   const [agents, decisions] = await Promise.all([
     AgentConfig.find().lean(),

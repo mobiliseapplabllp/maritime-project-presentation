@@ -9,7 +9,7 @@
     "seed": "node scripts/seed.js",
     "dev": "node server.js",
     "start": "node server.js",
-    "test": "node --test test/domain.test.js test/registry.test.js",
+    "test": "node --test test/domain.test.js test/registry.test.js test/agents.test.js",
     "test:api": "node --test test/api.test.js",
     "test:security": "node --test test/security.test.js"
   },

@@ -10,24 +10,24 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import api from '../api/client';
 import { setSession } from '../store/authSlice';
-import { ADANI_GRADIENT } from '../theme';
+import { BRAND_GRADIENT } from '../theme';
 import PortScene from '../components/PortScene';
-import AdaniWordmark from '../components/brand/AdaniWordmark';
+import PlatformWordmark from '../components/brand/PlatformWordmark';
 import MobiliseMark from '../components/brand/MobiliseMark';
 
 const ROLES = [
-  { email: 'admin@mundraport.in', role: 'Super Admin', who: 'Port administrator — every module' },
-  { email: 'harbour@mundraport.in', role: 'Harbour Master', who: 'Port calls, berthing, cargo operations' },
-  { email: 'surveyor@mundraport.in', role: 'Marine Surveyor', who: 'Inspections, certificates, compliance' },
-  { email: 'finance@mundraport.in', role: 'Finance Officer', who: 'Tariffs, invoicing, collections' },
-  { email: 'agent@mundraport.in', role: 'Shipping Agent', who: 'Announce calls, track invoices' },
+  { email: 'admin@maritime.example', role: 'Super Admin', who: 'Port administrator — every module' },
+  { email: 'harbour@maritime.example', role: 'Harbour Master', who: 'Port calls, berthing, cargo operations' },
+  { email: 'surveyor@maritime.example', role: 'Marine Surveyor', who: 'Inspections, certificates, compliance' },
+  { email: 'finance@maritime.example', role: 'Finance Officer', who: 'Tariffs, invoicing, collections' },
+  { email: 'agent@maritime.example', role: 'Shipping Agent', who: 'Announce calls, track invoices' },
 ];
 
 const FACTS = [
-  '200+ MMT handled FY 2024-25 — first Indian port ever',
-  '12 container berths · ~7.5M TEU capacity',
-  "World's largest mechanised coal import terminal",
-  "India's largest automobile export hub",
+  '12 operational modules over one shared dataset',
+  'Deny-by-default RBAC · immutable audit on every write',
+  "Digitally signed certificates with public verification",
+  "Grounded AI assistance with per-answer citations",
 ];
 
 export default function Login() {
@@ -53,15 +53,15 @@ export default function Login() {
         <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(4,12,26,0.55) 0%, rgba(4,12,26,0.05) 34%, rgba(3,9,20,0.72) 100%)' }} />
         <Box sx={{ position: 'absolute', inset: 0, p: 5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#EAF2FA' }}>
           <Box>
-            <AdaniWordmark height={34} mono="#FFFFFF" style={{ filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.45))' }} />
+            <PlatformWordmark height={34} mono="#FFFFFF" style={{ filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.45))' }} />
             <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', mt: 2.5 }}>
-              <Box sx={{ width: 44, height: 44, borderRadius: '12px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center', boxShadow: '0 4px 18px rgba(0,0,0,0.4)' }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: '12px', background: BRAND_GRADIENT, display: 'grid', placeItems: 'center', boxShadow: '0 4px 18px rgba(0,0,0,0.4)' }}>
                 <AnchorRoundedIcon sx={{ color: '#fff' }} />
               </Box>
               <Box>
-                <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 19, color: '#fff', lineHeight: 1.1 }}>Mundra Port</Typography>
+                <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 19, color: '#fff', lineHeight: 1.1 }}>Maritime Operations</Typography>
                 <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, letterSpacing: '0.18em', color: 'rgba(234,242,250,0.75)' }}>
-                  OPERATIONS PORTAL · IN MUN · GULF OF KUTCH
+                  OPERATIONS PORTAL · REFERENCE DEPLOYMENT
                 </Typography>
               </Box>
             </Box>
@@ -69,12 +69,12 @@ export default function Login() {
 
           <Box>
             <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 44, lineHeight: 1.04, letterSpacing: '-0.02em', color: '#fff', maxWidth: 480, textShadow: '0 2px 24px rgba(0,0,0,0.45)' }}>
-              India's largest<br />commercial port.<br />One operating picture.
+              One platform.<br />Every maritime service.<br />One operating picture.
             </Typography>
             <Stack spacing={0.9} sx={{ mt: 3 }}>
               {FACTS.map((f) => (
                 <Stack key={f} direction="row" spacing={1.25} alignItems="center">
-                  <Box sx={{ width: 22, height: 3.5, borderRadius: 2, background: ADANI_GRADIENT, flexShrink: 0 }} />
+                  <Box sx={{ width: 22, height: 3.5, borderRadius: 2, background: BRAND_GRADIENT, flexShrink: 0 }} />
                   <Typography sx={{ fontSize: 14.5, color: 'rgba(234,242,250,0.95)', textShadow: '0 1px 10px rgba(0,0,0,0.5)' }}>{f}</Typography>
                 </Stack>
               ))}
@@ -94,14 +94,14 @@ export default function Login() {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, bgcolor: 'background.default' }}>
         <Box sx={{ width: 440, maxWidth: '100%' }}>
           <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1.25, alignItems: 'center', mb: 3 }}>
-            <Box sx={{ width: 38, height: 38, borderRadius: '10px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center' }}>
+            <Box sx={{ width: 38, height: 38, borderRadius: '10px', background: BRAND_GRADIENT, display: 'grid', placeItems: 'center' }}>
               <AnchorRoundedIcon sx={{ color: '#fff', fontSize: 21 }} />
             </Box>
-            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 18 }}>Mundra Port Operations</Typography>
+            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 18 }}>Maritime Operations</Typography>
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'block' }, mb: 2.5 }}>
-            <AdaniWordmark height={26} />
+            <PlatformWordmark height={26} />
           </Box>
           <Typography variant="h5">Welcome aboard</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>
@@ -113,7 +113,7 @@ export default function Login() {
             {ROLES.map((r) => (
               <ButtonBase
                 key={r.email} disabled={!!busyAs}
-                onClick={() => signIn(r.email, 'Mundra@2026')}
+                onClick={() => signIn(r.email, 'Demo@2026')}
                 sx={{
                   borderRadius: 2.5, textAlign: 'left', justifyContent: 'flex-start',
                   border: 1, borderColor: 'divider', bgcolor: 'background.paper',
@@ -122,7 +122,7 @@ export default function Login() {
                   '&:hover': { borderColor: 'primary.main', transform: 'translateX(2px)' },
                 }}
               >
-                <Box sx={{ width: 38, height: 38, borderRadius: '10px', flexShrink: 0, background: ADANI_GRADIENT, display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'Archivo', fontWeight: 800, fontSize: 14 }}>
+                <Box sx={{ width: 38, height: 38, borderRadius: '10px', flexShrink: 0, background: BRAND_GRADIENT, display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'Archivo', fontWeight: 800, fontSize: 14 }}>
                   {r.role.split(' ').map((w) => w[0]).slice(0, 2).join('')}
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -162,7 +162,7 @@ export default function Login() {
           <Stack direction="row" spacing={1} sx={{ mt: 2 }} alignItems="center" justifyContent="space-between">
             <Stack direction="row" spacing={1} alignItems="center">
               <Chip size="small" variant="outlined" color="warning" label="DEMO" sx={{ fontSize: 10, fontWeight: 700 }} />
-              <Typography variant="caption" color="text.secondary">Shared demo password: Mundra@2026</Typography>
+              <Typography variant="caption" color="text.secondary">Shared demo password: Demo@2026</Typography>
             </Stack>
             <Box sx={{ display: { xs: 'block', md: 'none' } }}><MobiliseMark /></Box>
           </Stack>

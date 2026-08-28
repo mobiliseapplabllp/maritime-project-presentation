@@ -57,7 +57,7 @@ exports.create = async (req, res) => {
     agentName = a ? a.label : '';
   }
   const call = await PortCall.create({
-    vcn: await nextNumber(PortCall, 'vcn', `${require('../config/settingsCache').moduleGet('ops').vcnPrefix || 'MUN'}-${new Date(eta).getFullYear()}-`),
+    vcn: await nextNumber(PortCall, 'vcn', `${require('../config/settingsCache').moduleGet('ops').vcnPrefix || 'REF'}-${new Date(eta).getFullYear()}-`),
     vessel, eta, etd, agentCode: agentCode || '', agentName,
     purpose: purpose || '', prevPort: prevPort || '', nextPort: nextPort || '',
     remarks: remarks || '',

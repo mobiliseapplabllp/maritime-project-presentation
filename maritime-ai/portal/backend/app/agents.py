@@ -1,7 +1,7 @@
 """
 Agent workforce for Sagar Drishti.
 
-A team of specialised agents that keep the Mundra Port operations picture
+A team of specialised agents that keep the port operations picture
 fresh and actionable every cycle (default: every 2 hours). Each agent has a role,
 its own persistent memory, and hands off to the next. Reasoning agents run on the
 local Claude CLI; data agents compute directly on the live panels. A Duty Officer
@@ -31,7 +31,7 @@ os.makedirs(_STATE, exist_ok=True)
 AGENTS = [
     {"id": "collector", "name": "Harbour Collector", "icon": "⇩", "kind": "data",
      "role": "Ingestion", "desc": "Rebuilds the ops/marine/hse/revenue panels and analysis artifacts "
-     "from the latest Mundra Port operations snapshot, keeping the system's knowledge current."},
+     "from the latest port operations snapshot, keeping the system's knowledge current."},
     {"id": "curator", "name": "Facts Curator", "icon": "💡", "kind": "data",
      "role": "Insight", "desc": "Owns the Interesting Facts section: re-mines the headline facts from "
      "the live port data once a day, verifies every number, and reports which facts shifted."},
@@ -48,7 +48,7 @@ AGENTS = [
      "role": "Reporting", "desc": "Writes the cycle's executive brief in plain language, grounded "
      "only in the live data and the other agents' findings."},
     {"id": "examiner", "name": "QA Examiner", "icon": "?", "kind": "reasoning",
-     "role": "Training", "desc": "Writes the questions Mundra Port leadership and terminal heads would "
+     "role": "Training", "desc": "Writes the questions port leadership and terminal heads would "
      "ask the platform — varied, non-repeating — and puts them to the live chatbot pipeline."},
     {"id": "validator", "name": "QA Validator", "icon": "✔", "kind": "reasoning",
      "role": "Correction", "desc": "Independently verifies every chatbot answer against the Postgres "
@@ -383,7 +383,7 @@ def run_auditor(run, mem, cfg=None):
     note = ""
     try:
         _ev(run, "auditor", "work", "Reasoning over the lowest-scoring terminals…")
-        prompt = ("You are the Marine Auditor for Mundra Port operations. In 2 sentences, plainly "
+        prompt = ("You are the Marine Auditor for port operations. In 2 sentences, plainly "
                   "explain why these terminals look weakest on marine service (anchorage waiting above "
                   "the ~5h major-port pre-berthing benchmark, slow turnaround, PSC detentions and "
                   "high-severity incidents at their berths). "
@@ -417,7 +417,7 @@ def run_planner(run, mem, sentinel_out, auditor_out, cfg=None):
                                    for _, r in top_out.iterrows()]}
     actions = []
     try:
-        prompt = ("You are the Berth Planner for Mundra Port operations. From the signals below, "
+        prompt = ("You are the Berth Planner for port operations. From the signals below, "
                   f"produce a prioritised action list of 4-{max_actions} concrete items (each: "
                   "terminal/berth + the specific action, e.g. 'add tug and pilot cover at X for the "
                   "morning tide window', 're-plan berth windows at Y to clear the anchorage queue', "
@@ -445,7 +445,7 @@ def run_analyst(run, mem, sentinel_out, auditor_out, planner_out, cfg=None):
     ctx = {"alerts": sentinel_out.get("alerts", [])[:6], "avg_service_score": auditor_out.get("avg"),
            "flagged": auditor_out.get("worst", [])[:5], "actions": planner_out.get("actions", [])[:6]}
     try:
-        prompt = ("You are the Trade Analyst inside Sagar Drishti, Mundra Port's AI analytics. "
+        prompt = ("You are the Trade Analyst inside the maritime AI analytics portal. "
                   "Write a short cycle brief (a `## heading`, 2 tight paragraphs, then a `### Recommended "
                   "actions` bullet list) for the Harbour Master, summarising this cycle. Ground "
                   "every claim in the signals. Signals: " + json.dumps(ctx))

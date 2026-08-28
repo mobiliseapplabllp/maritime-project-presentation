@@ -163,6 +163,7 @@ r.post('/instruments', requirePerm('legislation.manage'), w(legislation.create))
 r.get('/instruments/:id', requirePerm('legislation.view'), w(legislation.get));
 r.put('/instruments/:id', requirePerm('legislation.manage'), w(legislation.update));
 r.delete('/instruments/:id', requirePerm('legislation.manage'), w(legislation.remove));
+r.post('/instruments/:id/publish', requirePerm('legislation.approve'), w(legislation.publish));
 r.post('/instruments/:id/acknowledge', requirePerm('legislation.view'), w(legislation.acknowledge));
 
 // facilities & companies
@@ -246,6 +247,7 @@ r.post('/agents/decisions/:id/review', requirePerm('agents.review'), w(agents.re
 r.get('/agents/:agentId', requirePerm('agents.view'), w(agents.get));
 r.put('/agents/:agentId', requirePerm('agents.configure'), w(agents.configure));
 r.post('/agents/:agentId/suspend', requirePerm('agents.configure'), w(agents.suspend));
+r.post('/agents/:agentId/run', requirePerm('agents.configure'), w(agents.run));
 
 // port companies directory
 r.get('/companies', requirePerm('facilities.view'), w(companies.list));

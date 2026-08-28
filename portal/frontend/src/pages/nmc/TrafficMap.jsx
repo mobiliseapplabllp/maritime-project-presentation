@@ -11,7 +11,7 @@ import { hasPerm } from '../../utils/perms';
 import PageHeader from '../../components/common/PageHeader';
 import { fromNow } from '../../utils/format';
 
-/* Stylised Gulf-of-Kutch chart: linear projection over bbox 22.35–22.90 N, 69.20–69.95 E */
+/* Stylised gulf approach chart: linear projection over bbox 22.35–22.90 N, 69.20–69.95 E */
 const BBOX = { latMin: 22.35, latMax: 22.9, lonMin: 69.2, lonMax: 69.95 };
 const W = 980, H = 640;
 const X = (lon) => ((lon - BBOX.lonMin) / (BBOX.lonMax - BBOX.lonMin)) * W;
@@ -22,6 +22,7 @@ const ALERT_COLOR = { info: 'info', warning: 'warning', error: 'error' };
 
 export default function TrafficMap() {
   const [data, setData] = useState(null);
+  const [openCases, setOpenCases] = useState([]);
   const [selected, setSelected] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -29,7 +30,10 @@ export default function TrafficMap() {
   const mode = useSelector((s) => s.ui.mode);
   const dark = mode === 'dark';
 
-  const load = () => api.get('/tracking').then((r) => setData(r.data))
+  const load = () => Promise.all([
+    api.get('/tracking'),
+    api.get('/incidents', { params: { open: 'true', limit: 50 } }),
+  ]).then(([t, i]) => { setData(t.data); setOpenCases(i.data || []); })
     .catch((e) => dispatch(notify({ message: e.message, severity: 'error' })));
   useEffect(() => { load(); const t = setInterval(load, 60000); return () => clearInterval(t); }, []); // eslint-disable-line
 
@@ -43,7 +47,7 @@ export default function TrafficMap() {
   return (
     <>
       <PageHeader
-        icon={RadarRoundedIcon} iconColor="#0B4F8A" title="Live traffic picture" sub={`${data.positions.length} tracked targets · ${data.coverage}`}
+        icon={RadarRoundedIcon} iconColor="#0B4F8A" title="Live traffic picture" sub={`${data.positions.length} tracked targets · ${openCases.length} open incident${openCases.length === 1 ? '' : 's'} on the picture · ${data.coverage}`}
         actions={<Button size="small" startIcon={<RefreshRoundedIcon />} onClick={load}>Refresh</Button>}
       />
       <Grid container spacing={2}>
@@ -67,13 +71,13 @@ export default function TrafficMap() {
                     <text x={X(lon) + 4} y={H - 8} fontSize="10" fill={ink} fontFamily="IBM Plex Mono, monospace">{lon.toFixed(1)}°E</text>
                   </g>
                 ))}
-                {/* Kutch coastline (north) */}
+                {/* mainland coastline (north) */}
                 <path d={`M0,${Y(22.86)} C ${X(69.35)},${Y(22.83)} ${X(69.5)},${Y(22.88)} ${X(69.62)},${Y(22.84)} C ${X(69.7)},${Y(22.8)} ${X(69.66)},${Y(22.77)} ${X(69.7)},${Y(22.755)} L ${X(69.735)},${Y(22.75)} C ${X(69.8)},${Y(22.77)} ${X(69.9)},${Y(22.82)} ${W},${Y(22.85)} L ${W},0 L 0,0 Z`} fill={land} stroke={landLine} strokeWidth="2" />
                 {/* Navinal / port reclamation */}
                 <path d={`M ${X(69.685)},${Y(22.762)} L ${X(69.735)},${Y(22.758)} L ${X(69.74)},${Y(22.744)} L ${X(69.69)},${Y(22.742)} Z`} fill={landLine} opacity="0.85" />
-                <text x={X(69.7)} y={Y(22.79)} fontSize="12" fontWeight="700" fill={ink} fontFamily="Archivo, sans-serif">MUNDRA PORT</text>
-                <text x={X(69.36)} y={Y(22.8)} fontSize="11" fill={ink} fontFamily="Archivo, sans-serif" opacity="0.8">KUTCH</text>
-                <text x={X(69.42)} y={Y(22.47)} fontSize="11" fill={ink} fontFamily="Archivo, sans-serif" opacity="0.7">GULF OF KUTCH</text>
+                <text x={X(69.7)} y={Y(22.79)} fontSize="12" fontWeight="700" fill={ink} fontFamily="Archivo, sans-serif">REFERENCE PORT</text>
+                <text x={X(69.36)} y={Y(22.8)} fontSize="11" fill={ink} fontFamily="Archivo, sans-serif" opacity="0.8">MAINLAND</text>
+                <text x={X(69.42)} y={Y(22.47)} fontSize="11" fill={ink} fontFamily="Archivo, sans-serif" opacity="0.7">GULF APPROACHES</text>
                 {/* approach channel */}
                 <path d={`M ${X(69.715)},${Y(22.74)} L ${X(69.62)},${Y(22.55)} L ${X(69.52)},${Y(22.42)}`} stroke={dark ? '#57B0E3' : '#0B74B0'} strokeWidth="2.5" strokeDasharray="8 6" fill="none" opacity="0.6" />
                 <text x={X(69.55)} y={Y(22.47)} fontSize="10" fill={dark ? '#57B0E3' : '#0B74B0'} fontFamily="IBM Plex Mono, monospace" opacity="0.9">APPROACH CH.</text>
@@ -106,15 +110,39 @@ export default function TrafficMap() {
                     </g>
                   );
                 })}
+                {/* open incidents — the same picture the MRCC works from */}
+                {openCases.map((i) => {
+                  const lat = i.position?.lat ?? i.location?.lat;
+                  const lon = i.position?.lon ?? i.location?.lon;
+                  if (lat == null || lon == null) return null;
+                  if (lat < BBOX.latMin || lat > BBOX.latMax || lon < BBOX.lonMin || lon > BBOX.lonMax) return null;
+                  const hot = ['HIGH', 'CRITICAL'].includes(i.severity);
+                  const c = hot ? '#A33229' : i.severity === 'MEDIUM' ? '#9C6412' : '#4A6472';
+                  return (
+                    <g key={i._id} transform={`translate(${X(lon)},${Y(lat)})`} style={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/incidents/${i._id}`)}>
+                      {hot && <circle r="13" fill={c} opacity="0.14" />}
+                      <path d="M0,-7.5 L7,5.5 L-7,5.5 Z" fill="none" stroke={c} strokeWidth="2.2" strokeLinejoin="round" />
+                      <circle cy="1.6" r="1.3" fill={c} />
+                      <text x="10" y="4" fontSize="10" fontWeight="700" fill={c} fontFamily="IBM Plex Mono, monospace">{i.number}</text>
+                    </g>
+                  );
+                })}
               </svg>
             </Box>
             <Stack direction="row" spacing={1.5} sx={{ mt: 1, px: 0.5, flexWrap: 'wrap' }} useFlexGap>
-              {Object.entries({ MOORED: 'Moored', AT_ANCHOR: 'At anchor', UNDERWAY: 'Underway' }).map(([k, label]) => (
+              {Object.entries({ MOORED: 'Moored', AT_ANCHOR: 'At anchor', UNDERWAY: 'Underway', RESTRICTED: 'Restricted manoeuvrability' }).map(([k, label]) => (
                 <Stack key={k} direction="row" spacing={0.6} alignItems="center">
                   <Box sx={{ width: 10, height: 10, borderRadius: '2px', bgcolor: STATUS_COLOR[k] }} />
                   <Typography variant="caption" color="text.secondary">{label}</Typography>
                 </Stack>
               ))}
+              <Stack direction="row" spacing={0.6} alignItems="center">
+                <Box component="svg" viewBox="0 0 16 16" sx={{ width: 12, height: 12 }}>
+                  <path d="M8,2 L14.5,13.5 L1.5,13.5 Z" fill="none" stroke="#A33229" strokeWidth="2" strokeLinejoin="round" />
+                </Box>
+                <Typography variant="caption" color="text.secondary">Open incident (click to open the case)</Typography>
+              </Stack>
               <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto !important' }}>
                 Simulated AIS feed for demonstration — positions refresh every minute
               </Typography>

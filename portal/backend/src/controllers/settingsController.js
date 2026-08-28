@@ -20,7 +20,7 @@ const SECTIONS = {
   billing: {
     label: 'Billing & tax',
     fields: ['gstRate', 'placeOfSupply', 'sacCode', 'roundToRupee', 'creditNoteApproval'],
-    defaults: { gstRate: 18, placeOfSupply: 'Gujarat (24)', sacCode: '996751', roundToRupee: true, creditNoteApproval: true },
+    defaults: { gstRate: 18, placeOfSupply: 'Coastal Region (24)', sacCode: '996751', roundToRupee: true, creditNoteApproval: true },
   },
   notifications: {
     label: 'Notifications',
@@ -30,7 +30,7 @@ const SECTIONS = {
   smtp: {
     label: 'SMTP (outbound mail)',
     fields: ['host', 'port', 'secure', 'username', 'password', 'fromName', 'fromEmail', 'enabled'],
-    defaults: { host: '', port: 587, secure: true, username: '', password: '', fromName: 'Mundra Port Operations', fromEmail: 'noreply@mundraport.in', enabled: false },
+    defaults: { host: '', port: 587, secure: true, username: '', password: '', fromName: 'Maritime Operations Operations', fromEmail: 'noreply@maritime.example', enabled: false },
     secret: ['password'],
   },
   ai: {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Popper, Paper, Typography, Chip, Stack, Divider, Skeleton, Fade, Avatar, Button } from '@mui/material';
 import LaunchRoundedIcon from '@mui/icons-material/LaunchRounded';
 import api from '../../api/client';
-import { ADANI_GRADIENT } from '../../theme';
+import { BRAND_GRADIENT } from '../../theme';
 import { fromNow } from '../../utils/format';
 
 /* Teams-style entity hover card. Wrap any label:
@@ -72,7 +72,7 @@ export default function EntityHover({ type, id, children, underline = true }) {
               {card && !card.error && (
                 <>
                   <Box sx={{ px: 2, pt: 1.75, pb: 1.25, display: 'flex', gap: 1.5, alignItems: 'center' }}>
-                    <Avatar sx={{ width: 42, height: 42, fontSize: 15, fontWeight: 700, background: KIND_COLOR[card.kind] || ADANI_GRADIENT, color: '#fff' }}>
+                    <Avatar sx={{ width: 42, height: 42, fontSize: 15, fontWeight: 700, background: KIND_COLOR[card.kind] || BRAND_GRADIENT, color: '#fff' }}>
                       {initials(card.title)}
                     </Avatar>
                     <Box sx={{ minWidth: 0, flex: 1 }}>

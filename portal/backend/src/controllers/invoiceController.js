@@ -43,11 +43,11 @@ exports.generate = async (req, res) => {
   const totals = computeTotals(rawLines, gstRate);
   const agent = call.agentCode ? await Lookup.findOne({ category: 'agent', code: call.agentCode }).lean() : null;
   const doc = await Invoice.create({
-    number: await nextNumber(Invoice, 'number', `${settings.moduleGet('finance').invoicePrefix || 'MUN/INV'}/${new Date().getFullYear()}/`),
+    number: await nextNumber(Invoice, 'number', `${settings.moduleGet('finance').invoicePrefix || 'REF/INV'}/${new Date().getFullYear()}/`),
     portCall: call._id, vessel: call.vessel._id,
     billTo: {
       name: call.agentName || (agent && agent.label) || 'Master / Owners',
-      address: (agent && agent.meta && agent.meta.address) || 'Mundra, Kutch, Gujarat',
+      address: (agent && agent.meta && agent.meta.address) || 'Port District',
       gstin: (agent && agent.meta && agent.meta.gstin) || '',
     },
     lines: totals.lines, subtotal: totals.subtotal,

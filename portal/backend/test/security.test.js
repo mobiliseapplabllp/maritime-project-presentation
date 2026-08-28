@@ -10,7 +10,7 @@ const app = require('../server');
 const { connectDB } = require('../src/config/db');
 
 const login = async (email) => {
-  const res = await request(app).post('/api/auth/login').send({ email, password: 'Mundra@2026' });
+  const res = await request(app).post('/api/auth/login').send({ email, password: 'Demo@2026' });
   assert.equal(res.status, 200, `login failed for ${email}: ${res.text}`);
   return res.body.data;
 };
@@ -20,7 +20,7 @@ let admin;
 
 test.before(async () => {
   await connectDB();
-  admin = await login('admin@mundraport.in');
+  admin = await login('admin@maritime.example');
 });
 test.after(async () => { await mongoose.disconnect(); });
 
@@ -68,7 +68,7 @@ test('auth: forged and unsigned tokens are rejected', async () => {
 });
 
 test('auth: repeated failed logins throttle the identity (429)', async () => {
-  const email = 'throttle-probe@mundraport.in';
+  const email = 'throttle-probe@maritime.example';
   let last;
   for (let i = 0; i < 11; i += 1) {
     last = await request(app).post('/api/auth/login').send({ email, password: 'wrong' });
@@ -78,7 +78,7 @@ test('auth: repeated failed logins throttle the identity (429)', async () => {
 
 test('policy: admin password minimum length is enforced from settings', async () => {
   const res = await request(app).post('/api/users').set(auth(admin.token))
-    .send({ name: 'Weak Pwd', email: 'weak@mundraport.in', password: 'short', role: '64b000000000000000000000' });
+    .send({ name: 'Weak Pwd', email: 'weak@maritime.example', password: 'short', role: '64b000000000000000000000' });
   assert.equal(res.status, 400);
   assert.match(res.body.message, /at least \d+ characters/);
 });

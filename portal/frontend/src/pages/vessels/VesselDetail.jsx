@@ -371,7 +371,7 @@ export default function VesselDetail() {
               || !((registry.transcript.registry || {}).state)
               || (registry.transcript.registry || {}).state === 'UNREGISTERED') && (
               <Typography color="text.secondary" sx={{ fontSize: 13.5, maxWidth: 640 }}>
-                {v.name} has never been entered on the Indian register. A foreign-flagged ship calling at Mundra
+                {v.name} has never been entered on the Indian register. A foreign-flagged ship calling here
                 is on its own flag&apos;s register — its certificate of registry, and the statutory certificates
                 that hang off it, are issued by that administration and not by this one.
               </Typography>

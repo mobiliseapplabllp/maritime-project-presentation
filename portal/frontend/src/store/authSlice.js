@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const stored = (() => {
-  try { return JSON.parse(localStorage.getItem('mundra-session') || 'null'); } catch { return null; }
+  try { return JSON.parse(localStorage.getItem('maritime-session') || 'null'); } catch { return null; }
 })();
 
 const slice = createSlice({
@@ -10,15 +10,15 @@ const slice = createSlice({
   reducers: {
     setSession(state, { payload }) {
       state.user = payload.user; state.token = payload.token; state.refreshToken = payload.refreshToken;
-      try { localStorage.setItem('mundra-session', JSON.stringify(payload)); } catch { /* ignore */ }
+      try { localStorage.setItem('maritime-session', JSON.stringify(payload)); } catch { /* ignore */ }
     },
     updateUser(state, { payload }) {
       state.user = payload;
-      try { localStorage.setItem('mundra-session', JSON.stringify({ user: state.user, token: state.token, refreshToken: state.refreshToken })); } catch { /* ignore */ }
+      try { localStorage.setItem('maritime-session', JSON.stringify({ user: state.user, token: state.token, refreshToken: state.refreshToken })); } catch { /* ignore */ }
     },
     clearSession(state) {
       state.user = null; state.token = null; state.refreshToken = null;
-      try { localStorage.removeItem('mundra-session'); } catch { /* ignore */ }
+      try { localStorage.removeItem('maritime-session'); } catch { /* ignore */ }
     },
   },
 });

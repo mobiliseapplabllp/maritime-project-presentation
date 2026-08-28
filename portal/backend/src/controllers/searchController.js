@@ -42,7 +42,7 @@ exports.global = async (req, res) => {
     (n) => ({ id: n._id, label: `${n.refNo} — ${n.title}`, sub: n.status, to: '/legislation' }));
   add('facilities.view', 'licence', 'Licences',
     License.find({ $or: [{ licenseNo: rx }, { entityName: rx }] }).limit(LIMIT).select('licenseNo entityName status').lean(),
-    (l) => ({ id: l._id, label: l.licenseNo, sub: `${l.entityName} · ${l.status}`, to: '/licenses' }));
+    (l) => ({ id: l._id, label: l.licenseNo, sub: `${l.entityName} · ${l.status}`, to: '/facilities' }));
   add('users.view', 'user', 'Users',
     User.find({ $or: [{ name: rx }, { email: rx }] }).limit(LIMIT).select('name email designation').lean(),
     (u) => ({ id: u._id, label: u.name, sub: `${u.designation || ''} · ${u.email}`, to: '/admin/users' }));

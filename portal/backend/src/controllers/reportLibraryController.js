@@ -18,7 +18,7 @@ const dOnly = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digi
 const inr = (p) => `₹${nf.format(Math.round(p))}`;
 const ACTIVE = ['ANNOUNCED', 'CONFIRMED', 'AT_ANCHORAGE', 'BERTHED'];
 
-// Deterministic semidiurnal tide predictions in the Mundra range (springs ~5.4 m).
+// Deterministic semidiurnal tide predictions in the Harbour range (springs ~5.4 m).
 function tideTable(from, days = 7) {
   const rows = [];
   const base = new Date(from); base.setHours(0, 0, 0, 0);
@@ -52,7 +52,7 @@ async function berthingReport() {
   const atBerth = new Map(calls.filter((c) => c.status === 'BERTHED' && c.berth).map((c) => [c.berth.code, c]));
   const sections = [];
   sections.push({
-    heading: 'Tidal predictions — Mundra (next 7 days)',
+    heading: 'Tidal predictions — Harbour (next 7 days)',
     columns: [{ key: 'date', label: 'Date' }, { key: 'tides', label: 'Low / High water (IST · height)' }],
     rows: tideTable(new Date()),
   });

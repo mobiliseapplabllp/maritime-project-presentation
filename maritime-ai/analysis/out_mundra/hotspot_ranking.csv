@@ -1,11 +1,8 @@
 unit_id,unit_name,calls,cargo_mt,wait,occ,incidents,hi,injuries,dets,finds,inc_per_100,risk_score,jv
-SPM,Single Point Moorings,28,6013333,14.68,6.7,10,3,1,1,11,35.71,84.2,False
-CT4,CT-4 (ACMT JV),41,3932136,16.04,4.89,10,3,1,1,4,24.39,75.3,True
-MPT,Multipurpose Terminal,49,1451543,15.64,10.89,9,3,1,0,1,18.37,51.4,False
-AMCT,Adani Mundra Container Terminal,47,4302888,19.02,5.22,7,2,0,0,1,14.89,51.2,False
-CT3,CT-3 (AICT),63,5615736,16.13,3.72,10,3,1,0,7,15.87,50.2,False
-WBC,West Basin Coal Terminal,40,4561158,12.16,19.83,10,3,2,0,0,25.0,46.9,False
-LQB,Liquid Berths,32,1171939,14.32,5.19,7,2,1,0,1,21.88,42.6,False
-RRT,Ro-Ro Terminal,22,94174,16.54,4.82,4,1,1,0,1,18.18,37.8,False
-AMC2,AMCT-2,29,2677776,13.62,3.03,5,0,0,0,0,17.24,17.7,False
-MICT,MICT (DP World JV),42,4307520,16.82,4.91,3,0,0,0,0,7.14,17.0,True
+SPM,Single Point Moorings,24,5536128,15.21,6.05,11,5,4,0,0,45.83,60.0,False
+LQB,Liquid Berths,42,1516427,15.75,6.47,17,4,2,0,4,40.48,54.4,False
+MPT,Multipurpose Terminal,75,2259649,17.93,15.95,9,3,2,1,9,12.0,50.7,False
+CT3,CT-3 (AICT),36,2878848,17.36,4.18,10,2,2,0,3,27.78,44.7,False
+CT4,CT-4 (ACMT JV),57,5517168,14.13,3.21,16,7,2,0,1,28.07,41.6,True
+WBC,West Basin Coal Terminal,43,4826537,16.58,18.1,6,1,2,1,5,13.95,36.7,False
+RRT,Ro-Ro Terminal,20,88169,14.92,5.31,5,0,0,0,5,25.0,18.6,False

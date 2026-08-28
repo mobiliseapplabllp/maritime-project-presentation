@@ -27,7 +27,7 @@ function keyMaterial() {
   if (process.env.CERT_SIGNING_KEY) {
     privateKey = crypto.createPrivateKey(process.env.CERT_SIGNING_KEY);
   } else {
-    const secret = process.env.CERT_SIGNING_SECRET || process.env.JWT_SECRET || 'mundra-registry-demonstration-key';
+    const secret = process.env.CERT_SIGNING_SECRET || process.env.JWT_SECRET || 'maritime-registry-demonstration-key';
     const seed = crypto.createHash('sha256').update(secret).digest();
     privateKey = crypto.createPrivateKey({
       key: Buffer.concat([PKCS8_ED25519_PREFIX, seed]), format: 'der', type: 'pkcs8',

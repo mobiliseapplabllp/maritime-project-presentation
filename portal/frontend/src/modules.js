@@ -14,6 +14,7 @@ import CorporateFareRoundedIcon from '@mui/icons-material/CorporateFareRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import HubRoundedIcon from '@mui/icons-material/HubRounded';
 import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
+import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
 import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
 import WorkspacePremiumRoundedIcon from '@mui/icons-material/WorkspacePremiumRounded';
@@ -171,6 +172,18 @@ export const MODULES = [
         { to: '/masters', label: 'All Masters', icon: HubRoundedIcon, perm: 'masters.view', end: true },
         { to: '/masters/berths', label: 'Berths & Terminals', icon: AnchorRoundedIcon, perm: 'masters.view' },
         { to: '/masters/lookups', label: 'Raw Lookups', icon: ListAltRoundedIcon, perm: 'masters.view' },
+      ],
+    }],
+  },
+  {
+    key: 'agents', name: 'AI Agent Operations', short: 'AI Agents', color: '#75479C',
+    desc: 'Agent registry, autonomy and the AI decision register',
+    icon: SmartToyRoundedIcon, perm: 'agents.view', home: '/agents',
+    nav: [{
+      header: 'AI Agents',
+      items: [
+        { to: '/agents', label: 'Agent Operations', icon: SmartToyRoundedIcon, perm: 'agents.view' },
+        { to: '/agents/decisions', label: 'Decision Register', icon: FactCheckRoundedIcon, perm: 'agents.view' },
       ],
     }],
   },

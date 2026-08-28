@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Port companies directory — every organisation operating inside port limits:
 // shipping agents, terminal operators, stevedores, suppliers, yards, institutes.
 const companySchema = new mongoose.Schema({
-  code: { type: String, required: true, unique: true },      // KSA, MICT, SBL…
+  code: { type: String, required: true, unique: true },      // KSA, GTS, SBL…
   name: { type: String, required: true },
   types: { type: [String], default: [] },                    // SHIPPING_AGENCY, TERMINAL_OPERATOR, …
   category: { type: String, enum: ['AGENCY', 'TERMINAL_OPERATOR', 'SERVICE_PROVIDER', 'SUPPLIER', 'INSTITUTE'], default: 'SERVICE_PROVIDER' },
@@ -11,8 +11,8 @@ const companySchema = new mongoose.Schema({
   phone: { type: String, default: '' },
   email: { type: String, default: '' },
   address: { type: String, default: '' },
-  city: { type: String, default: 'Mundra' },
-  state: { type: String, default: 'Gujarat' },
+  city: { type: String, default: 'Harbour' },
+  state: { type: String, default: 'Coastal Region' },
   gstin: { type: String, default: '' },
   pan: { type: String, default: '' },
   status: { type: String, enum: ['ACTIVE', 'SUSPENDED', 'BLACKLISTED', 'INACTIVE'], default: 'ACTIVE' },

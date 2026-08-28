@@ -1,4 +1,4 @@
-/* Vector port panorama — dusk over a container terminal, in the Adani gradient.
+/* Vector port panorama — dusk over a container terminal, in the platform gradient.
  * Hand-drawn SVG (no external images can be licensed/fetched in this environment). */
 export default function PortScene({ style }) {
   return (

@@ -1,8 +1,8 @@
 {
  "generated_span": "2023-01..2026-07",
  "latest_month": "2026-07",
- "terminals": 10,
- "berths": 22,
- "unit_months": 1264,
+ "terminals": 7,
+ "berths": 16,
+ "unit_months": 956,
  "n_findings": 15
 }

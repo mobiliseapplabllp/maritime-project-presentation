@@ -19,3 +19,7 @@ portal/.env.*
 portal/deploy/certs/
 portal/deploy/certbot/
 portal/deploy/letsencrypt/
+
+# Word lock files
+~$*
+**/~$*

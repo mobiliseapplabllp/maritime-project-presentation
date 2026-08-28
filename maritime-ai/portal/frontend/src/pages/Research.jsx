@@ -122,9 +122,9 @@ function IntelFeed({ topic, runLabel }) {
 export function StateIntel() {
   return (
     <>
-      <PageHeader title="Mundra vs Major Ports"
-        sub="Daily AI research briefing: how Mundra compares with India's major ports — JNPT, Deendayal (Kandla), Chennai, Visakhapatnam and the rest — on traffic, turnaround, tariffs and expansion. Rankings, the good, the bad and the ugly, compiled from public statistics and industry press by the research agent." />
-      <IntelFeed topic="ports" runLabel="✦ Research now — Mundra vs major ports" />
+      <PageHeader title="Benchmark vs Major Ports"
+        sub="Daily AI research briefing: how this port compares with the major ports it is benchmarked against." />
+      <IntelFeed topic="ports" runLabel="✦ Research now — benchmark vs major ports" />
     </>
   );
 }
@@ -132,8 +132,8 @@ export function StateIntel() {
 export function RivalsIntel() {
   return (
     <>
-      <PageHeader title="APSEZ vs Port Operators"
-        sub="Daily AI research briefing: APSEZ's market position against Indian and global port operators — JSW Infrastructure, DP World, PSA and peers — concession wins, tenders, expansions and the day's news. Compiled from public sources by the research agent." />
+      <PageHeader title="Operator Benchmarks"
+        sub="Daily AI research briefing: the operator's market position against regional and global port operators." />
       <IntelFeed topic="rivals" runLabel="✦ Research now — operator watch" />
     </>
   );

@@ -48,7 +48,7 @@ export default function CompaniesPage() {
         { name: 'rating', label: 'Performance rating (0–5)', type: 'number' },
         { name: 'remarks', label: 'Remarks', type: 'multiline', cols: 12 },
       ]}
-      defaults={{ status: 'ACTIVE', city: 'Mundra', state: 'Gujarat' }}
+      defaults={{ status: 'ACTIVE', city: '', state: '' }}
       statsScope="facilities"
       deleteMessage={(row) => `Remove ${row?.name} from the directory? Their licences remain on record.`}
     />

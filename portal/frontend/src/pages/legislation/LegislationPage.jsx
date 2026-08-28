@@ -22,6 +22,13 @@ export default function LegislationPage() {
   useEffect(() => { api.get('/meta').then((r) => setMeta(r.data)).catch(() => {}); }, []);
 
   const uid = String(user?._id);
+  const publish = (row, after) => {
+    setBusy(true);
+    api.post(`/instruments/${row._id}/publish`)
+      .then((r) => { dispatch(notify('Put in force')); after?.(r.data); setRefresh((x) => x + 1); })
+      .catch((e) => dispatch(notify({ message: e.message, severity: 'error' })))
+      .finally(() => setBusy(false));
+  };
   const acknowledge = (row, after) => {
     setBusy(true);
     api.post(`/instruments/${row._id}/acknowledge`)
@@ -70,7 +77,7 @@ export default function LegislationPage() {
           { name: 'body', label: 'Full text', type: 'multiline', rows: 8, cols: 12 },
           { name: 'supersedes', label: 'Supersedes (ref no)' },
         ]}
-        defaults={{ status: 'IN_FORCE', issuedBy: 'Harbour Master, Mundra' }}
+        defaults={{ status: 'IN_FORCE', issuedBy: 'Harbour Master' }}
         toForm={(row) => ({ ...row, issuedDate: row.issuedDate?.slice(0, 10) || '', effectiveDate: row.effectiveDate?.slice(0, 10) || '' })}
       />
       <FormDrawer open={!!reading} title={reading?.refNo} subtitle={reading?.title} onClose={() => setReading(null)} width="75vw">
@@ -87,8 +94,29 @@ export default function LegislationPage() {
             <Typography sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, fontSize: 14.5 }}>
               {reading.body || 'Full text held in the document repository.'}
             </Typography>
+            <Box sx={{ mt: 3, p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
+              <Typography variant="subtitle2" gutterBottom>Publication governance</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: reading.status === 'DRAFT' ? 1.5 : 0 }}>
+                {reading.draftedByName
+                  ? <>Drafted by <b>{reading.draftedByName}</b>.</>
+                  : 'No drafter recorded.'}
+                {reading.approvedByName
+                  ? <> Put in force by <b>{reading.approvedByName}</b> on {fmtD(reading.approvedAt)}.</>
+                  : reading.status === 'DRAFT' ? ' Awaiting approval — it is not in force.' : ''}
+              </Typography>
+              {reading.status === 'DRAFT' && hasPerm(user, 'legislation.approve') && (
+                String(reading.draftedBy) === uid
+                  ? <Typography variant="body2" color="error.main">
+                      You drafted this instrument, so you cannot be the one to put it in force.
+                      It needs a second authorised officer.
+                    </Typography>
+                  : <Button variant="contained" disabled={busy} onClick={() => publish(reading, setReading)}>
+                      Put in force
+                    </Button>
+              )}
+            </Box>
             {reading.ackRequired && (
-              <Box sx={{ mt: 3, p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
+              <Box sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
                 <Typography variant="subtitle2" gutterBottom>Acknowledgment</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                   {(reading.acknowledgedBy || []).length} user(s) have acknowledged this instrument.

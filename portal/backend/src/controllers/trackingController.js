@@ -11,7 +11,7 @@ exports.picture = async (_req, res) => {
     positions: positions.filter((p) => p.vessel),
     alerts,
     generatedAt: new Date().toISOString(),
-    coverage: 'Terrestrial AIS (simulated feed) — Gulf of Kutch sector',
+    coverage: 'Terrestrial AIS (simulated feed) — Gulf of Coastal sector',
   });
 };
 

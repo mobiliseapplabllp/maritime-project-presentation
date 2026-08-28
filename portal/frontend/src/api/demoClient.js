@@ -7,7 +7,14 @@ import { answer, SUGGESTIONS } from '../ai/engine.js';
 const D = snap.collections;
 const DAY = 24 * 3600 * 1000;
 const readBy = new Set();
-const ackedInstruments = new Map();  // id -> extra acknowledgers
+const ackedInstruments = new Map();
+/** An instrument as it now reads, with the session's acknowledgments and approval applied. */
+const withInstrumentOverlay = (i) => ({
+  ...i,
+  acknowledgedBy: [...(i.acknowledgedBy || []), ...(ackedInstruments.get(String(i._id)) || [])],
+  ...(publishedInstruments.get(String(i._id)) || {}),
+});
+const publishedInstruments = new Map();  // id -> { status, approvedBy, approvedByName, approvedAt }
 let currentUser = { id: 'demo', name: 'You (demo)' };
 const ackedAlerts = new Set();
 const delay = (r) => new Promise((res) => setTimeout(() => res(r), 200 + Math.random() * 350));
@@ -248,7 +255,7 @@ function statsFor(scope) {
       ];
     }
     case 'legislation': {
-      const ins = (D.instruments || []).map((i) => ({ ...i, acknowledgedBy: [...(i.acknowledgedBy || []), ...(ackedInstruments.get(String(i._id)) || [])] }));
+      const ins = (D.instruments || []).map(withInstrumentOverlay);
       const pendingMine = ins.filter((i) => i.ackRequired && i.status === 'IN_FORCE' && !i.acknowledgedBy.some((a) => String(a.userId) === String(currentUser.id))).length;
       return [
         card('In force', ins.filter((i) => i.status === 'IN_FORCE').length, 'instruments'),
@@ -644,9 +651,11 @@ const LISTS = {
   }),
   '/audit': (p) => listOf(D.audit, p, { search: ['entityLabel'], filters: ['entity', 'action'], sort: '-at' }),
   '/seafarers': (p) => listOf((D.seafarers || []).map(decorateSeafarer), p, { search: ['name', 'cdcNo', 'indosNo'], filters: ['rank', 'status', 'nationality'], sort: 'name' }),
-  '/instruments': (p) => listOf((D.instruments || []).map((i) => ({ ...i, acknowledgedBy: [...(i.acknowledgedBy || []), ...(ackedInstruments.get(String(i._id)) || [])] })), p, { search: ['refNo', 'title', 'summary'], filters: ['type', 'category', 'status'], sort: '-issuedDate' }),
+  '/instruments': (p) => listOf((D.instruments || []).map(withInstrumentOverlay), p, { search: ['refNo', 'title', 'summary'], filters: ['type', 'category', 'status'], sort: '-issuedDate' }),
   '/licenses': (p) => listOf(D.licenses || [], p, { search: ['licenseNo', 'entityName'], filters: ['entityType', 'status'] }),
-  '/incidents': (p) => listOf((D.incidents || []).map(({ comms, documents, log, statusHistory, tasks, ...i }) => ({
+  '/incidents': (p) => listOf((D.incidents || [])
+    .filter((i) => p.open !== 'true' || !['RESOLVED', 'CLOSED'].includes(i.status))
+    .map(({ comms, documents, log, statusHistory, tasks, ...i }) => ({
     ...i,
     vessel: i.vessel ? pickFields(maps.vessels.get(String(i.vessel)), ['name', 'imo']) : null,
     berth: i.berth ? pickFields(maps.berths.get(String(i.berth)), ['code', 'terminal']) : null,
@@ -662,8 +671,8 @@ const LISTS = {
   '/services/requests': (p) => listOf(D.serviceRequests || [], p, {
     search: ['requestNo', 'serviceName', 'subjectLabel'], filters: ['status', 'serviceCode', 'subjectKind', 'domain'], sort: '-createdAt',
   }),
-  '/agents/decisions': (p) => listOf(D.aiDecisions || [], p, {
-    search: ['agentId', 'summary'], filters: ['agentId', 'action', 'outcome'], sort: '-at',
+  '/agents/decisions': (p) => listOf((D.aiDecisions || []).map((d) => ({ ...d, ...(decisionReviews.get(String(d._id)) || {}) })), p, {
+    search: ['agentId', 'summary'], filters: ['agentId', 'action', 'disposition'], sort: '-at',
   }),
 };
 
@@ -799,7 +808,7 @@ function detail(url) {
   if ((m = url.match(/^\/instruments\/([a-f0-9]{24})$/))) {
     const ins = maps.instruments.get(m[1]);
     if (!ins) throw new Error('Instrument not found');
-    return { ...clone(ins), acknowledgedBy: [...(ins.acknowledgedBy || []), ...(ackedInstruments.get(m[1]) || [])] };
+    return withInstrumentOverlay(clone(ins));
   }
   if ((m = url.match(/^\/incidents\/([a-f0-9]{24})$/))) {
     const inc = maps.incidents.get(m[1]);
@@ -1154,15 +1163,15 @@ const DEMO_REPORT_CATALOG = [
 ];
 
 const DEMO_MODULE_DEFAULTS = {
-  ops: { vcnPrefix: 'MUN', anchorageAlertHrs: 24, defaultTugsUnder250m: 2, defaultTugsOver250m: 3, scheduleWindowDays: 5, channelSpeedLimitKn: 8, aisGapAlertMin: 30, anchorDriftNm: 0.2, zoneEntryWatch: true },
+  ops: { vcnPrefix: 'REF', anchorageAlertHrs: 24, defaultTugsUnder250m: 2, defaultTugsOver250m: 3, scheduleWindowDays: 5, channelSpeedLimitKn: 8, aisGapAlertMin: 30, anchorDriftNm: 0.2, zoneEntryWatch: true },
   ships: { certExpiringDays: 30, dryDockReminderDays: 60, riskRefreshMinutes: 30 },
   crew: { medicalExpiringDays: 45, minRestHours: 10, cocVerifyOnSignOn: true },
   legis: { ackRequiredDefault: false, ackReminderDays: 7, showSupersededDays: 365 },
   incidents: { mttaTargetMin: 30, mttrTargetHrs: 24, autoNotifySeverity: 'HIGH', reopenWindowDays: 30, injuryReportHrs: 24 },
   inspect: { findingDueDays: 14, detentionThreshold: 1, passScorePct: 80, requireEvidencePhotos: false },
   facil: { licenceValidityYears: 2, auditIntervalMonths: 12, renewalReminderDays: 90 },
-  finance: { invoicePrefix: 'MUN/INV', paymentTermsDays: 30, overdueReminderDays: 7, roundTotalsToRupee: true },
-  mis: { defaultPeriodMonths: 12, exportFooter: 'Generated by Mundra Port Operations Portal' },
+  finance: { invoicePrefix: 'REF/INV', paymentTermsDays: 30, overdueReminderDays: 7, roundTotalsToRupee: true },
+  mis: { defaultPeriodMonths: 12, exportFooter: 'Generated by Maritime Operations Portal' },
   masters: { allowHardDelete: false },
   admin: { sessionTimeoutMin: 60, passwordMinLength: 8, auditRetentionDays: 730 },
 };
@@ -1170,9 +1179,9 @@ const DEMO_MODULE_DEFAULTS = {
 const DEMO_SETTINGS = {
   _sections: { org: 'Organisation profile', operations: 'Operations', billing: 'Billing & tax', notifications: 'Notifications', smtp: 'SMTP (outbound mail)', ai: 'AI assistant' },
   operations: { workingHours: '24×365', pilotBoardingGround: '3 NM SE of breakwaters', vhfWorkingChannel: 'Ch 12', marsecLevel: 1, monsoonMode: false },
-  billing: { gstRate: 18, placeOfSupply: 'Gujarat (24)', sacCode: '996751', roundToRupee: true, creditNoteApproval: true },
+  billing: { gstRate: 18, placeOfSupply: 'Port District (24)', sacCode: '996751', roundToRupee: true, creditNoteApproval: true },
   notifications: { certExpiryDigest: true, incidentPush: true, invoiceOverdueDigest: true, digestHourIst: 8 },
-  smtp: { host: 'smtp.mundraport.example.in', port: 587, secure: true, username: 'portal-mailer', password: '••••1234', fromName: 'Mundra Port Operations', fromEmail: 'noreply@mundraport.in', enabled: true },
+  smtp: { host: 'smtp.maritime.example', port: 587, secure: true, username: 'portal-mailer', password: '••••1234', fromName: 'Maritime Operations', fromEmail: 'noreply@maritime.example', enabled: true },
   ai: { enabled: true, provider: 'anthropic', model: 'claude-opus-5', apiKey: '••••demo', temperature: 0.2, groundedOnly: true, dailyTokenBudget: 500000 },
 };
 
@@ -1190,7 +1199,7 @@ function demoRunReport(key) {
       .sort((a, b) => new Date(b.atd) - new Date(a.atd));
     out.subtitle = 'Daily marine report — tide, alongside, sailed and expected traffic';
     out.sections = [
-      sect('Tidal predictions — Mundra (next 7 days)', [col('date', 'Date'), col('tides', 'Low / High water (IST · height)')], demoTideTable(new Date())),
+      sect('Tidal predictions (next 7 days)', [col('date', 'Date'), col('tides', 'Low / High water (IST · height)')], demoTideTable(new Date())),
       sect('Vessels at berth', [col('berth', 'Berth'), col('terminal', 'Terminal'), col('vcn', 'VCN'), col('vessel', 'Vessel name'), col('loa', 'LOA (m)', 'right'), col('agent', 'Agent'), col('cargo', 'Cargo / service'), col('draft', 'Draft FWD/AFT'), col('atb', 'Actual berthing'), col('etd', 'ETS')],
         D.berths.slice().sort((a, b) => (a.code < b.code ? -1 : 1)).map((b) => {
           const c = atBerth.get(b.code);
@@ -1558,7 +1567,7 @@ function demoSearch(q) {
   push('notice', 'Notices & circulars', (D.instruments || []).filter((n) => rx.test(n.refNo) || rx.test(n.title)).sort((a, b) => new Date(b.issuedDate) - new Date(a.issuedDate))
     .map((n) => ({ id: n._id, label: `${n.refNo} — ${n.title}`, sub: n.status, to: '/legislation' })));
   push('licence', 'Licences', (D.licenses || []).filter((l) => rx.test(l.licenseNo) || rx.test(l.entityName))
-    .map((l) => ({ id: l._id, label: l.licenseNo, sub: `${l.entityName} · ${l.status}`, to: '/licenses' })));
+    .map((l) => ({ id: l._id, label: l.licenseNo, sub: `${l.entityName} · ${l.status}`, to: '/facilities' })));
   push('user', 'Users', D.users.filter((u) => rx.test(u.name) || rx.test(u.email))
     .map((u) => ({ id: u._id, label: u.name, sub: `${u.designation || ''} · ${u.email}`, to: '/admin/users' })));
   return { groups, q };
@@ -2068,10 +2077,23 @@ function demoBerthDowntime(params) {
   };
 }
 
+
+/* A3 — agent governance in the demo build. Configuration changes and reviews are
+ * held in memory for the session so the console behaves as it does live; the
+ * decision register itself stays append-only — a review adds a record, it never
+ * edits one. */
+const agentEdits = new Map();      // agentId -> { autonomyLevel, confidenceThreshold, enabled, suspended, ... }
+const decisionReviews = new Map(); // decisionId -> { disposition, reviewedBy, reviewedAt, overrideReason }
+const agentOverride = (id) => agentEdits.get(id) || {};
+const agreement = (a) => (a.stats && a.stats.decisions
+  ? Math.round(((a.stats.decisions - (a.stats.overridden || 0)) / a.stats.decisions) * 1000) / 10
+  : null);
+
 const READ_ONLY = 'Read-only demo — CRUD, workflow transitions and billing run in the full portal (see the repository README)';
 
 const demo = {
   async get(url, config = {}) {
+    let m;
     await delay();
     const params = (config && config.params) || {};
     if (url === '/risk/scores') return { success: true, data: clone(snap.risk?.scores || []), meta: { weights: snap.risk?.weights, computedAt: snap.generatedAt } };
@@ -2179,7 +2201,23 @@ const demo = {
     if (url === '/services/catalogue') return { success: true, data: clone(snap.services?.catalogue || {}) };
     if (url === '/services/dashboard') return { success: true, data: clone(snap.services?.dashboard || {}) };
     if (url === '/agents/dashboard') return { success: true, data: clone(snap.agents?.dashboard || {}) };
-    if (url === '/agents') return { success: true, data: clone(D.agentConfigs || []), meta: { total: (D.agentConfigs || []).length } };
+    if (url === '/agents') {
+      const rows = (D.agentConfigs || []).map((a) => ({ ...clone(a), ...agentOverride(a.agentId), agreementRate: agreement(a) }));
+      return { success: true, data: rows, meta: {
+        total: rows.length,
+        active: rows.filter((a) => a.enabled && !a.suspended).length,
+        suspended: rows.filter((a) => a.suspended).length,
+        autonomous: rows.filter((a) => a.autonomyLevel === 'AUTONOMOUS' && !a.suspended).length,
+      } };
+    }
+    if ((m = url.match(/^\/agents\/([a-zA-Z0-9_-]+)$/)) && m[1] !== 'decisions' && m[1] !== 'dashboard') {
+      const a = (D.agentConfigs || []).find((x) => x.agentId === m[1]);
+      if (!a) throw new Error('Agent not found');
+      const recent = (D.aiDecisions || []).filter((d) => d.agentId === m[1])
+        .sort((x, y) => new Date(y.at) - new Date(x.at)).slice(0, 20);
+      return { success: true, data: { ...clone(a), ...agentOverride(m[1]), agreementRate: agreement(a),
+        recentDecisions: clone(recent) } };
+    }
     const d = detail(url);
     if (d !== undefined) return { success: true, data: d };
     if (LISTS[url]) { const r = LISTS[url](params); return { success: true, ...r }; }
@@ -2191,7 +2229,7 @@ const demo = {
     let m;
     if (url === '/auth/login') {
       const user = D.users.find((u) => u.email === String(body.email || '').toLowerCase().trim());
-      if (!user || body.password !== 'Mundra@2026') throw new Error('Incorrect email or password');
+      if (!user || body.password !== 'Demo@2026') throw new Error('Incorrect email or password');
       const role = maps.roles.get(String(user.role));
       currentUser = { id: String(user._id), name: user.name };
       return { success: true, data: {
@@ -2205,6 +2243,25 @@ const demo = {
       await delay();
       const grounded = await answer({ message: body.message, data: engineData });
       return { success: true, data: { ...grounded, engine: 'grounded demo engine (in-browser)' } };
+    }
+    if ((m = url.match(/^\/instruments\/([a-f0-9]{24})\/publish$/))) {
+      /* Maker-checker, mirrored exactly: the permission is necessary but not
+       * sufficient — an instrument cannot be put in force by whoever drafted
+       * it, and the status cannot be walked backwards. */
+      const inst = (D.instruments || []).find((x) => String(x._id) === m[1]);
+      if (!inst) throw new Error('Instrument not found');
+      if (inst.status !== 'DRAFT') throw new Error(inst.status === 'IN_FORCE'
+        ? 'The instrument is already in force'
+        : `A ${String(inst.status).replace(/_/g, ' ').toLowerCase()} instrument is final and cannot be changed`);
+      if (!inst.draftedBy) throw new Error('The instrument records no drafter, so separation of duties cannot be established');
+      if (String(inst.draftedBy) === String(currentUser.id)) {
+        throw new Error('An instrument cannot be approved by the person who drafted it');
+      }
+      publishedInstruments.set(m[1], {
+        status: 'IN_FORCE', approvedBy: String(currentUser.id), approvedByName: currentUser.name,
+        approvedAt: new Date().toISOString(),
+      });
+      return { success: true, data: await this.get(`/instruments/${m[1]}`).then((r) => r.data) };
     }
     if ((m = url.match(/^\/instruments\/([a-f0-9]{24})\/acknowledge$/))) {
       const cur = ackedInstruments.get(m[1]) || [];
@@ -2220,10 +2277,74 @@ const demo = {
         detail: `Would connect to ${s3.host}:${s3.port} (${s3.secure ? 'TLS' : 'plain'}) as ${s3.username} and send from "${s3.fromName}" <${s3.fromEmail}>. Outbound relay is disabled in the demo.`,
         checkedAt: new Date().toISOString() } };
     }
+    if ((m = url.match(/^\/agents\/([a-zA-Z0-9_-]+)\/run$/))) {
+      /* A run writes new judgements to the append-only register, which the
+       * browser-only build has no database to write to. The decisions this
+       * agent already produced against live records are in the register and
+       * can be read there — the run itself belongs to the full platform. */
+      const a = (D.agentConfigs || []).find((x) => x.agentId === m[1]);
+      if (!a) throw new Error('Agent not found');
+      const mine = (D.aiDecisions || []).filter((d) => d.agentId === m[1]);
+      throw new Error(`Read-only demo — ${a.name} cannot record new decisions here. `
+        + `Its ${mine.length} decision(s) from the last run against live records are in the decision register.`);
+    }
+    if ((m = url.match(/^\/agents\/([a-zA-Z0-9_-]+)\/suspend$/)))  {
+      const a = (D.agentConfigs || []).find((x) => x.agentId === m[1]);
+      if (!a) throw new Error('Agent not found');
+      if (!body.reason) throw new Error('Suspending an agent requires a written reason');
+      const prev = agentEdits.get(m[1]) || {};
+      agentEdits.set(m[1], { ...prev, suspended: !!body.suspended,
+        suspendedReason: body.suspended ? body.reason : '', suspendedBy: currentUser.name,
+        suspendedAt: body.suspended ? new Date().toISOString() : null,
+        changes: [...(prev.changes || a.changes || []), { field: 'suspended', from: String(!!(prev.suspended ?? a.suspended)),
+          to: String(!!body.suspended), at: new Date().toISOString(), by: currentUser.name, reason: body.reason }] });
+      return { success: true, data: { ...clone(a), ...agentEdits.get(m[1]) } };
+    }
+    if ((m = url.match(/^\/agents\/decisions\/([a-f0-9]{24})\/review$/))) {
+      const d = (D.aiDecisions || []).find((x) => String(x._id) === m[1]);
+      if (!d) throw new Error('Decision not found');
+      if (!body.reason) throw new Error('A review decision needs a reason on the record');
+      decisionReviews.set(m[1], {
+        disposition: body.decision === 'OVERRIDE' ? 'OVERRIDDEN' : 'APPROVED_BY_HUMAN',
+        reviewedBy: currentUser.name, reviewedAt: new Date().toISOString(),
+        overrideReason: body.decision === 'OVERRIDE' ? body.reason : '',
+      });
+      return { success: true, data: { ...clone(d), ...decisionReviews.get(m[1]) } };
+    }
     if (url === '/notifications/read-all') { D.notifications.forEach((n) => readBy.add(String(n._id))); return { success: true, data: { read: true } }; }
     throw new Error(READ_ONLY);
   },
-  async put() { throw new Error(READ_ONLY); },
+  async put(url, body = {}) {
+    await delay();
+    let m;
+    if ((m = url.match(/^\/agents\/([a-zA-Z0-9_-]+)$/))) {
+      const a = (D.agentConfigs || []).find((x) => x.agentId === m[1]);
+      if (!a) throw new Error('Agent not found');
+      const LEVELS = ['SUPERVISED', 'ASSISTED', 'AUTONOMOUS'];
+      const prev = agentEdits.get(m[1]) || {};
+      const cur = { ...a, ...prev };
+      const changes = [...(prev.changes || a.changes || [])];
+      const now = new Date().toISOString();
+      if (body.autonomyLevel && body.autonomyLevel !== cur.autonomyLevel) {
+        if (LEVELS.indexOf(body.autonomyLevel) > LEVELS.indexOf(cur.autonomyLevel) && !body.reason) {
+          throw new Error("Raising an agent's autonomy requires a written reason");
+        }
+        changes.push({ field: 'autonomyLevel', from: cur.autonomyLevel, to: body.autonomyLevel, at: now, by: currentUser.name, reason: body.reason || '' });
+      }
+      if (body.confidenceThreshold !== undefined && body.confidenceThreshold !== cur.confidenceThreshold) {
+        changes.push({ field: 'confidenceThreshold', from: String(cur.confidenceThreshold), to: String(body.confidenceThreshold), at: now, by: currentUser.name, reason: body.reason || '' });
+      }
+      if (body.enabled !== undefined && body.enabled !== cur.enabled) {
+        changes.push({ field: 'enabled', from: String(cur.enabled), to: String(body.enabled), at: now, by: currentUser.name, reason: body.reason || '' });
+      }
+      agentEdits.set(m[1], { ...prev,
+        autonomyLevel: body.autonomyLevel ?? cur.autonomyLevel,
+        confidenceThreshold: body.confidenceThreshold ?? cur.confidenceThreshold,
+        enabled: body.enabled ?? cur.enabled, changes });
+      return { success: true, data: { ...clone(a), ...agentEdits.get(m[1]) } };
+    }
+    throw new Error(READ_ONLY);
+  },
   async delete() { throw new Error(READ_ONLY); },
 };
 

@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
-import { ADANI_GRADIENT } from '../../theme';
+import { BRAND_GRADIENT } from '../../theme';
 import { fmtD } from '../../utils/format';
 import { licLabel } from './FacilitiesList';
 
@@ -33,8 +33,8 @@ export default function CertificateDialog({ license, open, onClose }) {
       </DialogTitle>
       <DialogContent dividers>
         <Box id="cert-print-area" sx={{ border: '2px solid #0A2239', borderRadius: 2, overflow: 'hidden' }}>
-          <Box sx={{ background: ADANI_GRADIENT, px: 3, py: 2.5, color: '#fff' }}>
-            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 13, letterSpacing: '0.08em' }}>MUNDRA PORT — OPERATIONS PORTAL</Typography>
+          <Box sx={{ background: BRAND_GRADIENT, px: 3, py: 2.5, color: '#fff' }}>
+            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 13, letterSpacing: '0.08em' }}>MARITIME OPERATIONS — OPERATIONS PORTAL</Typography>
             <Typography sx={{ fontSize: 20, fontWeight: 800, mt: 0.5 }}>Certificate of Licence</Typography>
           </Box>
           <Box sx={{ p: 3, display: 'flex', gap: 3 }}>
@@ -59,7 +59,7 @@ export default function CertificateDialog({ license, open, onClose }) {
           <Divider />
           <Box sx={{ px: 3, py: 1.5, bgcolor: '#F4F7F7', display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="caption" color="text.secondary">Verify at {window.location.origin}/verify/{license.licenseNo}</Typography>
-            <Typography variant="caption" color="text.secondary">Issued by Mundra Port Administration</Typography>
+            <Typography variant="caption" color="text.secondary">Issued by the Port Administration</Typography>
           </Box>
         </Box>
       </DialogContent>

@@ -5,7 +5,7 @@
  * read against, the port-state-control regime, the tax and currency
  * conventions, and the working week. Selecting one is a setting, not a release.
  *
- * This deployment is Mundra Port, India. India is the only profile registered
+ * This deployment is Maritime Operations, India. India is the only profile registered
  * here, deliberately — a demonstration should carry no data belonging to a
  * jurisdiction it is not for. Adding another administration means adding a
  * profile object to PROFILES and nothing else; the mechanism is the deliverable,
@@ -20,10 +20,10 @@ const INDIA = {
   code: 'IN',
   name: 'India',
   authority: 'Directorate General of Shipping',
-  regulatorNote: 'Merchant Shipping Act 1958; Indian Ports Act 1908. Mundra is a private port under the Gujarat Maritime Board, so tariffs are commercially set rather than TAMP-regulated.',
+  regulatorNote: 'Merchant Shipping Act 1958; Indian Ports Act 1908. Harbour is a private port under the Coastal Region Maritime Board, so tariffs are commercially set rather than TAMP-regulated.',
   pscRegime: { code: 'IOMOU', name: 'Indian Ocean MoU' },
   currency: { code: 'INR', symbol: '₹', locale: 'en-IN', grouping: 'lakh-crore' },
-  tax: { name: 'GST', ratePct: 18, registrationLabel: 'GSTIN', invoicePrefix: 'MUN/INV' },
+  tax: { name: 'GST', ratePct: 18, registrationLabel: 'GSTIN', invoicePrefix: 'REF/INV' },
   workingWeek: { weekend: ['Sunday'], note: 'Sunday weekend; national and state holidays from the holiday master' },
   /* B1 — the registry constants the ship-registration engine reads. Every one
    * of these is a statutory number rather than a design choice, which is why
@@ -37,19 +37,19 @@ const INDIA = {
     // Ports at which registration is made. Bombay, Calcutta and Madras are named
     // in s.20; the remainder were declared ports of registry by notification.
     portsOfRegistry: [
-      { code: 'KDL', name: 'Kandla', state: 'Gujarat', default: true },
+      { code: 'KDL', name: 'Kandla', state: 'Coastal Region', default: true },
       { code: 'MUM', name: 'Mumbai', state: 'Maharashtra' },
       { code: 'KOL', name: 'Kolkata', state: 'West Bengal' },
       { code: 'CHN', name: 'Chennai', state: 'Tamil Nadu' },
       { code: 'KOC', name: 'Kochi', state: 'Kerala' },
       { code: 'MRM', name: 'Mormugao', state: 'Goa' },
       { code: 'VTZ', name: 'Visakhapatnam', state: 'Andhra Pradesh' },
-      { code: 'JAM', name: 'Jamnagar', state: 'Gujarat' },
+      { code: 'JAM', name: 'Jamnagar', state: 'Coastal Region' },
       { code: 'PRP', name: 'Paradip', state: 'Odisha' },
       { code: 'PBL', name: 'Port Blair', state: 'Andaman & Nicobar Islands' },
       { code: 'TUT', name: 'Tuticorin', state: 'Tamil Nadu' },
     ],
-    // Mundra sits in the Kandla registration district, so an application lodged
+    // Harbour sits in the Kandla registration district, so an application lodged
     // here defaults to that registrar.
     defaultPort: 'KDL',
     // Property in a ship is divided into shares, and only so many persons may be

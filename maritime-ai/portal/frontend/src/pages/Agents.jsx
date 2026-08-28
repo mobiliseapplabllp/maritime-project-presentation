@@ -286,7 +286,7 @@ export default function Agents() {
       <div className="asst-head-row">
         <PageHeader
           title="Agent Operations"
-          sub="A team of autonomous agents keeps the Mundra Port operations picture fresh and actionable — rebuilding the panels each cycle from the port snapshot, watching anchorage waits per terminal, auditing marine service, planning berth and recovery actions, and briefing leadership. They run every 2 hours on their own; you can also run a cycle live below."
+          sub="A team of autonomous agents keeps the operations picture fresh and actionable — rebuilding the panels each cycle from the port snapshot, watching anchorage waits per terminal, auditing marine service, planning berth and recovery actions, and briefing leadership. They run every 2 hours on their own; you can also run a cycle live below."
         />
         <div className="agents-actions">
           <button className="btn" onClick={() => setShowCfg((v) => !v)}>

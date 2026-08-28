@@ -58,6 +58,8 @@ const CompaniesPage = lazy(() => import('./pages/facilities/CompaniesPage'));
 const CompanyDetail = lazy(() => import('./pages/facilities/CompanyDetail'));
 const ModuleSettingsPage = lazy(() => import('./pages/ModuleSettingsPage'));
 const RiskRegister = lazy(() => import('./pages/risk/RiskRegister'));
+const AgentOperations = lazy(() => import('./pages/agents/AgentOperations'));
+const DecisionRegister = lazy(() => import('./pages/agents/DecisionRegister'));
 const TargetingPage = lazy(() => import('./pages/risk/TargetingPage'));
 const MisReport = lazy(() => import('./pages/mis/MisReport'));
 import { StatePage } from './components/common/StatePage';
@@ -132,6 +134,8 @@ export default function App() {
           <Route path="/incidents" element={<Guard perm="incidents.view"><IncidentsRegister /></Guard>} />
           <Route path="/incidents/:id" element={<Guard perm="incidents.view"><IncidentCase /></Guard>} />
           <Route path="/incidents/risk-matrix" element={<Guard perm="incidents.view"><RiskMatrix /></Guard>} />
+          <Route path="/agents" element={<Guard perm="agents.view"><AgentOperations /></Guard>} />
+          <Route path="/agents/decisions" element={<Guard perm="agents.view"><DecisionRegister /></Guard>} />
           <Route path="/risk" element={<Guard perm="risk.view"><RiskRegister /></Guard>} />
           <Route path="/risk/targeting" element={<Guard perm="risk.view"><TargetingPage /></Guard>} />
           <Route path="/mis" element={<Guard perm="reports.view"><MisReport /></Guard>} />

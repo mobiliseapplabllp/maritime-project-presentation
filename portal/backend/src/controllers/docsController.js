@@ -38,7 +38,7 @@ exports.page = (req, res) => {
 
   res.type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>API reference — Mundra Port Operations Portal</title>
+<title>API reference — Maritime Operations Portal</title>
 <style>
 :root{--bg:#fbfcfd;--panel:#fff;--ink:#12212b;--muted:#5b7180;--rule:#dde5ea;--accent:#0a6b74}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1a22;--panel:#132530;--ink:#e8f0f4;--muted:#93aab8;--rule:#22404f;--accent:#4fb3bd}}
@@ -66,7 +66,7 @@ a{color:var(--accent)}
 footer{color:var(--muted);font-size:13px;margin-top:26px}
 </style></head><body><div class="wrap">
 <h1>API reference</h1>
-<p class="sub">Mundra Port Operations Portal · generated from the route table, so it cannot drift from the running service.
+<p class="sub">Maritime Operations Portal · generated from the route table, so it cannot drift from the running service.
 Machine-readable: <a href="/api/openapi.json">openapi.json</a></p>
 <div class="stats">
   <div class="stat"><b>${s.endpoints}</b><span>Endpoints</span></div>

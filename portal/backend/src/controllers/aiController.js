@@ -137,7 +137,7 @@ async function polishWithClaude(message, grounded) {
     const response = await client.messages.create({
       model: aiCfg.model || 'claude-opus-5',
       max_tokens: 1024,
-      system: 'You are the Mundra Port operations assistant inside a port management system. '
+      system: 'You are the Maritime Operations operations assistant inside a port management system. '
         + 'Answer ONLY from the grounded facts provided — never invent vessels, numbers or records. '
         + 'Be concise and operational. Keep any markdown links from the grounding.',
       messages: [{

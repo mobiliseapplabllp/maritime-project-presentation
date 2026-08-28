@@ -28,14 +28,14 @@ import { StateIntel, RivalsIntel } from "./pages/Research.jsx";
 const NAV = [
   { section: "Overview" },
   { to: "/", label: "Dashboard", ic: "▚", end: true },
-  { to: "/assistant", label: "Sagar Intelligence", ic: "✦" },
+  { to: "/assistant", label: "Maritime Intelligence", ic: "✦" },
   { to: "/voice", label: "Voice Mode", ic: "◉" },
   { to: "/agents", label: "Agent Operations", ic: "⬡" },
   { to: "/districts", label: "Port Explorer", ic: "▤" },
   { to: "/year", label: "Year Gone By", ic: "◷" },
   { to: "/facts", label: "Interesting Facts", ic: "✧" },
-  { to: "/intel/state", label: "Mundra vs Major Ports", ic: "⚖" },
-  { to: "/intel/rivals", label: "APSEZ vs Port Operators", ic: "♟" },
+  { to: "/intel/state", label: "Benchmark vs Major Ports", ic: "⚖" },
+  { to: "/intel/rivals", label: "Operator Benchmarks", ic: "♟" },
   { section: "Deep Analysis" },
   { to: "/sec/assets", label: "Fleet & Vessels", ic: "▦" },
   { to: "/sec/complaints", label: "Incidents", ic: "▲" },
@@ -70,12 +70,12 @@ function groupNav(flat) {
 }
 
 const TITLES = {
-  "/": "Dashboard", "/assistant": "Sagar Intelligence", "/voice": "Voice Mode",
+  "/": "Dashboard", "/assistant": "Maritime Intelligence", "/voice": "Voice Mode",
   "/agents": "Agent Operations", "/anomalies": "Operations Audit",
   "/validation": "Benchmark vs Major Ports", "/hotspots": "Terminal Hotspots",
   "/predictions": "Early Warning", "/districts": "Port Explorer",
   "/year": "Year Gone By", "/facts": "Interesting Facts",
-  "/intel/state": "Mundra vs Major Ports", "/intel/rivals": "APSEZ vs Port Operators",
+  "/intel/state": "Benchmark vs Major Ports", "/intel/rivals": "Operator Benchmarks",
   "/methodology": "Data & Methodology",
   "/data": "Data Catalogue",
   "/sec/assets": "Fleet & Vessels — Deep Analysis", "/sec/complaints": "Incidents — Deep Analysis",
@@ -134,9 +134,9 @@ function Shell() {
   const [openSection, setOpenSection] = useState(() => routeSection || navGroups[0]?.section);
   React.useEffect(() => { if (routeSection) setOpenSection(routeSection); }, [routeSection]);
 
-  const title = t(TITLES[loc.pathname] || "Sagar Drishti");
+  const title = t(TITLES[loc.pathname] || "Maritime AI Analytics");
   const initials = (user?.name || "U").split(" ").map((w) => w[0]).slice(0, 2).join("");
-  const orgTag = user?.persona === "authority" ? "Mundra Port (Authority)" : "Terminal Operator";
+  const orgTag = user?.persona === "authority" ? "Maritime Authority" : "Terminal Operator";
 
   return (
     <DrawerProvider>
@@ -145,8 +145,8 @@ function Shell() {
         <div className="sb-brand">
           <div className="mark">◈</div>
           <div>
-            <div className="t">Sagar Drishti</div>
-            <div className="s">Mundra Port · Kutch, Gujarat</div>
+            <div className="t">Maritime AI Analytics</div>
+            <div className="s">Reference deployment</div>
           </div>
         </div>
         <nav className="sb-nav" onClick={() => setOpen(false)}>
@@ -172,7 +172,7 @@ function Shell() {
             );
           })}
         </nav>
-        <div className="sb-foot">v1.0 · Sagar Drishti analytics build</div>
+        <div className="sb-foot">v1.0 · analytics build</div>
       </aside>
 
       <div className="main">
@@ -181,7 +181,7 @@ function Shell() {
             onClick={toggleNav}>{collapsed ? "☰" : "⟨⟨"}</button>
           <div>
             <div className="pagetitle">{title}</div>
-            <div className="crumb">Sagar Drishti / {orgTag}</div>
+            <div className="crumb">Maritime AI Analytics / {orgTag}</div>
           </div>
           <div className="spacer" />
           <LangSwitcher />
@@ -242,7 +242,7 @@ function Shell() {
 export default function App() {
   const { user, loading } = useAuth();
   const { t } = useLang();
-  if (loading) return <div className="loading">{t("Loading Sagar Drishti…")}</div>;
+  if (loading) return <div className="loading">{t("Loading…")}</div>;
   if (!user) return <Login />;
   return <Shell />;
 }

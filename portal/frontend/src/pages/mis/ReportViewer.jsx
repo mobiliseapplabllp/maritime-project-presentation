@@ -101,7 +101,7 @@ export default function ReportViewer() {
             </Card>
           ))}
           <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
-            Mundra Port Operations Portal · demo data · fictional transactions on a researched real-infrastructure base
+            Maritime Operations Portal · demo data · fictional transactions on a researched real-infrastructure base
           </Typography>
         </Stack>
       )}

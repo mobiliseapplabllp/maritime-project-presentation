@@ -14,195 +14,195 @@
   "reliability": [
    {
     "vessel_type": "CONT",
-    "calls": 620,
-    "avg_turnaround_hr": 38.1,
-    "incidents_per_100_calls": 3.9,
-    "detention_rate_pct": 10.3,
-    "avg_findings_per_inspection": 1.41
+    "calls": 640,
+    "avg_turnaround_hr": 38.5,
+    "incidents_per_100_calls": 2.8,
+    "detention_rate_pct": 8.3,
+    "avg_findings_per_inspection": 1.25
    },
    {
     "vessel_type": "BULK",
     "calls": 219,
-    "avg_turnaround_hr": 97.4,
-    "incidents_per_100_calls": 5.5,
-    "detention_rate_pct": 6.2,
-    "avg_findings_per_inspection": 0.62
+    "avg_turnaround_hr": 96.3,
+    "incidents_per_100_calls": 5.9,
+    "detention_rate_pct": 8.1,
+    "avg_findings_per_inspection": 1.0
    },
    {
     "vessel_type": "TANK",
-    "calls": 195,
-    "avg_turnaround_hr": 58.4,
-    "incidents_per_100_calls": 6.2,
-    "detention_rate_pct": 10.5,
-    "avg_findings_per_inspection": 1.84
+    "calls": 186,
+    "avg_turnaround_hr": 59.7,
+    "incidents_per_100_calls": 7.5,
+    "detention_rate_pct": 0.0,
+    "avg_findings_per_inspection": 1.07
    },
    {
     "vessel_type": "RORO",
-    "calls": 73,
-    "avg_turnaround_hr": 38.4,
-    "incidents_per_100_calls": 11.0,
-    "detention_rate_pct": 0.0,
-    "avg_findings_per_inspection": 1.0
+    "calls": 76,
+    "avg_turnaround_hr": 38.0,
+    "incidents_per_100_calls": 9.2,
+    "detention_rate_pct": 6.7,
+    "avg_findings_per_inspection": 0.73
    },
    {
     "vessel_type": "GEN",
-    "calls": 65,
-    "avg_turnaround_hr": 95.8,
-    "incidents_per_100_calls": 10.8,
+    "calls": 84,
+    "avg_turnaround_hr": 97.7,
+    "incidents_per_100_calls": 6.0,
     "detention_rate_pct": 12.5,
-    "avg_findings_per_inspection": 1.0
+    "avg_findings_per_inspection": 1.88
    }
   ],
   "watchlist_top": [
    {
-    "imo": "9700007",
-    "vessel": "MV Gulf Pearl",
-    "type": "CONT",
-    "agent": "KSA",
-    "calls": 37,
-    "incidents": 4,
-    "inspections": 3,
-    "findings": 9,
-    "detentions": 2,
-    "watch_score": 100.3
-   },
-   {
-    "imo": "9700015",
-    "vessel": "MT Kandla Jyoti",
-    "type": "TANK",
-    "agent": "OAP",
-    "calls": 42,
-    "incidents": 6,
-    "inspections": 6,
-    "findings": 14,
-    "detentions": 1,
-    "watch_score": 63.7
-   },
-   {
-    "imo": "9700016",
-    "vessel": "MT Gujarat Star",
-    "type": "TANK",
-    "agent": "WCM",
-    "calls": 40,
+    "imo": "9700012",
+    "vessel": "MV Vindhya Pride",
+    "type": "BULK",
+    "agent": "TMA",
+    "calls": 33,
     "incidents": 3,
-    "inspections": 6,
-    "findings": 14,
+    "inspections": 7,
+    "findings": 10,
+    "detentions": 2,
+    "watch_score": 80.8
+   },
+   {
+    "imo": "9700008",
+    "vessel": "MV Kandla Spirit",
+    "type": "CONT",
+    "agent": "BMS",
+    "calls": 36,
+    "incidents": 3,
+    "inspections": 5,
+    "findings": 11,
     "detentions": 1,
-    "watch_score": 61.0
+    "watch_score": 59.7
    },
    {
     "imo": "9700021",
     "vessel": "MV Porbandar Breeze",
     "type": "GEN",
     "agent": "OAP",
-    "calls": 32,
-    "incidents": 6,
+    "calls": 44,
+    "incidents": 3,
     "inspections": 5,
-    "findings": 8,
+    "findings": 11,
     "detentions": 1,
-    "watch_score": 56.7
+    "watch_score": 59.1
    },
    {
-    "imo": "9700002",
-    "vessel": "MV Saurashtra Glory",
+    "imo": "9700001",
+    "vessel": "MV Coastal Emerald",
     "type": "CONT",
-    "agent": "BMS",
-    "calls": 41,
+    "agent": "KSA",
+    "calls": 42,
     "incidents": 3,
-    "inspections": 7,
-    "findings": 8,
+    "inspections": 8,
+    "findings": 13,
     "detentions": 1,
-    "watch_score": 46.6
+    "watch_score": 52.4
    },
    {
-    "imo": "9700022",
-    "vessel": "MV Dwarka Wave",
-    "type": "RORO",
-    "agent": "WCM",
-    "calls": 36,
+    "imo": "9700005",
+    "vessel": "MV Malabar Horizon",
+    "type": "CONT",
+    "agent": "SSL",
+    "calls": 48,
     "incidents": 5,
-    "inspections": 1,
-    "findings": 3,
-    "detentions": 0,
-    "watch_score": 41.6
-   },
-   {
-    "imo": "9700009",
-    "vessel": "MV Gulf of Kutch",
-    "type": "BULK",
-    "agent": "OAP",
-    "calls": 35,
-    "incidents": 4,
-    "inspections": 7,
-    "findings": 4,
+    "inspections": 6,
+    "findings": 8,
     "detentions": 1,
-    "watch_score": 41.4
+    "watch_score": 50.2
    },
    {
-    "imo": "9700006",
-    "vessel": "MV Indus Fortune",
-    "type": "CONT",
-    "agent": "TMA",
-    "calls": 39,
+    "imo": "9700023",
+    "vessel": "MV Somnath Carrier",
+    "type": "RORO",
+    "agent": "SSL",
+    "calls": 37,
     "incidents": 3,
-    "inspections": 3,
-    "findings": 7,
+    "inspections": 8,
+    "findings": 10,
+    "detentions": 1,
+    "watch_score": 48.2
+   },
+   {
+    "imo": "9700010",
+    "vessel": "MV Konkan Breeze",
+    "type": "BULK",
+    "agent": "WCM",
+    "calls": 52,
+    "incidents": 0,
+    "inspections": 11,
+    "findings": 16,
+    "detentions": 1,
+    "watch_score": 47.5
+   },
+   {
+    "imo": "9700003",
+    "vessel": "MV Harbour Express",
+    "type": "CONT",
+    "agent": "OAP",
+    "calls": 38,
+    "incidents": 2,
+    "inspections": 5,
+    "findings": 6,
+    "detentions": 1,
+    "watch_score": 46.5
+   },
+   {
+    "imo": "9700015",
+    "vessel": "MT Kandla Jyoti",
+    "type": "TANK",
+    "agent": "OAP",
+    "calls": 43,
+    "incidents": 1,
+    "inspections": 5,
+    "findings": 9,
     "detentions": 0,
-    "watch_score": 31.1
+    "watch_score": 22.5
    },
    {
     "imo": "9700004",
     "vessel": "MV Arabian Crest",
     "type": "CONT",
     "agent": "WCM",
-    "calls": 35,
-    "incidents": 3,
-    "inspections": 3,
-    "findings": 6,
+    "calls": 41,
+    "incidents": 0,
+    "inspections": 5,
+    "findings": 8,
     "detentions": 0,
-    "watch_score": 27.4
-   },
-   {
-    "imo": "9700011",
-    "vessel": "MV Coromandel Trader",
-    "type": "BULK",
-    "agent": "SSL",
-    "calls": 42,
-    "incidents": 5,
-    "inspections": 4,
-    "findings": 5,
-    "detentions": 0,
-    "watch_score": 19.8
+    "watch_score": 19.2
    }
   ]
  },
  "incidents": {
   "kpis": {
-   "total": 304,
-   "high_critical": 82,
-   "injuries": 39,
-   "spills": 34
+   "total": 221,
+   "high_critical": 58,
+   "injuries": 33,
+   "spills": 22
   },
   "by_year": {
-   "2023": 83,
-   "2024": 90,
-   "2025": 89,
-   "2026": 42
+   "2023": 59,
+   "2024": 60,
+   "2025": 54,
+   "2026": 48
   }
  },
  "inspections": {
   "kpis": {
-   "done": 74,
-   "findings": 98,
-   "detentions": 7
+   "done": 109,
+   "findings": 117,
+   "detentions": 6
   }
  },
  "revenue": {
   "kpis": {
-   "billed_cr": 811.8,
-   "collected_cr": 798.1,
-   "outstanding_cr": 10.56,
-   "collection_pct": 98.7
+   "billed_cr": 691.2,
+   "collected_cr": 665.6,
+   "outstanding_cr": 18.62,
+   "collection_pct": 97.2
   }
  },
  "crew": {

@@ -16,6 +16,14 @@ const instrumentSchema = new mongoose.Schema({
   supersedes: { type: String, default: '' },        // refNo of superseded instrument
   ackRequired: { type: Boolean, default: false },
   acknowledgedBy: [{ userId: String, name: String, at: Date }],
+
+  // publication governance — who drafted it and who put it in force. Held as
+  // separate fields precisely so the two can be compared.
+  draftedBy: { type: String, default: '' },
+  draftedByName: { type: String, default: '' },
+  approvedBy: { type: String, default: '' },
+  approvedByName: { type: String, default: '' },
+  approvedAt: Date,
 }, { timestamps: true });
 
 module.exports = mongoose.model('Instrument', instrumentSchema);

@@ -23,8 +23,8 @@ def _hash(pw: str) -> str:
     return hashlib.pbkdf2_hmac("sha256", pw.encode(), b"sagar-drishti-salt", 120_000).hex()
 
 
-# Seeded accounts. Demo password for all: Mundra@2026
-_PW = _hash("Mundra@2026")
+# Seeded accounts. Demo password for all: Demo@2026
+_PW = _hash("Demo@2026")
 
 
 def _u(name, role, scope, persona, org):

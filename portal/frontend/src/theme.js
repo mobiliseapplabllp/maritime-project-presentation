@@ -9,7 +9,7 @@ export const buildTheme = (mode) => {
   return createTheme({
     palette: {
       mode,
-      // Adani brand: #0B74B0 blue -> #75479C purple -> #BD3861 magenta
+      // Platform accent: #0B74B0 blue -> #75479C purple -> #BD3861 magenta
       primary: { main: dark ? '#57B0E3' : '#0B74B0', contrastText: dark ? '#06181F' : '#FFFFFF' },
       secondary: { main: dark ? '#A87FD1' : '#75479C' },
       success: { main: dark ? '#5FC191' : '#2C6E52' },
@@ -64,6 +64,6 @@ export const CHART_SERIES = {
 export const SERIES_ORDER = ['container', 'dryBulk', 'liquid', 'other'];
 export const SERIES_LABELS = { container: 'Container', dryBulk: 'Dry bulk', liquid: 'Liquid', other: 'Other' };
 
-// Adani signature gradient (logo: blue -> purple -> magenta)
-export const ADANI_GRADIENT = 'linear-gradient(100deg,#0B74B0 0%,#75479C 55%,#BD3861 100%)';
-export const ADANI = { blue: '#0B74B0', purple: '#75479C', magenta: '#BD3861' };
+// Platform signature gradient (blue -> purple -> magenta)
+export const BRAND_GRADIENT = 'linear-gradient(100deg,#0B74B0 0%,#75479C 55%,#BD3861 100%)';
+export const BRAND = { blue: '#0B74B0', purple: '#75479C', magenta: '#BD3861' };

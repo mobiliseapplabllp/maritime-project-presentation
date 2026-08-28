@@ -13,7 +13,7 @@ import { hasPerm } from '../../utils/perms';
 /* Global Ctrl+K command palette — search every register, or jump straight
  * to a module. Recent picks are remembered per browser (localStorage). */
 
-const RECENTS_KEY = 'mundra.palette.recents';
+const RECENTS_KEY = 'maritime.palette.recents';
 const loadRecents = () => { try { return JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch { return []; } };
 const saveRecent = (item) => {
   try {

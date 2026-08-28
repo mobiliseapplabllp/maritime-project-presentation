@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const storedMode = (() => { try { return localStorage.getItem('mundra-mode'); } catch { return null; } })();
+const storedMode = (() => { try { return localStorage.getItem('maritime-mode'); } catch { return null; } })();
 
 const slice = createSlice({
   name: 'ui',
@@ -8,7 +8,7 @@ const slice = createSlice({
   reducers: {
     toggleMode(state) {
       state.mode = state.mode === 'dark' ? 'light' : 'dark';
-      try { localStorage.setItem('mundra-mode', state.mode); } catch { /* ignore */ }
+      try { localStorage.setItem('maritime-mode', state.mode); } catch { /* ignore */ }
     },
     notify(state, { payload }) {
       state.snackbar = typeof payload === 'string' ? { message: payload, severity: 'success' } : payload;

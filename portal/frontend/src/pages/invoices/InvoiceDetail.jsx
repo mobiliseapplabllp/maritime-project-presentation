@@ -66,7 +66,7 @@ export default function InvoiceDetail() {
       <Card sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 860, '@media print': { border: 0 } }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
           <Box>
-            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 20 }}>{org.portName || 'Mundra Port'}</Typography>
+            <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 20 }}>{org.portName || 'Maritime Operations'}</Typography>
             <Typography variant="body2" color="text.secondary">{org.operator}</Typography>
             <Typography variant="body2" color="text.secondary">{org.address}</Typography>
             <Typography variant="body2" color="text.secondary">GSTIN: {org.gstin}</Typography>

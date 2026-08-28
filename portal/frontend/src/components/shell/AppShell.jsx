@@ -23,7 +23,7 @@ import { hasPerm } from '../../utils/perms';
 import { toggleMode } from '../../store/uiSlice';
 import { clearSession } from '../../store/authSlice';
 import { fromNow } from '../../utils/format';
-import { ADANI_GRADIENT } from '../../theme';
+import { BRAND_GRADIENT } from '../../theme';
 import { MODULES, moduleOf } from '../../modules';
 import { GlobalProgress, PageLoader } from '../common/Loaders';
 import { AI_PORTAL, IS_DEMO, openAiPortal } from '../../aiPortal';
@@ -183,12 +183,12 @@ export default function AppShell() {
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: mode === 'dark' ? '#071A2E' : '#0A2239', color: '#D8E4EE' }}>
       <Box sx={{ px: 2.25, py: 2, display: 'flex', gap: 1.25, alignItems: 'center' }}>
-        <Box sx={{ width: 34, height: 34, borderRadius: '9px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center' }}>
+        <Box sx={{ width: 34, height: 34, borderRadius: '9px', background: BRAND_GRADIENT, display: 'grid', placeItems: 'center' }}>
           <AnchorRoundedIcon sx={{ fontSize: 20, color: '#fff' }} />
         </Box>
         <Box>
-          <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 15, lineHeight: 1.1, color: '#fff' }}>Mundra Port</Typography>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 9.5, letterSpacing: '0.14em', color: '#7C9BB5' }}>OPERATIONS · INMUN</Typography>
+          <Typography sx={{ fontFamily: 'Archivo', fontWeight: 800, fontSize: 15, lineHeight: 1.1, color: '#fff' }}>Maritime Operations</Typography>
+          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: 9.5, letterSpacing: '0.14em', color: '#7C9BB5' }}>OPERATIONS · REFERENCE</Typography>
         </Box>
       </Box>
       <Box sx={{ mx: 1.5, mb: 1, p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(255,255,255,0.055)', display: 'flex', gap: 1.25, alignItems: 'center' }}>
@@ -246,7 +246,7 @@ export default function AppShell() {
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
       <Box sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 1.25 }}>
-        <Avatar sx={{ width: 32, height: 32, background: ADANI_GRADIENT, fontSize: 14, fontWeight: 700 }}>
+        <Avatar sx={{ width: 32, height: 32, background: BRAND_GRADIENT, fontSize: 14, fontWeight: 700 }}>
           {user?.name?.split(' ').map((w) => w[0]).slice(0, 2).join('')}
         </Avatar>
         <Box sx={{ minWidth: 0 }}>
@@ -296,7 +296,7 @@ export default function AppShell() {
             </Tooltip>
             <Bell />
             <IconButton onClick={(e) => setUserMenu(e.currentTarget)} sx={{ p: 0.5 }}>
-              <Avatar sx={{ width: 30, height: 30, background: ADANI_GRADIENT, fontSize: 13, fontWeight: 700 }}>
+              <Avatar sx={{ width: 30, height: 30, background: BRAND_GRADIENT, fontSize: 13, fontWeight: 700 }}>
                 {user?.name?.split(' ').map((w) => w[0]).slice(0, 2).join('')}
               </Avatar>
             </IconButton>
@@ -326,9 +326,9 @@ export default function AppShell() {
           <IconButton onClick={openAi} aria-label={`Open ${AI_PORTAL.name}`}
             sx={{
               position: 'fixed', right: 22, bottom: 22, zIndex: (t) => t.zIndex.drawer + 2,
-              width: 54, height: 54, background: ADANI_GRADIENT, color: '#fff',
+              width: 54, height: 54, background: BRAND_GRADIENT, color: '#fff',
               boxShadow: '0 8px 22px rgba(11,50,80,0.38)',
-              '&:hover': { background: ADANI_GRADIENT, transform: 'translateY(-2px)', boxShadow: '0 12px 26px rgba(11,50,80,0.45)' },
+              '&:hover': { background: BRAND_GRADIENT, transform: 'translateY(-2px)', boxShadow: '0 12px 26px rgba(11,50,80,0.45)' },
               transition: 'all .18s',
               '&::after': {
                 content: '""', position: 'absolute', inset: -5, borderRadius: '50%',
@@ -357,7 +357,7 @@ export default function AppShell() {
           <Typography sx={{ fontWeight: 700, fontSize: 17 }}>{AI_PORTAL.name}</Typography>
           <Typography sx={{ fontSize: 13.5, color: 'text.secondary', mt: 1, lineHeight: 1.6 }}>
             {AI_PORTAL.desc}. It is a companion application to this portal, running on the
-            same Mundra dataset.
+            same dataset.
           </Typography>
           <Typography sx={{ fontSize: 13.5, color: 'text.secondary', mt: 1.5, lineHeight: 1.6 }}>
             It needs its own server, so it is not part of this read-only demo. In a full

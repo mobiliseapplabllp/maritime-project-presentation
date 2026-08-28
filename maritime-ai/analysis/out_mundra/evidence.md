@@ -13,31 +13,31 @@
 
 ```json
 {
-  "share_calls_waited_gt24h_pct": 20.2,
+  "share_calls_waited_gt24h_pct": 21.4,
   "latest_month_worst": [
     [
+      "CT-3 (AICT)",
+      22.3,
+      3
+    ],
+    [
+      "West Basin Coal Terminal",
+      18.2,
+      6
+    ],
+    [
       "Ro-Ro Terminal",
-      23.0,
+      18.0,
       1
     ],
     [
+      "Multipurpose Terminal",
+      16.2,
+      11
+    ],
+    [
       "Liquid Berths",
-      21.0,
-      2
-    ],
-    [
-      "MICT (DP World JV)",
-      20.0,
-      2
-    ],
-    [
-      "Adani Mundra Container Terminal",
-      20.0,
-      2
-    ],
-    [
-      "AMCT-2",
-      14.7,
+      13.3,
       3
     ]
   ],
@@ -47,16 +47,16 @@
 
 ### [A1] Turnaround time improved while traffic grew  _(severity: medium)_
 
-**Inference:** Average turnaround moved from 57h to 55h while monthly calls grew ~34% — throughput scaled without eroding vessel service time.
+**Inference:** Average turnaround moved from 61h to 66h while monthly calls grew ~38% — throughput scaled without eroding vessel service time.
 
 **Evidence:**
 
 ```json
 {
-  "avg_turnaround_2023_hr": 56.9,
-  "avg_turnaround_last12m_hr": 55.0,
-  "calls_2023_per_month": 22.5,
-  "calls_last12m_per_month": 30.2,
+  "avg_turnaround_2023_hr": 61.4,
+  "avg_turnaround_last12m_hr": 65.7,
+  "calls_2023_per_month": 16.5,
+  "calls_last12m_per_month": 22.8,
   "major_ports_avg_hr": 50.4
 }
 ```
@@ -69,8 +69,8 @@
 
 ```json
 {
-  "berthed_within_6h_pct_latest": 9.7,
-  "trailing_12m_pct": 14.5
+  "berthed_within_6h_pct_latest": 14.3,
+  "trailing_12m_pct": 16.8
 }
 ```
 
@@ -88,38 +88,38 @@
   "top5": [
     [
       "Single Point Moorings",
-      84.2,
-      35.7,
-      14.7,
-      3
+      60.0,
+      45.8,
+      15.2,
+      5
     ],
     [
-      "CT-4 (ACMT JV)",
-      75.3,
-      24.4,
-      16.0,
-      3
+      "Liquid Berths",
+      54.4,
+      40.5,
+      15.7,
+      4
     ],
     [
       "Multipurpose Terminal",
-      51.4,
-      18.4,
-      15.6,
+      50.7,
+      12.0,
+      17.9,
       3
-    ],
-    [
-      "Adani Mundra Container Terminal",
-      51.2,
-      14.9,
-      19.0,
-      2
     ],
     [
       "CT-3 (AICT)",
-      50.2,
-      15.9,
-      16.1,
-      3
+      44.7,
+      27.8,
+      17.4,
+      2
+    ],
+    [
+      "CT-4 (ACMT JV)",
+      41.6,
+      28.1,
+      14.1,
+      7
     ]
   ],
   "weights": "incident rate 35 \u00b7 waiting 25 \u00b7 high-severity 25 \u00b7 detentions 15"
@@ -136,11 +136,11 @@
 {
   "largest_by_cargo": [
     "Single Point Moorings",
-    6013333
+    5536128
   ],
   "highest_risk": [
     "Single Point Moorings",
-    84.2
+    60.0
   ]
 }
 ```
@@ -156,10 +156,10 @@
 
 ```json
 {
-  "incidents_last12m": 75,
-  "high_critical_last12m": 20,
-  "injuries_last12m": 8,
-  "near_miss_per_high_severity": 0.6
+  "incidents_last12m": 74,
+  "high_critical_last12m": 22,
+  "injuries_last12m": 14,
+  "near_miss_per_high_severity": 0.4
 }
 ```
 
@@ -172,10 +172,10 @@
 ```json
 {
   "per_year": {
-    "2023": 10,
-    "2024": 14,
+    "2023": 3,
+    "2024": 6,
     "2025": 7,
-    "2026": 3
+    "2026": 6
   }
 }
 ```
@@ -189,10 +189,10 @@
 ```json
 {
   "per_year": {
-    "2023": 21,
-    "2024": 17,
-    "2025": 19,
-    "2026": 3
+    "2023": 7,
+    "2024": 8,
+    "2025": 10,
+    "2026": 7
   }
 }
 ```
@@ -210,48 +210,48 @@
 {
   "fastest_growing": [
     [
-      "CT-4 (ACMT JV)",
+      "Multipurpose Terminal",
       1,
-      0.6,
-      1.64
+      1.0,
+      3.4
+    ],
+    [
+      "Liquid Berths",
+      2,
+      0.4,
+      1.7
+    ],
+    [
+      "West Basin Coal Terminal",
+      5,
+      0.4,
+      1.82
     ],
     [
       "CT-3 (AICT)",
       6,
-      0.6,
-      2.55
-    ],
-    [
-      "Adani Mundra Container Terminal",
-      2,
-      0.4,
-      2.1
-    ],
-    [
-      "West Basin Coal Terminal",
-      4,
-      0.3,
-      2.31
+      0.2,
+      1.69
     ]
   ],
   "softest": [
     [
-      "MICT (DP World JV)",
+      "CT-4 (ACMT JV)",
       2,
-      0.2,
-      2.0
+      0.1,
+      2.67
     ],
     [
-      "Liquid Berths",
-      5,
+      "Single Point Moorings",
+      2,
+      0.1,
+      1.62
+    ],
+    [
+      "Ro-Ro Terminal",
+      4,
       -0.1,
-      1.71
-    ],
-    [
-      "AMCT-2",
-      1,
-      -0.2,
-      2.08
+      1.54
     ]
   ],
   "note": "[terminal, latest monthly calls, trend calls/yr, volatility]"
@@ -268,16 +268,16 @@
 {
   "highest_occupancy_latest": [
     [
+      "West Basin Coal Terminal",
+      30.0
+    ],
+    [
       "Multipurpose Terminal",
-      13.4
+      28.0
     ],
     [
-      "CT-4 (ACMT JV)",
-      9.4
-    ],
-    [
-      "CT-3 (AICT)",
-      6.8
+      "Single Point Moorings",
+      8.4
     ]
   ],
   "healthy_band_pct": [
@@ -299,11 +299,11 @@
 ```json
 {
   "risk_vs": {
-    "calls": 0.08,
-    "wait": 0.04,
-    "occ": 0.14,
-    "inc_per_100": 0.79,
-    "hi": 0.84
+    "calls": 0.29,
+    "wait": 0.24,
+    "occ": 0.02,
+    "inc_per_100": 0.48,
+    "hi": 0.62
   }
 }
 ```
@@ -319,42 +319,39 @@
   "profiles": [
     [
       0.0,
-      5.0,
-      30.4,
-      15.0,
-      23.5
+      4.0,
+      30.5,
+      15.8,
+      34.8
     ],
     [
       1.0,
-      1.0,
-      40.0,
-      12.2,
-      25.0
+      2.0,
+      59.0,
+      17.3,
+      13.0
     ],
     [
       2.0,
-      4.0,
-      50.2,
-      16.9,
-      14.1
+      1.0,
+      57.0,
+      14.1,
+      28.1
     ]
   ],
   "members": {
     "0": [
       "Single Point Moorings",
-      "CT-4 (ACMT JV)",
       "Liquid Berths",
-      "Ro-Ro Terminal",
-      "AMCT-2"
+      "CT-3 (AICT)",
+      "Ro-Ro Terminal"
     ],
     "1": [
+      "Multipurpose Terminal",
       "West Basin Coal Terminal"
     ],
     "2": [
-      "Multipurpose Terminal",
-      "Adani Mundra Container Terminal",
-      "CT-3 (AICT)",
-      "MICT (DP World JV)"
+      "CT-4 (ACMT JV)"
     ]
   }
 }
@@ -372,15 +369,15 @@
 ```json
 {
   "turnaround_hr": {
-    "mundra_last12m": 55.0,
+    "mundra_last12m": 65.7,
     "major_ports_avg": 50.4
   },
   "output_mt_per_berthday": {
-    "mundra_latest": 56939.0,
+    "mundra_latest": 37444.0,
     "major_ports_avg": 16500.0
   },
   "psc_detention_rate_pct": {
-    "mundra_last12m": 9.5,
+    "mundra_last12m": 6.9,
     "indian_ocean_mou_2023": 5.6
   }
 }
@@ -397,10 +394,10 @@
 
 ```json
 {
-  "billed_last12m_cr": 274.6,
-  "collected_last12m_cr": 265.0,
-  "cumulative_collection_pct": 98.7,
-  "outstanding_cr": 10.56,
+  "billed_last12m_cr": 245.8,
+  "collected_last12m_cr": 233.5,
+  "cumulative_collection_pct": 97.2,
+  "outstanding_cr": 18.62,
   "target_pct": 95.0
 }
 ```
@@ -415,29 +412,29 @@
 {
   "top": [
     [
-      "CT-4 (ACMT JV)",
-      3.2,
+      "West Basin Coal Terminal",
+      8.7,
       94.6
     ],
     [
-      "AMCT-2",
-      2.7,
-      93.3
+      "Single Point Moorings",
+      5.7,
+      97.1
     ],
     [
       "Multipurpose Terminal",
-      2.0,
-      97.5
+      3.6,
+      96.1
+    ],
+    [
+      "Ro-Ro Terminal",
+      0.6,
+      98.7
     ],
     [
       "CT-3 (AICT)",
-      1.4,
-      98.4
-    ],
-    [
-      "MICT (DP World JV)",
-      0.8,
-      98.0
+      0.0,
+      100.0
     ]
   ]
 }

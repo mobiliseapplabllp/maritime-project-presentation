@@ -50,7 +50,7 @@ module.exports = {
       recentIncidents: incidents, crewOnBoard: crewOut, lastPosition: position });
   },
 
-  // Voyage ledger derived from the port-call record — leg in (prevPort → INMUN) and leg out (INMUN → nextPort)
+  // Voyage ledger derived from the port-call record — leg in (prevPort → REFPT) and leg out (REFPT → nextPort)
   voyages: async (req, res) => {
     const v = await Vessel.findById(req.params.id).select('name');
     if (!v) throw new ApiError(404, 'Vessel not found');

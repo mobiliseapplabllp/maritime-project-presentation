@@ -109,6 +109,7 @@ async function run() {
       registrationTransitions: C.REGISTRATION_TRANSITIONS, registryStates: C.REGISTRY_STATES,
       deletionReasons: C.DELETION_REASONS, amendmentTypes: C.AMENDMENT_TYPES,
       requestStatus: C.REQUEST_STATUS, requestTransitions: C.REQUEST_TRANSITIONS,
+      licenseTypes: C.LICENSE_TYPES, licenseStatus: C.LICENSE_STATUS, licenseTransitions: C.LICENSE_TRANSITIONS,
       certLabels: SC.CERT_LABEL, certConventions: SC.CONVENTION, surveyRegimes: SC.SURVEY_REGIME,
       statutoryTypes: SC.STATUTORY_TYPES,
       // audit is exported as the newest slice only — these describe the whole register

@@ -11,7 +11,7 @@ const DEMO = [
   { u: "finance", r: "Controller — Revenue & Billing" },
   { u: "analyst", r: "Data Analyst — Port MIS" },
 ];
-const PW = "Mundra@2026";
+const PW = "Demo@2026";
 
 export default function Login() {
   const { t } = useLang();
@@ -66,11 +66,11 @@ export default function Login() {
       <div className="login-hero">
         <div>
           <div className="mark">◈</div>
-          <h1>{t("Sagar Drishti")}</h1>
-          <p>{t("Mundra Port AI Analytics — vessel traffic and berth performance, pre-berthing waits and turnarounds, HSE incidents, PSC compliance and revenue, watched end to end by an AI analyst across every terminal and berth of Mundra Port.")}</p>
+          <h1>{t("Maritime AI Analytics")}</h1>
+          <p>{t("Maritime AI analytics — vessel traffic and berth performance, pre-berthing waits and turnarounds, HSE incidents and revenue, with an assistant that cites its sources.")}</p>
         </div>
         <div>
-          <div className="stat">Sagar Drishti · <b>{t("Mundra Port")}</b> · {t("Kutch, Gujarat")}</div>
+          <div className="stat"><b>Maritime AI Analytics</b> · Reference deployment</div>
           <div className="stat" style={{ marginTop: 6 }}>
             <b>31</b> {t("vessels")} · <b>24</b> {t("berths")} · <b>10</b> {t("terminals")} · <b>3</b> {t("zones")}
           </div>

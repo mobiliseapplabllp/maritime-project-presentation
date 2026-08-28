@@ -6,7 +6,7 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
 import AnchorRoundedIcon from '@mui/icons-material/AnchorRounded';
 import api from '../../api/client';
-import { ADANI_GRADIENT } from '../../theme';
+import { BRAND_GRADIENT } from '../../theme';
 
 /* Public, unauthenticated licence verification — the target of the QR code
  * printed on every licence certificate. No login required by design. */
@@ -29,9 +29,9 @@ export default function VerifyLicense() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#0A2239', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
       <Card sx={{ maxWidth: 440, width: '100%', borderRadius: 3, overflow: 'hidden' }}>
-        <Box sx={{ background: ADANI_GRADIENT, px: 3, py: 2, display: 'flex', alignItems: 'center', gap: 1.25 }}>
+        <Box sx={{ background: BRAND_GRADIENT, px: 3, py: 2, display: 'flex', alignItems: 'center', gap: 1.25 }}>
           <AnchorRoundedIcon sx={{ color: '#fff' }} />
-          <Typography sx={{ color: '#fff', fontWeight: 800, fontFamily: 'Archivo' }}>Mundra Port — Licence Verification</Typography>
+          <Typography sx={{ color: '#fff', fontWeight: 800, fontFamily: 'Archivo' }}>Maritime Operations — Licence Verification</Typography>
         </Box>
         <Box sx={{ p: 4, textAlign: 'center' }}>
           {state === 'loading' && <CircularProgress size={40} />}
@@ -56,7 +56,7 @@ export default function VerifyLicense() {
                 </>
               )}
               {state === 'notfound' && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>No licence with this number is on record at Mundra Port.</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>No licence with this number is on record.</Typography>
               )}
             </>
           )}

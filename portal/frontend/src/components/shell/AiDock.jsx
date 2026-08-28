@@ -17,7 +17,7 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import api from '../../api/client';
-import { ADANI_GRADIENT } from '../../theme';
+import { BRAND_GRADIENT } from '../../theme';
 
 const blink = keyframes`0%,80%,100%{opacity:.25}40%{opacity:1}`;
 
@@ -72,7 +72,7 @@ export default function AiDock({ open, onClose }) {
     <Drawer anchor="right" open={open} onClose={onClose}
       slotProps={{ paper: { sx: { width: 420, maxWidth: '100vw', display: 'flex', flexDirection: 'column' } } }}>
       <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.25 }}>
-        <Box sx={{ width: 32, height: 32, borderRadius: '9px', background: ADANI_GRADIENT, display: 'grid', placeItems: 'center' }}>
+        <Box sx={{ width: 32, height: 32, borderRadius: '9px', background: BRAND_GRADIENT, display: 'grid', placeItems: 'center' }}>
           <AutoAwesomeRoundedIcon sx={{ fontSize: 17, color: '#fff' }} />
         </Box>
         <Box sx={{ flex: 1 }}>
@@ -141,7 +141,7 @@ export default function AiDock({ open, onClose }) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} />
         <IconButton onClick={() => send()} disabled={!input.trim() || thinking}
-          sx={{ background: ADANI_GRADIENT, color: '#fff', borderRadius: 2.5, '&:hover': { background: ADANI_GRADIENT, opacity: 0.88 }, '&.Mui-disabled': { opacity: 0.4, color: '#fff' } }}>
+          sx={{ background: BRAND_GRADIENT, color: '#fff', borderRadius: 2.5, '&:hover': { background: BRAND_GRADIENT, opacity: 0.88 }, '&.Mui-disabled': { opacity: 0.4, color: '#fff' } }}>
           <SendRoundedIcon sx={{ fontSize: 19 }} />
         </IconButton>
       </Box>
