@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Sagar Drishti — Mundra terminal geometry for the 3D port twin.
+Sagar Drishti — terminal geometry for the 3D port twin.
 
 Emits mundra_terminals.geojson: one polygon per terminal (10), positioned from
-the same berth coordinates the Mundra portal uses, so the twin reads as the
+the same berth coordinates the operations portal uses, so the twin reads as the
 real Navinal Island / West Basin layout. SPMs render as offshore hexagon pads.
 Properties per feature: unit_id, unit_name, zone.
 """
@@ -15,12 +15,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Berth positions (lat, lon) — same table as the portal's tracking map
 BERTH_POS = {
-    "MICT-1": (22.7495, 69.7065), "MICT-2": (22.7502, 69.7085),
-    "AMCT-1": (22.7511, 69.7105), "AMCT-2": (22.7518, 69.7124),
-    "AMC2-1": (22.7526, 69.7145), "AMC2-2": (22.7533, 69.7165),
-    "CT3-1": (22.7541, 69.7188), "CT3-2": (22.7548, 69.7208),
-    "CT3-3": (22.7555, 69.7228), "CT3-4": (22.7562, 69.7248),
-    "CT4-1": (22.7570, 69.7270), "CT4-2": (22.7577, 69.7290),
+    "CT1-1": (22.7495, 69.7065), "CT1-2": (22.7502, 69.7085),
+    "CT2-1": (22.7511, 69.7105), "CT2-2": (22.7518, 69.7124),
+    "CT3-1": (22.7526, 69.7145), "CT3-2": (22.7533, 69.7165),
+    "CT4-1": (22.7541, 69.7188), "CT4-2": (22.7548, 69.7208),
+    "CT4-3": (22.7555, 69.7228), "CT4-4": (22.7562, 69.7248),
+    "CT5-1": (22.7570, 69.7270), "CT5-2": (22.7577, 69.7290),
     "WB-1": (22.7370, 69.6870), "WB-2": (22.7360, 69.6895),
     "MP-1": (22.7435, 69.6990), "MP-2": (22.7442, 69.7008),
     "MP-3": (22.7449, 69.7026), "MP-4": (22.7456, 69.7044),
@@ -30,16 +30,16 @@ BERTH_POS = {
 }
 
 TERMINALS = {
-    "MICT": ("MICT (DP World JV)", "Container", ["MICT-1", "MICT-2"]),
-    "AMCT": ("Adani Mundra Container Terminal", "Container", ["AMCT-1", "AMCT-2"]),
-    "AMC2": ("AMCT-2", "Container", ["AMC2-1", "AMC2-2"]),
-    "CT3": ("CT-3 (AICT)", "Container", ["CT3-1", "CT3-2", "CT3-3", "CT3-4"]),
-    "CT4": ("CT-4 (ACMT JV)", "Container", ["CT4-1", "CT4-2"]),
+    "CT1": ("Container Terminal 1", "Container", ["CT1-1", "CT1-2"]),
+    "CT2": ("Container Terminal 2", "Container", ["CT2-1", "CT2-2"]),
+    "CT3": ("Container Terminal 3", "Container", ["CT3-1", "CT3-2"]),
+    "CT4": ("Container Terminal 4", "Container", ["CT4-1", "CT4-2", "CT4-3", "CT4-4"]),
+    "CT5": ("Container Terminal 5", "Container", ["CT5-1", "CT5-2"]),
     "WBC": ("West Basin Coal Terminal", "Dry Bulk & General", ["WB-1", "WB-2"]),
     "MPT": ("Multipurpose Terminal", "Dry Bulk & General", ["MP-1", "MP-2", "MP-3", "MP-4"]),
     "RRT": ("Ro-Ro Terminal", "Dry Bulk & General", ["RR-1"]),
-    "LQB": ("Liquid Berths", "Liquid & Offshore", ["LB-1", "LB-2", "LB-3"]),
-    "SPM": ("Single Point Moorings", "Liquid & Offshore", ["SPM-1", "SPM-2"]),
+    "LQB": ("Liquid Terminal", "Liquid & Offshore", ["LB-1", "LB-2", "LB-3"]),
+    "SPM": ("SPM Crude", "Liquid & Offshore", ["SPM-1", "SPM-2"]),
 }
 
 # Quay runs roughly WSW->ENE; extrude terminal blocks landward (north) of the quay line

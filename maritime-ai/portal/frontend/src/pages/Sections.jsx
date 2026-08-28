@@ -74,7 +74,7 @@ export function FleetSection() {
   if (view === "list") return (
     <>
       <PageHeader title="Vessel Register"
-        sub="Every vessel that has called at Mundra — search by IMO, name, operator or agent; click an IMO to open the full vessel record." />
+        sub="Every vessel that has called at the port — search by IMO, name, operator or agent; click an IMO to open the full vessel record." />
       <ViewToggle view={view} setView={setView} listLabel="Vessel Register" />
       <MasterList kind="assets" />
     </>
@@ -82,10 +82,10 @@ export function FleetSection() {
   return (
     <>
       <PageHeader title="Fleet & Vessels — Deep Analysis"
-        sub="The calling fleet: who comes to Mundra, how each vessel type performs at the berth, and which vessels the watchlist says to look at before they arrive again." />
+        sub="The calling fleet: who comes to the port, how each vessel type performs at the berth, and which vessels the watchlist says to look at before they arrive again." />
       <ViewToggle view={view} setView={setView} listLabel="Vessel Register" />
       <div className="grid kpis" style={{ marginBottom: 18 }}>
-        <StatTile label="Vessels on record" value={fmtInt(k.vessels)} note={t("distinct hulls seen at Mundra")} />
+        <StatTile label="Vessels on record" value={fmtInt(k.vessels)} note={t("distinct hulls seen at the port")} />
         <StatTile label="Liner callers" value={fmtInt(k.liner_callers)} note={t("scheduled services — never watchlisted")} tone="good" />
         <StatTile label="Vessel types" value={fmtInt((k.types || []).length)} note={(k.types || []).map((x) => VTYPE_LABEL[x] || x).join(" · ")} tone="accent" />
       </div>
@@ -165,7 +165,7 @@ export function InspectionsSection() {
   return (
     <>
       <PageHeader title="Inspections & Surveys — Deep Analysis"
-        sub="The compliance stream: Port State Control, flag-state and ISM inspections on vessels calling at Mundra — findings raised, findings closed, and the detentions that follow when they aren't." />
+        sub="The compliance stream: Port State Control, flag-state and ISM inspections on vessels calling at the port — findings raised, findings closed, and the detentions that follow when they aren't." />
       <ViewToggle view={view} setView={setView} listLabel="Inspection Register" />
       <div className="grid kpis" style={{ marginBottom: 18 }}>
         <StatTile label="Inspections done" value={fmtInt(k.done)} note={t("PSC · FSI · ISM · MLC, full history")} />

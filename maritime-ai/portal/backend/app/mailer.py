@@ -81,7 +81,7 @@ def otp_email(code, minutes=10):
     html = f"""<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:440px;margin:0 auto">
       <div style="background:#0d5c8f;color:#fff;padding:18px 22px;border-radius:12px 12px 0 0">
         <div style="font-weight:700;font-size:16px">Sagar Drishti</div>
-        <div style="opacity:.85;font-size:12px">Mundra Port AI Analytics</div>
+        <div style="opacity:.85;font-size:12px">Maritime AI Analytics</div>
       </div>
       <div style="border:1px solid #e2e8ec;border-top:none;border-radius:0 0 12px 12px;padding:24px 22px">
         <p style="font-size:14px;color:#334">Use this code to sign in:</p>

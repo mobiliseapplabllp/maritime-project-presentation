@@ -26,12 +26,12 @@ CATEGORIES = ["berth_operations", "marine_services", "hse_action", "revenue_reco
 
 ZONES = ["Container", "Dry Bulk & General", "Liquid & Offshore"]
 # terminal unit_ids and display names (the contract hierarchy)
-TERMINALS = ["MICT", "AMCT", "AMC2", "CT3", "CT4", "WBC", "MPT", "RRT", "LQB", "SPM"]
+TERMINALS = ["CT1", "CT2", "CT3", "CT4", "CT5", "WBC", "MPT", "RRT", "LQB", "SPM"]
 TERMINAL_NAMES = {
-    "MICT": "MICT (DP World JV)", "AMCT": "Adani Mundra Container Terminal",
-    "AMC2": "AMCT-2", "CT3": "CT-3 (AICT)", "CT4": "CT-4 (ACMT JV)",
+    "CT1": "Container Terminal 1", "CT2": "Container Terminal 2",
+    "CT5": "Container Terminal 5", "CT3": "Container Terminal 3", "CT4": "Container Terminal 4",
     "WBC": "West Basin Coal Terminal", "MPT": "Multipurpose Terminal",
-    "RRT": "Ro-Ro Terminal", "LQB": "Liquid Berths", "SPM": "Single Point Moorings",
+    "RRT": "Ro-Ro Terminal", "LQB": "Liquid Terminal", "SPM": "SPM Crude",
 }
 
 
@@ -50,7 +50,7 @@ def roles_directory():
     for z in ZONES:
         roles.append({"id": f"zone_head:{z}", "label": f"Zone Head — {z}{zone_people.get(z, '')}",
                       "scope": "zone", "zone": z})
-    tm_people = {"MICT": " (Nirav Adhia)"}
+    tm_people = {"CT-1": " (Nirav Adhia)"}
     for t in TERMINALS:
         roles.append({"id": f"terminal_manager:{t}",
                       "label": f"Terminal Manager — {TERMINAL_NAMES.get(t, t)}{tm_people.get(t, '')}",
@@ -173,13 +173,12 @@ def update(wid, patch, by="user"):
 # AI drafting — an observation in, a complete work order out
 # --------------------------------------------------------------------------
 _DRAFT_SYSTEM = (
-    "You are Sagar Drishti, the Mundra Port operations analyst (Mundra Port AI Analytics, Kutch, "
-    "Gujarat). Convert ONE AI observation into ONE actionable work order. Observations arise from "
+    "You are Sagar Drishti, the port operations analyst (Maritime AI Analytics). Convert ONE AI observation into ONE actionable work order. Observations arise from "
     "findings like berth congestion and anchorage queues, incident clusters, PSC detentions, or "
     "receivables slippage. Return ONLY a JSON object with keys: title (max 90 chars, imperative, "
     "starts with a verb), description (3-5 sentences: what was observed, why it matters for vessel "
     "service/safety/revenue, what the work order must achieve), terminal (one terminal code of "
-    "MICT|AMCT|AMC2|CT3|CT4|WBC|MPT|RRT|LQB|SPM, or null if port-wide), priority (high|medium|low), "
+    "CT-1|CT-2|CT-5|CT3|CT4|WBC|MPT|RRT|LQB|SPM, or null if port-wide), priority (high|medium|low), "
     "category (berth_operations|marine_services|hse_action|revenue_recovery|compliance), "
     "assignee_role (harbour_master|dy_conservator|marine_supdt|hse_manager|finance_controller|"
     "crewing_manager|zone_head:<Zone>|terminal_manager:<TERMINAL>|berth_supervisor:<TERMINAL> — pick "

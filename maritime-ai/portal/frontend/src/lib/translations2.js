@@ -1,5 +1,5 @@
 // Supplementary dictionary — wins over translations.js on collisions.
-// Kept intentionally small after the Mundra re-domain: the curated high-traffic
+// Kept intentionally small after the port re-domain: the curated high-traffic
 // strings live in translations.js; this file holds portal/entity strings added
 // later so the main file stays stable. Long-tail captions fall back to English
 // by design (see lib/i18n.jsx).

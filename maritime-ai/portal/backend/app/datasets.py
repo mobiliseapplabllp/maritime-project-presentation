@@ -1,7 +1,7 @@
 """
 Data Catalogue — every dataset behind Sagar Drishti, with full provenance.
 
-Each entry documents WHERE the data came from (the Mundra Port Operations
+Each entry documents WHERE the data came from (the Port Authority Operations
 Portal's deterministic demo snapshot → panel builder → analysis engine), HOW it
 was obtained, WHAT it covers, and how it was VALIDATED, and serves a paginated,
 searchable preview of the actual rows.
@@ -29,7 +29,7 @@ SNAPSHOT_PATH = os.environ.get(
                                  "src", "demo", "snapshot.json")))
 
 _PORTAL_SRC = {
-    "name": "Mundra Port Operations Portal — demo snapshot",
+    "name": "Port Operations Portal — demo snapshot",
     "url": "portal/frontend/src/demo/snapshot.json (deterministic fictional demo world)",
     "access": "Parsed locally from the snapshot JSON — vessels, port calls, inspections, "
               "incidents, invoices, seafarers, berths. No external system is queried.",
@@ -45,7 +45,7 @@ _GEO_SRC = {
     "access": "Stylised terminal polygons and berth points authored for the 3D twin — "
               "indicative geometry, not survey data.",
 }
-_PANEL = ("Derived from the Mundra portal demo snapshot — a deterministic FICTIONAL demo "
+_PANEL = ("Derived from the port portal demo snapshot — a deterministic FICTIONAL demo "
           "world (Jan 2023 → present) — aggregated to the port → zone → terminal → berth "
           "grain by data/mundra/build_panels.py.")
 _VALID = ("Panel totals reconcile back to the snapshot's own dashboard aggregates (vessel "
@@ -87,7 +87,7 @@ CATALOG = [
                 "prediction, pattern, benchmark, revenue).",
          desc="The findings shown across the Operations Audit, Benchmark and Early Warning "
               "screens.",
-         coverage="Mundra Port, full panel period",
+         coverage="Port Authority, full panel period",
          validation="Each finding carries its own evidence block; browse them on the "
                     "Operations Audit tab."),
     dict(id="vessel_reliability", group="AI analysis outputs",
@@ -328,7 +328,7 @@ RESEARCH_DATASET = dict(
     source={"name": "Sagar Drishti research agent",
             "url": "public web via the research agent's daily run",
             "access": "Web-grounded briefings stored locally; sources cited per article."},
-    method="Daily internet research: Mundra/Adani Ports vs Indian major ports, and the "
+    method="Daily internet research: the port/the operator Ports vs Indian major ports, and the "
            "port-operator competitive landscape — each claim source-linked.",
     desc="Dated research briefings powering the two Market Intelligence pages.",
     coverage="daily · 2 topics",

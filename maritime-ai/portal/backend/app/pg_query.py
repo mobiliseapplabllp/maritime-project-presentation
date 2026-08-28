@@ -1,7 +1,7 @@
 """Guarded read-only SQL access for the chatbot's text-to-SQL loop.
 
 The LLM can request SELECT queries against the analytics store — the in-memory
-SQLite mirror of the Mundra panels (ops / marine / hse / revenue) and the
+SQLite mirror of the port panels (ops / marine / hse / revenue) and the
 analysis tables (unit_latest, vessel_reliability, vessel_watchlist,
 hotspot_ranking, terminal_trends). Hard guards: SELECT-only, forbidden
 keywords, row cap. Nothing here can write, and there is no external database
@@ -49,9 +49,9 @@ def run_select(sql, max_rows=MAX_ROWS):
         return {"error": str(e).split("\n")[0][:300]}
 
 
-SCHEMA_DOC = """DATABASE (SQLite analytics mirror, read-only) — the Mundra Port panels and analysis tables. Grain and semantics:
+SCHEMA_DOC = """DATABASE (SQLite analytics mirror, read-only) — the port panels and analysis tables. Grain and semantics:
 
-Every panel row is one unit x month. Spine columns in all four panels: level ('port'|'zone'|'terminal'|'berth'), unit_id (INMUN for the port; zone ids CONTAINER/BULKGEN/LIQMAR; terminal ids MICT, AMCT, AMC2, CT3, CT4, WBC, MPT, RRT, LQB, SPM; 24 berth codes like MICT-1, CT3-2, SPM-2), unit_name, zone, terminal, ym 'YYYY-MM' (Jan 2023 - present). ALWAYS filter one level — mixing levels double-counts (the port row already contains every zone/terminal/berth).
+Every panel row is one unit x month. Spine columns in all four panels: level ('port'|'zone'|'terminal'|'berth'), unit_id (REFPT for the port; zone ids CONTAINER/BULKGEN/LIQMAR; terminal ids CT-1, CT-2, CT-5, CT3, CT4, WBC, MPT, RRT, LQB, SPM; 24 berth codes like CT-1-1, CT3-2, SPM-2), unit_name, zone, terminal, ym 'YYYY-MM' (Jan 2023 - present). ALWAYS filter one level — mixing levels double-counts (the port row already contains every zone/terminal/berth).
 
 ops — vessel traffic & berth performance: vessel_calls, cargo_mt (tonnes), teu, avg_turnaround_hr (anchorage arrival -> sailing), avg_waiting_hr (anchorage wait before berthing), calls_waited_gt24h, berthed_lt6h_pct (berth-on-arrival service level), avg_output_mt_per_berthday, occupancy_pct.
 marine — marine services & inspections: pilotage_moves, tug_jobs, water_supplied_mt, garbage_calls, inspections_done (PSC/FSI/ISM), findings_raised, findings_closed, detentions.
@@ -63,5 +63,5 @@ vessel_watchlist — per-vessel risk register: imo, vessel, type, agent, calls, 
 hotspot_ranking — per-terminal composite risk (trailing 12m): unit_id, unit_name, calls, cargo_mt, wait (avg hr), occ (occupancy %), incidents, hi (high/critical), injuries, dets (detentions), finds (findings), inc_per_100, risk_score (0-100: incident rate 35 · waiting 25 · high-severity 25 · detentions 15), jv (joint-venture flag).
 terminal_trends — terminal, latest_calls, trend_calls_per_yr (linear fit), volatility.
 
-RULES: SQLite dialect (no ILIKE — use LIKE, it is case-insensitive for ASCII; use strftime/substr on ym text). Money is ₹ crore in *_cr columns. Detentions/inspections live in marine (monthly) and in vessel_watchlist (per vessel). Latest complete month = max(ym) in unit_latest. All transactions are the Mundra portal's fictional demo world; benchmark targets come from public major-port statistics.
+RULES: SQLite dialect (no ILIKE — use LIKE, it is case-insensitive for ASCII; use strftime/substr on ym text). Money is ₹ crore in *_cr columns. Detentions/inspections live in marine (monthly) and in vessel_watchlist (per vessel). Latest complete month = max(ym) in unit_latest. All transactions are the portal's fictional demo world; benchmark targets come from public major-port statistics.
 JOIN KEYS: unit_id joins the panels to each other and to hotspot_ranking; ym aligns months; vessel_watchlist joins vessel_reliability via type."""

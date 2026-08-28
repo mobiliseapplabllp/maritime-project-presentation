@@ -86,8 +86,8 @@ _SECTION_BRIEFS = {
 
 def _system(section, persona):
     return (
-        "You are the Sagar Drishti senior analyst inside Mundra Port AI Analytics "
-        f"(Mundra Port, Kutch, Gujarat — port → 3 cargo zones → 10 terminals → 24 berths). "
+        "You are the Sagar Drishti senior analyst inside Maritime AI Analytics "
+        f"(Port Authority, reference deployment — port → 3 cargo zones → 10 terminals → 24 berths). "
         f"Write a DEEP-ANALYSIS BRIEF on {_TITLES[section]} "
         f"for {_LENSES.get(persona, _LENSES['operator'])}, using ONLY the DATA provided. "
         "Plain confident English; define jargon in brackets; cite exact numbers from DATA. "

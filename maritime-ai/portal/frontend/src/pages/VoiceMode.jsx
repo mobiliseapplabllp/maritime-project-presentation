@@ -161,7 +161,7 @@ export default function VoiceMode() {
     // speak the greeting now, then start listening
     if (!greetedRef.current) {
       greetedRef.current = true;
-      say(t("Hello! I'm Sagar Intelligence. Ask me about vessel traffic, waiting and turnaround, incidents, receivables, or any vessel and berth across Mundra Port."),
+      say(t("Hello! I'm Sagar Intelligence. Ask me about vessel traffic, waiting and turnaround, incidents, receivables, or any vessel and berth across Port Authority."),
         () => listen());
       return;
     }

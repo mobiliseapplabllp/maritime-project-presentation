@@ -4,7 +4,7 @@ import { useAuth } from "../lib/auth.jsx";
 import { useLang } from "../lib/i18n.jsx";
 import { Card, PageHeader, Loading, Hint } from "../components/ui.jsx";
 
-const BLANK = { email: "", name: "", persona: "authority", org: "Mundra Port", scope: "port", is_admin: false, active: true, password: "" };
+const BLANK = { email: "", name: "", persona: "authority", org: "Port Authority", scope: "port", is_admin: false, active: true, password: "" };
 
 const REPORT_KINDS = [
   { v: "port", label: "Port / Executive brief" },
@@ -15,7 +15,7 @@ const REPORT_KINDS = [
   { v: "vessel", label: "Vessel" },
   { v: "research", label: "Market Intelligence daily digest" },
 ];
-const SCOPE_HINT = { port: "(no scope — whole port)", zone: "e.g. Container", terminal: "e.g. MICT", berth: "e.g. CT3-1", crew: "e.g. MUM-52259 (CDC no.)", vessel: "e.g. 9700005 (IMO)", research: "(no scope — full digest)" };
+const SCOPE_HINT = { port: "(no scope — whole port)", zone: "e.g. Container", terminal: "e.g. CT3", berth: "e.g. CT3-1", crew: "e.g. MUM-52259 (CDC no.)", vessel: "e.g. 9700005 (IMO)", research: "(no scope — full digest)" };
 const BLANK_SUB = { name: "", kind: "port", cadence: "daily", enabled: true, recipients: [{ email: "", scope: "" }] };
 
 // ---------------------------------------------------------------- modal shell
@@ -68,8 +68,8 @@ function UserModal({ initial, isEdit, onSaved, onClose }) {
         <label>{t("Email")}<input value={form.email} readOnly={isEdit} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="person@org.com" style={isEdit ? { opacity: 0.6 } : null} /></label>
         <label>{t("Full name")}<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t("Full name")} /></label>
         <label>{t("Persona")}
-          <select value={form.persona} onChange={(e) => setForm({ ...form, persona: e.target.value, org: e.target.value === "authority" ? "Mundra Port" : "Terminal Operator" })}>
-            <option value="authority">{t("Authority — Mundra Port")}</option>
+          <select value={form.persona} onChange={(e) => setForm({ ...form, persona: e.target.value, org: e.target.value === "authority" ? "Port Authority" : "Terminal Operator" })}>
+            <option value="authority">{t("Authority — Port")}</option>
             <option value="operator">{t("Operator — Terminal")}</option>
           </select></label>
         <label>{t("Organisation")}<input value={form.org} onChange={(e) => setForm({ ...form, org: e.target.value })} /></label>
@@ -256,7 +256,7 @@ export default function UserAdmin() {
                     <tr key={u.email}>
                       <td className="mono" style={{ fontSize: 12 }}>{u.email}</td>
                       <td>{u.name}</td>
-                      <td>{u.persona === "authority" ? t("Mundra Port (Authority)") : t("Terminal Operator")}</td>
+                      <td>{u.persona === "authority" ? t("Port Authority") : t("Terminal Operator")}</td>
                       <td>{u.is_admin ? "✓" : "—"}</td>
                       <td style={{ color: u.active ? "var(--good)" : "var(--muted)" }}>{u.active ? t("active") : t("disabled")}</td>
                       <td style={{ fontSize: 12 }}>{u.last_login ? String(u.last_login).slice(0, 16).replace("T", " ") : t("never")}</td>

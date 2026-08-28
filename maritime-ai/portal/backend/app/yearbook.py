@@ -1,7 +1,7 @@
 """Year Gone By — the annual wrapped/review pack per year (2023 / 2024 / 2025…).
 
 GET /api/yearbook/{year} returns the year's statistics computed live from the
-Mundra panels (ops / marine / hse / revenue) and the portal demo snapshot's
+the port panels (ops / marine / hse / revenue) and the portal demo snapshot's
 record collections (port calls, incidents), plus AI scene captions (generated
 once per year, cached; default template captions until then, with generation
 kicked off in the background).
@@ -202,7 +202,7 @@ def _stats(year: int):
 
 _NARR_SYS = (
     "You are Sagar Drishti writing the CAPTIONS for a cinematic 'Year Gone By' review shown to "
-    "Mundra Port and terminal leadership — like a year-in-review reel. From the STATS JSON, "
+    "Port Authority and terminal leadership — like a year-in-review reel. From the STATS JSON, "
     "write ONLY a JSON object with these string keys (each 1-2 punchy sentences, confident, "
     "warm, specific numbers from STATS, no jargon, no invented figures):\n"
     '{"opening": the year in one breath, "volume": the traffic & cargo story, "speed": the '

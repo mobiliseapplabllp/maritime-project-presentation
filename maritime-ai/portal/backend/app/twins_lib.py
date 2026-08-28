@@ -18,7 +18,7 @@ TWINS = [
         "category": "PORT_CRAFT",
         "status": "live",
         "match": {
-            "device_names": ["MUNDRA SHAKTI", "MUNDRA VEER", "ASD TUG"],
+            "device_names": ["HARBOUR SHAKTI", "HARBOUR VEER", "ASD TUG"],
             "group_contains": ["TUG"],
         },
         "angles": [

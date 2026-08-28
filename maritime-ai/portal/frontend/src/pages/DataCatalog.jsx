@@ -101,7 +101,7 @@ function DataPreview({ id }) {
       <div className="ds-preview-bar">
         <form onSubmit={search} className="ds-search">
           <input value={qLive} onChange={(e) => setQLive(e.target.value)}
-            placeholder={t("Search rows (e.g. MICT, tanker, 2026-06)…")} />
+            placeholder={t("Search rows (e.g. CT3, tanker, 2026-06)…")} />
           <button className="btn" type="submit">{t("Search")}</button>
           {q && <button className="btn" type="button"
             onClick={() => { setQ(""); setQLive(""); setOffset(0); }}>{t("✕ Clear")}</button>}
@@ -198,13 +198,13 @@ export default function DataCatalog() {
     <div>
       <PageHeader
         title="Data Catalogue"
-        sub="Every dataset behind Sagar Drishti — what it is, where it was assembled from, how it was validated, and the actual rows. The full evidence base for the Mundra Port analyses."
+        sub="Every dataset behind Sagar Drishti — what it is, where it was assembled from, how it was validated, and the actual rows. The full evidence base for the port analyses."
       />
 
       <div className="ds-totals">
         <span><b>{data.totals.datasets}</b> {t("datasets")}</span>
         <span><b>{fmtInt(data.totals.rows)}</b> {t("rows")}</span>
-        <span>{t("assembled from the Mundra Port operations snapshot")}</span>
+        <span>{t("assembled from the port operations snapshot")}</span>
         <span>{t("searchable · downloadable as CSV")}</span>
       </div>
 
@@ -248,7 +248,7 @@ export default function DataCatalog() {
       </div>
 
       <Hint>
-        {t("Click any dataset to see its full provenance — source, build method, validation notes — and browse the rows. The processed panels and analysis artifacts are retained on disk under data/mundra/ and analysis/out_mundra/ for full reproducibility.")}
+        {t("Click any dataset to see its full provenance — source, build method, validation notes — and browse the rows. The processed panels and analysis artifacts are retained on disk for full reproducibility.")}
       </Hint>
     </div>
   );

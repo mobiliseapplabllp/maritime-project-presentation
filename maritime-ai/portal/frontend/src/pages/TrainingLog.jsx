@@ -33,7 +33,7 @@ export default function TrainingLog() {
   return (
     <>
       <PageHeader title="Training Log — Examiner & Validator"
-        sub="The permanent record of the chatbot's self-testing loop: every question the QA Examiner asked as Mundra Port leadership would, whether the answer survived independent database verification, and every correction that now steers the assistant." />
+        sub="The permanent record of the chatbot's self-testing loop: every question the QA Examiner asked as Port Authority leadership would, whether the answer survived independent database verification, and every correction that now steers the assistant." />
 
       <div className="grid kpis" style={{ marginBottom: 18 }}>
         <StatTile label="Questions tested" value={fmtInt(d.questions_tested)} note={t("{n} cycles run", { n: fmtInt(d.cycles_recorded) })} />

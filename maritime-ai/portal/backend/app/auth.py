@@ -34,18 +34,18 @@ def _u(name, role, scope, persona, org):
 SEED_USERS = {
     # ---- Port administration — assurance lens across the whole port ----
     "harbour.master": _u("Capt. Rajiv Nair", "Harbour Master — Port Administrator",
-                         "port", "authority", "Mundra Port"),
+                         "port", "authority", "Port Authority"),
     "hse.chief": _u("Dr. Kavita Raval", "Chief — HSE & Environment",
-                    "port", "authority", "Mundra Port"),
+                    "port", "authority", "Port Authority"),
     "finance": _u("Meenakshi Iyer", "Controller — Revenue & Billing",
-                  "port", "authority", "Mundra Port"),
+                  "port", "authority", "Port Authority"),
     "analyst": _u("Ishaan Trivedi", "Data Analyst — Port MIS",
-                  "port", "authority", "Mundra Port"),
+                  "port", "authority", "Port Authority"),
     # ---- Business / terminal operators — scoped operational lens ----
     "head.container": _u("Devika Anand", "Head — Container Business",
                          "zone:Container", "operator", "Container Zone"),
-    "tm.mict": _u("Nirav Adhia", "Terminal Manager — MICT",
-                  "terminal:MICT", "operator", "MICT"),
+    "tm.ct3": _u("Nirav Adhia", "Terminal Manager — CT-3",
+                  "terminal:CT3", "operator", "CT3"),
 }
 
 
@@ -101,7 +101,7 @@ def current_user(token: str = Depends(oauth2)):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token")
     return {"username": payload["sub"], "name": payload.get("name"), "role": payload.get("role"),
             "scope": payload.get("scope"), "persona": payload.get("persona", "authority"),
-            "org": payload.get("org", "Mundra Port"), "is_admin": bool(payload.get("is_admin")),
+            "org": payload.get("org", "Port Authority"), "is_admin": bool(payload.get("is_admin")),
             "email": payload.get("email")}
 
 

@@ -24,7 +24,7 @@ create table if not exists app_users (
   role        text,
   persona     text default 'authority',
   scope       text default 'port',
-  org         text default 'Mundra Port',
+  org         text default 'Port Authority',
   is_admin    boolean default false,
   active      boolean default true,
   pw_hash     text,
@@ -58,24 +58,24 @@ def init(seed_admin_email="sharma.ashish2450@gmail.com"):
     # seed the demo roles (password login) + one admin (OTP-capable) if table empty
     cur.execute("select count(*) from app_users")
     if cur.fetchone()[0] == 0:
-        pw = hash_pw("Mundra@2026")
+        pw = hash_pw("the port@2026")
         rows = [
             (seed_admin_email, "admin", "Administrator", "Administrator", "authority", "port",
-             "Mundra Port", True, True, pw),
+             "Port Authority", True, True, pw),
             ("harbour.master@demo.local", "harbour.master", "Capt. Rajiv Nair",
-             "Harbour Master — Port Administrator", "authority", "port", "Mundra Port",
+             "Harbour Master — Port Administrator", "authority", "port", "Port Authority",
              False, True, pw),
             ("head.container@demo.local", "head.container", "Devika Anand",
              "Head — Container Business", "operator", "zone:Container", "Container Zone",
              False, True, pw),
-            ("tm.mict@demo.local", "tm.mict", "Nirav Adhia",
-             "Terminal Manager — MICT", "operator", "terminal:MICT", "MICT", False, True, pw),
+            ("tm.ct3@demo.local", "tm.ct3", "Nirav Adhia",
+             "Terminal Manager — CT-3", "operator", "terminal:CT3", "CT3", False, True, pw),
             ("hse.chief@demo.local", "hse.chief", "Dr. Kavita Raval",
-             "Chief — HSE & Environment", "authority", "port", "Mundra Port", False, True, pw),
+             "Chief — HSE & Environment", "authority", "port", "Port Authority", False, True, pw),
             ("finance@demo.local", "finance", "Meenakshi Iyer",
-             "Controller — Revenue & Billing", "authority", "port", "Mundra Port", False, True, pw),
+             "Controller — Revenue & Billing", "authority", "port", "Port Authority", False, True, pw),
             ("analyst@demo.local", "analyst", "Ishaan Trivedi",
-             "Data Analyst — Port MIS", "authority", "port", "Mundra Port", False, True, pw),
+             "Data Analyst — Port MIS", "authority", "port", "Port Authority", False, True, pw),
         ]
         cur.executemany("""insert into app_users
             (email,username,name,role,persona,scope,org,is_admin,active,pw_hash)
@@ -145,7 +145,7 @@ def upsert_user(u):
         pw_hash=coalesce(excluded.pw_hash, app_users.pw_hash)""",
       (u["email"].lower(), u.get("username") or u["email"].split("@")[0], u.get("name"),
        u.get("role") or ("Administrator" if u.get("is_admin") else "User"),
-       u.get("persona", "authority"), u.get("scope", "port"), u.get("org", "Mundra Port"),
+       u.get("persona", "authority"), u.get("scope", "port"), u.get("org", "Port Authority"),
        bool(u.get("is_admin")), u.get("active", True), pw_hash))
     conn.commit()
     conn.close()

@@ -111,7 +111,7 @@ def _expand_query(query):
     if not claude_cli.available():
         return []
     prompt = (
-        "You expand search queries for retrieval over Mundra Port documents "
+        "You expand search queries for retrieval over Port Authority documents "
         "(marine circulars, PSC/FSI inspection procedures, HSE and spill-response SOPs, "
         "tariff schedules, berthing policies, MARPOL/ISPS guidance, concession papers). "
         "For the query below, return ONLY a JSON array of 8-14 single "

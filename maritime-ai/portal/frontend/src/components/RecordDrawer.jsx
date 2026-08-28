@@ -175,7 +175,7 @@ function TabBody({ type, tab, d }) {
           {d.vessel ? (<>
             <KV k="Vessel" v={<RecordLink type="asset" id={d.vessel.imo}>{d.vessel.vessel}</RecordLink>} />
             <KV k="Type / agent" v={`${d.vessel.type || "—"} · ${d.vessel.agent || "—"}`} />
-            <KV k="Calls at Mundra" v={fmtInt(d.vessel.calls)} />
+            <KV k="Calls at the port" v={fmtInt(d.vessel.calls)} />
             <KV k="Vessel's total incidents" v={fmtInt(d.vessel.total_incidents)} />
             <KV k="PSC detentions" v={fmtInt(d.vessel.detentions)} />
           </>) : <KV k="Vessel" v="none — shore-side incident" />}

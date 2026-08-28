@@ -29,7 +29,7 @@ export default function Validation() {
     <>
       <PageHeader
         title="Benchmark vs Major Ports"
-        sub="Mundra's delivery against the Indian major-port yardsticks — average turnaround per call, the 5-hour pre-berthing norm, the 40–70% healthy occupancy band, berth-day output, the Indian Ocean MoU detention rate and the 95% collection target."
+        sub="the port's delivery against the Indian major-port yardsticks — average turnaround per call, the 5-hour pre-berthing norm, the 40–70% healthy occupancy band, berth-day output, the Indian Ocean MoU detention rate and the 95% collection target."
       />
       <div className="grid kpis" style={{ marginBottom: 18 }}>
         <div className="card kpi"><div className="stripe s-crit" /><div className="lab">{t("Units above the turnaround benchmark")}</div><div className="val">{data.breaching_count}</div><div className="note">{t("in your scope, latest month")}</div></div>

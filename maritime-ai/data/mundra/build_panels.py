@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Sagar Drishti — Mundra panel builder.
+Sagar Drishti — panel builder.
 
-Parses the Mundra Port Operations Portal's deterministic demo snapshot
+Parses the operations portal's deterministic demo snapshot
 (portal/frontend/src/demo/snapshot.json — the same fictional world the portal
 runs on) into tidy unit x month panels for the analytics engine.
 
@@ -44,16 +44,16 @@ ZONES = {
 }
 TERMINALS = {
     # prefix: (terminal_id, terminal_name, zone_id)
-    "MICT": ("MICT", "MICT (DP World JV)", "CONTAINER"),
-    "AMCT": ("AMCT", "Adani Mundra Container Terminal", "CONTAINER"),
-    "AMC2": ("AMC2", "AMCT-2", "CONTAINER"),
-    "CT3":  ("CT3", "CT-3 (AICT)", "CONTAINER"),
-    "CT4":  ("CT4", "CT-4 (ACMT JV)", "CONTAINER"),
+    "CT1":  ("CT1", "Container Terminal 1", "CONTAINER"),
+    "CT2":  ("CT2", "Container Terminal 2", "CONTAINER"),
+    "CT3":  ("CT3", "Container Terminal 3", "CONTAINER"),
+    "CT4":  ("CT4", "Container Terminal 4", "CONTAINER"),
+    "CT5":  ("CT5", "Container Terminal 5", "CONTAINER"),
     "WB":   ("WBC", "West Basin Coal Terminal", "BULKGEN"),
     "MP":   ("MPT", "Multipurpose Terminal", "BULKGEN"),
     "RR":   ("RRT", "Ro-Ro Terminal", "BULKGEN"),
-    "LB":   ("LQB", "Liquid Berths", "LIQMAR"),
-    "SPM":  ("SPM", "Single Point Moorings", "LIQMAR"),
+    "LB":   ("LQB", "Liquid Terminal", "LIQMAR"),
+    "SPM":  ("SPM", "SPM Crude", "LIQMAR"),
 }
 
 
@@ -235,7 +235,7 @@ def main():
             keys = [("berth", b["code"], f'{b["code"]} — {b["name"]}', zid, tid),
                     ("terminal", tid, tname, zid, tid),
                     ("zone", zid, ZONES[zid], zid, ""),
-                    ("port", "INMUN", "Mundra Port", "", "")]
+                    ("port", "REFPT", "Reference Port", "", "")]
             for level, uid, uname, kz, kt in keys:
                 tgt = agg[(level, uid, uname, kz, kt, ym)]
                 for c, v in m.items():

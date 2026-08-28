@@ -104,8 +104,7 @@ def md_to_html(md):
 _AI_CACHE, _AI_LOCK = {}, threading.Lock()
 
 _PORT_SYS = (
-    "You are Sagar Drishti, the Mundra Port operations analyst (Mundra Port AI Analytics, Kutch, "
-    "Gujarat). Write a PORT EXECUTIVE BRIEF for the Harbour Master and senior leadership from the "
+    "You are Sagar Drishti, the port operations analyst (Maritime AI Analytics). Write a PORT EXECUTIVE BRIEF for the Harbour Master and senior leadership from the "
     "DATA (all zones, 10 terminals, 24 berths). Plain confident English; cite exact numbers. Markdown, "
     "450-750 words, sections: ## Headline (3-4 sentences on where the port stands), ## Traffic & cargo "
     "(vessel calls, tonnage, TEU, trend), ## Marine service (turnaround and anchorage waiting vs the "
@@ -114,7 +113,7 @@ _PORT_SYS = (
     "crore, collection %), ## Top risks (bullets), ## Recommended actions (numbered, owner + "
     "timeframe). Never invent numbers.")
 _ZONE_SYS = (
-    "You are Sagar Drishti, the Mundra Port operations analyst. Write a ZONE BRIEF for the zone head "
+    "You are Sagar Drishti, the port operations analyst. Write a ZONE BRIEF for the zone head "
     "from the DATA (the terminals in this cargo zone, benchmarked within the zone and against the "
     "port). Plain confident English; cite exact numbers; name the terminals and berths that drive the "
     "numbers. Markdown, 400-650 words, sections: ## Headline, ## Terminal league (traffic, turnaround "
@@ -122,24 +121,24 @@ _ZONE_SYS = (
     "## Recommended actions (numbered, owner + timeframe). Keep the four panels distinct. Never "
     "invent numbers.")
 _TERMINAL_SYS = (
-    "You are Sagar Drishti, the Mundra Port operations analyst. Write a TERMINAL BRIEF for this "
+    "You are Sagar Drishti, the port operations analyst. Write a TERMINAL BRIEF for this "
     "terminal's manager from the DATA. Plain confident English; cite exact numbers. Markdown, 300-500 "
     "words, sections: ## Headline, ## Berth performance (calls, turnaround, waiting, occupancy), "
     "## Incidents & inspections, ## Receivables, ## Recommended actions (numbered). Never invent "
     "numbers.")
 _BERTH_SYS = (
-    "You are Sagar Drishti, the Mundra Port operations analyst. Write a BERTH BRIEF for the berth "
+    "You are Sagar Drishti, the port operations analyst. Write a BERTH BRIEF for the berth "
     "supervisor from the DATA (one berth's calls, service times, incidents). Plain confident English; "
     "cite exact numbers. Markdown, 250-400 words, sections: ## Headline, ## Vessel service, ## Safety "
     "& inspections, ## Recommended actions. Never invent numbers.")
 _CREW_SYS = (
-    "You are Sagar Drishti, the Mundra Port operations analyst. Write a CREW/SEAFARER BRIEF for the "
+    "You are Sagar Drishti, the port operations analyst. Write a CREW/SEAFARER BRIEF for the "
     "Crewing Manager from the DATA (roster, sign-on status, certificates). Plain confident English; "
     "cite exact numbers; context, not blame. Markdown, 250-400 words, sections: ## Headline, "
     "## Roster & certificates, ## Recommended actions. Never invent numbers.")
 _VESSEL_SYS = (
-    "You are Sagar Drishti, the Mundra Port operations analyst. Write a VESSEL BRIEF from the DATA "
-    "(one vessel's calls at Mundra, turnaround history, incidents, PSC inspections and detentions). "
+    "You are Sagar Drishti, the port operations analyst. Write a VESSEL BRIEF from the DATA "
+    "(one vessel's calls at the port, turnaround history, incidents, PSC inspections and detentions). "
     "Plain confident English; cite exact numbers. Markdown, 250-450 words, sections: ## Headline, "
     "## Call & service history, ## Incidents & PSC record, ## Recommended actions. Never invent "
     "numbers.")
@@ -191,13 +190,13 @@ _UNIT_COLS = ["unit_name", "vessel_calls", "cargo_mt", "teu", "avg_turnaround_hr
 def _port_pack():
     s = get_store()
     ul = s.unit_latest
-    port = ul[ul.unit_id == "INMUN"]
+    port = ul[ul.unit_id == "REFPT"]
     zones = ul[ul.level == "zone"]
     terms = ul[ul.level == "terminal"]
     ops = s.frames.get("ops")
     trend = []
     if ops is not None:
-        h = ops[ops.unit_id == "INMUN"].sort_values("ym").tail(12)
+        h = ops[ops.unit_id == "REFPT"].sort_values("ym").tail(12)
         trend = [{"ym": r.ym, "vessel_calls": r.vessel_calls, "cargo_mt": r.cargo_mt,
                   "avg_turnaround_hr": r.avg_turnaround_hr} for _, r in h.iterrows()]
     hot = s.frames.get("hotspot_ranking")
@@ -232,8 +231,8 @@ def _zone_pack(zone):
         "latest_month": s.latest_month,
         "zone": _row_pack(z.iloc[0], _UNIT_COLS),
         "terminals": [_row_pack(r, _UNIT_COLS) for _, r in terms.iterrows()],
-        "port_reference": _row_pack(ul[ul.unit_id == "INMUN"].iloc[0], _UNIT_COLS)
-                          if len(ul[ul.unit_id == "INMUN"]) else {},
+        "port_reference": _row_pack(ul[ul.unit_id == "REFPT"].iloc[0], _UNIT_COLS)
+                          if len(ul[ul.unit_id == "REFPT"]) else {},
         "major_port_benchmark": s.benchmark,
     }
 
@@ -322,29 +321,29 @@ def build_report(kind, scope=None, lang="en"):
     elif kind == "terminal":
         d = _record_detail("terminal", scope)
         title = f"Terminal Brief — {scope}"
-        sub = f"Mundra Port · latest month {lm}"
+        sub = f"Port Authority · latest month {lm}"
         kpis, tables = _generic_kpis(d), _generic_tables(d)
     elif kind == "berth":
         d = _record_detail("berth", scope)
         title = f"Berth Brief — {scope}"
-        sub = f"Mundra Port · latest month {lm}"
+        sub = f"Port Authority · latest month {lm}"
         kpis, tables = _generic_kpis(d), _generic_tables(d)
     elif kind == "crew":
         d = _record_detail("crew", scope)
         title = f"Crew Brief — {scope}"
-        sub = "Mundra Port crewing"
+        sub = "Port Authority crewing"
         kpis, tables = _generic_kpis(d), _generic_tables(d)
     elif kind == "vessel":
         d = _record_detail("vessel", scope)
         title = f"Vessel Brief — {scope}"
-        sub = f"Calls at Mundra Port · latest month {lm}"
+        sub = f"Calls at Port Authority · latest month {lm}"
         kpis, tables = _generic_kpis(d), _generic_tables(d)
     else:  # port / executive
         kind = "port"
         d = _port_pack()
         p = d["port"]
         rev = d.get("revenue", {})
-        title = "Port Executive Brief — Mundra"
+        title = "Port Executive Brief — the port"
         sub = f"3 cargo zones · 10 terminals · 24 berths · latest month {lm}"
         kpis = [("Vessel calls", _n(p.get("vessel_calls")), f"{lm}"),
                 ("Cargo", _mmt(p.get("cargo_mt")), f"{_n(p.get('teu'))} TEU"),
@@ -398,7 +397,7 @@ def render_html(rep, for_email=False):
     </style></head><body>
       <table style="width:100%;border-collapse:collapse;border-bottom:2px solid #0d4f6e;padding-bottom:6px">
         <tr><td style="font-size:15px;font-weight:800;color:#0d4f6e">◈ Sagar Drishti</td>
-        <td style="text-align:right;font-size:9.5px;color:#5f6763">Mundra Port AI Analytics<br/>Generated {_html.escape(rep['generated'])}</td></tr>
+        <td style="text-align:right;font-size:9.5px;color:#5f6763">Maritime AI Analytics<br/>Generated {_html.escape(rep['generated'])}</td></tr>
       </table>
       <h1 style="font-size:19px;margin:12px 0 2px;color:#12211d">{_html.escape(rep['title'])}</h1>
       <div style="color:#5f6763;font-size:11px;margin-bottom:2px">{_html.escape(rep['subtitle'])}</div>
@@ -406,7 +405,7 @@ def render_html(rep, for_email=False):
       <div style="margin-top:10px">{rep['ai_html']}</div>
       {tbl_html}
       <div style="margin-top:18px;border-top:1px solid #dfe4e2;padding-top:6px;font-size:8.5px;color:#8a938f">
-        Generated by Sagar Drishti from the Mundra Port operations snapshot (deterministic demo world).
+        Generated by Sagar Drishti from the Port Authority operations snapshot (deterministic demo world).
         Benchmarks are public major-port statistics. The four panels stay separate: ops · marine services · HSE · revenue.
       </div>
     </body></html>"""

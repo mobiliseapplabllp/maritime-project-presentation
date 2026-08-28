@@ -59,7 +59,7 @@ function RegionTab() {
         <StatTile label="Avg terminal waiting" value={hrs(s.avg_waiting_hr)} note={t("vs the 5h pre-berthing target")} tone={s.avg_waiting_hr > 5 ? "warn" : "good"} />
         <StatTile label="Incident concentration" value={s.top3_incident_share_pct != null ? s.top3_incident_share_pct + "%" : "—"} note={t("sits in just the top 3 terminals")} tone="crit" />
       </div>
-      <Card title="Port & zones — traffic and performance" cap="Mundra Port as a whole, then its three operating zones, latest month.">
+      <Card title="Port & zones — traffic and performance" cap="Port Authority as a whole, then its three operating zones, latest month.">
         <div className="tbl-wrap"><table className="tbl">
           <thead><tr><th>{t("Unit")}</th><th>{t("Calls")}</th><th>{t("Cargo MT")}</th><th>{t("TEU")}</th><th>{t("Turnaround")}</th><th>{t("Waiting")}</th><th>{t("Incidents")}</th><th>{t("Outstanding")}</th></tr></thead>
           <tbody>
@@ -221,7 +221,7 @@ export default function Districts() {
   return (
     <>
       <PageHeader title="Port Explorer"
-        sub="All 24 berths and 10 terminals of Mundra as one portfolio — benchmark them, find the queues and the hotspots, and open any berth's full analytics portal. Every row is a live, drillable record." />
+        sub="All 24 berths and 10 terminals of the port as one portfolio — benchmark them, find the queues and the hotspots, and open any berth's full analytics portal. Every row is a live, drillable record." />
       <div className="dash-tabs">
         <button className={tab === "facilities" ? "on" : ""} onClick={() => setTab("facilities")}>▤ {tr("Berths")}</button>
         <button className={tab === "region" ? "on" : ""} onClick={() => setTab("region")}>☷ {tr("Port Benchmark")}</button>

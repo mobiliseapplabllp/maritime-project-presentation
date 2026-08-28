@@ -168,7 +168,7 @@ def overview(user=Depends(current_user)):
     return {
         "meta": s.meta, "latest_month": s.latest_month,
         "scope": {"scope": user["scope"], "persona": user.get("persona"),
-                  "org": user.get("org"), "unit_name": home.get("unit_name", "Mundra Port"),
+                  "org": user.get("org"), "unit_name": home.get("unit_name", "Port Authority"),
                   "level": home.get("level", "port")},
         "home_series": series, "kpis": kpis,
         "severity_counts": sev, "findings_count": len(s.findings),
@@ -502,7 +502,7 @@ def tts_synthesize(body: TTSBody):
         raise HTTPException(503, "Neural TTS unavailable")
 
 
-# ---- Heatmap / 3D Mundra twin ----
+# ---- Heatmap / 3D the port twin ----
 from . import heatmap as hm_mod
 
 
@@ -524,8 +524,8 @@ except Exception:
     _DR_CACHE = {}
 
 _UNIT_SYSTEM = (
-    "You are the Sagar Drishti analyst inside Mundra Port AI Analytics (port-operations "
-    "analytics for Mundra Port, Kutch, Gujarat). Write a COMPREHENSIVE PORT-OPERATIONS "
+    "You are the Sagar Drishti analyst inside Maritime AI Analytics (port-operations "
+    "analytics for Port Authority, reference deployment). Write a COMPREHENSIVE PORT-OPERATIONS "
     "INTELLIGENCE REPORT for leadership about ONE unit (a cargo zone, terminal or berth), "
     "using ONLY the DATA provided. Plain, confident, jargon-light English (define terms in "
     "brackets). Markdown with EXACTLY these sections:\n"

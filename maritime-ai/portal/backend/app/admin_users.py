@@ -60,7 +60,7 @@ class UserIn(BaseModel):
     role: Optional[str] = None
     persona: str = "authority"
     scope: str = "port"
-    org: str = "Mundra Port"
+    org: str = "Port Authority"
     is_admin: bool = False
     active: bool = True
     password: Optional[str] = None
@@ -127,7 +127,7 @@ def smtp_test(body: dict = Body(...), user=Depends(require_admin)):
     if not to:
         raise HTTPException(400, "No recipient")
     ok, detail = mailer.send(to, "Sagar Drishti — SMTP test",
-                             "<p>This is a test email from Sagar Drishti (Mundra Port AI Analytics). SMTP is working.</p>",
+                             "<p>This is a test email from Sagar Drishti (Maritime AI Analytics). SMTP is working.</p>",
                              "SMTP test — working.")
     return {"ok": ok, "detail": detail, "to": to}
 

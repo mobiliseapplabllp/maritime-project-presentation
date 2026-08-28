@@ -1,5 +1,5 @@
 """
-3D Mundra port twin — joins the terminal GeoJSON with the unit metrics and the
+3D port twin — joins the terminal GeoJSON with the unit metrics and the
 composite TERMINAL-RISK score (higher = worse) from the analysis pipeline.
 Scope-aware: out-of-scope terminals are returned uncoloured (metrics null).
 """

@@ -12,12 +12,12 @@ import { useLang } from "../lib/i18n.jsx";
 
 /* ---------------- shared helpers ---------------- */
 
-// Projection is computed from the geojson's OWN bounds every time — the Mundra
+// Projection is computed from the geojson's OWN bounds every time — the port
 // terminal footprint spans roughly lon 69.60–69.74 / lat 22.62–22.76 (with the
 // two offshore SPM pads to the SW), and nothing here assumes those numbers.
 function projectorFor(geojson) {
   // Equirectangular projection. The centre is the mean of the feature centroids —
-  // the estate's visual mass — not the bounding-box middle: Mundra's two SPM pads
+  // the estate's visual mass — not the bounding-box middle: the port's two SPM pads
   // sit ~13 km offshore, so a bbox centre lands in open water and pushes every
   // quay-side terminal into a corner. Span is then the radius to the furthest
   // vertex, doubled, so the remote pads still stay in frame.
@@ -56,7 +56,7 @@ function projectorFor(geojson) {
 }
 
 // Default ("home") camera, framed on the quay estate rather than the whole
-// projected radius — Mundra's SPM pads lie ~13 km offshore, so a radius-filling
+// projected radius — the port's SPM pads lie ~13 km offshore, so a radius-filling
 // view leaves the terminals tiny. Zoom out, or click a pad in the ranking, to
 // reach them. Used both at init and by the deselect reset so they can't drift.
 const HOME_CAM = [0, 58, 48];
@@ -637,7 +637,7 @@ export default function MundraTwin() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (loading) return <Loading text="Building the Mundra terminal twin…" />;
+  if (loading) return <Loading text="Building the terminal twin…" />;
   if (error || !data) return <Hint>Twin unavailable: {String(error)}</Hint>;
 
   const metricDef = data.metric_defs.find((m) => m.key === metricKey) || data.metric_defs[0];
@@ -703,7 +703,7 @@ export default function MundraTwin() {
       )}
       {explain && (
         <ExplainModal
-          title="Mundra terminal heatmap — 3D twin"
+          title="Terminal heatmap — 3D twin"
           caption={`Terminals coloured and raised by ${metricDef.label}: ${metricDef.desc}. Data: ${data.latest_ym}.`}
           data={{ metric: metricDef.key, top5: Object.values(data.terminals).sort((a, b) => (b.risk || 0) - (a.risk || 0)).slice(0, 5).map((d) => ({ name: d.name, risk: d.risk })) }}
           page="/twin" onClose={() => setExplain(false)} />

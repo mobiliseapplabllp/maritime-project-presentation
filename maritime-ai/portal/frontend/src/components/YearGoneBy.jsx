@@ -108,7 +108,7 @@ export default function YearGoneBy() {
     return [
       { id: "opening", accent: "#2dd4bf", eyebrow: t("THE YEAR GONE BY"), body: (a) => (<>
           <div className="ygb-title">{yl}</div>
-          <div className="ygb-cap">{nr.opening || t("A year of working {n} MMT of cargo over the berths of Mundra — this is the story of {year} in numbers.", { n: tr.cargo_mmt, year: yl })}</div>
+          <div className="ygb-cap">{nr.opening || t("A year of working {n} MMT of cargo over the berths of the port — this is the story of {year} in numbers.", { n: tr.cargo_mmt, year: yl })}</div>
         </>) },
       { id: "volume", accent: "#2dd4bf", eyebrow: t("THE TRAFFIC"), body: (a) => (<>
           <Big n={tr.calls} active={a} />

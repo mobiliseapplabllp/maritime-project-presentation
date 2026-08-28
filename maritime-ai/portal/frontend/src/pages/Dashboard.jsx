@@ -28,7 +28,7 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader
-        title={t("{u} — port overview", { u: sc.unit_name || "Mundra Port" })}
+        title={t("{u} — port overview", { u: sc.unit_name || "Port Authority" })}
         sub={authorityLens
           ? t("Port authority view for {org} — vessel traffic, berth performance, HSE and receivables across your scope ({n} berths, {span}).", { org: sc.org, n: data.meta.berths, span: data.meta.generated_span?.replace("..", " – ") })
           : t("Terminal operator view for {org} — traffic, service levels, incidents and dues across your scope ({n} berths, {span}).", { org: sc.org, n: data.meta.berths, span: data.meta.generated_span?.replace("..", " – ") })} />
@@ -52,7 +52,7 @@ export default function Dashboard() {
       </div>
 
       <Card title={t("Turnaround & waiting over time vs the major-port benchmark")}
-        cap={t("Average hours per call each month. The dashed line is the Indian major-port average turnaround — everything above it is time ships spend at Mundra beyond the benchmark.")}>
+        cap={t("Average hours per call each month. The dashed line is the Indian major-port average turnaround — everything above it is time ships spend at the port beyond the benchmark.")}>
         <TrendLine
           data={series} suffix="h"
           lines={[

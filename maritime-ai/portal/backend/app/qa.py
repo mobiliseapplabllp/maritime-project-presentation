@@ -142,7 +142,7 @@ def qa_status():
 
 
 _EXAMINER_SYS = (
-    "You are the EXAMINER agent inside Sagar Drishti (Mundra Port AI Analytics). Your job: write "
+    "You are the EXAMINER agent inside Sagar Drishti (Maritime AI Analytics). Your job: write "
     "realistic questions that a real harbour master, terminal manager, HSE chief or finance "
     "controller would actually type into this platform — the kind of thing a busy person asks in "
     "one plain sentence. Vary the topic across: vessel traffic and cargo throughput, turnaround "
@@ -158,7 +158,7 @@ _EXAMINER_SYS = (
     "Output ONLY a JSON array of question strings, nothing else.")
 
 _VALIDATOR_SYS = (
-    "You are the VALIDATOR agent inside Sagar Drishti (Mundra Port AI Analytics). You receive a "
+    "You are the VALIDATOR agent inside Sagar Drishti (Maritime AI Analytics). You receive a "
     "QUESTION and the CHATBOT'S ANSWER. Verify the answer against the ground-truth data yourself.\n"
     "Step 1 — reply with ONLY a ```sql block of 1-2 SQLite SELECTs that fetch the ground truth "
     "(filter one hierarchy level; the port row already contains every zone/terminal/berth).\n"
@@ -205,7 +205,7 @@ def run_qa_cycle(trigger="scheduled"):
     cfg = get_cfg()
     cycle_id = dt.datetime.now().strftime("%Y%m%d-%H%M")
     user = {"username": "qa", "name": "QA Loop", "scope": "port", "persona": "operator",
-            "org": "Mundra Port"}
+            "org": "Port Authority"}
 
     hist = _load(_HIST, [])
     recent_qs = [h["question"] for h in hist[-30:]]

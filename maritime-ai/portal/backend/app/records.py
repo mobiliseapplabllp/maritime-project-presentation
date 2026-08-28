@@ -1,6 +1,6 @@
 """Record-level drill-down API — master lists + record drawers.
 
-Master lists are served from the Mundra portal's demo snapshot (vessels, port
+Master lists are served from the port portal's demo snapshot (vessels, port
 calls, inspections, HSE incidents, invoices, seafarers, berths), indexed once
 in memory — the record-level world behind the ops/marine/hse/revenue panels.
 Record detail endpoints assemble everything a drawer needs in one call;
@@ -60,16 +60,16 @@ SNAPSHOT_PATH = os.environ.get(
 # Terminal registry: berth-code prefix -> (terminal_id, terminal_name, zone_name)
 # (mirrors data/mundra/build_panels.py)
 TERMINALS = {
-    "MICT": ("MICT", "MICT (DP World JV)", "Container"),
-    "AMCT": ("AMCT", "Adani Mundra Container Terminal", "Container"),
-    "AMC2": ("AMC2", "AMCT-2", "Container"),
-    "CT3":  ("CT3", "CT-3 (AICT)", "Container"),
-    "CT4":  ("CT4", "CT-4 (ACMT JV)", "Container"),
+    "CT1":  ("CT1", "Container Terminal 1", "Container"),
+    "CT2":  ("CT2", "Container Terminal 2", "Container"),
+    "CT3":  ("CT3", "Container Terminal 3", "Container"),
+    "CT4":  ("CT4", "Container Terminal 4", "Container"),
+    "CT5":  ("CT5", "Container Terminal 5", "Container"),
     "WB":   ("WBC", "West Basin Coal Terminal", "Dry Bulk & General"),
     "MP":   ("MPT", "Multipurpose Terminal", "Dry Bulk & General"),
     "RR":   ("RRT", "Ro-Ro Terminal", "Dry Bulk & General"),
-    "LB":   ("LQB", "Liquid Berths", "Liquid & Offshore"),
-    "SPM":  ("SPM", "Single Point Moorings", "Liquid & Offshore"),
+    "LB":   ("LQB", "Liquid Terminal", "Liquid & Offshore"),
+    "SPM":  ("SPM", "SPM Crude", "Liquid & Offshore"),
 }
 
 
@@ -582,7 +582,7 @@ def facilities_summary():
 
 
 _BERTH_EXPLORER_SYS = (
-    "You are Sagar Drishti writing a PORTFOLIO brief on the whole berth estate of Mundra Port "
+    "You are Sagar Drishti writing a PORTFOLIO brief on the whole berth estate of Port Authority "
     "for port and terminal leadership, from the SUMMARY JSON (24 berths, trailing 12 months). "
     "Cover: how the estate splits by berth type and which types run hottest; the waiting-time "
     "picture (where the >24 h anchorage tail concentrates); incident concentration (top-5/10 "
@@ -642,7 +642,7 @@ def _vessel_risk_forecast(ident, monthly_inc):
             "expected_12mo": 0, "low": 0, "high": 0, "incidents_per_year": 0,
             "outlook": "clean",
             "method": "No incident on record — the forecast is nil on this vessel's own evidence.",
-            "reasoning": "This vessel has a clean incident record across its calls at Mundra, so "
+            "reasoning": "This vessel has a clean incident record across its calls at the port, so "
                          "its self-forecast is zero. It still warrants routine attention only "
                          "through the standard inspection programme."})
         return base
@@ -746,7 +746,7 @@ def asset_detail(imo: str):
             "incidents": incidents, "certificates": certificates, "intel": wl,
             "incident_history": inc_hist, "risk_forecast": forecast,
             "gaps": {"claims": "P&I claims and off-port casualty history live outside the "
-                               "portal — this record covers Mundra calls only",
+                               "portal — this record covers the port calls only",
                      "ownership": "beneficial-ownership chains are not recorded; agent and "
                                   "operator are the working commercial contacts"}}
 
@@ -1220,7 +1220,7 @@ def district_detail(name: str):
 # ================================================================ AI briefs
 _BRIEF_SYSTEMS = {
     "asset": ("Write a VESSEL BRIEF for one ship, from its record JSON. Cover: what she is "
-              "(type, size, agent/operator) and where she works at Mundra (dominant terminal); "
+              "(type, size, agent/operator) and where she works at the port (dominant terminal); "
               "how she behaves across her calls (waiting, turnaround, cargo) vs the port "
               "norms; the inspection record (findings, closure, detentions — a detention is "
               "the serious one); the incident record and the risk_forecast (expected 12-month "
@@ -1257,7 +1257,7 @@ _BRIEF_SYSTEMS = {
                  "vessels that use it most; the monthly trend. End with the 3 actions that "
                  "most improve this berth."),
     "district": ("Write a TERMINAL INTELLIGENCE BRIEF from the record JSON — this is a whole "
-                 "terminal of Mundra Port, benchmarked against the other terminals. Use "
+                 "terminal of Port Authority, benchmarked against the other terminals. Use "
                  "`rank` (risk_rank, wait_rank, calls_rank, incidents_rank out of `total`) "
                  "and `port_context` (cargo share, incident share, avg terminal waiting) to "
                  "place the terminal: is it a leader or a laggard, and on which measure. "
@@ -1287,8 +1287,8 @@ def record_analysis(rtype: str, rid: str, user=Depends(current_user), lang: str 
     data = {"asset": asset_detail, "ticket": ticket_detail, "pm": pm_detail,
             "employee": employee_detail, "facility": facility_detail,
             "district": district_detail}[rtype](rid)
-    system = ("You are Sagar Drishti, the Mundra Port operations analyst (Mundra Port AI "
-              "Analytics, Kutch, Gujarat). " + _BRIEF_SYSTEMS[rtype] + " 180-320 words, "
+    system = ("You are Sagar Drishti, the port operations analyst (Port Authority AI "
+              "Analytics, reference deployment). " + _BRIEF_SYSTEMS[rtype] + " 180-320 words, "
               "markdown, plain confident English, cite exact numbers from the JSON only. "
               "The demo world is fictional; benchmarks come from public major-port "
               "statistics. Never invent dates or amounts."

@@ -1,4 +1,4 @@
-"""Sagar Drishti (Mundra Port AI Analytics) — FastAPI backend entrypoint."""
+"""Sagar Drishti (Maritime AI Analytics) — FastAPI backend entrypoint."""
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
@@ -15,7 +15,7 @@ from .yearbook import router as yearbook_router
 from .admin_users import auth_router, admin_router
 
 app = FastAPI(title="Sagar Drishti API", version="1.0",
-              description="Mundra Port AI Analytics backend")
+              description="Maritime AI Analytics backend")
 
 app.add_middleware(
     CORSMiddleware,

@@ -9,7 +9,7 @@ Sources are referenced by their real file paths so the report is auditable.
 """
 
 # Reusable source strings
-_SNAP = ("Mundra Port Operations Portal demo snapshot (portal/frontend/src/demo/"
+_SNAP = ("Port Operations Portal demo snapshot (portal/frontend/src/demo/"
          "snapshot.json — a deterministic fictional world, Jan 2023 to date), parsed "
          "into the ops / marine / hse / revenue unit×month panels by "
          "data/mundra/build_panels.py.")
@@ -40,7 +40,7 @@ DETAILS = {
     "A2": {
         "what": "About one call in five waits more than 24 hours at anchorage before a berth. "
                 "The tail is not uniform — it concentrates at a few terminals (Ro-Ro, Liquid "
-                "Berths, MICT, AMCT in the latest month) where cargo mix meets berth "
+                "Berths, CT-1, CT-2 in the latest month) where cargo mix meets berth "
                 "compatibility limits. Against the public major-port pre-berthing norm of "
                 "about 5 h, this is the port's clearest service gap.",
         "source": f"{_SNAP} {_BENCH}",
@@ -69,8 +69,8 @@ DETAILS = {
     "B1": {
         "what": "One composite risk number per terminal over the trailing 12 months — incident "
                 "intensity, congestion and compliance blended into a 0–100 score that drives "
-                "the 3D twin's colouring and the ranking list. Single Point Moorings leads "
-                "(84.2), then CT-4 (75.3), Multipurpose (51.4), AMCT (51.2) and CT-3 (50.2).",
+                "the 3D twin's colouring and the ranking list. SPM Crude leads "
+                "(84.2), then CT-4 (75.3), Multipurpose (51.4), CT-2 (51.2) and CT-3 (50.2).",
         "source": f"{_SNAP} Computed into analysis/out_mundra/hotspot_ranking.csv by {_ENGINE}",
         "method": "risk_score = 35·norm(incidents per 100 calls) + 25·norm(avg waiting hr) + "
                   "25·norm(high/critical incidents) + 15·norm(detentions), each min-max "
@@ -111,7 +111,7 @@ DETAILS = {
     "C2": {
         "what": "Oil-sheen / spill events by year: 10 (2023), 14 (2024), 7 (2025), 3 (2026 to "
                 "date). Tier-1 sheen events cluster around bunkering and hose work at the "
-                "liquid berths; each carries a GPCB (Gujarat Pollution Control Board) "
+                "liquid berths; each carries a the pollution control board "
                 "notification duty.",
         "source": f"{_SNAP} (hse panel: spills, per calendar year, port level).",
         "method": "Annual sum of the spills column at port level.",
@@ -134,8 +134,8 @@ DETAILS = {
     },
     "D1": {
         "what": "Where next year's traffic pressure lands if current trends hold: CT-4, CT-3, "
-                "AMCT and West Basin Coal are the fastest-growing terminals by fitted call "
-                "trend; MICT is flat and Liquid Berths / AMCT-2 are softening.",
+                "CT-2 and West Basin Coal are the fastest-growing terminals by fitted call "
+                "trend; CT-1 is flat and Liquid Terminal / Container Terminal 5 are softening.",
         "source": f"{_SNAP} Computed into analysis/out_mundra/terminal_trends.csv by {_ENGINE}",
         "method": "Ordinary-least-squares slope of monthly vessel calls per terminal over the "
                   "full series (trend_calls_per_yr), with a volatility measure (std dev of "
@@ -176,9 +176,9 @@ DETAILS = {
     "E2": {
         "what": "An unsupervised machine-learning segmentation: k-means (3 clusters) on "
                 "standardised terminal features groups the port into high-volume container "
-                "quays (MPT, AMCT, CT-3, MICT), a steady coal-bulk berth (West Basin), and a "
+                "quays (MPT, CT-2, CT-3, CT-1), a steady coal-bulk berth (West Basin), and a "
                 "low-frequency / high-consequence liquid-and-offshore group (SPM, CT-4, "
-                "Liquid Berths, Ro-Ro, AMCT-2) — segments no hand-written rule specified.",
+                "Liquid Terminal, Ro-Ro, Container Terminal 5) — segments no hand-written rule specified.",
         "source": f"{_SNAP} Terminal feature matrix (calls, turnaround, wait, incident rate, "
                   f"occupancy) from {_ENGINE}",
         "method": "StandardScaler normalisation, then scikit-learn KMeans with k=3; cluster "
@@ -221,18 +221,18 @@ DETAILS = {
     },
     "G2": {
         "what": "Where the outstanding book concentrates by terminal: CT-4 (₹3.2 Cr, 94.6% "
-                "collected), AMCT-2 (₹2.7 Cr, 93.3%), Multipurpose (₹2.0 Cr), CT-3 "
-                "(₹1.4 Cr), MICT (₹0.8 Cr). Pair with the agent directory for the "
+                "collected), Container Terminal 5 (₹2.7 Cr, 93.3%), Multipurpose (₹2.0 Cr), CT-3 "
+                "(₹1.4 Cr), CT-1 (₹0.8 Cr). Pair with the agent directory for the "
                 "collection call list.",
         "source": f"{_SNAP} (revenue panel per terminal, latest month).",
         "method": "Terminals ranked by outstanding_cr with their collection_pct.",
         "ai_role": "Automated ranking.",
         "implication": "Two terminals hold over half the receivable — a focused agent-level "
-                       "collection push at CT-4 and AMCT-2 moves the port number fastest.",
+                       "collection push at CT-4 and Container Terminal 5 moves the port number fastest.",
     },
 }
 
-_PORT_SOURCE = ("Mundra Port Operations Portal demo snapshot — vessel calls, marine services, "
+_PORT_SOURCE = ("Port Operations Portal demo snapshot — vessel calls, marine services, "
                 "inspections, HSE incidents and invoices parsed into the ops/marine/hse/revenue "
                 "panels (fictional demo world; benchmarks from public major-port statistics).")
 
@@ -245,7 +245,7 @@ def attach(finding):
         d = {
             "what": finding.get("inference", ""),
             "source": _PORT_SOURCE,
-            "method": "Computed in analysis/analyze_mundra.py from the Mundra panels.",
+            "method": "Computed in analysis/analyze_mundra.py from the port panels.",
             "ai_role": "Automated statistical/rule-based detection over the port panels; the "
                        "interpretation and recommended action are the analyst layer.",
             "implication": finding.get("inference", ""),

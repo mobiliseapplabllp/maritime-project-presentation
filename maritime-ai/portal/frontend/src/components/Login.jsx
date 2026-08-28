@@ -6,7 +6,7 @@ import { useLang } from "../lib/i18n.jsx";
 const DEMO = [
   { u: "harbour.master", r: "Harbour Master · Port Administrator" },
   { u: "head.container", r: "Head — Container Business · Container zone" },
-  { u: "tm.mict", r: "Terminal Manager — MICT" },
+  { u: "tm.ct3", r: "Terminal Manager — CT-3" },
   { u: "hse.chief", r: "Chief — HSE & Environment" },
   { u: "finance", r: "Controller — Revenue & Billing" },
   { u: "analyst", r: "Data Analyst — Port MIS" },

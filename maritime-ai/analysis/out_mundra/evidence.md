@@ -1,4 +1,4 @@
-# Sagar Drishti — Mundra Evidence Pack
+# Sagar Drishti — Evidence Pack
 
 *Auto-generated from the terminal×month panels. Span 2023-01..2026-07; latest complete month 2026-07. Portal demo world (fictional); benchmarks from public major-port statistics.*
 
@@ -13,32 +13,32 @@
 
 ```json
 {
-  "share_calls_waited_gt24h_pct": 21.4,
+  "share_calls_waited_gt24h_pct": 20.6,
   "latest_month_worst": [
     [
-      "CT-3 (AICT)",
-      22.3,
-      3
-    ],
-    [
-      "West Basin Coal Terminal",
-      18.2,
-      6
-    ],
-    [
-      "Ro-Ro Terminal",
-      18.0,
+      "Container Terminal 1",
+      24.0,
       1
     ],
     [
-      "Multipurpose Terminal",
-      16.2,
-      11
+      "Container Terminal 5",
+      24.0,
+      2
     ],
     [
-      "Liquid Berths",
-      13.3,
+      "Liquid Terminal",
+      23.7,
       3
+    ],
+    [
+      "Container Terminal 2",
+      20.7,
+      3
+    ],
+    [
+      "Multipurpose Terminal",
+      15.9,
+      7
     ]
   ],
   "major_ports_avg_preberthing_hr": 5.0
@@ -47,16 +47,16 @@
 
 ### [A1] Turnaround time improved while traffic grew  _(severity: medium)_
 
-**Inference:** Average turnaround moved from 61h to 66h while monthly calls grew ~38% — throughput scaled without eroding vessel service time.
+**Inference:** Average turnaround moved from 53h to 56h while monthly calls grew ~33% — throughput scaled without eroding vessel service time.
 
 **Evidence:**
 
 ```json
 {
-  "avg_turnaround_2023_hr": 61.4,
-  "avg_turnaround_last12m_hr": 65.7,
-  "calls_2023_per_month": 16.5,
-  "calls_last12m_per_month": 22.8,
+  "avg_turnaround_2023_hr": 53.3,
+  "avg_turnaround_last12m_hr": 55.7,
+  "calls_2023_per_month": 23.1,
+  "calls_last12m_per_month": 30.8,
   "major_ports_avg_hr": 50.4
 }
 ```
@@ -69,8 +69,8 @@
 
 ```json
 {
-  "berthed_within_6h_pct_latest": 14.3,
-  "trailing_12m_pct": 16.8
+  "berthed_within_6h_pct_latest": 5.9,
+  "trailing_12m_pct": 14.6
 }
 ```
 
@@ -87,39 +87,39 @@
 {
   "top5": [
     [
-      "Single Point Moorings",
-      60.0,
-      45.8,
-      15.2,
-      5
-    ],
-    [
-      "Liquid Berths",
-      54.4,
-      40.5,
-      15.7,
+      "Liquid Terminal",
+      81.7,
+      44.2,
+      18.5,
       4
     ],
     [
-      "Multipurpose Terminal",
-      50.7,
-      12.0,
-      17.9,
-      3
+      "SPM Crude",
+      55.0,
+      37.9,
+      16.2,
+      5
     ],
     [
-      "CT-3 (AICT)",
-      44.7,
-      27.8,
-      17.4,
+      "Container Terminal 5",
+      43.1,
+      21.6,
+      18.8,
+      4
+    ],
+    [
+      "West Basin Coal Terminal",
+      40.4,
+      24.1,
+      15.8,
       2
     ],
     [
-      "CT-4 (ACMT JV)",
-      41.6,
-      28.1,
-      14.1,
-      7
+      "Ro-Ro Terminal",
+      40.3,
+      26.3,
+      21.0,
+      0
     ]
   ],
   "weights": "incident rate 35 \u00b7 waiting 25 \u00b7 high-severity 25 \u00b7 detentions 15"
@@ -135,12 +135,12 @@
 ```json
 {
   "largest_by_cargo": [
-    "Single Point Moorings",
-    5536128
+    "Container Terminal 4",
+    7313148
   ],
   "highest_risk": [
-    "Single Point Moorings",
-    60.0
+    "Liquid Terminal",
+    81.7
   ]
 }
 ```
@@ -156,9 +156,9 @@
 
 ```json
 {
-  "incidents_last12m": 74,
-  "high_critical_last12m": 22,
-  "injuries_last12m": 14,
+  "incidents_last12m": 92,
+  "high_critical_last12m": 27,
+  "injuries_last12m": 16,
   "near_miss_per_high_severity": 0.4
 }
 ```
@@ -172,10 +172,10 @@
 ```json
 {
   "per_year": {
-    "2023": 3,
-    "2024": 6,
-    "2025": 7,
-    "2026": 6
+    "2023": 4,
+    "2024": 10,
+    "2025": 10,
+    "2026": 7
   }
 }
 ```
@@ -189,9 +189,9 @@
 ```json
 {
   "per_year": {
-    "2023": 7,
-    "2024": 8,
-    "2025": 10,
+    "2023": 13,
+    "2024": 12,
+    "2025": 17,
     "2026": 7
   }
 }
@@ -212,46 +212,46 @@
     [
       "Multipurpose Terminal",
       1,
-      1.0,
-      3.4
+      0.5,
+      2.68
     ],
     [
-      "Liquid Berths",
+      "SPM Crude",
       2,
       0.4,
-      1.7
+      1.42
     ],
     [
-      "West Basin Coal Terminal",
+      "Container Terminal 1",
+      3,
+      0.3,
+      2.0
+    ],
+    [
+      "Container Terminal 4",
       5,
-      0.4,
-      1.82
-    ],
-    [
-      "CT-3 (AICT)",
-      6,
-      0.2,
-      1.69
+      0.3,
+      2.97
     ]
   ],
   "softest": [
     [
-      "CT-4 (ACMT JV)",
-      2,
+      "Container Terminal 2",
+      1,
       0.1,
-      2.67
-    ],
-    [
-      "Single Point Moorings",
-      2,
-      0.1,
-      1.62
+      1.53
     ],
     [
       "Ro-Ro Terminal",
-      4,
-      -0.1,
-      1.54
+      2,
+      0.1,
+      1.49
+    ],
+    [
+      "West Basin Coal Terminal",
+      3,
+      0.1,
+      1.69
     ]
   ],
   "note": "[terminal, latest monthly calls, trend calls/yr, volatility]"
@@ -268,16 +268,16 @@
 {
   "highest_occupancy_latest": [
     [
-      "West Basin Coal Terminal",
-      30.0
-    ],
-    [
       "Multipurpose Terminal",
-      28.0
+      21.6
     ],
     [
-      "Single Point Moorings",
-      8.4
+      "West Basin Coal Terminal",
+      13.1
+    ],
+    [
+      "Ro-Ro Terminal",
+      13.0
     ]
   ],
   "healthy_band_pct": [
@@ -299,11 +299,11 @@
 ```json
 {
   "risk_vs": {
-    "calls": 0.29,
-    "wait": 0.24,
-    "occ": 0.02,
-    "inc_per_100": 0.48,
-    "hi": 0.62
+    "calls": -0.14,
+    "wait": 0.42,
+    "occ": 0.14,
+    "inc_per_100": 0.9,
+    "hi": 0.42
   }
 }
 ```
@@ -319,39 +319,42 @@
   "profiles": [
     [
       0.0,
-      4.0,
-      30.5,
-      15.8,
-      34.8
+      2.0,
+      46.5,
+      16.2,
+      18.3
     ],
     [
       1.0,
-      2.0,
-      59.0,
-      17.3,
-      13.0
+      5.0,
+      43.2,
+      16.3,
+      19.7
     ],
     [
       2.0,
-      1.0,
-      57.0,
-      14.1,
-      28.1
+      3.0,
+      30.3,
+      18.6,
+      36.1
     ]
   ],
   "members": {
     "0": [
-      "Single Point Moorings",
-      "Liquid Berths",
-      "CT-3 (AICT)",
-      "Ro-Ro Terminal"
+      "West Basin Coal Terminal",
+      "Multipurpose Terminal"
     ],
     "1": [
-      "Multipurpose Terminal",
-      "West Basin Coal Terminal"
+      "Container Terminal 5",
+      "Container Terminal 4",
+      "Container Terminal 3",
+      "Container Terminal 1",
+      "Container Terminal 2"
     ],
     "2": [
-      "CT-4 (ACMT JV)"
+      "Liquid Terminal",
+      "SPM Crude",
+      "Ro-Ro Terminal"
     ]
   }
 }
@@ -360,7 +363,7 @@
 
 ## F. Benchmark vs major ports
 
-### [F1] Mundra vs Indian major-port averages  _(severity: high)_
+### [F1] The port vs Indian major-port averages  _(severity: high)_
 
 **Inference:** The credibility yardstick: berth-day output runs ~3x the major-port average (mechanised terminals), turnaround is competitive, and the PSC detention rate sits near the regional MoU norm — the one number to watch, not celebrate.
 
@@ -369,15 +372,15 @@
 ```json
 {
   "turnaround_hr": {
-    "mundra_last12m": 65.7,
+    "mundra_last12m": 55.7,
     "major_ports_avg": 50.4
   },
   "output_mt_per_berthday": {
-    "mundra_latest": 37444.0,
+    "mundra_latest": 46847.0,
     "major_ports_avg": 16500.0
   },
   "psc_detention_rate_pct": {
-    "mundra_last12m": 6.9,
+    "mundra_last12m": 8.6,
     "indian_ocean_mou_2023": 5.6
   }
 }
@@ -394,10 +397,10 @@
 
 ```json
 {
-  "billed_last12m_cr": 245.8,
-  "collected_last12m_cr": 233.5,
-  "cumulative_collection_pct": 97.2,
-  "outstanding_cr": 18.62,
+  "billed_last12m_cr": 282.9,
+  "collected_last12m_cr": 281.2,
+  "cumulative_collection_pct": 97.5,
+  "outstanding_cr": 20.35,
   "target_pct": 95.0
 }
 ```
@@ -413,28 +416,28 @@
   "top": [
     [
       "West Basin Coal Terminal",
-      8.7,
-      94.6
+      6.3,
+      95.7
     ],
     [
-      "Single Point Moorings",
-      5.7,
-      97.1
-    ],
-    [
-      "Multipurpose Terminal",
-      3.6,
+      "Container Terminal 4",
+      3.8,
       96.1
     ],
     [
       "Ro-Ro Terminal",
-      0.6,
-      98.7
+      3.1,
+      92.1
     ],
     [
-      "CT-3 (AICT)",
-      0.0,
-      100.0
+      "SPM Crude",
+      3.0,
+      98.5
+    ],
+    [
+      "Container Terminal 1",
+      1.2,
+      97.0
     ]
   ]
 }

@@ -185,7 +185,7 @@ export default function AssetPortal() {
                 <tr><td>{t("Owner")}</td><td colSpan={3}>{i.owner || "—"}</td></tr>
                 <tr><td>{t("Operator")}</td><td colSpan={3}><b>{i.operator || "—"}</b></td></tr>
                 <tr><td>{t("Manager")}</td><td colSpan={3}>{i.manager || "—"}</td></tr>
-                <tr><td>{t("Agent at Mundra")}</td><td><b>{i.agent || "—"}</b></td><td>{t("Class")}</td><td><b>{i.class_society || "—"}</b></td></tr>
+                <tr><td>{t("Agent at the port")}</td><td><b>{i.agent || "—"}</b></td><td>{t("Class")}</td><td><b>{i.class_society || "—"}</b></td></tr>
                 <tr><td>{t("P&I club")}</td><td colSpan={3}>{i.pi_club || "—"}</td></tr>
                 <tr><td>{t("Drydock")}</td><td colSpan={3}>{t("last {a} · next {b}", { a: dt(i.last_drydock), b: dt(i.next_drydock) })}</td></tr>
               </tbody></table>
@@ -210,7 +210,7 @@ export default function AssetPortal() {
         </>)}
 
         {sec === "calls" && (<>
-          <h2 className="ap-h">{t("Port calls — full history at Mundra")}</h2>
+          <h2 className="ap-h">{t("Port calls — full history at the port")}</h2>
           <Card pad={false}>
             <div className="tbl-wrap"><table className="tbl">
               <thead><tr><th>{t("Call (VCN)")}</th><th>{t("Arrived")}</th><th>{t("Berthed")}</th><th>{t("Sailed")}</th><th>{t("Berth")}</th><th>{t("Waiting")}</th><th>{t("Turnaround")}</th><th>{t("Cargo MT")}</th></tr></thead>

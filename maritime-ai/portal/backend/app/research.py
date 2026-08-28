@@ -4,10 +4,10 @@ A dedicated agent that does DAILY internet research (Claude CLI with
 WebSearch/WebFetch enabled — the only web-enabled path in the backend) on two
 standing topics and publishes each run as a dated article:
 
-  ports  — How Mundra stands vs India's major ports (JNPA, Kandla/Deendayal,
+  ports  — How the port stands vs India's major ports (JNPA, Kandla/Deendayal,
            Chennai, Visakhapatnam…) and the regional hubs (Colombo, Jebel Ali,
            Singapore): throughput, turnaround, rankings, the good/bad/ugly.
-  rivals — Adani Ports & SEZ's position vs competing port operators (India +
+  rivals — major port operators's position vs competing port operators (India +
            global terminal operators): moves, concessions, wins/losses and the
            day's published news.
 
@@ -64,7 +64,7 @@ def init():
 # ---------------------------------------------------------------- prompts
 _COMMON_RULES = (
     "You are the Market Intelligence analyst inside Sagar Drishti — the AI analytics platform "
-    "for Mundra Port operations (Mundra, Kutch, Gujarat: India's largest commercial port — "
+    "for Port Authority operations (the port, reference deployment: India's largest commercial port — "
     "3 cargo zones, 10 terminals, 24 berths, container + bulk + liquid + ro-ro).\n"
     "Use web search NOW to ground every claim in published sources — port-authority and "
     "ministry (MoPSW/IPA) statistics, industry press, company releases, reputable news. Prefer "
@@ -80,27 +80,27 @@ _COMMON_RULES = (
 
 _TOPIC_PROMPTS = {
     "ports": (
-        "TOPIC — MUNDRA vs INDIA'S MAJOR PORTS and the regional hubs, on cargo throughput and "
+        "TOPIC — THE PORT vs INDIA'S MAJOR PORTS and the regional hubs, on cargo throughput and "
         "port performance.\n\nResearch and write today's briefing with these sections:\n"
-        "## Where Mundra stands — Mundra's position vs the Indian major ports (JNPA, "
+        "## Where the port stands — the port's position vs the Indian major ports (JNPA, "
         "Deendayal/Kandla, Visakhapatnam, Chennai, Paradip, Cochin…) and regional hubs "
         "(Colombo, Jebel Ali, Singapore): cargo volume, container throughput (TEU), vessel "
         "turnaround, rankings such as the World Bank/S&P CPPI where sources allow.\n"
-        "## The good — where Mundra genuinely leads or improved.\n"
-        "## The bad — where Mundra lags its peers.\n"
+        "## The good — where the port genuinely leads or improved.\n"
+        "## The bad — where the port lags its peers.\n"
         "## The ugly — systemic problems (congestion episodes, tariff disputes, environmental "
-        "or customs actions, hinterland bottlenecks) at Mundra or in the sector at large.\n"
-        "## What it means for Mundra — implications for port operations and commercial "
+        "or customs actions, hinterland bottlenecks) at the port or in the sector at large.\n"
+        "## What it means for the port — implications for port operations and commercial "
         "strategy.\n"
         "## Latest developments — any news from the last few weeks on Indian ports policy "
         "(MoPSW, Sagarmala, Maritime India Vision) or west-coast port performance, each item "
         "sourced."
     ),
     "rivals": (
-        "TOPIC — ADANI PORTS & SEZ vs ITS COMPETITORS in port and terminal operations, India "
+        "TOPIC — MAJOR PORT OPERATORS vs THEIR COMPETITORS in port and terminal operations, India "
         "first, global context second.\n\nResearch and write today's briefing with these "
         "sections:\n"
-        "## APSEZ's position — Adani Ports & SEZ's footprint & recent moves (Mundra's terminal "
+        "## APSEZ's position — major port operators's footprint & recent moves (the port's terminal "
         "JVs with DP World/MSC/CMA CGM lineage, acquisitions, capacity additions, overseas "
         "terminals).\n"
         "## Competitor moves — what rivals are doing: Indian operators (JNPA and the major "
@@ -113,7 +113,7 @@ _TOPIC_PROMPTS = {
         "environmental action for APSEZ or rivals.\n"
         "## Today's news digest — bullet list of the latest relevant headlines, each with "
         "source.\n"
-        "## Implications for Mundra — so-what for leadership in 3-5 bullets."
+        "## Implications for the port — so-what for leadership in 3-5 bullets."
     ),
 }
 
@@ -158,8 +158,8 @@ def _run_claimed(topic):
                                   timeout=900, web=True)
         art = _parse_article(raw)
         if not art["title"]:
-            art["title"] = ("Mundra vs India's major ports — benchmark briefing" if topic == "ports"
-                            else "Adani Ports vs competitors — market briefing") + f" · {today}"
+            art["title"] = ("The port vs India's major ports — benchmark briefing" if topic == "ports"
+                            else "Major port operators vs competitors — market briefing") + f" · {today}"
         with _STORE_LOCK:
             doc = _load_store()
             doc["seq"] = int(doc.get("seq", 0)) + 1

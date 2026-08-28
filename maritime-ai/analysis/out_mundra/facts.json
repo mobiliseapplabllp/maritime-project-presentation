@@ -1,28 +1,28 @@
 {
  "per_year": {
   "2023": {
-   "vessel_calls": 198,
-   "cargo_mmt": 16.42,
-   "teu": 617222,
-   "avg_turnaround_hr": 61.4
+   "vessel_calls": 277,
+   "cargo_mmt": 23.73,
+   "teu": 1284403,
+   "avg_turnaround_hr": 53.3
   },
   "2024": {
-   "vessel_calls": 228,
-   "cargo_mmt": 19.1,
-   "teu": 661607,
-   "avg_turnaround_hr": 62.6
+   "vessel_calls": 325,
+   "cargo_mmt": 25.71,
+   "teu": 1199219,
+   "avg_turnaround_hr": 59.7
   },
   "2025": {
-   "vessel_calls": 250,
-   "cargo_mmt": 18.28,
-   "teu": 597834,
-   "avg_turnaround_hr": 63.9
+   "vessel_calls": 347,
+   "cargo_mmt": 29.22,
+   "teu": 1372174,
+   "avg_turnaround_hr": 58.0
   },
   "2026": {
-   "vessel_calls": 189,
-   "cargo_mmt": 14.86,
-   "teu": 454844,
-   "avg_turnaround_hr": 65.7
+   "vessel_calls": 256,
+   "cargo_mmt": 21.48,
+   "teu": 1078494,
+   "avg_turnaround_hr": 54.4
   }
  }
 }

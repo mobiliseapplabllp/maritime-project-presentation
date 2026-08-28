@@ -29,7 +29,7 @@ class ChatIn(BaseModel):
     voice_gender: str = "female"
 
 
-# English is the key language. Hindi and Gujarati (Mundra is in Gujarat) are
+# English is the key language. Hindi and Gujarati (the port is in Gujarat) are
 # the two supported second languages for the chatbot, voice and AI assistant.
 LANG_RULES = {
     "hi": ("\n\nLANGUAGE: उत्तर पूरी तरह हिन्दी में दें। तकनीकी शब्द (turnaround, berth, TEU, "
@@ -266,8 +266,8 @@ def _persona(user):
            "receivables)" if (user or {}).get("persona") == "operator"
            else "the port administration (assurance lens — is the port serving vessels efficiently, "
            "safely and profitably?)")
-    return ("You are Sagar Drishti, the Mundra Port operations analyst — the AI inside Sagar Drishti, "
-            "the Mundra Port AI Analytics portal (Mundra, Kutch, Gujarat). You are answering for "
+    return ("You are Sagar Drishti, the port operations analyst — the AI inside Sagar Drishti, "
+            "the Maritime AI Analytics portal (the port, reference deployment). You are answering for "
             f"{who}. Answer questions about vessel traffic and cargo throughput, turnaround and "
             "anchorage waiting, berth occupancy, marine services (pilotage/tugs), HSE incidents, "
             "PSC inspections and detentions, and billing/receivables.")
@@ -291,7 +291,7 @@ _RULES = ("Ground rules you MUST respect:\n"
 
 _CHARTS = ("CHARTS: When a comparison, ranking or trend would be clearer as a picture, embed one or two "
            "charts using a fenced ```chart code block containing ONLY valid JSON. Schemas:\n"
-           '  {"type":"bar","title":"...","unit":"hr","data":[{"name":"MICT","value":38.1}]}\n'
+           '  {"type":"bar","title":"...","unit":"hr","data":[{"name":"CT1","value":38.1}]}\n'
            '  {"type":"line","title":"...","unit":"calls","series":[{"name":"vessel_calls","points":[{"x":"2026-01","y":29}]}]}\n'
            "Rules: max ~12 bars; values straight from the DATA; caption each chart in the prose.")
 
@@ -312,7 +312,7 @@ def _history_text(history):
 
 
 DATA_SOURCES = [
-    "Mundra Port Operations Portal — vessel calls, berth events, marine service jobs, HSE incidents, "
+    "Port Operations Portal — vessel calls, berth events, marine service jobs, HSE incidents, "
     "PSC inspections, billing; deterministic demo world replicated read-only into PostgreSQL.",
     "Derived monthly panels (ops/marine/hse/revenue) at port → zone → terminal → berth grain.",
     "Major-port benchmark (public statistics: turnaround ~50.4h, pre-berthing ~5h, collection 95%) — "
@@ -405,7 +405,7 @@ def llm_answer(msg, history, mode, user, lang="en"):
 def _creative_grounding(user):
     s = get_store()
     home = s.unit_latest[s.unit_latest.unit_id == s.home_unit_id(user)]
-    lines = ["- Mundra Port (INMUN), Kutch, Gujarat — India's largest commercial port; "
+    lines = ["- Port Authority (REFPT), reference deployment — India's largest commercial port; "
              "benchmarks are public major-port statistics."]
     if len(home):
         r = home.iloc[0]
@@ -418,8 +418,8 @@ def _creative_grounding(user):
 # VOICE mode
 # ---------------------------------------------------------------------------
 _VOICE_PERSONA = (
-    "You are Sagar Drishti in a live VOICE conversation inside Sagar Drishti (Mundra Port AI "
-    "Analytics, Kutch, Gujarat). The user is SPEAKING and your reply will be READ ALOUD. Rules:\n"
+    "You are Sagar Drishti in a live VOICE conversation inside Sagar Drishti (Port Authority AI "
+    "Analytics, reference deployment). The user is SPEAKING and your reply will be READ ALOUD. Rules:\n"
     "- Reply as natural speech: 1 to 4 short sentences. NO markdown, bullets, headers, tables or "
     "emoji.\n- Conversational and sharp. Round numbers naturally ('about fifty-one hours', 'two "
     "point six million tonnes').\n- Answer ONLY from the DATA below (already scoped to this user). If "
@@ -497,7 +497,7 @@ def voice_answer(msg, history, user, lang="en", gender="female"):
 # ---------------------------------------------------------------------------
 # RAG "talk to the documents"
 # ---------------------------------------------------------------------------
-_DOCS_PERSONA = ("You are Sagar Drishti, the Mundra Port operations analyst, in DOCUMENT mode: you "
+_DOCS_PERSONA = ("You are Sagar Drishti, the port operations analyst, in DOCUMENT mode: you "
                  "answer strictly from the port document library excerpts retrieved below (marine "
                  "circulars, PSC inspection procedures, HSE SOPs, tariff schedules, the concession "
                  "and berthing policies).")
@@ -552,7 +552,7 @@ def _explain_fresh(s):
         _EXPLAIN_CACHE = {}
 
 _EXPLAIN_SYSTEM = (
-    "You are Sagar Drishti, the Mundra Port operations analyst (Mundra Port AI Analytics). "
+    "You are Sagar Drishti, the port operations analyst (Maritime AI Analytics). "
     "Explain ONE specific chart/table/figure to someone with NO analytics background — a berth "
     "supervisor, duty officer, or terminal shift manager. Simple, warm, jargon-free English (define "
     "terms in brackets). Use this exact markdown structure:\n"

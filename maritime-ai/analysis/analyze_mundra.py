@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sagar Drishti — Mundra analytical engine (evidence layer).
+Sagar Drishti — analytical engine (evidence layer).
 
 Consumes the unit x month panels in data/mundra/portal/processed/ plus the raw
 portal snapshot (vessel grain) and emits analysis/out_mundra/:
@@ -251,7 +251,7 @@ def main():
     insp12 = marine[(marine.level == "port") & (marine.ym > months[max(0, len(months) - 14)])]
     det_rate = det12 / max(insp12.inspections_done.sum(), 1) * 100
     add("F1", "benchmark", "high",
-        "Mundra vs Indian major-port averages",
+        "The port vs Indian major-port averages",
         {"turnaround_hr": {"mundra_last12m": round(t1, 1),
                            "major_ports_avg": gt["avg_turnaround_hr_major_ports"]},
          "output_mt_per_berthday": {"mundra_latest": float(port_lm.avg_output_mt_per_berthday),
@@ -425,7 +425,7 @@ def main():
              "hotspot": "B. Terminal hotspots", "hse": "C. HSE & incidents",
              "prediction": "D. Predictive early-warning", "pattern": "E. Patterns",
              "benchmark": "F. Benchmark vs major ports", "revenue": "G. Revenue"}
-    lines = ["# Sagar Drishti — Mundra Evidence Pack",
+    lines = ["# Sagar Drishti — Evidence Pack",
              f"\n*Auto-generated from the terminal×month panels. Span {span}; "
              f"latest complete month {LM}. Portal demo world (fictional); benchmarks "
              f"from public major-port statistics.*\n"]
