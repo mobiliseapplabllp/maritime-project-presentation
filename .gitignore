@@ -23,3 +23,6 @@ portal/deploy/letsencrypt/
 # Word lock files
 ~$*
 **/~$*
+
+# design bundle upload (106MB, contains doc copies) — design-reference/ in mobile-app is the tracked subset
+Mobile app for Seaport Management.zip

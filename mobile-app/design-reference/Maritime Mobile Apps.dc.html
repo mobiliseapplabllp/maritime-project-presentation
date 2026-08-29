@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF1F5;font-family:'Source Sans 3',system-ui,sans-serif}
+a{color:#007A9B}a:hover{color:#00265D}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#00265D;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 'Poppins',sans-serif;color:#00265D}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,38,93,.1);color:#00265D;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-opt:target .dv-oid{background:#00A0C6;color:#fff}
+</style>
+</helmet>
+<section class="dv-turn" id="t4">
+<div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Edge &amp; error states — every failure has a way forward</span></div>
+<div class="dv-opts">
+<div class="dv-opt" id="4a">
+<div class="dv-olabel"><a class="dv-oid" href="#4a">4a</a>Customer · Application rejected — with a fix path</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">APP-2026-04398</div><div style="font-size:11.5px;color:#9FB4D4">Seafarer endorsement — 2/O Khan</div></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="background:#FBEAEA;border:1px solid #F2CACA;border-radius:10px;padding:14px 16px">
+<div style="display:flex;gap:10px;align-items:flex-start">
+<div style="width:34px;height:34px;border-radius:8px;background:#fff;color:#C43D3D;display:grid;place-items:center;font-size:16px;flex:none">✕</div>
+<div><div style="font:600 14.5px 'Poppins',sans-serif;color:#C43D3D">Returned — action needed</div><div style="font-size:12.5px;color:#3B4757;margin-top:3px;line-height:1.5">Not a final rejection. Fix the item below and resubmit — your place in the queue and your payment are kept.</div></div>
+</div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">OFFICER'S REASON</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font-size:13px;color:#131C2B;line-height:1.55">"Medical certificate (ENG 1) expired 14 Aug 2026. Please upload a current certificate — all other documents are in order."</div>
+<div style="font-size:11px;color:#8B96A5;margin-top:8px">Reviewing officer · 29 Aug, 11:20 · reply enabled</div>
+</div>
+<div style="background:#fff;border:1.5px dashed #C43D3D;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">Medical certificate (ENG 1)</div><div style="font-size:11px;color:#C43D3D;font-weight:600">Expired — replacement required</div></div><span style="font-size:11px;color:#007A9B;font-weight:700">UPLOAD</span></div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>Upload the new certificate and the AI pre-checks dates before resubmission — no second rejection for the same reason.</span></div>
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:13.5px;font-weight:700;opacity:.45">Resubmit — blocked until document added</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="4b">
+<div class="dv-olabel"><a class="dv-oid" href="#4b">4b</a>Customer · Payment failed — money-safe messaging</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="flex:1;overflow:hidden;padding:34px 20px 0;display:flex;flex-direction:column;gap:14px;align-items:center">
+<div style="width:70px;height:70px;border-radius:50%;background:#FBEAEA;color:#C43D3D;display:grid;place-items:center;font-size:30px">✕</div>
+<div style="text-align:center"><div style="font:700 21px 'Poppins',sans-serif;color:#00265D">Payment didn't go through</div><div style="font-size:13px;color:#647080;margin-top:4px;line-height:1.5">Your card was not charged.<br>Application draft is saved — nothing is lost.</div></div>
+<div style="width:100%;background:#fff;border:1px solid #DFE4EB;border-radius:12px;padding:6px 16px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Reason</span><span style="color:#C43D3D;font-weight:600">Declined by issuing bank</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Gateway ref</span><span style="color:#131C2B;font-weight:600">77-4413 · 11:04 GST</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#647080">Amount</span><span style="color:#131C2B;font-weight:600">AED 2,400.00 — not charged</span></div>
+</div>
+<div style="width:100%;display:flex;flex-direction:column;gap:9px">
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:13.5px;font-weight:700">Try again</div>
+<div style="border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700;background:#fff">Use a different payment method</div>
+</div>
+<div style="width:100%;background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:10px 13px;font-size:11.5px;color:#0A3A7D;text-align:center;line-height:1.5">If an amount appears reserved, the bank releases it automatically — usually within 24 hours.</div>
+</div>
+<div style="height:20px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="4c">
+<div class="dv-olabel"><a class="dv-oid" href="#4c">4c</a>Customer · Session expired — UAE PASS re-auth, work kept</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:rgba(6,18,38,.55);font-family:'Source Sans 3',sans-serif;justify-content:flex-end">
+<div style="background:#fff;border-radius:18px 18px 0 0;padding:24px 22px 30px;display:flex;flex-direction:column;gap:14px">
+<div style="width:40px;height:4px;background:#DFE4EB;border-radius:2px;margin:0 auto"></div>
+<div style="width:56px;height:56px;border-radius:50%;background:#EEF4FB;color:#0A3A7D;display:grid;place-items:center;font-size:24px;margin:0 auto">🔒</div>
+<div style="text-align:center"><div style="font:700 19px 'Poppins',sans-serif;color:#00265D">Session expired</div><div style="font-size:13px;color:#647080;margin-top:5px;line-height:1.55">You were signed out after 15 minutes of inactivity, as required for government services.<br><strong style="color:#1E8E5A">Your application draft is saved.</strong></div></div>
+<div style="background:#131C2B;color:#fff;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:14.5px;font-weight:700"><span style="background:#fff;color:#131C2B;border-radius:4px;font-size:9px;font-weight:800;padding:2px 4px">🇦🇪</span>Sign in again with UAE PASS</div>
+<div style="text-align:center;font-size:12px;color:#8B96A5">You'll return exactly where you left off — step 3 of 4</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="4d">
+<div class="dv-olabel"><a class="dv-oid" href="#4d">4d</a>Customer · First-run empty states — guided start</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="font-size:12px;color:#9FB4D4">Welcome</div>
+<div style="font:600 19px 'Poppins',sans-serif">Marhaba, Fatima</div>
+<div style="font-size:11.5px;color:#9FB4D4;margin-top:2px">Verified via UAE PASS · no vessels linked yet</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:12px;padding:22px 18px;text-align:center">
+<div style="width:56px;height:56px;border-radius:50%;background:#EEF4FB;display:grid;place-items:center;font-size:24px;margin:0 auto 10px">⚓</div>
+<div style="font:600 15px 'Poppins',sans-serif;color:#00265D">No vessels yet</div>
+<div style="font-size:12.5px;color:#647080;margin:6px 0 14px;line-height:1.5">If your company owns vessels, link your trade licence and the fleet loads from the national register — no manual entry.</div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:11px;font-size:12.5px;font-weight:700">Link company</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:11px;font-size:12.5px;font-weight:700">Register new vessel</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:center">
+<div style="width:40px;height:40px;border-radius:8px;background:#EAF8FC;display:grid;place-items:center;font-size:18px;flex:none">🧭</div>
+<div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:#131C2B">Seafarer instead?</div><div style="font-size:12px;color:#647080;margin-top:2px">Link your CoC to unlock the seafarer wallet</div></div>
+<span style="color:#C3CBD6">›</span>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:center">
+<div style="width:26px;height:26px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:13px;flex:none">✦</div>
+<div style="font-size:12.5px;color:#0A3A7D;line-height:1.45">New here? Tell the assistant what you're trying to do — it walks you to the right service.</div>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:700">Home</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▦</div><div style="font-size:10px;font-weight:600">Services</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⚓</div><div style="font-size:10px;font-weight:600">Fleet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▣</div><div style="font-size:10px;font-weight:600">Wallet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="4e">
+<div class="dv-olabel"><a class="dv-oid" href="#4e">4e</a>Authority · No cached dossier — degraded but working</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div style="flex:1"><div style="font:600 16px 'Poppins',sans-serif">MT Al Reem · dossier</div><div style="font-size:11.5px;color:#9FB4D4">IMO 9276381 · Anchorage A2</div></div><div style="background:rgba(255,255,255,.12);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#F5B942"></span>Offline</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="background:#FDF3E1;border:1px solid #F0DFB9;border-radius:10px;padding:13px 15px">
+<div style="font:600 13.5px 'Poppins',sans-serif;color:#B9770E;margin-bottom:4px">AI dossier not cached</div>
+<div style="font-size:12.5px;color:#3B4757;line-height:1.5">Sync didn't finish before you left coverage. You can still inspect — here's what IS on the device:</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#131C2B;font-weight:600">Vessel particulars &amp; certificates</span><span style="color:#1E8E5A;font-weight:700;font-size:11px">✓ CACHED</span></div>
+<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#131C2B;font-weight:600">Checklist template v14</span><span style="color:#1E8E5A;font-weight:700;font-size:11px">✓ CACHED</span></div>
+<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#131C2B;font-weight:600">PSC history &amp; risk factors</span><span style="color:#B9770E;font-weight:700;font-size:11px">⚠ STALE — 6 days</span></div>
+<div style="display:flex;justify-content:space-between;padding:11px 0;font-size:13px"><span style="color:#131C2B;font-weight:600">AI summary &amp; focus areas</span><span style="color:#C43D3D;font-weight:700;font-size:11px">✕ MISSING</span></div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>The dossier generates the moment you regain signal — or inspect without it; the report pipeline is unaffected.</span></div>
+<div style="display:flex;gap:9px">
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Inspect with cached data</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Retry sync</div>
+</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="4f">
+<div class="dv-olabel"><a class="dv-oid" href="#4f">4f</a>Public · QR verify — invalid / revoked certificate</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff;text-align:center">
+<div style="font:600 17px 'Poppins',sans-serif">Certificate verification</div>
+<div style="font-size:11.5px;color:#9FB4D4;margin-top:3px">Public check · scanned 29 Aug 2026, 11:12 GST</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:18px 16px 0;display:flex;flex-direction:column;gap:12px">
+<div style="background:#fff;border:1px solid #F2CACA;border-radius:12px;padding:20px 16px;text-align:center">
+<div style="width:64px;height:64px;border-radius:50%;background:#FBEAEA;color:#C43D3D;display:grid;place-items:center;font-size:28px;margin:0 auto 10px">✕</div>
+<div style="font:700 19px 'Poppins',sans-serif;color:#C43D3D">Not valid</div>
+<div style="font-size:12.5px;color:#647080;margin-top:4px;line-height:1.5">This certificate was <strong>revoked on 12 Jul 2026</strong> by the issuing authority.</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Certificate</span><span style="color:#131C2B;font-weight:600">Navigation Licence</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Number</span><span style="color:#131C2B;font-weight:600">NAV-2024-00619</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#647080">Status source</span><span style="color:#131C2B;font-weight:600">Live register · signature checked</span></div>
+</div>
+<div style="background:#FDF3E1;border:1px solid #F0DFB9;border-radius:10px;padding:11px 13px;font-size:12px;color:#B9770E;line-height:1.5;text-align:center">If this certificate was presented to you as valid, you can report it — the report routes to the enforcement team.</div>
+<div style="display:flex;gap:9px">
+<div style="flex:1;border:1px solid #C43D3D;color:#C43D3D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700;background:#fff">Report misuse</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700;background:#fff">Scan another</div>
+</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+</div>
+<p style="margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)">36 screens. Interactive prototype and developer handoff are separate deliverables — see chat.</p>
+</section>
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Coverage completion — every TAD module now has its screens</span></div>
+<div class="dv-opts">
+<div class="dv-opt" id="3a">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Authority · NMC traffic picture — live tracks (Module 5)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#061A38;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 12px;color:#fff;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font:600 16px 'Poppins',sans-serif">Traffic picture</div><div style="font-size:11px;color:#9FB4D4">AIS + radar fused · 312 tracks · live</div></div>
+<div style="display:flex;gap:7px"><div style="background:rgba(255,255,255,.12);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:600">Layers</div><div style="background:#00A0C6;border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700">Alerts · 4</div></div>
+</div>
+<div style="flex:1;position:relative;overflow:hidden;background:repeating-linear-gradient(0deg,transparent 0 39px,rgba(0,160,198,.08) 39px 40px),repeating-linear-gradient(90deg,transparent 0 39px,rgba(0,160,198,.08) 39px 40px),#061A38">
+<div style="position:absolute;left:-14%;top:-8%;width:64%;height:70%;background:#0B2C54;border-radius:0 0 58% 22%;opacity:.9"></div>
+<div style="position:absolute;left:8%;top:57%;width:9px;height:9px;background:#4BD48B;border-radius:2px;transform:rotate(35deg)"></div>
+<div style="position:absolute;left:26%;top:64%;width:9px;height:9px;background:#4BD48B;border-radius:2px;transform:rotate(80deg)"></div>
+<div style="position:absolute;left:44%;top:48%;width:9px;height:9px;background:#4BD48B;border-radius:2px;transform:rotate(12deg)"></div>
+<div style="position:absolute;left:62%;top:70%;width:9px;height:9px;background:#4BD48B;border-radius:2px;transform:rotate(64deg)"></div>
+<div style="position:absolute;left:71%;top:38%;width:9px;height:9px;background:#F5B942;border-radius:2px;transform:rotate(20deg)"></div>
+<div style="position:absolute;left:55%;top:26%;width:12px;height:12px;background:#E0656A;border-radius:50%;box-shadow:0 0 0 8px rgba(224,101,106,.25),0 0 0 16px rgba(224,101,106,.12)"></div>
+<div style="position:absolute;left:35%;top:20%;right:6%;transform:translateX(0);background:#0E2E5C;border:1px solid #1D4B8F;border-radius:10px;padding:11px 13px;color:#fff;max-width:70%">
+<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;font-weight:700;color:#FF8A8F">DARK VESSEL</span><span style="font-size:10.5px;color:#7E97C2">09:42</span></div>
+<div style="font-size:12.5px;font-weight:600">Unidentified track — TSS western approach</div>
+<div style="font-size:11px;color:#9FB4D4;margin-top:3px">24.51°N 54.37°E · 11.2 kn · CPA 2.1 nm</div>
+<div style="display:flex;gap:6px;margin-top:9px"><div style="flex:1;background:#00A0C6;text-align:center;border-radius:6px;padding:7px;font-size:11.5px;font-weight:700">Track</div><div style="flex:1;border:1px solid #3D69A8;text-align:center;border-radius:6px;padding:7px;font-size:11.5px;font-weight:700">Open incident</div></div>
+</div>
+<div style="position:absolute;left:14px;bottom:14px;display:flex;flex-direction:column;gap:5px;background:rgba(6,26,56,.85);border:1px solid #1D4B8F;border-radius:8px;padding:9px 11px;font-size:10.5px;color:#9FB4D4">
+<div style="display:flex;gap:6px;align-items:center"><span style="width:8px;height:8px;background:#4BD48B;border-radius:2px"></span>Normal · 296</div>
+<div style="display:flex;gap:6px;align-items:center"><span style="width:8px;height:8px;background:#F5B942;border-radius:2px"></span>Watch · 15</div>
+<div style="display:flex;gap:6px;align-items:center"><span style="width:8px;height:8px;background:#E0656A;border-radius:50%"></span>Alert · 1</div>
+</div>
+<div style="position:absolute;right:14px;bottom:14px;font-size:10px;color:#3D69A8">Schematic — production uses live charting</div>
+</div>
+<div style="display:flex;border-top:1px solid #0E2E5C;background:#00265D;padding:10px 6px 6px;color:#fff">
+<div style="flex:1;text-align:center;color:#7E97C2"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:600">Home</div></div>
+<div style="flex:1;text-align:center"><div style="font-size:18px">◉</div><div style="font-size:10px;font-weight:700">Traffic</div></div>
+<div style="flex:1;text-align:center;color:#7E97C2"><div style="font-size:18px">▤</div><div style="font-size:10px;font-weight:600">Inspect</div></div>
+<div style="flex:1;text-align:center;color:#7E97C2"><div style="font-size:18px">◔</div><div style="font-size:10px;font-weight:600">Alerts</div></div>
+<div style="flex:1;text-align:center;color:#7E97C2"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3b">
+<div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Authority · Incident case file (Module 5)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div style="flex:1"><div style="font:600 16px 'Poppins',sans-serif">INC-2026-0114 · Dark vessel</div><div style="font-size:11.5px;color:#9FB4D4">Opened 09:44 · Lt. Hamdan on watch</div></div><span style="background:#FBEAEA;color:#C43D3D;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">ACTIVE</span></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:10px 12px"><div style="font:700 15px 'Poppins',sans-serif;color:#00265D">P1</div><div style="font-size:10.5px;color:#647080">Severity</div></div>
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:10px 12px"><div style="font:700 15px 'Poppins',sans-serif;color:#00265D">17 min</div><div style="font-size:10.5px;color:#647080">Elapsed</div></div>
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:10px 12px"><div style="font:700 15px 'Poppins',sans-serif;color:#00265D">3</div><div style="font-size:10.5px;color:#647080">Units tasked</div></div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">LOG — auto + watch entries</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:10px"><span style="font-size:11px;color:#8B96A5;flex:none;width:38px">09:58</span><div style="font-size:12.5px;color:#131C2B;line-height:1.4">Patrol craft P-12 tasked to intercept — ETA 14 min <span style="font-size:10.5px;color:#8B96A5">· Lt. Hamdan</span></div></div>
+<div style="display:flex;gap:10px"><span style="font-size:11px;color:#8B96A5;flex:none;width:38px">09:51</span><div style="font-size:12.5px;color:#131C2B;line-height:1.4">Radar correlation confirmed — single contact, no transponder <span style="font-size:10.5px;color:#007A9B">· system</span></div></div>
+<div style="display:flex;gap:10px"><span style="font-size:11px;color:#8B96A5;flex:none;width:38px">09:44</span><div style="font-size:12.5px;color:#131C2B;line-height:1.4">Incident opened from alert ALR-8812 <span style="font-size:10.5px;color:#007A9B">· system</span></div></div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span><strong>Similar incidents:</strong> 2 dark-vessel events, same sector, last 90 days — both smuggling-related. Case files linked.</span></div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Add log entry</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Escalate</div>
+</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3c">
+<div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Authority · Facility accreditation visit (Module 8)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">Accreditation visit</div><div style="font-size:11.5px;color:#9FB4D4">Gulf Marine Services FZE · annual renewal</div></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font:600 14px 'Poppins',sans-serif;color:#00265D">Company standing</div><span style="background:#FDF3E1;color:#B9770E;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px">CONDITIONAL</span></div>
+<div style="font-size:12px;color:#647080;line-height:1.5">Accredited: bunkering, ship chandling · 2 conditions from 2025 visit · licence expires 30 Sep 2026</div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">VISIT CHECKLIST — 4 of 12</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:600;color:#131C2B">Trade licence &amp; insurance current</div><span style="background:#E7F6EE;color:#1E8E5A;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">✓ PASS</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:600;color:#131C2B">2025 condition #1 — storage segregation</div><span style="background:#E7F6EE;color:#1E8E5A;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">✓ CLEARED</span></div>
+<div style="background:#fff;border:1.5px solid #00A0C6;border-radius:10px;padding:12px 14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:13px;font-weight:600;color:#131C2B">Certified personnel on register</div><span style="background:#FBEAEA;color:#C43D3D;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">FINDING</span></div>
+<div style="font-size:12px;color:#3B4757;background:#F7F9FB;border-radius:7px;padding:8px 10px">2 of 6 bunkering operators lapsed certification — evidence photographed.</div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>Works offline like ship inspections — same capture, sync and AI-draft pipeline.</span></div>
+</div>
+<div style="display:flex;gap:10px;padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Save draft</div>
+<div style="flex:1.4;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Continue ›</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3d">
+<div class="dv-olabel"><a class="dv-oid" href="#3d">3d</a>Authority · Regulations library + cited Q&amp;A (Module 4)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 14px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:10px">Regulations</div>
+<div style="background:rgba(255,255,255,.12);border-radius:8px;padding:10px 13px;font-size:13px;color:#fff">🔍 <span style="color:#fff">fire damper testing interval</span></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1.5px solid #00A0C6;border-radius:10px;padding:13px 15px">
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div style="width:22px;height:22px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:11px">✦</div><span style="font-size:12px;font-weight:700;color:#00265D">Answer — with sources</span></div>
+<div style="font-size:13px;line-height:1.55;color:#3B4757">Fire dampers must be tested at intervals not exceeding <strong>12 months</strong>, with operational tests of quick-closing arrangements. Local requirement adds a documented quarterly visual check for vessels over 15 years.</div>
+<div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:10.5px;font-weight:600;border-radius:5px;padding:3px 8px">SOLAS II-2/9.7</span>
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:10.5px;font-weight:600;border-radius:5px;padding:3px 8px">Circular MC-2024-11 §4</span>
+</div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">MATCHING INSTRUMENTS</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">Circular MC-2024-11 — Fire safety equipment maintenance</div><div style="font-size:11px;color:#647080">In force · issued 03 Nov 2024 · EN/AR</div></div><span style="color:#C3CBD6">›</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">Federal Maritime Law — Ch. VII Safety</div><div style="font-size:11px;color:#647080">Consolidated text · amended 2025</div></div><span style="color:#C3CBD6">›</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">MC-2022-04 — superseded</div><div style="font-size:11px;color:#B9770E">Replaced by MC-2024-11 · kept for audit</div></div><span style="color:#C3CBD6">›</span></div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:10px 13px;font-size:11.5px;color:#0A3A7D;text-align:center;line-height:1.5">Same library serves the public portal — one source of regulatory truth.</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3e">
+<div class="dv-olabel"><a class="dv-oid" href="#3e">3e</a>Customer · Fleet — vessel detail (Module 2)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 16px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="font-size:18px">‹</span><div><div style="font:600 17px 'Poppins',sans-serif">MV Gulf Horizon</div><div style="font-size:11.5px;color:#9FB4D4">IMO 9298744 · UAE flag · General cargo · 2,980 GT</div></div></div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:9px 11px"><div style="font:700 15px 'Poppins',sans-serif;color:#4BD48B">ACTIVE</div><div style="font-size:10.5px;color:#9FB4D4">Registry status</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:9px 11px"><div style="font:700 15px 'Poppins',sans-serif">11/12</div><div style="font-size:10.5px;color:#9FB4D4">Certs valid</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:9px 11px"><div style="font:700 15px 'Poppins',sans-serif">None</div><div style="font-size:10.5px;color:#9FB4D4">Mortgages</div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Owner</span><span style="color:#131C2B;font-weight:600">Gulf Star Shipping LLC</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Home port</span><span style="color:#131C2B;font-weight:600">Abu Dhabi</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Call sign / MMSI</span><span style="color:#131C2B;font-weight:600">A6E2984 · 470298744</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#647080">Class society</span><span style="color:#131C2B;font-weight:600">Tasneef</span></div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">QUICK ACTIONS</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px;font-size:12.5px;font-weight:700;color:#00265D;text-align:center">Renew certificate</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px;font-size:12.5px;font-weight:700;color:#00265D;text-align:center">Transfer ownership</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px;font-size:12.5px;font-weight:700;color:#00265D;text-align:center">Register mortgage</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px;font-size:12.5px;font-weight:700;color:#00265D;text-align:center">Crew &amp; manning</div>
+</div>
+<div style="background:#FDF3E1;border:1px solid #F0DFB9;border-radius:10px;padding:11px 13px;font-size:12px;color:#B9770E;display:flex;gap:8px"><span>⚠</span><span>Load Line Certificate expires in 40 days — renewal is one tap, pre-filled.</span></div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:600">Home</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▦</div><div style="font-size:10px;font-weight:600">Services</div></div>
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">⚓</div><div style="font-size:10px;font-weight:700">Fleet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▣</div><div style="font-size:10px;font-weight:600">Wallet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3f">
+<div class="dv-olabel"><a class="dv-oid" href="#3f">3f</a>Customer · Company accreditation (Module 8)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="font-size:12px;color:#9FB4D4">Company profile</div>
+<div style="font:600 19px 'Poppins',sans-serif">Gulf Marine Services FZE</div>
+<div style="font-size:11.5px;color:#9FB4D4;margin-top:2px">CR-8841 · Free zone · Member since 2019</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font:600 14px 'Poppins',sans-serif;color:#00265D">Accreditation — Bunkering</div><span style="background:#FDF3E1;color:#B9770E;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px">EXPIRES 32d</span></div>
+<div style="font-size:12px;color:#647080;margin-bottom:10px">ACC-2025-0117 · annual visit passed with 1 finding · condition open</div>
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700">Renew accreditation</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font:600 14px 'Poppins',sans-serif;color:#00265D">Accreditation — Ship chandling</div><span style="background:#E7F6EE;color:#1E8E5A;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px">VALID · 2027</span></div>
+<div style="font-size:12px;color:#647080">ACC-2025-0118 · no open conditions</div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">OPEN CONDITION</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font-size:13px;font-weight:600;color:#131C2B;margin-bottom:4px">Recertify 2 bunkering operators</div>
+<div style="font-size:11.5px;color:#647080;margin-bottom:10px">From visit VST-2026-0031 · due 30 Sep 2026 · evidence upload required</div>
+<div style="border:1.5px dashed #9FB4D4;border-radius:8px;padding:10px;text-align:center;font-size:12.5px;color:#0A3A7D;font-weight:600">＋ Upload training certificates</div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>Clear the condition before renewing — otherwise the renewal routes to manual review.</span></div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3g">
+<div class="dv-olabel"><a class="dv-oid" href="#3g">3g</a>Customer · Billing — invoices &amp; statements (Module 9)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:12px">Billing</div>
+<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:11px;color:#9FB4D4">Outstanding balance</div><div style="font:700 22px 'Poppins',sans-serif">AED 3,150</div></div>
+<div style="background:#00A0C6;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:700">Pay all</div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px">
+<div style="background:#00265D;color:#fff;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700">Unpaid · 2</div>
+<div style="background:#fff;border:1px solid #DFE4EB;color:#647080;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Paid</div>
+<div style="background:#fff;border:1px solid #DFE4EB;color:#647080;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Statements</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:13.5px;font-weight:600;color:#131C2B">INV-2026-11842 — Port dues, Q3</div><span style="font:700 14px 'Poppins',sans-serif;color:#00265D">AED 2,750</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11.5px;color:#647080">Issued 15 Aug · due 14 Sep · MV Gulf Horizon</span><span style="background:#FDF3E1;color:#B9770E;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">DUE 16d</span></div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:13.5px;font-weight:600;color:#131C2B">INV-2026-11901 — Survey attendance fee</div><span style="font:700 14px 'Poppins',sans-serif;color:#00265D">AED 400</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11.5px;color:#647080">Issued 26 Aug · due 25 Sep · MV Dana 3</span><span style="background:#EEF4FB;color:#0A3A7D;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">NEW</span></div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;opacity:.75">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:13.5px;font-weight:600;color:#131C2B">INV-2026-11214 — Navigation licence</div><span style="font:700 14px 'Poppins',sans-serif;color:#647080">AED 2,400</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11.5px;color:#647080">Paid 29 Aug · Apple Pay · receipt RCPT-88191</span><span style="background:#E7F6EE;color:#1E8E5A;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">✓ PAID</span></div>
+</div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:10px 13px;font-size:11.5px;color:#0A3A7D;text-align:center;line-height:1.5">Exact-money arithmetic, full rate history — figures always match the tariff engine.</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3h">
+<div class="dv-olabel"><a class="dv-oid" href="#3h">3h</a>Customer · Payment receipt (Module 9)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="flex:1;overflow:hidden;padding:34px 20px 0;display:flex;flex-direction:column;gap:14px;align-items:center">
+<div style="width:70px;height:70px;border-radius:50%;background:#E7F6EE;color:#1E8E5A;display:grid;place-items:center;font-size:32px">✓</div>
+<div style="text-align:center"><div style="font:700 21px 'Poppins',sans-serif;color:#00265D">Payment successful</div><div style="font-size:13px;color:#647080;margin-top:4px">Your application is now in processing</div></div>
+<div style="width:100%;background:#fff;border:1px solid #DFE4EB;border-radius:12px;padding:6px 16px;box-shadow:0 1px 3px rgba(0,38,93,.05)">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Amount</span><span style="color:#00265D;font-weight:700">AED 2,400.00</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Receipt</span><span style="color:#131C2B;font-weight:600">RCPT-88191</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Application</span><span style="color:#131C2B;font-weight:600">APP-2026-04431</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Method</span><span style="color:#131C2B;font-weight:600">Apple Pay · gateway ref 77-4412</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#647080">Date</span><span style="color:#131C2B;font-weight:600">29 Aug 2026, 10:52 GST</span></div>
+</div>
+<div style="width:100%;background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>Zero-touch eligible — expected issue by <strong>tomorrow 14:00</strong>. The licence lands in your wallet automatically.</span></div>
+<div style="width:100%;display:flex;gap:9px">
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Download receipt</div>
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Track application</div>
+</div>
+</div>
+<div style="height:20px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3i">
+<div class="dv-olabel"><a class="dv-oid" href="#3i">3i</a>Customer · Notifications centre</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 14px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:10px">Notifications</div>
+<div style="display:flex;gap:8px">
+<div style="background:#00A0C6;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700">All · 3 new</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Applications</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Expiries</div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:11px;font-weight:700;color:#8B96A5;letter-spacing:.05em">TODAY</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;gap:11px">
+<div style="width:32px;height:32px;border-radius:8px;background:#E7F6EE;color:#1E8E5A;display:grid;place-items:center;font-size:15px;flex:none">✓</div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#131C2B">Certificate issued — CSR, MV Gulf Horizon</div><div style="font-size:11.5px;color:#647080;margin-top:2px">10:58 · added to your wallet</div></div>
+<span style="width:8px;height:8px;border-radius:50%;background:#00A0C6;flex:none;margin-top:4px"></span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;gap:11px">
+<div style="width:32px;height:32px;border-radius:8px;background:#E7F6EE;color:#1E8E5A;display:grid;place-items:center;font-size:15px;flex:none">💳</div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#131C2B">Payment confirmed — AED 2,400</div><div style="font-size:11.5px;color:#647080;margin-top:2px">10:52 · receipt RCPT-88191</div></div>
+<span style="width:8px;height:8px;border-radius:50%;background:#00A0C6;flex:none;margin-top:4px"></span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;gap:11px">
+<div style="width:32px;height:32px;border-radius:8px;background:#FDF3E1;color:#B9770E;display:grid;place-items:center;font-size:15px;flex:none">⚠</div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#131C2B">Load Line Certificate — 40 days to expiry</div><div style="font-size:11.5px;color:#647080;margin-top:2px">08:00 · MV Gulf Horizon · renew in one tap</div></div>
+<span style="width:8px;height:8px;border-radius:50%;background:#00A0C6;flex:none;margin-top:4px"></span>
+</div>
+<div style="font-size:11px;font-weight:700;color:#8B96A5;letter-spacing:.05em;margin-top:2px">EARLIER</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;gap:11px;opacity:.7">
+<div style="width:32px;height:32px;border-radius:8px;background:#EEF4FB;color:#0A3A7D;display:grid;place-items:center;font-size:15px;flex:none">📄</div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#131C2B">New circular MC-2026-09 affects your fleet</div><div style="font-size:11.5px;color:#647080;margin-top:2px">Wed · ballast water reporting — 2 vessels affected</div></div>
+</div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:10px 13px;font-size:11.5px;color:#0A3A7D;text-align:center">Every notification deep-links to its action — nothing is a dead end.</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="3j">
+<div class="dv-olabel"><a class="dv-oid" href="#3j">3j</a>Authority · More — profile, role &amp; audit (Module 10)</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 18px;color:#fff;display:flex;gap:12px;align-items:center">
+<div style="width:48px;height:48px;border-radius:50%;background:#0A3A7D;display:grid;place-items:center;font:600 16px 'Poppins',sans-serif">RM</div>
+<div><div style="font:600 17px 'Poppins',sans-serif">Insp. R. Al Marzooqi</div><div style="font-size:11.5px;color:#9FB4D4">PSC Inspector · Ships domain · AUTH-4471</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><span style="font-size:13px;font-weight:600;color:#131C2B">Active role</span><span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">PSC INSPECTOR</span></div>
+<div style="font-size:11.5px;color:#647080;line-height:1.5">Also authorised: ISM Auditor, Facility Inspector. Switching roles changes what you can see and sign — logged in the audit trail.</div>
+<div style="margin-top:9px;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700">Switch role</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13.5px;color:#131C2B;font-weight:600">Offline storage</span><span style="font-size:12px;color:#647080">1.2 GB · 3 dossiers cached</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13.5px;color:#131C2B;font-weight:600">Sync</span><span style="font-size:12px;color:#1E8E5A;font-weight:700">Up to date · 10:41</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13.5px;color:#131C2B;font-weight:600">My activity log</span><span style="color:#C3CBD6">›</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13.5px;color:#131C2B;font-weight:600">Notification rules</span><span style="color:#C3CBD6">›</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font-size:13.5px;color:#131C2B;font-weight:600">Security &amp; Face ID</span><span style="color:#C3CBD6">›</span></div>
+</div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:10px 13px;font-size:11.5px;color:#0A3A7D;text-align:center;line-height:1.5">Least-privilege by default — every permission traces to the RBAC matrix.</div>
+<div style="border:1px solid #F2CACA;color:#C43D3D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700;background:#fff">Sign out</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+</div>
+<p style="margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)">30 screens total. Module coverage: MDM (underpins all) · Ships <a class="dv-oid" href="#3e">3e</a> · Seafarers <a class="dv-oid" href="#2o">2o</a> · Regulations <a class="dv-oid" href="#3d">3d</a> · NMC <a class="dv-oid" href="#3a">3a</a>/<a class="dv-oid" href="#3b">3b</a> · Inspection <a class="dv-oid" href="#1c">1c</a>/<a class="dv-oid" href="#2f">2f</a> · Ports/Facilities <a class="dv-oid" href="#3c">3c</a>/<a class="dv-oid" href="#3f">3f</a> · Revenue <a class="dv-oid" href="#3g">3g</a>/<a class="dv-oid" href="#3h">3h</a> · RBAC <a class="dv-oid" href="#3j">3j</a>.</p>
+</section>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Full key flows — Authority app (8) · Customer app (8)</span></div>
+<div class="dv-opts">
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Authority · Login — officer credentials + biometric</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#00265D;font-family:'Source Sans 3',sans-serif;color:#fff">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 30px;gap:8px">
+<div style="width:54px;height:54px;border-radius:12px;background:#00A0C6;display:grid;place-items:center;font:700 24px 'Poppins',sans-serif;margin-bottom:10px">⚓</div>
+<div style="font:700 26px/1.2 'Poppins',sans-serif">Marine Ops</div>
+<div style="font-size:14px;color:#9FB4D4;margin-bottom:22px">Authority field &amp; operations app</div>
+<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px 16px;font-size:14px;color:#C9D6EA">Officer ID<br><span style="color:#fff;font-weight:600">AUTH-4471</span></div>
+<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px 16px;font-size:14px;color:#C9D6EA">Password<br><span style="color:#fff;font-weight:600;letter-spacing:3px">••••••••</span></div>
+<div style="background:#00A0C6;border-radius:10px;padding:15px;text-align:center;font-size:15px;font-weight:700;margin-top:10px">Sign in</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-size:13px;color:#9FB4D4"><span style="font-size:20px">◉</span>Face ID — works offline in the field</div>
+</div>
+<div style="text-align:center;padding:0 30px 26px;font-size:11px;color:#5F79A6">Role-scoped access · sessions audited · MFA on new devices</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Authority · Boarding targets — risk-ranked queue</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 14px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:10px">Boarding targets</div>
+<div style="display:flex;gap:8px">
+<div style="background:#00A0C6;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700">In port · 14</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Arriving 48h</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Overdue PSC</div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:11.5px;color:#647080">Ranked by risk model v3 · scored nightly + on AIS events</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font:600 14.5px 'Poppins',sans-serif;color:#00265D">MV Gulf Pioneer</div><span style="background:#FBEAEA;color:#C43D3D;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px">78</span></div>
+<div style="font-size:12px;color:#647080;margin-bottom:8px">Bulk carrier · Berth 07 · last PSC 14 mo · 3 open deficiencies</div>
+<div style="display:flex;gap:6px"><span style="background:#FDF3E1;color:#B9770E;font-size:10.5px;font-weight:600;border-radius:5px;padding:3px 7px">Fire safety history</span><span style="background:#FDF3E1;color:#B9770E;font-size:10.5px;font-weight:600;border-radius:5px;padding:3px 7px">Flag watchlist</span></div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font:600 14.5px 'Poppins',sans-serif;color:#00265D">MT Al Reem</div><span style="background:#FDF3E1;color:#B9770E;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px">54</span></div>
+<div style="font-size:12px;color:#647080;margin-bottom:8px">Tanker · Anchorage A2 · ISM audit due · sister-ship finding</div>
+<div style="display:flex;gap:6px"><span style="background:#EEF4FB;color:#0A3A7D;font-size:10.5px;font-weight:600;border-radius:5px;padding:3px 7px">ISM due</span></div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font:600 14.5px 'Poppins',sans-serif;color:#00265D">MV Coral Bay</div><span style="background:#E7F6EE;color:#1E8E5A;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px">21</span></div>
+<div style="font-size:12px;color:#647080">Container · Berth 12 · clean 36-mo record · no triggers</div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>Every score explains itself — tap a vessel for the factor breakdown the officer can cite.</span></div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:600">Home</div></div>
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">◎</div><div style="font-size:10px;font-weight:700">Targets</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▤</div><div style="font-size:10px;font-weight:600">Inspect</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">◔</div><div style="font-size:10px;font-weight:600">Alerts</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2c">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Authority · Vessel risk profile — explainable score</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 16px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">MV Gulf Pioneer</div><div style="font-size:11.5px;color:#9FB4D4">IMO 9412375 · Panama flag · 2009 · Bulk carrier</div></div></div>
+<div style="display:flex;gap:10px;align-items:center">
+<div style="width:64px;height:64px;border-radius:50%;border:5px solid #E0656A;display:grid;place-items:center;font:700 22px 'Poppins',sans-serif;flex:none">78</div>
+<div style="font-size:12.5px;line-height:1.45;color:#C9D6EA">High risk · up 12 since last call<br><span style="color:#fff;font-weight:600">Recommend expanded PSC scope</span></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">WHY THIS SCORE</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13px;color:#131C2B">PSC deficiency history (24 mo)</span><span style="font-size:12px;font-weight:700;color:#C43D3D">+24</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13px;color:#131C2B">Fire-safety repeat findings</span><span style="font-size:12px;font-weight:700;color:#C43D3D">+18</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EEF1F5"><span style="font-size:13px;color:#131C2B">Vessel age &amp; class status</span><span style="font-size:12px;font-weight:700;color:#B9770E">+11</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><span style="font-size:13px;color:#131C2B">Operator compliance record</span><span style="font-size:12px;font-weight:700;color:#1E8E5A">−9</span></div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">COMPLIANCE SNAPSHOT</div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:11px 12px"><div style="font:700 16px 'Poppins',sans-serif;color:#00265D">9/11</div><div style="font-size:11px;color:#647080">Certs valid</div></div>
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:11px 12px"><div style="font:700 16px 'Poppins',sans-serif;color:#C43D3D">3</div><div style="font-size:11px;color:#647080">Open deficiencies</div></div>
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:11px 12px"><div style="font:700 16px 'Poppins',sans-serif;color:#00265D">14 mo</div><div style="font-size:11px;color:#647080">Since PSC</div></div>
+</div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Generate dossier</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Schedule boarding</div>
+</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2d">
+<div class="dv-olabel"><a class="dv-oid" href="#2d">2d</a>Authority · AI pre-inspection dossier — cached for offline</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div style="flex:1"><div style="font:600 16px 'Poppins',sans-serif">Pre-inspection dossier</div><div style="font-size:11.5px;color:#9FB4D4">MV Gulf Pioneer · generated 06:12 · cached ✓</div></div><div style="background:rgba(255,255,255,.12);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:600">PDF</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font:600 12px 'Poppins',sans-serif;color:#00A0C6;letter-spacing:.06em;margin-bottom:7px">SUMMARY</div>
+<div style="font-size:13px;line-height:1.55;color:#3B4757">Elevated fire-safety risk. Two prior PSC detentions in MoU region (2024, 2025), both fire-related. SMC renewed after 2025 detention. Crew changed 60% at last port call.</div>
+<div style="margin-top:8px;font-size:10.5px;color:#8B96A5">AI-generated · every claim links to its source record</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font:600 12px 'Poppins',sans-serif;color:#00A0C6;letter-spacing:.06em;margin-bottom:7px">FOCUS AREAS</div>
+<div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:#131C2B">
+<div style="display:flex;gap:8px"><span style="color:#C43D3D;font-weight:700">1</span><span>Fire dampers &amp; doors — repeat deficiency class <span style="color:#007A9B;font-weight:600">[PSC-2025-118]</span></span></div>
+<div style="display:flex;gap:8px"><span style="color:#B9770E;font-weight:700">2</span><span>Crew familiarisation — high turnover <span style="color:#007A9B;font-weight:600">[CREW-SYNC-0822]</span></span></div>
+<div style="display:flex;gap:8px"><span style="color:#B9770E;font-weight:700">3</span><span>Oil record book entries — gap flagged by analytics <span style="color:#007A9B;font-weight:600">[MARPOL-Q2]</span></span></div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font:600 12px 'Poppins',sans-serif;color:#00A0C6;letter-spacing:.06em;margin-bottom:7px">CERTIFICATES ABOARD</div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#131C2B;padding:5px 0;border-bottom:1px solid #EEF1F5"><span>Safety Management Cert.</span><span style="color:#1E8E5A;font-weight:700">VALID</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#131C2B;padding:5px 0;border-bottom:1px solid #EEF1F5"><span>Load Line Certificate</span><span style="color:#B9770E;font-weight:700">EXP 40d</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#131C2B;padding:5px 0"><span>IOPP Certificate</span><span style="color:#1E8E5A;font-weight:700">VALID</span></div>
+</div>
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:13.5px;font-weight:700">Start inspection with this dossier</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2e">
+<div class="dv-olabel"><a class="dv-oid" href="#2e">2e</a>Authority · Sync queue — store-and-forward, no data loss</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:4px">Sync queue</div>
+<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:#9FB4D4"><span style="width:8px;height:8px;border-radius:50%;background:#4BD48B"></span>Back online · uploading 3 of 7 items</div>
+<div style="height:5px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:10px"><div style="width:58%;height:5px;background:#00A0C6;border-radius:3px"></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Inspection PSC-2026-0871</div><div style="font-size:11.5px;color:#647080">32 items · 14 photos · 2 voice notes</div></div>
+<span style="font-size:11px;font-weight:700;color:#007A9B">UPLOADING…</span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Voice notes → transcription</div><div style="font-size:11.5px;color:#647080">Queued for AI transcription on arrival</div></div>
+<span style="font-size:11px;font-weight:700;color:#8B96A5">QUEUED</span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Checklist draft — MT Al Reem</div><div style="font-size:11.5px;color:#647080">Saved 13:47 · encrypted at rest</div></div>
+<span style="font-size:11px;font-weight:700;color:#1E8E5A">✓ SYNCED</span>
+</div>
+<div style="background:#FBEAEA;border:1px solid #F2CACA;border-radius:10px;padding:12px 14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:13.5px;font-weight:600;color:#C43D3D">Conflict — item 04.2</div><span style="font-size:11px;font-weight:700;color:#C43D3D">NEEDS REVIEW</span></div>
+<div style="font-size:12px;color:#3B4757;line-height:1.45">Template updated centrally after your copy was taken. Your answers are safe — choose which wording applies.</div>
+<div style="margin-top:9px;border:1px solid #C43D3D;color:#C43D3D;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700">Resolve</div>
+</div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;line-height:1.5;text-align:center">Nothing leaves the device unencrypted.<br>Everything captured offline survives app restarts.</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2f">
+<div class="dv-olabel"><a class="dv-oid" href="#2f">2f</a>Authority · AI-drafted report — officer reviews &amp; signs</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">Inspection report — draft</div><div style="font-size:11.5px;color:#9FB4D4">PSC-2026-0871 · AI-drafted from your captures</div></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#FDF3E1;border:1px solid #F0DFB9;border-radius:8px;padding:9px 12px;font-size:12px;color:#B9770E;display:flex;gap:8px"><span>✦</span><span>Draft only. Nothing is issued until you approve each finding and sign.</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:#C43D3D;background:#FBEAEA;border-radius:5px;padding:3px 8px">DEFICIENCY 07108</span><span style="font-size:11px;color:#8B96A5">from item 07.2</span></div>
+<div style="font-size:13px;line-height:1.5;color:#131C2B">Engine room supply damper #4 seized in open position; quick-closing function inoperative. SOLAS II-2/9.7 refers.</div>
+<div style="font-size:11.5px;color:#647080;margin:7px 0">Action 17 — rectify before departure · evidence: 2 photos, voice 0:38</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;background:#E7F6EE;color:#1E8E5A;border:1.5px solid #1E8E5A;text-align:center;border-radius:7px;padding:8px;font-size:12px;font-weight:700">✓ Approved</div>
+<div style="flex:1;border:1px solid #DFE4EB;color:#647080;text-align:center;border-radius:7px;padding:8px;font-size:12px;font-weight:700">Edit</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:#B9770E;background:#FDF3E1;border-radius:5px;padding:3px 8px">OBSERVATION</span><span style="font-size:11px;color:#8B96A5">from item 11.4</span></div>
+<div style="font-size:13px;line-height:1.5;color:#131C2B">Muster list not updated after crew change of 12 Aug; corrected during inspection.</div>
+<div style="display:flex;gap:7px;margin-top:9px">
+<div style="flex:1;border:1px solid #DFE4EB;color:#647080;text-align:center;border-radius:7px;padding:8px;font-size:12px;font-weight:700">Approve</div>
+<div style="flex:1;border:1.5px solid #00A0C6;color:#007A9B;text-align:center;border-radius:7px;padding:8px;font-size:12px;font-weight:700">Editing…</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:12.5px;color:#3B4757">2 of 3 findings approved</div>
+<div style="font-size:12px;color:#8B96A5">Master notified on sign-off</div>
+</div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:13.5px;font-weight:700">Sign &amp; issue report ✍</div>
+<div style="font-size:10.5px;color:#8B96A5;text-align:center;margin-top:6px">Digitally signed as Insp. R. Al Marzooqi · immutable audit trail</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2g">
+<div class="dv-olabel"><a class="dv-oid" href="#2g">2g</a>Authority · Alerts — NMC watch companion</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 14px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:10px">Alerts</div>
+<div style="display:flex;gap:8px">
+<div style="background:#00A0C6;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700">Live · 4</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">Acknowledged</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600">My watch</div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border-left:4px solid #C43D3D;border-top:1px solid #DFE4EB;border-right:1px solid #DFE4EB;border-bottom:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;font-weight:700;color:#C43D3D">DARK VESSEL · 09:42</span><span style="font-size:11px;color:#8B96A5">2 min ago</span></div>
+<div style="font-size:13.5px;font-weight:600;color:#131C2B;margin-bottom:4px">AIS lost — unidentified track, TSS western approach</div>
+<div style="font-size:12px;color:#647080;margin-bottom:9px">Last known: 24.51°N 54.37°E · SOG 11.2 kn · correlating with radar</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:7px;padding:9px;font-size:12px;font-weight:700">Acknowledge</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:7px;padding:9px;font-size:12px;font-weight:700">Open incident</div>
+</div>
+</div>
+<div style="background:#fff;border-left:4px solid #B9770E;border-top:1px solid #DFE4EB;border-right:1px solid #DFE4EB;border-bottom:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;font-weight:700;color:#B9770E">ZONE ENTRY · 09:31</span><span style="font-size:11px;color:#8B96A5">13 min ago</span></div>
+<div style="font-size:13.5px;font-weight:600;color:#131C2B">MT Sila entered restricted zone R-4 without clearance</div>
+</div>
+<div style="background:#fff;border-left:4px solid #B9770E;border-top:1px solid #DFE4EB;border-right:1px solid #DFE4EB;border-bottom:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;font-weight:700;color:#B9770E">RENDEZVOUS PATTERN · 08:55</span><span style="font-size:11px;color:#8B96A5">49 min ago</span></div>
+<div style="font-size:13.5px;font-weight:600;color:#131C2B">Two tracks loitering &lt;50 m apart, 40 min — outside anchorage</div>
+</div>
+<div style="background:#fff;border-left:4px solid #8B96A5;border-top:1px solid #DFE4EB;border-right:1px solid #DFE4EB;border-bottom:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;font-weight:700;color:#647080">SPEED ANOMALY · 08:12</span><span style="font-size:11px;color:#1E8E5A;font-weight:700">✓ ACK — Lt. Hamdan</span></div>
+<div style="font-size:13.5px;font-weight:600;color:#131C2B">MV Coral Bay 19 kn in 12 kn channel limit</div>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:600">Home</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">◎</div><div style="font-size:10px;font-weight:600">Targets</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▤</div><div style="font-size:10px;font-weight:600">Inspect</div></div>
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">◔</div><div style="font-size:10px;font-weight:700">Alerts</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2h">
+<div class="dv-olabel"><a class="dv-oid" href="#2h">2h</a>Authority · Executive KPIs + grounded assistant</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div><div style="font-size:12px;color:#9FB4D4">Sector overview · August</div><div style="font:600 19px 'Poppins',sans-serif">Good morning, Director</div></div><div style="width:34px;height:34px;border-radius:50%;background:#0A3A7D;display:grid;place-items:center;font:600 12px 'Poppins',sans-serif">SA</div></div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 18px 'Poppins',sans-serif">1,204</div><div style="font-size:10.5px;color:#9FB4D4">Registered vessels</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 18px 'Poppins',sans-serif">96.2%</div><div style="font-size:10.5px;color:#9FB4D4">SLA on time</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 18px 'Poppins',sans-serif;color:#63D3EC">−31%</div><div style="font-size:10.5px;color:#9FB4D4">Processing time YoY</div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:10px"><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Inspections — deficiency rate</div><span style="font-size:11px;color:#8B96A5">12 weeks</span></div>
+<div style="display:flex;align-items:flex-end;gap:5px;height:64px">
+<div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:58%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:66%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:52%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:61%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:47%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:55%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:44%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:49%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:40%"></div><div style="flex:1;background:#C9D6EA;border-radius:3px 3px 0 0;height:43%"></div><div style="flex:1;background:#00A0C6;border-radius:3px 3px 0 0;height:36%"></div><div style="flex:1;background:#00A0C6;border-radius:3px 3px 0 0;height:32%"></div>
+</div>
+</div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:11px 12px"><div style="font:700 16px 'Poppins',sans-serif;color:#00265D">AED 4.1M</div><div style="font-size:11px;color:#647080">Fees collected MTD</div></div>
+<div style="flex:1;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:11px 12px"><div style="font:700 16px 'Poppins',sans-serif;color:#C43D3D">4</div><div style="font-size:11px;color:#647080">Live NMC alerts</div></div>
+</div>
+<div style="background:#fff;border:1.5px solid #00A0C6;border-radius:10px;padding:12px 14px">
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:12px">✦</div><span style="font-size:12.5px;font-weight:700;color:#00265D">Ask Sagar Drishti</span></div>
+<div style="font-size:12.5px;line-height:1.5;color:#3B4757;background:#F7F9FB;border-radius:7px;padding:9px 11px">"Which service lines missed SLA this month and why?"</div>
+<div style="font-size:10.5px;color:#8B96A5;margin-top:7px">Answers grounded in platform data · sources cited · voice supported</div>
+</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2i">
+<div class="dv-olabel"><a class="dv-oid" href="#2i">2i</a>Customer · UAE PASS login</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#fff;font-family:'Source Sans 3',sans-serif">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 30px;gap:8px">
+<div style="width:54px;height:54px;border-radius:12px;background:#00265D;display:grid;place-items:center;font-size:24px;color:#fff;margin-bottom:10px">⚓</div>
+<div style="font:700 26px/1.2 'Poppins',sans-serif;color:#00265D">Maritime Services</div>
+<div style="font-size:14px;color:#647080;line-height:1.5;margin-bottom:24px">Register, certify and operate your vessels — one account for every maritime service.</div>
+<div style="background:#131C2B;color:#fff;border-radius:10px;padding:15px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:700"><span style="background:#fff;color:#131C2B;border-radius:4px;font-size:9px;font-weight:800;padding:2px 4px">🇦🇪</span>Sign in with UAE PASS</div>
+<div style="text-align:center;font-size:12px;color:#8B96A5;margin:6px 0">or</div>
+<div style="border:1px solid #C3CBD6;color:#00265D;border-radius:10px;padding:14px;text-align:center;font-size:14px;font-weight:700">Continue as visitor — verify a certificate</div>
+<div style="background:#EAF8FC;border-radius:8px;padding:10px 13px;font-size:12px;color:#0A3A7D;line-height:1.5;margin-top:16px">Single sign-on · your company &amp; fleet load automatically from the national register.</div>
+</div>
+<div style="text-align:center;padding:0 30px 26px;font-size:11px;color:#8B96A5">By continuing you agree to the terms of service</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2j">
+<div class="dv-olabel"><a class="dv-oid" href="#2j">2j</a>Customer · Service catalogue</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 14px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:10px">Services</div>
+<div style="background:rgba(255,255,255,.12);border-radius:8px;padding:10px 13px;font-size:13px;color:#9FB4D4">🔍 Search 87 services…</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px"><div style="font-size:20px;margin-bottom:6px">🚢</div><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Ship registration</div><div style="font-size:11px;color:#647080;margin-top:3px">Register, transfer, mortgage, delete</div></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px"><div style="font-size:20px;margin-bottom:6px">📜</div><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Certificates</div><div style="font-size:11px;color:#647080;margin-top:3px">Issue, renew, duplicate</div></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px"><div style="font-size:20px;margin-bottom:6px">🧭</div><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Seafarers</div><div style="font-size:11px;color:#647080;margin-top:3px">CoC, endorsements, sea service</div></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px"><div style="font-size:20px;margin-bottom:6px">⚓</div><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Port operations</div><div style="font-size:11px;color:#647080;margin-top:3px">Clearances, NOCs, permits</div></div>
+</div>
+<div style="font:600 13px 'Poppins',sans-serif;color:#00265D;margin-top:4px">FREQUENTLY USED</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Renew navigation licence</div><div style="font-size:11.5px;color:#647080">3 documents · AED 2,400 · ~2 days</div></div><span style="color:#C3CBD6">›</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Seafarer endorsement</div><div style="font-size:11.5px;color:#647080">2 documents · AED 350 · same day</div></div><span style="color:#C3CBD6">›</span></div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:11px 13px;font-size:12px;color:#0A3A7D;display:flex;gap:8px"><span style="color:#00A0C6">✦</span><span>Not sure which service? Describe what you need — the assistant maps it for you.</span></div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:600">Home</div></div>
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">▦</div><div style="font-size:10px;font-weight:700">Services</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⚓</div><div style="font-size:10px;font-weight:600">Fleet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▣</div><div style="font-size:10px;font-weight:600">Wallet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2k">
+<div class="dv-olabel"><a class="dv-oid" href="#2k">2k</a>Customer · New application — pre-filled from register</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">Renew navigation licence</div><div style="font-size:11.5px;color:#9FB4D4">Step 2 of 4 — Details &amp; documents</div></div></div>
+<div style="display:flex;gap:5px"><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px"></div><div style="flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px"></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#E7F6EE;border:1px solid #CBE9D8;border-radius:8px;padding:9px 12px;font-size:12px;color:#1E8E5A;display:flex;gap:8px"><span>✓</span><span>Pre-filled from the vessel register — only 2 fields need you.</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font-size:11px;color:#8B96A5;margin-bottom:3px">Vessel</div>
+<div style="font-size:14px;font-weight:600;color:#131C2B">MV Dana 3 · IMO 9354201</div>
+<div style="font-size:11.5px;color:#647080;margin-top:2px">Supply vessel · 499 GT · Abu Dhabi home port</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font-size:11px;color:#8B96A5;margin-bottom:3px">Operating area <span style="color:#C43D3D">*</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:600;color:#131C2B">Coastal — UAE waters</span><span style="color:#C3CBD6">▾</span></div>
+</div>
+<div style="font:600 12.5px 'Poppins',sans-serif;color:#00265D">DOCUMENTS</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">Class certificate</div><div style="font-size:11px;color:#1E8E5A;font-weight:600">✓ Fetched from registry — valid</div></div><span style="font-size:11px;color:#8B96A5">auto</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">Insurance certificate</div><div style="font-size:11px;color:#1E8E5A;font-weight:600">✓ Uploaded · AI-checked: dates match</div></div><span style="font-size:11px;color:#007A9B;font-weight:700">VIEW</span></div>
+<div style="background:#fff;border:1.5px dashed #9FB4D4;border-radius:10px;padding:12px 14px;text-align:center;font-size:12.5px;color:#0A3A7D;font-weight:600">＋ Crew list (PDF or photo) <span style="color:#C43D3D">*</span></div>
+</div>
+<div style="display:flex;gap:10px;padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Save draft</div>
+<div style="flex:1.4;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Continue ›</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2l">
+<div class="dv-olabel"><a class="dv-oid" href="#2l">2l</a>Customer · Review &amp; pay</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">Review &amp; pay</div><div style="font-size:11.5px;color:#9FB4D4">Step 4 of 4 · APP-2026-04431 (draft)</div></div></div>
+<div style="display:flex;gap:5px"><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Service</span><span style="color:#131C2B;font-weight:600">Navigation licence renewal</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Vessel</span><span style="color:#131C2B;font-weight:600">MV Dana 3</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Validity</span><span style="color:#131C2B;font-weight:600">12 months</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#647080">Processing</span><span style="color:#1E8E5A;font-weight:700">Zero-touch eligible ✦</span></div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Licence fee</span><span style="color:#131C2B;font-weight:600">AED 2,200</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Knowledge &amp; innovation fee</span><span style="color:#131C2B;font-weight:600">AED 200</span></div>
+<div style="display:flex;justify-content:space-between;padding:11px 0;font-size:14.5px"><span style="color:#00265D;font-weight:700">Total</span><span style="color:#00265D;font-weight:700">AED 2,400</span></div>
+</div>
+<div style="background:#fff;border:1.5px solid #00A0C6;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:10px;align-items:center"><div><div style="font-size:13.5px;font-weight:700;color:#131C2B">Apple Pay</div><div style="font-size:11px;color:#647080">via national payment gateway</div></div></div><span style="width:18px;height:18px;border-radius:50%;background:#00A0C6;display:grid;place-items:center;color:#fff;font-size:11px">✓</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:16px">💳</span><div style="font-size:13.5px;font-weight:600;color:#647080">Card ending 4412</div></div></div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:14px;font-weight:700">Pay AED 2,400</div>
+<div style="font-size:10.5px;color:#8B96A5;text-align:center;margin-top:6px">Receipt issued instantly · refund rules shown before payment</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2m">
+<div class="dv-olabel"><a class="dv-oid" href="#2m">2m</a>Customer · Application tracking — honest timeline</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">APP-2026-04412</div><div style="font-size:11.5px;color:#9FB4D4">Certificate renewal — CSR · MV Gulf Horizon</div></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:700;color:#0A3A7D">In technical review</div><div style="font-size:11.5px;color:#647080;margin-top:2px">Expected completion: tomorrow, 2 Sep</div></div>
+<span style="background:#fff;color:#007A9B;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">ON TRACK</span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:16px 15px">
+<div style="display:flex;gap:12px;margin-bottom:2px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#1E8E5A;color:#fff;display:grid;place-items:center;font-size:11px;flex:none">✓</div><div style="width:2px;flex:1;background:#CBE9D8"></div></div><div style="padding-bottom:16px"><div style="font-size:13px;font-weight:700;color:#131C2B">Submitted &amp; paid</div><div style="font-size:11.5px;color:#647080">28 Aug, 09:14 · receipt RCPT-88123</div></div></div>
+<div style="display:flex;gap:12px;margin-bottom:2px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#1E8E5A;color:#fff;display:grid;place-items:center;font-size:11px;flex:none">✓</div><div style="width:2px;flex:1;background:#CBE9D8"></div></div><div style="padding-bottom:16px"><div style="font-size:13px;font-weight:700;color:#131C2B">Documents verified</div><div style="font-size:11.5px;color:#647080">28 Aug, 09:16 · automated check passed</div></div></div>
+<div style="display:flex;gap:12px;margin-bottom:2px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:10px;flex:none">●</div><div style="width:2px;flex:1;background:#DFE4EB"></div></div><div style="padding-bottom:16px"><div style="font-size:13px;font-weight:700;color:#007A9B">Technical review — now</div><div style="font-size:11.5px;color:#647080">With surveyor team · started 29 Aug, 08:02</div></div></div>
+<div style="display:flex;gap:12px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;border:2px solid #DFE4EB;flex:none"></div></div><div><div style="font-size:13px;font-weight:700;color:#8B96A5">Certificate issued</div><div style="font-size:11.5px;color:#8B96A5">Lands in your wallet automatically</div></div></div>
+</div>
+<div style="border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Message the reviewing officer</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2n">
+<div class="dv-olabel"><a class="dv-oid" href="#2n">2n</a>Customer · Public QR verify — no account needed</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff;text-align:center">
+<div style="font:600 17px 'Poppins',sans-serif">Certificate verification</div>
+<div style="font-size:11.5px;color:#9FB4D4;margin-top:3px">Public check · scanned 29 Aug 2026, 10:41 GST</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:18px 16px 0;display:flex;flex-direction:column;gap:12px">
+<div style="background:#fff;border:1px solid #CBE9D8;border-radius:12px;padding:20px 16px;text-align:center;box-shadow:0 1px 3px rgba(0,38,93,.05)">
+<div style="width:64px;height:64px;border-radius:50%;background:#E7F6EE;color:#1E8E5A;display:grid;place-items:center;font-size:30px;margin:0 auto 10px">✓</div>
+<div style="font:700 19px 'Poppins',sans-serif;color:#1E8E5A">Valid certificate</div>
+<div style="font-size:12.5px;color:#647080;margin-top:4px">Signature verified · validity computed live from the register</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Certificate</span><span style="color:#131C2B;font-weight:600">Certificate of Registry</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Vessel</span><span style="color:#131C2B;font-weight:600">MV Gulf Horizon · IMO 9298744</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Number</span><span style="color:#131C2B;font-weight:600">REG-2024-00311</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Valid until</span><span style="color:#131C2B;font-weight:600">14 Mar 2029</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:#647080">Issuing authority</span><span style="color:#131C2B;font-weight:600">Maritime Administration</span></div>
+</div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:11px 13px;font-size:11.5px;color:#0A3A7D;line-height:1.5;text-align:center">Shows only what a third party needs — no owner or commercial data exposed.</div>
+<div style="border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Scan another certificate</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2o">
+<div class="dv-olabel"><a class="dv-oid" href="#2o">2o</a>Customer · Seafarer CoC wallet &amp; sea service</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;color:#9FB4D4">Seafarer profile</div><div style="font:600 19px 'Poppins',sans-serif">Chief Officer S. Khan</div></div><div style="width:34px;height:34px;border-radius:50%;background:#0A3A7D;display:grid;place-items:center;font:600 12px 'Poppins',sans-serif">SK</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column;gap:11px">
+<div style="background:linear-gradient(135deg,#00265D,#0A3A7D);border-radius:12px;padding:16px 18px;color:#fff;box-shadow:0 2px 8px rgba(0,38,93,.18)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+<div><div style="font-size:10.5px;color:#9FB4D4;letter-spacing:.08em">CERTIFICATE OF COMPETENCY</div><div style="font:600 16px 'Poppins',sans-serif;margin-top:3px">Chief Mate · II/2 Unlimited</div></div>
+<div style="width:40px;height:40px;border-radius:6px;background:#fff;display:grid;place-items:center"><div style="width:28px;height:28px;background:repeating-conic-gradient(#00265D 0 25%,#fff 0 50%) 0 0/7px 7px"></div></div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px;color:#C9D6EA"><span>CoC-2023-08871</span><span style="color:#F5B942;font-weight:700">Revalidation due · 148 days</span></div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+<div style="width:26px;height:26px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:13px;flex:none">✦</div>
+<div style="font-size:12.5px;color:#0A3A7D;line-height:1.45"><strong>You already qualify to revalidate.</strong> 14.2 months of verified sea service on record — apply now, nothing to upload.</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">SEA SERVICE RECORD</div><span style="font-size:12px;color:#007A9B;font-weight:600">＋ Add voyage</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">MV Gulf Horizon · C/O</div><div style="font-size:11.5px;color:#647080">Jan – Jun 2026 · 5.6 months</div></div><span style="background:#E7F6EE;color:#1E8E5A;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">VERIFIED</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">MT Al Reem · C/O</div><div style="font-size:11.5px;color:#647080">Mar – Nov 2025 · 8.6 months</div></div><span style="background:#E7F6EE;color:#1E8E5A;font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px">VERIFIED</span></div>
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13.5px;font-weight:700">Apply for revalidation</div>
+</div>
+<div style="height:14px"></div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="2p">
+<div class="dv-olabel"><a class="dv-oid" href="#2p">2p</a>Customer · Assistant — grounded answers, real actions</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff;display:flex;align-items:center;gap:10px">
+<span style="font-size:18px">‹</span>
+<div style="width:30px;height:30px;border-radius:8px;background:#00A0C6;display:grid;place-items:center;font-size:14px">✦</div>
+<div><div style="font:600 15px 'Poppins',sans-serif">Maritime assistant</div><div style="font-size:11px;color:#9FB4D4">Answers cite regulations &amp; your records</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="align-self:flex-end;max-width:78%;background:#00265D;color:#fff;border-radius:14px 14px 4px 14px;padding:11px 14px;font-size:13.5px;line-height:1.45">What do I need to transfer ownership of MV Dana 3?</div>
+<div style="align-self:flex-start;max-width:88%;background:#fff;border:1px solid #DFE4EB;border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:13px;line-height:1.55;color:#3B4757">
+For a UAE-flagged vessel under 500 GT you'll need:<br>
+1. Bill of sale (attested)<br>2. Buyer's trade licence<br>3. Mortgage discharge — <strong style="color:#1E8E5A">already clear on Dana 3 ✓</strong><br>4. Original Certificate of Registry<br>
+<span style="display:inline-block;margin-top:8px;font-size:11px;color:#007A9B;font-weight:600">Sources: Registration Rules Art. 14 · your vessel record</span>
+</div>
+<div style="align-self:flex-start;display:flex;gap:8px">
+<div style="background:#00265D;color:#fff;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:700">Start transfer application</div>
+<div style="border:1px solid #C3CBD6;color:#00265D;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:700">Fee estimate</div>
+</div>
+<div style="align-self:flex-start;font-size:10.5px;color:#8B96A5">Assistant can start applications but never submits without your review.</div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB;display:flex;gap:9px;align-items:center">
+<div style="flex:1;border:1px solid #DFE4EB;border-radius:20px;padding:11px 16px;font-size:13px;color:#8B96A5">Ask anything…</div>
+<div style="width:40px;height:40px;border-radius:50%;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:16px;flex:none">🎙</div>
+</div>
+</div>
+</x-import>
+</div>
+</div>
+<p style="margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)">All 20 screens now built (4 heroes in turn <a class="dv-oid" href="#t1">1</a> + 16 flows above). Next: portal fidelity pass when you share screenshots, or pick any screen id to iterate.</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Maritime Mobile — design plan &amp; hero screens</span></div>
+<div class="dv-opts">
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Design plan — read me first</div>
+<div style="width:420px;background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:24px 26px;box-shadow:0 1px 3px rgba(0,38,93,.06)">
+<div style="font:600 11px 'Poppins',sans-serif;letter-spacing:.1em;color:#00A0C6;text-transform:uppercase;margin-bottom:6px">Maritime Transformation Programme</div>
+<div style="font:700 20px/1.25 'Poppins',sans-serif;color:#00265D;margin-bottom:14px">Two mobile apps, one design language</div>
+<div style="font-size:13.5px;line-height:1.6;color:#3B4757">
+<p style="margin:0 0 10px"><strong style="color:#00265D">Authority app — "Marine Ops"</strong> for inspectors, executives and NMC watch officers. Offline-first inspections (IoT Hub store-and-forward), AI dossiers and drafted reports with officer sign-off, risk-ranked boarding targets, alerts, KPIs.</p>
+<p style="margin:0 0 10px"><strong style="color:#00265D">Customer app — "Maritime Services"</strong> for owners, agents and seafarers via UAE PASS. Apply / track / pay, certificate wallet with public QR verify, CoC revalidation, grounded AI guidance.</p>
+<p style="margin:0 0 10px"><strong style="color:#00265D">Assumptions:</strong> English-only for now (AR RTL later); Mobilise palette (navy #00265D · cyan #00A0C6, Poppins/Source Sans 3) pending your portal screenshots; iOS presentation; assistive AI — quiet, in context, always behind an officer/customer decision; every screen maps to a TAD module so this doubles as a build spec.</p>
+<p style="margin:0"><strong style="color:#00265D">Screen map (20):</strong> Authority — login · home · boarding targets · vessel risk · AI dossier · checklist capture · sync queue · report review &amp; sign · alerts/NMC · exec KPIs+assistant. Customer — UAE PASS login · home · service catalogue · new application · review &amp; pay · tracking · certificate wallet · QR verify · seafarer CoC · notifications+assistant.</p>
+</div>
+</div>
+</div>
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Authority · Inspector home — offline-first day view</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div>
+<div style="font-size:12px;color:#9FB4D4">Thursday 29 Aug · Port Zayed</div>
+<div style="font:600 19px 'Poppins',sans-serif">Insp. R. Al Marzooqi</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;font-size:11.5px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:#F5B942"></span>Offline · 3 queued</div>
+<div style="width:34px;height:34px;border-radius:50%;background:#0A3A7D;display:grid;place-items:center;font:600 12px 'Poppins',sans-serif">RM</div>
+</div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">2</div><div style="font-size:11px;color:#9FB4D4">Inspections today</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">4</div><div style="font-size:11px;color:#9FB4D4">Open findings</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif;color:#63D3EC">1</div><div style="font-size:11px;color:#9FB4D4">Flash alert</div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px 'Poppins',sans-serif;color:#00265D;letter-spacing:.02em">TODAY'S BOARDINGS</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,38,93,.05)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+<div><div style="font:600 15px 'Poppins',sans-serif;color:#00265D">MV Gulf Pioneer</div><div style="font-size:12px;color:#647080">IMO 9412375 · Bulk carrier · Berth 07</div></div>
+<div style="background:#FBEAEA;color:#C43D3D;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">RISK 78</div>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:12px">
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">PSC · 09:30</span>
+<span style="background:#EAF8FC;color:#007A9B;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">✓ Dossier ready · cached</span>
+</div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700">Open dossier</div>
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700">Start inspection</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px 16px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+<div><div style="font:600 15px 'Poppins',sans-serif;color:#00265D">MT Al Reem</div><div style="font-size:12px;color:#647080">IMO 9276381 · Tanker · Anchorage A2</div></div>
+<div style="background:#FDF3E1;color:#B9770E;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">RISK 54</div>
+</div>
+<div style="display:flex;gap:8px">
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">ISM · 14:00</span>
+<span style="background:#F7F9FB;color:#647080;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">Dossier syncing…</span>
+</div>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+<div style="width:26px;height:26px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:13px;flex:none">✦</div>
+<div style="font-size:12.5px;line-height:1.45;color:#0A3A7D"><strong>Focus advisory:</strong> Gulf Pioneer — 3 fire-safety deficiencies on last 2 PSC MoU records. Checklist section 07 pre-expanded.</div>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:700">Home</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">◎</div><div style="font-size:10px;font-weight:600">Targets</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▤</div><div style="font-size:10px;font-weight:600">Inspect</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">◔</div><div style="font-size:10px;font-weight:600">Alerts</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Authority · Checklist capture — offline, evidence, AI focus</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">‹</span><div><div style="font:600 15px 'Poppins',sans-serif">MV Gulf Pioneer · PSC</div><div style="font-size:11.5px;color:#9FB4D4">Template v14 · copied at creation</div></div></div>
+<div style="background:rgba(255,255,255,.12);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#F5B942"></span>Offline</div>
+</div>
+<div style="margin-top:12px">
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#9FB4D4;margin-bottom:5px"><span>Section 07 — Fire Safety</span><span>14 / 32 items</span></div>
+<div style="height:5px;background:rgba(255,255,255,.15);border-radius:3px"><div style="width:44%;height:5px;background:#00A0C6;border-radius:3px"></div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:8px;padding:9px 12px;font-size:12px;color:#0A3A7D;display:flex;gap:8px;align-items:center"><span style="color:#00A0C6">✦</span><span><strong>Predicted focus:</strong> deficiency 07108 (fire dampers) likely — 2 prior findings on sisters.</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 14px">
+<div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:10px">
+<div style="font-size:13.5px;color:#131C2B;line-height:1.4;font-weight:600">07.1 — Fire doors close and latch from the release station</div>
+<span style="font-size:11px;color:#8B96A5;flex:none">07105</span>
+</div>
+<div style="display:flex;gap:6px">
+<div style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;background:#E7F6EE;color:#1E8E5A;border:1.5px solid #1E8E5A">YES</div>
+<div style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;border:1px solid #DFE4EB;color:#647080">NO</div>
+<div style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;border:1px solid #DFE4EB;color:#647080">N/A</div>
+</div>
+</div>
+<div style="background:#fff;border:1.5px solid #00A0C6;border-radius:10px;padding:13px 14px;box-shadow:0 2px 8px rgba(0,38,93,.08)">
+<div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:10px">
+<div style="font-size:13.5px;color:#131C2B;line-height:1.4;font-weight:600">07.2 — Fire dampers operable, marked and tested</div>
+<span style="font-size:11px;color:#8B96A5;flex:none">07108</span>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:12px">
+<div style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;border:1px solid #DFE4EB;color:#647080">YES</div>
+<div style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;background:#FBEAEA;color:#C43D3D;border:1.5px solid #C43D3D">NO</div>
+<div style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;border:1px solid #DFE4EB;color:#647080">N/A</div>
+</div>
+<div style="font-size:12px;color:#3B4757;background:#F7F9FB;border-radius:7px;padding:9px 11px;margin-bottom:10px;line-height:1.45">Damper #4, engine room supply — seized in open position. Chief engineer informed.</div>
+<div style="display:flex;gap:8px;align-items:center">
+<div style="width:52px;height:52px;border-radius:7px;background:linear-gradient(135deg,#0A3A7D,#14509E);position:relative;flex:none"><span style="position:absolute;right:3px;bottom:3px;background:rgba(0,0,0,.5);color:#fff;font-size:9px;border-radius:4px;padding:1px 4px">📷 2</span></div>
+<div style="width:52px;height:52px;border-radius:7px;background:linear-gradient(135deg,#3B4757,#647080);flex:none"></div>
+<div style="flex:1;display:flex;align-items:center;gap:7px;border:1px solid #DFE4EB;border-radius:7px;padding:8px 10px"><span style="color:#00A0C6;font-size:14px">🎙</span><div style="font-size:11.5px;color:#3B4757;line-height:1.3">Voice note 0:38<br><span style="color:#8B96A5">transcribes on sync</span></div></div>
+</div>
+<div style="margin-top:10px;background:#FDF3E1;border-radius:7px;padding:8px 11px;font-size:11.5px;color:#B9770E;display:flex;gap:7px;align-items:center"><span>✦</span><span>Suggested: code 07108 · action 17 (rectify before departure) — <strong>confirm</strong></span></div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 14px;display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:13.5px;color:#131C2B;font-weight:600">07.3 — Fixed CO₂ system service records current</div>
+<span style="color:#C3CBD6;font-size:16px">›</span>
+</div>
+</div>
+<div style="display:flex;gap:10px;padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Save draft</div>
+<div style="flex:1.4;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700">Next section ›</div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Customer · Home — fleet, actions due, applications</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 18px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<div><div style="font-size:12px;color:#9FB4D4">Gulf Star Shipping LLC</div><div style="font:600 19px 'Poppins',sans-serif">Marhaba, Ahmed</div></div>
+<div style="display:flex;align-items:center;gap:8px"><div style="background:rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600">🇦🇪 UAE PASS</div><div style="position:relative"><span style="font-size:18px">🔔</span><span style="position:absolute;top:-3px;right:-4px;width:14px;height:14px;background:#00A0C6;border-radius:50%;font-size:9px;display:grid;place-items:center;font-weight:700">3</span></div></div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">3</div><div style="font-size:11px;color:#9FB4D4">Vessels</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">2</div><div style="font-size:11px;color:#9FB4D4">In progress</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif;color:#F5B942">1</div><div style="font-size:11px;color:#9FB4D4">Action due</div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column;gap:12px">
+<div style="background:#fff;border:1px solid #F0DFB9;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,38,93,.05)">
+<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px">
+<div style="width:34px;height:34px;border-radius:8px;background:#FDF3E1;color:#B9770E;display:grid;place-items:center;font-size:16px;flex:none">⚠</div>
+<div><div style="font:600 14px 'Poppins',sans-serif;color:#00265D">Navigation licence expires in 21 days</div><div style="font-size:12.5px;color:#647080;margin-top:2px">MV Dana 3 · IMO 9354201 · expires 19 Sep 2026</div></div>
+</div>
+<div style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700">Renew now — pre-filled, AED 2,400</div>
+<div style="font-size:11px;color:#8B96A5;text-align:center;margin-top:7px">Eligible for zero-touch processing · nothing to re-submit</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:600 13px 'Poppins',sans-serif;color:#00265D">MY APPLICATIONS</div><span style="font-size:12px;color:#007A9B;font-weight:600">All ›</span></div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Certificate renewal — CSR</div><div style="font-size:11.5px;color:#647080;margin-top:2px">MV Gulf Horizon · APP-2026-04412</div></div>
+<span style="background:#EAF8FC;color:#007A9B;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">IN REVIEW</span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Seafarer endorsement — 2/O Khan</div><div style="font-size:11.5px;color:#647080;margin-top:2px">APP-2026-04398 · payment received</div></div>
+<span style="background:#E7F6EE;color:#1E8E5A;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">ISSUING</span>
+</div>
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:center">
+<div style="width:26px;height:26px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:13px;flex:none">✦</div>
+<div style="font-size:12.5px;color:#0A3A7D;line-height:1.4">Ask the assistant — "What do I need to transfer ownership of a vessel?"</div>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:700">Home</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▦</div><div style="font-size:10px;font-weight:600">Services</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⚓</div><div style="font-size:10px;font-weight:600">Fleet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▣</div><div style="font-size:10px;font-weight:600">Wallet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Customer · Certificate wallet — signed, verifiable</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="font:600 19px 'Poppins',sans-serif;margin-bottom:12px">Certificate wallet</div>
+<div style="display:flex;gap:8px">
+<div style="background:#00A0C6;border-radius:7px;padding:7px 13px;font-size:12px;font-weight:700">All · 12</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:7px 13px;font-size:12px;font-weight:600">Expiring · 2</div>
+<div style="background:rgba(255,255,255,.12);border-radius:7px;padding:7px 13px;font-size:12px;font-weight:600">By vessel</div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column;gap:11px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,38,93,.05)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+<div><div style="font:600 14.5px 'Poppins',sans-serif;color:#00265D">Certificate of Registry</div><div style="font-size:12px;color:#647080;margin-top:2px">MV Gulf Horizon · REG-2024-00311</div></div>
+<div style="width:44px;height:44px;border-radius:7px;border:1px solid #DFE4EB;display:grid;place-items:center;flex:none"><div style="width:30px;height:30px;background:repeating-conic-gradient(#00265D 0 25%,#fff 0 50%) 0 0/7.5px 7.5px"></div></div>
+</div>
+<div style="display:flex;gap:7px;align-items:center">
+<span style="background:#E7F6EE;color:#1E8E5A;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">VALID · to 03/2029</span>
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">🛡 Ed25519 signed</span>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px 16px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+<div><div style="font:600 14.5px 'Poppins',sans-serif;color:#00265D">Safety Management Cert.</div><div style="font-size:12px;color:#647080;margin-top:2px">MV Gulf Horizon · SMC-2025-01207</div></div>
+<div style="width:44px;height:44px;border-radius:7px;border:1px solid #DFE4EB;display:grid;place-items:center;flex:none"><div style="width:30px;height:30px;background:repeating-conic-gradient(#00265D 0 25%,#fff 0 50%) 0 0/7.5px 7.5px"></div></div>
+</div>
+<div style="display:flex;gap:7px;align-items:center">
+<span style="background:#FDF3E1;color:#B9770E;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">EXPIRING · 34 days</span>
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">Renewal eligible ✦</span>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px 16px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+<div><div style="font:600 14.5px 'Poppins',sans-serif;color:#00265D">Navigation Licence</div><div style="font-size:12px;color:#647080;margin-top:2px">MV Dana 3 · NAV-2025-00842</div></div>
+<div style="width:44px;height:44px;border-radius:7px;border:1px solid #DFE4EB;display:grid;place-items:center;flex:none"><div style="width:30px;height:30px;background:repeating-conic-gradient(#00265D 0 25%,#fff 0 50%) 0 0/7.5px 7.5px"></div></div>
+</div>
+<div style="display:flex;gap:7px;align-items:center">
+<span style="background:#FDF3E1;color:#B9770E;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">EXPIRING · 21 days</span>
+<span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">🛡 Ed25519 signed</span>
+</div>
+</div>
+<div style="background:#EEF4FB;border:1px dashed #9FB4D4;border-radius:10px;padding:12px 14px;font-size:12px;color:#0A3A7D;line-height:1.5;text-align:center">Validity computed live from the register — never stored stale.<br>Tap any QR to let a third party verify without an account.</div>
+</div>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:600">Home</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">▦</div><div style="font-size:10px;font-weight:600">Services</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">⚓</div><div style="font-size:10px;font-weight:600">Fleet</div></div>
+<div style="flex:1;text-align:center;color:#00265D"><div style="font-size:18px">▣</div><div style="font-size:10px;font-weight:700">Wallet</div></div>
+<div style="flex:1;text-align:center;color:#8B96A5"><div style="font-size:18px">≡</div><div style="font-size:10px;font-weight:600">More</div></div>
+</div>
+</div>
+</x-import>
+</div>
+</div>
+<p style="margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)">Next: remaining 16 screens per the screen map in <a class="dv-oid" href="#1a">1a</a> · share portal screenshots for a fidelity pass · "make <a class="dv-oid" href="#1c">1c</a> darker for deck use"</p>
+</section>
+</x-dc>
+</body>
+</html>
