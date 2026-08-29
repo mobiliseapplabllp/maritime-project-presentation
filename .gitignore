@@ -26,3 +26,14 @@ portal/deploy/letsencrypt/
 
 # design bundle upload (106MB, contains doc copies) — design-reference/ in mobile-app is the tracked subset
 Mobile app for Seaport Management.zip
+
+# Flutter build artifacts
+mobile-flutter/build/
+mobile-flutter/.dart_tool/
+mobile-flutter/ios/Pods/
+mobile-flutter/ios/.symlinks/
+mobile-flutter/screenshots/thumb_*.png
+mobile-flutter/assets/fonts/__MACOSX/
+# dev database binary + data (mongod, ~70MB)
+portal/.dev/bin/
+portal/.dev/data/
