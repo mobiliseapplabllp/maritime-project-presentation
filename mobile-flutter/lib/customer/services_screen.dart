@@ -61,6 +61,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     const SizedBox(height: 8),
                     for (final svc in (dom['services'] as List).cast<Map<String, dynamic>>()) ...[
                       MobCard(
+                        semanticLabel: 'Apply for ${svc['name']}',
                         onTap: !s.can('services.apply')
                             ? null
                             : () => Navigator.of(context).push(MaterialPageRoute(

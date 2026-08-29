@@ -26,6 +26,7 @@ class ApiClient {
   final String baseUrl;
   String? _token;
   String? _refreshToken;
+  Future<bool>? _refreshing;
 
   /// Called whenever a login/refresh returns a fresh user payload.
   void Function(Map<String, dynamic> user)? onUser;
@@ -35,8 +36,20 @@ class ApiClient {
 
   bool get hasSession => _token != null;
 
+  /// Production base is injected at build time (`--dart-define=API_BASE=...`,
+  /// which MUST be https). Only debug builds fall back to the local dev API
+  /// over cleartext.
   static String defaultBaseUrl() {
-    // The Android emulator reaches the host machine via 10.0.2.2.
+    const configured = String.fromEnvironment('API_BASE');
+    if (configured.isNotEmpty) return configured;
+    assert(() {
+      return true;
+    }());
+    if (!kDebugMode) {
+      throw StateError(
+          'API_BASE must be provided (https) for non-debug builds — '
+          'the cleartext localhost fallback is debug-only.');
+    }
     if (!kIsWeb && Platform.isAndroid) return 'http://10.0.2.2:5200/api';
     return 'http://127.0.0.1:5200/api';
   }
@@ -46,8 +59,17 @@ class ApiClient {
         if (_token != null) 'Authorization': 'Bearer $_token',
       };
 
-  Uri _uri(String path, [Map<String, String>? query]) =>
-      Uri.parse('$baseUrl$path').replace(queryParameters: query);
+  Uri _uri(String path, [Map<String, String>? query]) {
+    // Percent-encode each dynamic path segment so an unexpected id value
+    // (containing '/', '?', '#', '..') cannot steer the request path.
+    final encoded = path
+        .split('/')
+        .map((seg) => seg.contains(':') || seg.isEmpty
+            ? seg
+            : Uri.encodeComponent(Uri.decodeComponent(seg)))
+        .join('/');
+    return Uri.parse('$baseUrl$encoded').replace(queryParameters: query);
+  }
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final data = await _request('POST', '/auth/login',
@@ -68,7 +90,13 @@ class ApiClient {
     if (user is Map<String, dynamic>) onUser?.call(user);
   }
 
-  Future<bool> _tryRefresh() async {
+  /// Single-flight: concurrent 401s share one refresh attempt so a rotated
+  /// refresh token cannot make a losing racer tear down a just-renewed session.
+  Future<bool> _tryRefresh() {
+    return _refreshing ??= _doRefresh().whenComplete(() => _refreshing = null);
+  }
+
+  Future<bool> _doRefresh() async {
     final rt = _refreshToken;
     if (rt == null) return false;
     try {

@@ -99,6 +99,7 @@ class _BillingScreenState extends State<BillingScreen> {
                   itemBuilder: (context, i) {
                     final inv = rows[i];
                     return MobCard(
+                      semanticLabel: 'Open invoice ${inv['number']}',
                       onTap: () => Navigator.of(context)
                           .push(MaterialPageRoute(
                             builder: (_) => InvoiceScreen(invoiceId: '${inv['_id']}'),

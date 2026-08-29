@@ -99,7 +99,7 @@ class _DossierScreenState extends State<DossierScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('SUMMARY', style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                          Text('SUMMARY', style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                           const SizedBox(height: 7),
                           Text(
                             _summary(v, d.risk, expired, expiring, inspections),
@@ -114,7 +114,7 @@ class _DossierScreenState extends State<DossierScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('FOCUS AREAS', style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                            Text('FOCUS AREAS', style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                             const SizedBox(height: 8),
                             for (final (i, f) in factors.take(4).indexed)
                               Padding(
@@ -143,7 +143,7 @@ class _DossierScreenState extends State<DossierScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('INSPECTION HISTORY', style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                            Text('INSPECTION HISTORY', style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                             const SizedBox(height: 6),
                             for (final insp in inspections.take(5))
                               Padding(

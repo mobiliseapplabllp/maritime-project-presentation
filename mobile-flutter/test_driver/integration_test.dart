@@ -6,7 +6,7 @@ Future<void> main() async {
   if (!dir.existsSync()) dir.createSync();
   await integrationDriver(
     onScreenshot: (String name, List<int> bytes, [Map<String, Object?>? args]) async {
-      File("screenshots/" + name + ".png").writeAsBytesSync(bytes);
+      File('screenshots/$name.png').writeAsBytesSync(bytes);
       return true;
     },
   );

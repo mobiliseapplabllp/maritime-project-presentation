@@ -122,7 +122,7 @@ class _TrackScreenState extends State<TrackScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('ELIGIBILITY CHECKS',
-                                  style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                                  style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                               const SizedBox(height: 8),
                               for (final c in checks)
                                 Padding(
@@ -162,7 +162,7 @@ class _TrackScreenState extends State<TrackScreen> {
                             children: [
                               Row(children: [
                                 Text('DECISION',
-                                    style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                                    style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                                 const Spacer(),
                                 if (decision['automated'] == true)
                                   const StatusChip('ZERO-TOUCH · AGENT A3', ChipTone.ai),
@@ -183,7 +183,7 @@ class _TrackScreenState extends State<TrackScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('TIMELINE',
-                                style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                                style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                             const SizedBox(height: 10),
                             for (final (i, h) in history.reversed.indexed)
                               _TimelineRow(

@@ -7,6 +7,14 @@ const { parseQuery, searchFilter } = require('../utils/paginate');
 const { audit } = require('../utils/audit');
 const { nextNumber } = require('../utils/numbering');
 
+// SECURITY NOTE (tracked): object-level authorization on the invoice list is a
+// data-model dependency. Invoices carry billTo.name (a free-text party) and a
+// portCall.agentName, but the User model has no organisation/company link, so
+// there is no reliable key to scope a customer to "their" invoices server-side.
+// The mobile client passes every filter the API offers (status, vessel); a
+// correct fix requires adding a user->organisation relation and filtering
+// non-staff callers to invoices billed to that organisation. Until then, the
+// unscoped list must be treated as staff-facing.
 exports.list = async (req, res) => {
   const { page, limit, skip, sort } = parseQuery(req.query, { defaultSort: '-createdAt' });
   const filter = {};

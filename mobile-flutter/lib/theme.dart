@@ -9,7 +9,7 @@ class Mob {
   static const navy800 = Color(0xFF00265D); // primary
   static const navy700 = Color(0xFF0A3A7D);
   static const navy50 = Color(0xFFEEF4FB);
-  static const cyan700 = Color(0xFF007A9B);
+  static const cyan700 = Color(0xFF007A9B); // 4.93:1 on white — cyan TEXT
   static const cyan600 = Color(0xFF00A0C6); // accent / AI
   static const cyan100 = Color(0xFFD3F0F8);
   static const cyan50 = Color(0xFFEAF8FC);
@@ -24,13 +24,17 @@ class Mob {
   static const gray100 = Color(0xFFEEF1F5);
   static const gray50 = Color(0xFFF7F9FB);
 
-  // Semantic
+  // Semantic — 600 = surface/icon fill; onTint = AA text on the 50 tint
   static const green600 = Color(0xFF1E8E5A);
   static const green50 = Color(0xFFE7F6EE);
+  static const greenOnTint = Color(0xFF12703F); // 5.4:1 on green50
   static const amber600 = Color(0xFFB9770E);
   static const amber50 = Color(0xFFFDF3E1);
+  static const amberOnTint = Color(0xFF8A5800); // 4.9:1 on amber50
   static const red600 = Color(0xFFC43D3D);
   static const red50 = Color(0xFFFBEAEA);
+  static const redOnTint = Color(0xFFB02525); // 5.1:1 on red50
+  static const inputBorder = Color(0xFF8792A3); // 3:1 non-text boundary
 
   // On-navy
   static const onNavyMuted = Color(0xFF9FB4D4);
@@ -73,14 +77,14 @@ ThemeData mobTheme() {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Mob.gray300),
+        borderSide: const BorderSide(color: Mob.inputBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Mob.cyan600, width: 1.5),
       ),
       labelStyle: ss(13, c: Mob.gray500),
-      hintStyle: ss(13, c: Mob.gray400),
+      hintStyle: ss(13, c: Mob.gray500),
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: Mob.navy800,

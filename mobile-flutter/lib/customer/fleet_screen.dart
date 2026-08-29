@@ -76,6 +76,7 @@ class _FleetScreenState extends State<FleetScreen> {
                     final v = rows[i];
                     final registry = (v['registry'] as Map?) ?? const {};
                     return MobCard(
+                      semanticLabel: 'Open certificate wallet for ${v['name']}',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => VesselWalletScreen(vesselId: '${v['_id']}'),
                       )),

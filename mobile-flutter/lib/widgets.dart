@@ -94,11 +94,18 @@ class StatTile extends StatelessWidget {
 }
 
 class MobCard extends StatelessWidget {
-  const MobCard({super.key, required this.child, this.onTap, this.borderColor, this.padding});
+  const MobCard(
+      {super.key,
+      required this.child,
+      this.onTap,
+      this.borderColor,
+      this.padding,
+      this.semanticLabel});
   final Widget child;
   final VoidCallback? onTap;
   final Color? borderColor;
   final EdgeInsets? padding;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -113,9 +120,13 @@ class MobCard extends StatelessWidget {
       child: child,
     );
     if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(borderRadius: BorderRadius.circular(10), onTap: onTap, child: card),
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(borderRadius: BorderRadius.circular(10), onTap: onTap, child: card),
+      ),
     );
   }
 }
@@ -150,9 +161,9 @@ class StatusChip extends StatelessWidget {
     final (bg, fg) = switch (tone) {
       ChipTone.info => (Mob.navy50, Mob.navy700),
       ChipTone.ai => (Mob.cyan50, Mob.cyan700),
-      ChipTone.success => (Mob.green50, Mob.green600),
-      ChipTone.warning => (Mob.amber50, Mob.amber600),
-      ChipTone.danger => (Mob.red50, Mob.red600),
+      ChipTone.success => (Mob.green50, Mob.greenOnTint),
+      ChipTone.warning => (Mob.amber50, Mob.amberOnTint),
+      ChipTone.danger => (Mob.red50, Mob.redOnTint),
       ChipTone.neutral => (Mob.gray100, Mob.gray500),
     };
     return Container(
@@ -244,10 +255,13 @@ class AiCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 26, height: 26,
-            decoration: BoxDecoration(color: Mob.cyan600, borderRadius: BorderRadius.circular(6)),
-            child: const Icon(Icons.auto_awesome, size: 14, color: Colors.white),
+          Semantics(
+            label: 'AI-generated',
+            child: Container(
+              width: 26, height: 26,
+              decoration: BoxDecoration(color: Mob.cyan600, borderRadius: BorderRadius.circular(6)),
+              child: const Icon(Icons.auto_awesome, size: 14, color: Colors.white),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(child: child),

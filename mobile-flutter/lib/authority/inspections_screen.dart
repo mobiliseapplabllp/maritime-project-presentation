@@ -72,7 +72,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                           _refresh();
                         },
                         child: Container(
-                          height: 34,
+                          height: 44,
                           alignment: Alignment.center,
                           child: Text(label,
                               style: ss(12, w: FontWeight.w700, c: Colors.white)),
@@ -108,6 +108,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                     final result = (insp['result'] as String?) ?? '';
                     final findings = (insp['findings'] as List?)?.length ?? 0;
                     return MobCard(
+                      semanticLabel: 'Open inspection ${vessel['name'] ?? insp['number']}',
                       onTap: () => Navigator.of(context)
                           .push(MaterialPageRoute(
                             builder: (_) => InspectionRunScreen(

@@ -70,7 +70,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ACCESS', style: pop(12, c: Mob.cyan600).copyWith(letterSpacing: .8)),
+                    Text('ACCESS', style: pop(12, c: Mob.cyan700).copyWith(letterSpacing: .8)),
                     const SizedBox(height: 7),
                     Text(
                       s.perms.contains('*')

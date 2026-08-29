@@ -9,6 +9,7 @@ const { REQUEST_TRANSITIONS } = require('../config/constants');
 const { ApiError, ok, created } = require('../utils/respond');
 const { parseQuery, searchFilter } = require('../utils/paginate');
 const { audit } = require('../utils/audit');
+const { hasPerm } = require('../domain/rbac');
 const { nextNumber } = require('../utils/numbering');
 const S = require('../domain/licenceSubjects');
 const { finaliseIssue } = require('../domain/instrumentIssue');
@@ -75,7 +76,13 @@ exports.list = async (req, res) => {
     if (req.query[f]) filter[f] = req.query[f];
   }
   if (req.query.domain) filter.domain = Number(req.query.domain);
-  if (req.query.mine === 'true') filter['applicant.userId'] = String(req.user.id);
+  // Object-level authorization: a caller who cannot assess (an applicant role)
+  // only ever sees their own applications, regardless of the mine param. Staff
+  // assessors may list across applicants and may opt into mine=true.
+  const canAssess = hasPerm(req.user.perms, 'services.assess');
+  if (!canAssess || req.query.mine === 'true') {
+    filter['applicant.userId'] = String(req.user.id);
+  }
   if (req.query.open === 'true') filter.status = { $in: ['SUBMITTED', 'UNDER_ASSESSMENT', 'INFO_REQUESTED'] };
   if (req.query.breached === 'true') { filter.closedAt = null; filter.dueAt = { $lt: new Date() }; }
   const search = searchFilter(req.query.q, ['requestNo', 'applicant.name', 'subjectLabel', 'serviceName']);
@@ -93,6 +100,11 @@ exports.list = async (req, res) => {
 exports.get = async (req, res) => {
   const doc = await ServiceRequest.findById(req.params.id).populate('service').lean();
   if (!doc) throw new ApiError(404, 'Request not found');
+  // Direct-object-reference guard: an applicant may only read their own request.
+  const canAssess = hasPerm(req.user.perms, 'services.assess');
+  if (!canAssess && String(doc.applicant?.userId) !== String(req.user.id)) {
+    throw new ApiError(404, 'Request not found');
+  }
   doc.slaBreached = !!(doc.dueAt && !doc.closedAt && new Date(doc.dueAt) < new Date());
   ok(res, doc);
 };

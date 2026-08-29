@@ -411,7 +411,7 @@ class _ChecklistTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(7),
             onTap: onTap,
             child: Container(
-              height: 40,
+              height: 44,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 border: Border.all(

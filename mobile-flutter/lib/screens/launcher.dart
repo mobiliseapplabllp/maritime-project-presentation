@@ -37,7 +37,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
   ];
 
   final _email = TextEditingController();
-  final _password = TextEditingController(text: 'Demo@2026');
+  final _password = TextEditingController();
   String _app = 'authority';
   bool _busy = false;
   String? _error;
@@ -92,7 +92,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text('MARITIME TRANSFORMATION PROGRAMME',
-                      style: pop(11, c: Mob.cyan600).copyWith(letterSpacing: 1.2)),
+                      style: pop(11, c: Mob.cyan700).copyWith(letterSpacing: 1.2)),
                   const SizedBox(height: 4),
                   Text('Maritime Mobile', style: pop(24, w: FontWeight.w700)),
                   Text('Two apps over the Unified Maritime Platform — pick a side, sign in with a seeded identity.',

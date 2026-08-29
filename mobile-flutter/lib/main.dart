@@ -24,6 +24,10 @@ class MaritimeMobileApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: mobTheme(),
       home: const LauncherScreen(),
+      builder: (context, child) => MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.3,
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }
