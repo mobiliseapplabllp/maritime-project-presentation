@@ -26,18 +26,41 @@ die()  { c '31' "✗ $1"; exit 1; }
 
 need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required but not installed. $2"; }
 
-# ── platform: docker compose (mongo + API + web portal, seeds on first run) ──
-deploy_platform() {
+# ── make sure the Docker daemon is up (start Docker Desktop if it is not) ────
+ensure_docker() {
   need docker "Install Docker Desktop: https://www.docker.com/products/docker-desktop/"
-  info "Building and starting the platform (this can take a few minutes the first time)…"
-  ( cd "$ROOT/portal" && docker compose up --build -d )
+  if docker info >/dev/null 2>&1; then return; fi
+  if [ -d "/Applications/Docker.app" ]; then
+    info "Docker daemon is not running — starting Docker Desktop…"
+    open -a Docker
+    for i in $(seq 1 60); do
+      docker info >/dev/null 2>&1 && { ok "Docker daemon ready"; return; }
+      sleep 2
+    done
+    die "Docker Desktop did not finish starting — open it manually and re-run."
+  fi
+  die "Docker daemon is not running. Start Docker Desktop and re-run."
+}
 
+wait_healthy() {
   info "Waiting for the API to come up and seed…"
   for i in $(seq 1 90); do
-    if curl -fs "$API/health" >/dev/null 2>&1; then ok "API healthy at http://localhost:5200"; break; fi
-    [ "$i" = 90 ] && die "API did not become healthy in time — check: (cd portal && docker compose logs -f portal)"
+    if curl -fs "$API/health" >/dev/null 2>&1 \
+       && curl -fs -X POST "$API/auth/login" -H 'Content-Type: application/json' \
+            -d '{"email":"admin@maritime.example","password":"Demo@2026"}' >/dev/null 2>&1; then
+      ok "API healthy and seeded at http://localhost:5200"; return
+    fi
+    [ "$i" = 90 ] && die "API did not become healthy/seeded in time — check: (cd portal && docker compose logs -f portal)"
     sleep 2
   done
+}
+
+# ── platform: docker compose (mongo + API + web portal, seeds on first run) ──
+deploy_platform() {
+  ensure_docker
+  info "Building and starting the platform (this can take a few minutes the first time)…"
+  ( cd "$ROOT/portal" && docker compose up --build -d )
+  wait_healthy
 }
 
 # ── grant the customer pay permission (seed does not include it) ─────────────
@@ -88,15 +111,18 @@ run_flutter() {
 }
 
 reset_data() {
-  need docker "Install Docker Desktop."
-  warn "Wiping the demo database and re-seeding…"
-  ( cd "$ROOT/portal" && docker compose down -v && docker compose up -d )
-  deploy_platform      # re-wait for health after the fresh start
+  ensure_docker
+  warn "Rebuilding from current source, wiping the demo database, and re-seeding…"
+  # --build so the image picks up current backend code (and the current seed);
+  # -v so the old volume is discarded and SEED_IF_EMPTY re-seeds a fresh world.
+  ( cd "$ROOT/portal" && docker compose down -v && docker compose up --build -d )
+  wait_healthy
   grant_pay
   ok "Clean demo world seeded."
 }
 
 stop_platform() {
+  need docker "Install Docker Desktop."
   ( cd "$ROOT/portal" && docker compose stop )
   ok "Platform stopped (data preserved). Start again with ./deploy-local.sh"
 }
