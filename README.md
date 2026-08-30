@@ -12,12 +12,48 @@ Mobilise App Lab project.
 |---|---|
 | `portal/` | **Mundra Port Operations Portal** — a working MERN demo of the platform (React + MUI + Express + Mongoose), seeded with fictional Adani Mundra data. See `portal/README.md`. |
 | `maritime-ai/` | **Sagar Drishti — Mundra Port AI Analytics** — the AI layer: findings engine, AI chat with RAG, 3D port twin, agent workforce, work orders, voice mode (FastAPI + React). Runs on the portal's own demo dataset. See `maritime-ai/README.md`. |
+| `mobile-flutter/` | **Maritime Mobile** — two native apps (Marine Ops for the authority, Maritime Services for the customer) built in Flutter, live against the portal APIs with the same RBAC, audit and agents. 12/12 integration tests pass on the iOS simulator. See `mobile-flutter/README.md`. |
+| `mobile-app/` | The React implementation of the design-handoff **interactive prototype** — the behavioural spec both Flutter apps were built from. `design-reference/` holds the original Claude Design export. |
+| `deploy-local.sh` | **One-command local deploy** — brings up the platform (API + web portal + MongoDB, auto-seeded) and launches the mobile apps. See below. |
 | `deck/index.html` | The presentation — 26 slides, self-contained, works offline. Arrow keys or scroll. |
 | `docs/00-claims-and-evidence.md` | **Read this before issuing anything.** Every factual claim in the deck with its evidence status. |
 | `docs/01-capability-model.md` | Part I in full — the seven domains, five capability spines, and the Core/Configure/Extend/Build model. |
 | `docs/02-delivery-confidence.md` | Part II in tender-response prose — delivery capability, the proof-of-capability offer, roadmap, risk. |
 | `docs/03-agentic-ai-architecture.md` | Part III in full — agent specifications, orchestration, autonomy tiers, guardrails, audit. |
 | `build/make_pptx.js` | Generates the editable PowerPoint from the same content. |
+
+## Running the platform and the mobile apps
+
+One script stands up everything. It brings up the portal (web UI + API + MongoDB,
+seeded with the demo world automatically) via Docker, then launches the apps.
+
+```bash
+./deploy-local.sh
+```
+
+That leaves the platform running at **http://localhost:5200** (sign in with
+`admin@maritime.example` / `Demo@2026`) and prints how to start each mobile app.
+Then, each in its own terminal:
+
+```bash
+./deploy-local.sh --web        # React prototype  → http://localhost:5174
+./deploy-local.sh --flutter    # Flutter app      → iOS simulator
+```
+
+Housekeeping:
+
+```bash
+./deploy-local.sh reset        # wipe the demo data and re-seed a clean world
+./deploy-local.sh stop         # stop the platform (data preserved)
+```
+
+**Prerequisites** — Docker Desktop (platform), Node.js (React prototype), and Flutter
++ Xcode (Flutter app). Every seeded account uses the password `Demo@2026`; Authority
+identities are `surveyor@` / `harbour@` / `nmc@` / `admin@maritime.example`, Customer
+identities are `agent@` / `finance@maritime.example`. The Flutter app targets
+`127.0.0.1:5200` by default (matching the Docker portal); for a real device pass
+`--dart-define=API_BASE=https://your-host/api`. To run one app pointed at another
+simulator, set `SIM_UDID=<udid> ./deploy-local.sh --flutter`.
 
 ## Viewing the deck
 
