@@ -1,0 +1,128 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import {
+  Dialog, Box, InputBase, List, ListItemButton, ListItemText, Typography, Chip, Divider,
+} from '@mui/material';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import api from '../../api/client';
+import { MODULES } from '../../modules';
+import { hasPerm } from '../../utils/perms';
+
+/* Global Ctrl+K command palette — search every register, or jump straight
+ * to a module. Recent picks are remembered per browser (localStorage). */
+
+const RECENTS_KEY = 'maritime.palette.recents';
+const loadRecents = () => { try { return JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch { return []; } };
+const saveRecent = (item) => {
+  try {
+    const list = loadRecents().filter((r) => r.to !== item.to);
+    list.unshift(item);
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(list.slice(0, 8)));
+  } catch { /* storage unavailable — recents are a convenience only */ }
+};
+
+export default function CommandPalette({ open, onClose }) {
+  const navigate = useNavigate();
+  const user = useSelector((s) => s.auth.user);
+  const [q, setQ] = useState('');
+  const [results, setResults] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef(null);
+  const timer = useRef(null);
+
+  useEffect(() => { if (open) { setQ(''); setResults(null); setTimeout(() => inputRef.current && inputRef.current.focus(), 60); } }, [open]);
+
+  useEffect(() => {
+    clearTimeout(timer.current);
+    if (q.trim().length < 2) { setResults(null); return; }
+    timer.current = setTimeout(() => {
+      setBusy(true);
+      api.get('/search', { params: { q } })
+        .then((r) => setResults(r.data.groups))
+        .catch(() => setResults([]))
+        .finally(() => setBusy(false));
+    }, 220);
+    return () => clearTimeout(timer.current);
+  }, [q]);
+
+  const navCommands = useMemo(() => MODULES
+    .filter((m) => m.key !== 'home' && (!m.perm || hasPerm(user, m.perm)))
+    .map((m) => ({ label: `Go to ${m.name}`, sub: m.desc, to: m.home, icon: m.icon, color: m.color })), [user]);
+
+  const go = (item) => { saveRecent(item); onClose(); navigate(item.to); };
+
+  const recents = !q.trim() ? loadRecents() : [];
+  const filteredNav = !q.trim() ? [] : navCommands.filter((c) => c.label.toLowerCase().includes(q.toLowerCase()));
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
+      PaperProps={{ sx: { borderRadius: 3, mt: -18, overflow: 'hidden' } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+        <SearchRoundedIcon sx={{ color: 'text.secondary' }} />
+        <InputBase inputRef={inputRef} fullWidth placeholder="Search vessels, calls, crew, incidents, companies… or jump to a module"
+          value={q} onChange={(e) => setQ(e.target.value)} sx={{ fontSize: 15 }} />
+        <Chip size="small" label="ESC" variant="outlined" sx={{ fontSize: 10, height: 20 }} />
+      </Box>
+      <Box sx={{ maxHeight: 420, overflowY: 'auto' }}>
+        {!q.trim() && (
+          <>
+            {recents.length > 0 && (
+              <List dense subheader={<Typography sx={{ px: 2, pt: 1.25, fontSize: 10.5, letterSpacing: '0.1em', color: 'text.secondary', textTransform: 'uppercase' }}>Recent</Typography>}>
+                {recents.map((r, i) => (
+                  <ListItemButton key={i} onClick={() => go(r)}>
+                    <ListItemText primary={r.label} secondary={r.sub} primaryTypographyProps={{ fontSize: 13.5 }} secondaryTypographyProps={{ fontSize: 11.5 }} />
+                  </ListItemButton>
+                ))}
+              </List>
+            )}
+            <List dense subheader={<Typography sx={{ px: 2, pt: 1.25, fontSize: 10.5, letterSpacing: '0.1em', color: 'text.secondary', textTransform: 'uppercase' }}>Modules</Typography>}>
+              {navCommands.map((c) => {
+                const Icon = c.icon;
+                return (
+                  <ListItemButton key={c.to} onClick={() => go(c)}>
+                    <Box sx={{ width: 26, height: 26, borderRadius: '7px', bgcolor: c.color, display: 'grid', placeItems: 'center', mr: 1.25, flexShrink: 0 }}>
+                      <Icon sx={{ fontSize: 15, color: '#fff' }} />
+                    </Box>
+                    <ListItemText primary={c.label} secondary={c.sub} primaryTypographyProps={{ fontSize: 13.5 }} secondaryTypographyProps={{ fontSize: 11.5, noWrap: true }} />
+                  </ListItemButton>
+                );
+              })}
+            </List>
+          </>
+        )}
+        {q.trim() && (
+          <>
+            {filteredNav.length > 0 && (
+              <List dense subheader={<Typography sx={{ px: 2, pt: 1.25, fontSize: 10.5, letterSpacing: '0.1em', color: 'text.secondary', textTransform: 'uppercase' }}>Go to</Typography>}>
+                {filteredNav.map((c) => (
+                  <ListItemButton key={c.to} onClick={() => go(c)}>
+                    <ArrowForwardRoundedIcon sx={{ fontSize: 16, mr: 1.25, color: 'text.secondary' }} />
+                    <ListItemText primary={c.label} primaryTypographyProps={{ fontSize: 13.5 }} />
+                  </ListItemButton>
+                ))}
+              </List>
+            )}
+            {busy && <Typography sx={{ px: 2, py: 2, fontSize: 13, color: 'text.secondary' }}>Searching…</Typography>}
+            {!busy && results && results.length === 0 && q.trim().length >= 2 && (
+              <Typography sx={{ px: 2, py: 2, fontSize: 13, color: 'text.secondary' }}>No matches for "{q}"</Typography>
+            )}
+            {!busy && results && results.map((g) => (
+              <Box key={g.type}>
+                <Divider />
+                <List dense subheader={<Typography sx={{ px: 2, pt: 1.25, fontSize: 10.5, letterSpacing: '0.1em', color: 'text.secondary', textTransform: 'uppercase' }}>{g.label}</Typography>}>
+                  {g.items.map((it) => (
+                    <ListItemButton key={it.id} onClick={() => go({ label: it.label, sub: g.label, to: it.to })}>
+                      <ListItemText primary={it.label} secondary={it.sub} primaryTypographyProps={{ fontSize: 13.5 }} secondaryTypographyProps={{ fontSize: 11.5 }} />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Box>
+            ))}
+          </>
+        )}
+      </Box>
+    </Dialog>
+  );
+}

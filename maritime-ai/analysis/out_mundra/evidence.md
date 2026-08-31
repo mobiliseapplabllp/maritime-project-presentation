@@ -1,0 +1,444 @@
+# Sagar Drishti — Evidence Pack
+
+*Auto-generated from the terminal×month panels. Span 2023-01..2026-07; latest complete month 2026-07. Portal demo world (fictional); benchmarks from public major-port statistics.*
+
+
+## A. Operations efficiency
+
+### [A2] Pre-berthing waits above 24h concentrate at a few terminals  _(severity: high)_
+
+**Inference:** A persistent tail of calls waits more than a day for a berth. The wait is not uniform — it concentrates where cargo mix meets berth compatibility limits, so berth-window planning (not dredging or capex) is the first lever.
+
+**Evidence:**
+
+```json
+{
+  "share_calls_waited_gt24h_pct": 20.6,
+  "latest_month_worst": [
+    [
+      "Container Terminal 1",
+      24.0,
+      1
+    ],
+    [
+      "Container Terminal 5",
+      24.0,
+      2
+    ],
+    [
+      "Liquid Terminal",
+      23.7,
+      3
+    ],
+    [
+      "Container Terminal 2",
+      20.7,
+      3
+    ],
+    [
+      "Multipurpose Terminal",
+      15.9,
+      7
+    ]
+  ],
+  "major_ports_avg_preberthing_hr": 5.0
+}
+```
+
+### [A1] Turnaround time improved while traffic grew  _(severity: medium)_
+
+**Inference:** Average turnaround moved from 53h to 56h while monthly calls grew ~33% — throughput scaled without eroding vessel service time.
+
+**Evidence:**
+
+```json
+{
+  "avg_turnaround_2023_hr": 53.3,
+  "avg_turnaround_last12m_hr": 55.7,
+  "calls_2023_per_month": 23.1,
+  "calls_last12m_per_month": 30.8,
+  "major_ports_avg_hr": 50.4
+}
+```
+
+### [A3] Berth-on-arrival service level  _(severity: medium)_
+
+**Inference:** The share of vessels berthed within six hours of arrival is the customer-facing service number agents quote; lifting it is mostly a scheduling discipline gain.
+
+**Evidence:**
+
+```json
+{
+  "berthed_within_6h_pct_latest": 5.9,
+  "trailing_12m_pct": 14.6
+}
+```
+
+
+## B. Terminal hotspots
+
+### [B1] Terminal risk ranking (trailing 12 months)  _(severity: high)_
+
+**Inference:** One composite number per terminal — incident intensity, congestion and compliance blended — driving the twin's colour and the ranking list.
+
+**Evidence:**
+
+```json
+{
+  "top5": [
+    [
+      "Liquid Terminal",
+      81.7,
+      44.2,
+      18.5,
+      4
+    ],
+    [
+      "SPM Crude",
+      55.0,
+      37.9,
+      16.2,
+      5
+    ],
+    [
+      "Container Terminal 5",
+      43.1,
+      21.6,
+      18.8,
+      4
+    ],
+    [
+      "West Basin Coal Terminal",
+      40.4,
+      24.1,
+      15.8,
+      2
+    ],
+    [
+      "Ro-Ro Terminal",
+      40.3,
+      26.3,
+      21.0,
+      0
+    ]
+  ],
+  "weights": "incident rate 35 \u00b7 waiting 25 \u00b7 high-severity 25 \u00b7 detentions 15"
+}
+```
+
+### [B2] Volume and risk are different lists  _(severity: medium)_
+
+**Inference:** The busiest terminal is not the riskiest — targeting attention by volume alone would miss where incidents and congestion actually cluster.
+
+**Evidence:**
+
+```json
+{
+  "largest_by_cargo": [
+    "Container Terminal 4",
+    7313148
+  ],
+  "highest_risk": [
+    "Liquid Terminal",
+    81.7
+  ]
+}
+```
+
+
+## C. HSE & incidents
+
+### [C1] Incident intensity and the near-miss ratio  _(severity: high)_
+
+**Inference:** A healthy safety culture reports many near-misses per serious event (Heinrich ratio). Track this number monthly: a falling near-miss ratio with steady severity means under-reporting, not improvement.
+
+**Evidence:**
+
+```json
+{
+  "incidents_last12m": 92,
+  "high_critical_last12m": 27,
+  "injuries_last12m": 16,
+  "near_miss_per_high_severity": 0.4
+}
+```
+
+### [C2] Oil-sheen / spill events by year  _(severity: medium)_
+
+**Inference:** Tier-1 sheen events cluster around bunkering and hose work at the liquid berths; each carries GPCB notification duty. The trend line, not any single event, is the regulator conversation.
+
+**Evidence:**
+
+```json
+{
+  "per_year": {
+    "2023": 4,
+    "2024": 10,
+    "2025": 10,
+    "2026": 7
+  }
+}
+```
+
+### [C3] Equipment-failure incidents by year  _(severity: medium)_
+
+**Inference:** Crane, gangway and conveyor failures are the largest single incident class — the maintenance-planning conversation belongs in the same room as HSE.
+
+**Evidence:**
+
+```json
+{
+  "per_year": {
+    "2023": 13,
+    "2024": 12,
+    "2025": 17,
+    "2026": 7
+  }
+}
+```
+
+
+## D. Predictive early-warning
+
+### [D1] Traffic trajectory by terminal  _(severity: medium)_
+
+**Inference:** Where the next year's traffic pressure lands if trends hold — the berth-window and manning plan should be built against these slopes, not last year's average.
+
+**Evidence:**
+
+```json
+{
+  "fastest_growing": [
+    [
+      "Multipurpose Terminal",
+      1,
+      0.5,
+      2.68
+    ],
+    [
+      "SPM Crude",
+      2,
+      0.4,
+      1.42
+    ],
+    [
+      "Container Terminal 1",
+      3,
+      0.3,
+      2.0
+    ],
+    [
+      "Container Terminal 4",
+      5,
+      0.3,
+      2.97
+    ]
+  ],
+  "softest": [
+    [
+      "Container Terminal 2",
+      1,
+      0.1,
+      1.53
+    ],
+    [
+      "Ro-Ro Terminal",
+      2,
+      0.1,
+      1.49
+    ],
+    [
+      "West Basin Coal Terminal",
+      3,
+      0.1,
+      1.69
+    ]
+  ],
+  "note": "[terminal, latest monthly calls, trend calls/yr, volatility]"
+}
+```
+
+### [D2] Berth occupancy headroom  _(severity: medium)_
+
+**Inference:** Every terminal sits below the UNCTAD 40-70% congestion band — the port can absorb its own growth trend for years before berth capacity binds; marketing, not construction, is the growth constraint.
+
+**Evidence:**
+
+```json
+{
+  "highest_occupancy_latest": [
+    [
+      "Multipurpose Terminal",
+      21.6
+    ],
+    [
+      "West Basin Coal Terminal",
+      13.1
+    ],
+    [
+      "Ro-Ro Terminal",
+      13.0
+    ]
+  ],
+  "healthy_band_pct": [
+    40.0,
+    70.0
+  ]
+}
+```
+
+
+## E. Patterns
+
+### [E1] What moves with terminal risk  _(severity: low)_
+
+**Inference:** Correlates of the composite: congestion and incident intensity dominate; raw volume alone is a weak predictor of risk.
+
+**Evidence:**
+
+```json
+{
+  "risk_vs": {
+    "calls": -0.14,
+    "wait": 0.42,
+    "occ": 0.14,
+    "inc_per_100": 0.9,
+    "hi": 0.42
+  }
+}
+```
+
+### [E2] Terminal typologies (k-means, 3 clusters)  _(severity: low)_
+
+**Inference:** Data-driven segmentation: high-volume container quays, steady bulk berths, and the low-frequency/high-consequence liquid & offshore group each need a different operating playbook.
+
+**Evidence:**
+
+```json
+{
+  "profiles": [
+    [
+      0.0,
+      2.0,
+      46.5,
+      16.2,
+      18.3
+    ],
+    [
+      1.0,
+      5.0,
+      43.2,
+      16.3,
+      19.7
+    ],
+    [
+      2.0,
+      3.0,
+      30.3,
+      18.6,
+      36.1
+    ]
+  ],
+  "members": {
+    "0": [
+      "West Basin Coal Terminal",
+      "Multipurpose Terminal"
+    ],
+    "1": [
+      "Container Terminal 5",
+      "Container Terminal 4",
+      "Container Terminal 3",
+      "Container Terminal 1",
+      "Container Terminal 2"
+    ],
+    "2": [
+      "Liquid Terminal",
+      "SPM Crude",
+      "Ro-Ro Terminal"
+    ]
+  }
+}
+```
+
+
+## F. Benchmark vs major ports
+
+### [F1] The port vs Indian major-port averages  _(severity: high)_
+
+**Inference:** The credibility yardstick: berth-day output runs ~3x the major-port average (mechanised terminals), turnaround is competitive, and the PSC detention rate sits near the regional MoU norm — the one number to watch, not celebrate.
+
+**Evidence:**
+
+```json
+{
+  "turnaround_hr": {
+    "mundra_last12m": 55.7,
+    "major_ports_avg": 50.4
+  },
+  "output_mt_per_berthday": {
+    "mundra_latest": 46847.0,
+    "major_ports_avg": 16500.0
+  },
+  "psc_detention_rate_pct": {
+    "mundra_last12m": 8.6,
+    "indian_ocean_mou_2023": 5.6
+  }
+}
+```
+
+
+## G. Revenue
+
+### [G1] Collections vs the 95% target  _(severity: high)_
+
+**Inference:** Cumulative collection efficiency against the commercial target, with the outstanding book in crore — the number the CFO reads first; the terminal-level split shows which agents' books drive the receivable.
+
+**Evidence:**
+
+```json
+{
+  "billed_last12m_cr": 282.9,
+  "collected_last12m_cr": 281.2,
+  "cumulative_collection_pct": 97.5,
+  "outstanding_cr": 20.35,
+  "target_pct": 95.0
+}
+```
+
+### [G2] Outstanding receivables by terminal  _(severity: medium)_
+
+**Inference:** Where the receivable concentrates; pair with the agent directory for the collection call list.
+
+**Evidence:**
+
+```json
+{
+  "top": [
+    [
+      "West Basin Coal Terminal",
+      6.3,
+      95.7
+    ],
+    [
+      "Container Terminal 4",
+      3.8,
+      96.1
+    ],
+    [
+      "Ro-Ro Terminal",
+      3.1,
+      92.1
+    ],
+    [
+      "SPM Crude",
+      3.0,
+      98.5
+    ],
+    [
+      "Container Terminal 1",
+      1.2,
+      97.0
+    ]
+  ]
+}
+```

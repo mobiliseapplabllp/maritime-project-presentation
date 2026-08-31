@@ -1,0 +1,5 @@
+package app.maritime.marine_mobile
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()

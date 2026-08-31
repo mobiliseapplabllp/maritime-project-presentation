@@ -1,0 +1,11 @@
+unit_id,unit_name,calls,cargo_mt,wait,occ,incidents,hi,injuries,dets,finds,inc_per_100,risk_score,jv
+LQB,Liquid Terminal,43,1596174,18.47,7.12,19,4,2,1,5,44.19,81.7,False
+SPM,SPM Crude,29,6603463,16.24,6.84,11,5,3,0,2,37.93,55.0,False
+CT5,Container Terminal 5,37,3209592,18.78,4.29,8,4,2,0,3,21.62,43.1,False
+WBC,West Basin Coal Terminal,29,3604438,15.76,13.95,7,2,3,1,6,24.14,40.4,False
+RRT,Ro-Ro Terminal,19,79762,20.95,5.08,5,0,0,0,4,26.32,40.3,False
+CT4,Container Terminal 4,72,7313148,14.72,4.05,13,6,1,0,3,18.06,31.1,True
+MPT,Multipurpose Terminal,64,1966304,16.72,13.78,8,1,2,1,8,12.5,27.2,False
+CT3,Container Terminal 3,36,2662812,15.49,4.03,9,2,2,0,3,25.0,25.3,False
+CT1,Container Terminal 1,34,3176508,17.62,4.13,6,1,1,0,1,17.65,21.5,False
+CT2,Container Terminal 2,37,3215052,14.86,4.51,6,2,0,0,2,16.22,13.0,False

@@ -1,0 +1,24 @@
+imo,vessel,type,agent,calls,incidents,inspections,findings,detentions,watch_score
+9700012,MV Vindhya Pride,BULK,TMA,30,3,3,7,2,92.0
+9700017,MT Bhuj Radiance,TANK,SSL,39,6,8,13,2,85.7
+9700013,MV Narmada Spirit,BULK,KSA,33,4,7,12,2,85.4
+9700011,MV Coromandel Trader,BULK,SSL,45,3,7,10,1,49.8
+9700021,MV Porbandar Breeze,GEN,OAP,41,2,4,5,1,47.0
+9700016,MT Coastal Region Star,TANK,WCM,44,3,12,9,1,41.7
+9700023,MV Somnath Carrier,RORO,SSL,34,3,5,7,0,20.3
+9700004,MV Arabian Crest,CONT,WCM,41,0,5,8,0,19.2
+9700022,MV Dwarka Wave,RORO,WCM,28,4,3,3,0,17.7
+9700018,MT Sagar Ratna,TANK,TMA,37,4,2,2,0,16.3
+9700009,MV Gulf of Coastal,BULK,OAP,35,3,8,8,0,15.4
+9700002,MV Saurashtra Glory,CONT,BMS,52,1,13,15,0,14.6
+9700005,MV Malabar Horizon,CONT,SSL,46,5,6,4,0,12.3
+9700006,MV Indus Fortune,CONT,TMA,39,2,5,4,0,11.7
+9700019,MT Bangus,TANK,KSA,43,2,5,4,0,11.5
+9700001,MV Coastal Emerald,CONT,KSA,35,3,6,4,0,11.4
+9700020,MV Coastal Karavan,GEN,BMS,42,2,4,3,0,10.9
+9700007,MV Gulf Pearl,CONT,KSA,30,2,6,4,0,10.7
+9700010,MV Konkan Breeze,BULK,WCM,38,0,7,6,0,10.3
+9700015,MT Kandla Jyoti,TANK,OAP,40,1,6,4,0,9.0
+9700008,MV Kandla Spirit,CONT,BMS,33,3,6,2,0,7.6
+9700003,MV Harbour Express,CONT,OAP,51,2,4,2,0,7.6
+9700014,MV Deccan Voyager,BULK,BMS,32,1,6,0,0,1.2

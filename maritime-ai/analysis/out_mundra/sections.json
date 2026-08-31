@@ -1,0 +1,215 @@
+{
+ "fleet": {
+  "kpis": {
+   "vessels": 31,
+   "liner_callers": 8,
+   "types": [
+    "BULK",
+    "CONT",
+    "GEN",
+    "RORO",
+    "TANK"
+   ]
+  },
+  "reliability": [
+   {
+    "vessel_type": "CONT",
+    "calls": 644,
+    "avg_turnaround_hr": 38.0,
+    "incidents_per_100_calls": 2.8,
+    "detention_rate_pct": 0.0,
+    "avg_findings_per_inspection": 0.84
+   },
+   {
+    "vessel_type": "BULK",
+    "calls": 213,
+    "avg_turnaround_hr": 98.5,
+    "incidents_per_100_calls": 6.6,
+    "detention_rate_pct": 13.2,
+    "avg_findings_per_inspection": 1.13
+   },
+   {
+    "vessel_type": "GEN",
+    "calls": 83,
+    "avg_turnaround_hr": 100.6,
+    "incidents_per_100_calls": 4.8,
+    "detention_rate_pct": 12.5,
+    "avg_findings_per_inspection": 1.0
+   },
+   {
+    "vessel_type": "TANK",
+    "calls": 203,
+    "avg_turnaround_hr": 59.3,
+    "incidents_per_100_calls": 7.9,
+    "detention_rate_pct": 9.1,
+    "avg_findings_per_inspection": 0.97
+   },
+   {
+    "vessel_type": "RORO",
+    "calls": 62,
+    "avg_turnaround_hr": 38.4,
+    "incidents_per_100_calls": 11.3,
+    "detention_rate_pct": 0.0,
+    "avg_findings_per_inspection": 1.25
+   }
+  ],
+  "watchlist_top": [
+   {
+    "imo": "9700012",
+    "vessel": "MV Vindhya Pride",
+    "type": "BULK",
+    "agent": "TMA",
+    "calls": 30,
+    "incidents": 3,
+    "inspections": 3,
+    "findings": 7,
+    "detentions": 2,
+    "watch_score": 92.0
+   },
+   {
+    "imo": "9700017",
+    "vessel": "MT Bhuj Radiance",
+    "type": "TANK",
+    "agent": "SSL",
+    "calls": 39,
+    "incidents": 6,
+    "inspections": 8,
+    "findings": 13,
+    "detentions": 2,
+    "watch_score": 85.7
+   },
+   {
+    "imo": "9700013",
+    "vessel": "MV Narmada Spirit",
+    "type": "BULK",
+    "agent": "KSA",
+    "calls": 33,
+    "incidents": 4,
+    "inspections": 7,
+    "findings": 12,
+    "detentions": 2,
+    "watch_score": 85.4
+   },
+   {
+    "imo": "9700011",
+    "vessel": "MV Coromandel Trader",
+    "type": "BULK",
+    "agent": "SSL",
+    "calls": 45,
+    "incidents": 3,
+    "inspections": 7,
+    "findings": 10,
+    "detentions": 1,
+    "watch_score": 49.8
+   },
+   {
+    "imo": "9700021",
+    "vessel": "MV Porbandar Breeze",
+    "type": "GEN",
+    "agent": "OAP",
+    "calls": 41,
+    "incidents": 2,
+    "inspections": 4,
+    "findings": 5,
+    "detentions": 1,
+    "watch_score": 47.0
+   },
+   {
+    "imo": "9700016",
+    "vessel": "MT Coastal Region Star",
+    "type": "TANK",
+    "agent": "WCM",
+    "calls": 44,
+    "incidents": 3,
+    "inspections": 12,
+    "findings": 9,
+    "detentions": 1,
+    "watch_score": 41.7
+   },
+   {
+    "imo": "9700023",
+    "vessel": "MV Somnath Carrier",
+    "type": "RORO",
+    "agent": "SSL",
+    "calls": 34,
+    "incidents": 3,
+    "inspections": 5,
+    "findings": 7,
+    "detentions": 0,
+    "watch_score": 20.3
+   },
+   {
+    "imo": "9700004",
+    "vessel": "MV Arabian Crest",
+    "type": "CONT",
+    "agent": "WCM",
+    "calls": 41,
+    "incidents": 0,
+    "inspections": 5,
+    "findings": 8,
+    "detentions": 0,
+    "watch_score": 19.2
+   },
+   {
+    "imo": "9700022",
+    "vessel": "MV Dwarka Wave",
+    "type": "RORO",
+    "agent": "WCM",
+    "calls": 28,
+    "incidents": 4,
+    "inspections": 3,
+    "findings": 3,
+    "detentions": 0,
+    "watch_score": 17.7
+   },
+   {
+    "imo": "9700018",
+    "vessel": "MT Sagar Ratna",
+    "type": "TANK",
+    "agent": "TMA",
+    "calls": 37,
+    "incidents": 4,
+    "inspections": 2,
+    "findings": 2,
+    "detentions": 0,
+    "watch_score": 16.3
+   }
+  ]
+ },
+ "incidents": {
+  "kpis": {
+   "total": 295,
+   "high_critical": 81,
+   "injuries": 38,
+   "spills": 31
+  },
+  "by_year": {
+   "2023": 74,
+   "2024": 88,
+   "2025": 81,
+   "2026": 52
+  }
+ },
+ "inspections": {
+  "kpis": {
+   "done": 133,
+   "findings": 134,
+   "detentions": 9
+  }
+ },
+ "revenue": {
+  "kpis": {
+   "billed_cr": 824.3,
+   "collected_cr": 805.2,
+   "outstanding_cr": 20.35,
+   "collection_pct": 97.5
+  }
+ },
+ "crew": {
+  "kpis": {
+   "seafarers": 18,
+   "onboard": 6,
+   "cert_expired": 1
+  }
+ }
+}

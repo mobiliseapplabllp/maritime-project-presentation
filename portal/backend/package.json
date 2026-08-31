@@ -1,0 +1,30 @@
+{
+  "name": "maritime-portal-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Maritime Operations Portal - API",
+  "main": "server.js",
+  "scripts": {
+    "devdb": "../.dev/bin/ferretdb --handler=sqlite --sqlite-url=file:../.dev/data/ --telemetry=disable",
+    "seed": "node scripts/seed.js",
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "node --test test/domain.test.js test/registry.test.js test/agents.test.js",
+    "test:api": "node --test test/api.test.js",
+    "test:security": "node --test test/security.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.6.2",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}

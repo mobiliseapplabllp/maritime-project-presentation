@@ -1,0 +1,6 @@
+vessel_type,calls,avg_turnaround_hr,incidents_per_100_calls,detention_rate_pct,avg_findings_per_inspection
+CONT,644,38.0,2.8,0.0,0.84
+BULK,213,98.5,6.6,13.2,1.13
+TANK,203,59.3,7.9,9.1,0.97
+GEN,83,100.6,4.8,12.5,1.0
+RORO,62,38.4,11.3,0.0,1.25

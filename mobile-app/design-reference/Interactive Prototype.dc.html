@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF1F5;font-family:'Source Sans 3',system-ui,sans-serif}
+a{color:#007A9B}a:hover{color:#00265D}
+</style>
+</helmet>
+<div style="min-height:100vh;padding:36px 40px;display:flex;flex-direction:column;gap:22px">
+<div>
+<div style="font:600 11px 'Poppins',sans-serif;letter-spacing:.1em;color:#00A0C6;text-transform:uppercase">Maritime Transformation Programme</div>
+<div style="font:700 22px 'Poppins',sans-serif;color:#00265D;margin-top:4px">Interactive prototype — tap through both apps</div>
+<div style="font-size:13px;color:#3B4757;margin-top:4px">Authority: home → dossier → checklist → report → sign. Customer: home → renew → pay → receipt → track. Tab bars work.</div>
+</div>
+<div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Marine Ops — Authority</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<sc-if value="{{ aHome }}" hint-placeholder-val="{{ true }}">
+<div style="background:#00265D;padding:14px 18px 16px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div><div style="font-size:12px;color:#9FB4D4">Thursday 29 Aug · Port Zayed</div><div style="font:600 19px 'Poppins',sans-serif">Insp. R. Al Marzooqi</div></div>
+<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;font-size:11.5px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:{{ connDotColor }}"></span>{{ connLabel }}</div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">2</div><div style="font-size:11px;color:#9FB4D4">Inspections today</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">4</div><div style="font-size:11px;color:#9FB4D4">Open findings</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif;color:#63D3EC">1</div><div style="font-size:11px;color:#9FB4D4">Flash alert</div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column;gap:12px">
+<div style="font:600 13px 'Poppins',sans-serif;color:#00265D">TODAY'S BOARDINGS</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,38,93,.05)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+<div><div style="font:600 15px 'Poppins',sans-serif;color:#00265D">MV Gulf Pioneer</div><div style="font-size:12px;color:#647080">IMO 9412375 · Bulk carrier · Berth 07</div></div>
+<div style="background:#FBEAEA;color:#C43D3D;font-size:11px;font-weight:700;border-radius:6px;padding:4px 8px">RISK 78</div>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:12px"><span style="background:#EEF4FB;color:#0A3A7D;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">PSC · 09:30</span><span style="background:#EAF8FC;color:#007A9B;font-size:11px;font-weight:600;border-radius:6px;padding:4px 8px">✓ Dossier cached</span></div>
+<div style="display:flex;gap:8px">
+<div onClick="{{ nav.aDossier }}" style="flex:1;background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">Open dossier</div>
+<div onClick="{{ nav.aChecklist }}" style="flex:1;border:1px solid #C3CBD6;color:#00265D;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">Start inspection</div>
+</div>
+</div>
+<sc-if value="{{ aiHints }}" hint-placeholder-val="{{ true }}">
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+<div style="width:26px;height:26px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:13px;flex:none">✦</div>
+<div style="font-size:12.5px;line-height:1.45;color:#0A3A7D"><strong>Focus advisory:</strong> Gulf Pioneer — 3 fire-safety deficiencies on last 2 PSC records. Checklist section 07 pre-expanded.</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ aDossier }}" hint-placeholder-val="{{ false }}">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff;display:flex;align-items:center;gap:10px">
+<span onClick="{{ nav.aHome }}" style="font-size:18px;cursor:pointer;padding:4px 8px;margin-left:-8px">‹</span>
+<div><div style="font:600 16px 'Poppins',sans-serif">Pre-inspection dossier</div><div style="font-size:11.5px;color:#9FB4D4">MV Gulf Pioneer · generated 06:12 · cached ✓</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font:600 12px 'Poppins',sans-serif;color:#00A0C6;letter-spacing:.06em;margin-bottom:7px">SUMMARY</div>
+<div style="font-size:13px;line-height:1.55;color:#3B4757">Elevated fire-safety risk. Two prior PSC detentions (2024, 2025), both fire-related. Crew changed 60% at last port call.</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font:600 12px 'Poppins',sans-serif;color:#00A0C6;letter-spacing:.06em;margin-bottom:7px">FOCUS AREAS</div>
+<div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:#131C2B">
+<div style="display:flex;gap:8px"><span style="color:#C43D3D;font-weight:700">1</span><span>Fire dampers &amp; doors — repeat deficiency class</span></div>
+<div style="display:flex;gap:8px"><span style="color:#B9770E;font-weight:700">2</span><span>Crew familiarisation — high turnover</span></div>
+<div style="display:flex;gap:8px"><span style="color:#B9770E;font-weight:700">3</span><span>Oil record book — gap flagged by analytics</span></div>
+</div>
+</div>
+<div onClick="{{ nav.aChecklist }}" style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer">Start inspection with this dossier</div>
+</div>
+</sc-if>
+<sc-if value="{{ aChecklist }}" hint-placeholder-val="{{ false }}">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px"><span onClick="{{ nav.aHome }}" style="font-size:18px;cursor:pointer;padding:4px 8px;margin-left:-8px">‹</span><div><div style="font:600 15px 'Poppins',sans-serif">MV Gulf Pioneer · PSC</div><div style="font-size:11.5px;color:#9FB4D4">Section 07 — Fire Safety</div></div></div>
+<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#9FB4D4;margin-bottom:5px"><span>Progress</span><span>{{ checkedCount }} / 2 answered</span></div><div style="height:5px;background:rgba(255,255,255,.15);border-radius:3px"><div style="width:{{ progressPct }};height:5px;background:#00A0C6;border-radius:3px"></div></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 14px">
+<div style="font-size:13.5px;color:#131C2B;line-height:1.4;font-weight:600;margin-bottom:10px">07.1 — Fire doors close and latch from the release station</div>
+<div style="display:flex;gap:6px">
+<div onClick="{{ set071yes }}" style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;background:{{ q1YesBg }};color:{{ q1YesColor }};border:1.5px solid {{ q1YesBorder }}">YES</div>
+<div onClick="{{ set071no }}" style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;background:{{ q1NoBg }};color:{{ q1NoColor }};border:1.5px solid {{ q1NoBorder }}">NO</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 14px">
+<div style="font-size:13.5px;color:#131C2B;line-height:1.4;font-weight:600;margin-bottom:10px">07.2 — Fire dampers operable, marked and tested</div>
+<div style="display:flex;gap:6px">
+<div onClick="{{ set072yes }}" style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;background:{{ q2YesBg }};color:{{ q2YesColor }};border:1.5px solid {{ q2YesBorder }}">YES</div>
+<div onClick="{{ set072no }}" style="flex:1;text-align:center;border-radius:7px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;background:{{ q2NoBg }};color:{{ q2NoColor }};border:1.5px solid {{ q2NoBorder }}">NO</div>
+</div>
+<sc-if value="{{ q2IsNo }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;color:#3B4757;background:#F7F9FB;border-radius:7px;padding:9px 11px;margin-top:10px;line-height:1.45">Damper #4, engine room supply — seized in open position. 📷 2 photos · 🎙 voice 0:38</div>
+<div style="margin-top:8px;background:#FDF3E1;border-radius:7px;padding:8px 11px;font-size:11.5px;color:#B9770E;display:flex;gap:7px;align-items:center"><span>✦</span><span>Suggested: code 07108 · action 17 (rectify before departure)</span></div>
+</sc-if>
+</div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div onClick="{{ nav.aReport }}" style="background:{{ finishBg }};color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">Finish section → AI draft report</div>
+</div>
+</sc-if>
+<sc-if value="{{ aReport }}" hint-placeholder-val="{{ false }}">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff;display:flex;align-items:center;gap:10px">
+<span onClick="{{ nav.aChecklist }}" style="font-size:18px;cursor:pointer;padding:4px 8px;margin-left:-8px">‹</span>
+<div><div style="font:600 16px 'Poppins',sans-serif">Inspection report — draft</div><div style="font-size:11.5px;color:#9FB4D4">AI-drafted from your captures</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#FDF3E1;border:1px solid #F0DFB9;border-radius:8px;padding:9px 12px;font-size:12px;color:#B9770E">✦ Draft only. Nothing is issued until you approve and sign.</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:#C43D3D;background:#FBEAEA;border-radius:5px;padding:3px 8px">DEFICIENCY 07108</span><span style="font-size:11px;color:#8B96A5">from item 07.2</span></div>
+<div style="font-size:13px;line-height:1.5;color:#131C2B">Engine room supply damper #4 seized in open position; quick-closing function inoperative. SOLAS II-2/9.7 refers.</div>
+<div style="font-size:11.5px;color:#647080;margin:7px 0">Action 17 — rectify before departure</div>
+<div onClick="{{ approveFinding }}" style="background:{{ approveBg }};color:{{ approveColor }};border:1.5px solid {{ approveBorder }};text-align:center;border-radius:7px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">{{ approveLabel }}</div>
+</div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div onClick="{{ trySign }}" style="background:{{ signBg }};color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer">Sign &amp; issue report ✍</div>
+<div style="font-size:10.5px;color:#8B96A5;text-align:center;margin-top:6px">{{ signHint }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ aSigned }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding:0 24px;text-align:center">
+<div style="width:70px;height:70px;border-radius:50%;background:#E7F6EE;color:#1E8E5A;display:grid;place-items:center;font-size:32px">✓</div>
+<div style="font:700 21px 'Poppins',sans-serif;color:#00265D">Report issued</div>
+<div style="font-size:13px;color:#647080;line-height:1.5">PSC-2026-0871 signed as Insp. R. Al Marzooqi.<br>Master notified · deficiency tracked to close-out.</div>
+<div onClick="{{ nav.aHome }}" style="background:#00265D;color:#fff;border-radius:8px;padding:12px 26px;font-size:13.5px;font-weight:700;cursor:pointer">Back to home</div>
+</div>
+</sc-if>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div onClick="{{ nav.aHome }}" style="flex:1;text-align:center;cursor:pointer;color:{{ aTabHomeColor }}"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:700">Home</div></div>
+<div onClick="{{ nav.aChecklist }}" style="flex:1;text-align:center;cursor:pointer;color:{{ aTabInspectColor }}"><div style="font-size:18px">▤</div><div style="font-size:10px;font-weight:600">Inspect</div></div>
+<div onClick="{{ nav.aReport }}" style="flex:1;text-align:center;cursor:pointer;color:{{ aTabReportColor }}"><div style="font-size:18px">✍</div><div style="font-size:10px;font-weight:600">Report</div></div>
+</div>
+</div>
+</x-import>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 13px 'Poppins',sans-serif;color:#00265D">Maritime Services — Customer</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="" hint-size="430px,880px">
+<div style="display:flex;flex-direction:column;height:100%;background:#F7F9FB;font-family:'Source Sans 3',sans-serif">
+<sc-if value="{{ cHome }}" hint-placeholder-val="{{ true }}">
+<div style="background:#00265D;padding:14px 18px 18px;color:#fff">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<div><div style="font-size:12px;color:#9FB4D4">Gulf Star Shipping LLC</div><div style="font:600 19px 'Poppins',sans-serif">Marhaba, Ahmed</div></div>
+<div style="background:rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600">🇦🇪 UAE PASS</div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">3</div><div style="font-size:11px;color:#9FB4D4">Vessels</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif">{{ inProgressCount }}</div><div style="font-size:11px;color:#9FB4D4">In progress</div></div>
+<div style="flex:1;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px"><div style="font:700 20px 'Poppins',sans-serif;color:#F5B942">{{ actionDueCount }}</div><div style="font-size:11px;color:#9FB4D4">Action due</div></div>
+</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px 16px 0;display:flex;flex-direction:column;gap:12px">
+<sc-if value="{{ renewNotDone }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border:1px solid #F0DFB9;border-radius:10px;padding:14px 16px">
+<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px">
+<div style="width:34px;height:34px;border-radius:8px;background:#FDF3E1;color:#B9770E;display:grid;place-items:center;font-size:16px;flex:none">⚠</div>
+<div><div style="font:600 14px 'Poppins',sans-serif;color:#00265D">Navigation licence expires in 21 days</div><div style="font-size:12.5px;color:#647080;margin-top:2px">MV Dana 3 · expires 19 Sep 2026</div></div>
+</div>
+<div onClick="{{ nav.cApply }}" style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">Renew now — pre-filled, AED 2,400</div>
+</div>
+</sc-if>
+<sc-if value="{{ renewDone }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ nav.cTrack }}" style="background:#fff;border:1px solid #CBE9D8;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Navigation licence renewal</div><div style="font-size:11.5px;color:#647080;margin-top:2px">MV Dana 3 · APP-2026-04431 · paid ✓</div></div>
+<span style="background:#EAF8FC;color:#007A9B;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">IN REVIEW</span>
+</div>
+</sc-if>
+<div onClick="{{ nav.cTrack }}" style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+<div><div style="font-size:13.5px;font-weight:600;color:#131C2B">Certificate renewal — CSR</div><div style="font-size:11.5px;color:#647080;margin-top:2px">MV Gulf Horizon · APP-2026-04412</div></div>
+<span style="background:#EAF8FC;color:#007A9B;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">IN REVIEW</span>
+</div>
+<sc-if value="{{ aiHints }}" hint-placeholder-val="{{ true }}">
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:center">
+<div style="width:26px;height:26px;border-radius:6px;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:13px;flex:none">✦</div>
+<div style="font-size:12.5px;color:#0A3A7D;line-height:1.4">Ask the assistant — "What do I need to transfer ownership of a vessel?"</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ cApply }}" hint-placeholder-val="{{ false }}">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span onClick="{{ nav.cHome }}" style="font-size:18px;cursor:pointer;padding:4px 8px;margin-left:-8px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">Renew navigation licence</div><div style="font-size:11.5px;color:#9FB4D4">Step 1 of 2 — Confirm details</div></div></div>
+<div style="display:flex;gap:5px"><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px"></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#E7F6EE;border:1px solid #CBE9D8;border-radius:8px;padding:9px 12px;font-size:12px;color:#1E8E5A">✓ Pre-filled from the vessel register — nothing to upload.</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font-size:11px;color:#8B96A5;margin-bottom:3px">Vessel</div>
+<div style="font-size:14px;font-weight:600;color:#131C2B">MV Dana 3 · IMO 9354201</div>
+<div style="font-size:11.5px;color:#647080;margin-top:2px">Supply vessel · 499 GT · Abu Dhabi home port</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:13px 15px">
+<div style="font-size:11px;color:#8B96A5;margin-bottom:3px">Operating area</div>
+<div style="font-size:14px;font-weight:600;color:#131C2B">Coastal — UAE waters</div>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#131C2B">Class certificate</div><div style="font-size:11px;color:#1E8E5A;font-weight:600">✓ Fetched from registry — valid</div></div><span style="font-size:11px;color:#8B96A5">auto</span></div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div onClick="{{ nav.cPay }}" style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">Continue to payment ›</div>
+</div>
+</sc-if>
+<sc-if value="{{ cPay }}" hint-placeholder-val="{{ false }}">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span onClick="{{ nav.cApply }}" style="font-size:18px;cursor:pointer;padding:4px 8px;margin-left:-8px">‹</span><div><div style="font:600 16px 'Poppins',sans-serif">Review &amp; pay</div><div style="font-size:11.5px;color:#9FB4D4">Step 2 of 2 · APP-2026-04431</div></div></div>
+<div style="display:flex;gap:5px"><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div><div style="flex:1;height:4px;background:#00A0C6;border-radius:2px"></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:4px 15px">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Licence fee</span><span style="color:#131C2B;font-weight:600">AED 2,200</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EEF1F5;font-size:13px"><span style="color:#647080">Knowledge &amp; innovation fee</span><span style="color:#131C2B;font-weight:600">AED 200</span></div>
+<div style="display:flex;justify-content:space-between;padding:11px 0;font-size:14.5px"><span style="color:#00265D;font-weight:700">Total</span><span style="color:#00265D;font-weight:700">AED 2,400</span></div>
+</div>
+<div style="background:#fff;border:1.5px solid #00A0C6;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:700;color:#131C2B">Apple Pay</div><div style="font-size:11px;color:#647080">via national payment gateway</div></div>
+<span style="width:18px;height:18px;border-radius:50%;background:#00A0C6;display:grid;place-items:center;color:#fff;font-size:11px">✓</span>
+</div>
+</div>
+<div style="padding:12px 16px 8px;background:#fff;border-top:1px solid #DFE4EB">
+<div onClick="{{ payNow }}" style="background:#00265D;color:#fff;text-align:center;border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer">Pay AED 2,400</div>
+</div>
+</sc-if>
+<sc-if value="{{ cReceipt }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding:0 24px;text-align:center">
+<div style="width:70px;height:70px;border-radius:50%;background:#E7F6EE;color:#1E8E5A;display:grid;place-items:center;font-size:32px">✓</div>
+<div style="font:700 21px 'Poppins',sans-serif;color:#00265D">Payment successful</div>
+<div style="font-size:13px;color:#647080;line-height:1.5">AED 2,400.00 · receipt RCPT-88191<br>Zero-touch eligible — expected issue tomorrow 14:00.</div>
+<div style="display:flex;gap:9px">
+<div onClick="{{ nav.cTrack }}" style="background:#00265D;color:#fff;border-radius:8px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer">Track application</div>
+<div onClick="{{ nav.cHome }}" style="border:1px solid #C3CBD6;color:#00265D;border-radius:8px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;background:#fff">Home</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ cTrack }}" hint-placeholder-val="{{ false }}">
+<div style="background:#00265D;padding:12px 18px 14px;color:#fff;display:flex;align-items:center;gap:10px">
+<span onClick="{{ nav.cHome }}" style="font-size:18px;cursor:pointer;padding:4px 8px;margin-left:-8px">‹</span>
+<div><div style="font:600 16px 'Poppins',sans-serif">{{ trackAppId }}</div><div style="font-size:11.5px;color:#9FB4D4">Navigation licence renewal · MV Dana 3</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="background:#EAF8FC;border:1px solid #D3F0F8;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+<div><div style="font-size:13.5px;font-weight:700;color:#0A3A7D">In technical review</div><div style="font-size:11.5px;color:#647080;margin-top:2px">Expected completion: tomorrow 14:00</div></div>
+<span style="background:#fff;color:#007A9B;font-size:11px;font-weight:700;border-radius:6px;padding:4px 9px">ON TRACK</span>
+</div>
+<div style="background:#fff;border:1px solid #DFE4EB;border-radius:10px;padding:16px 15px">
+<div style="display:flex;gap:12px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#1E8E5A;color:#fff;display:grid;place-items:center;font-size:11px;flex:none">✓</div><div style="width:2px;flex:1;background:#CBE9D8"></div></div><div style="padding-bottom:16px"><div style="font-size:13px;font-weight:700;color:#131C2B">Submitted &amp; paid</div><div style="font-size:11.5px;color:#647080">Today, 11:04 · receipt RCPT-88191</div></div></div>
+<div style="display:flex;gap:12px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#00A0C6;color:#fff;display:grid;place-items:center;font-size:10px;flex:none">●</div><div style="width:2px;flex:1;background:#DFE4EB"></div></div><div style="padding-bottom:16px"><div style="font-size:13px;font-weight:700;color:#007A9B">Technical review — now</div><div style="font-size:11.5px;color:#647080">Automated checks passed · with surveyor team</div></div></div>
+<div style="display:flex;gap:12px"><div style="display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50%;border:2px solid #DFE4EB;flex:none"></div></div><div><div style="font-size:13px;font-weight:700;color:#8B96A5">Licence issued</div><div style="font-size:11.5px;color:#8B96A5">Lands in your wallet automatically</div></div></div>
+</div>
+</div>
+</sc-if>
+<div style="display:flex;border-top:1px solid #DFE4EB;background:#fff;padding:10px 6px 6px">
+<div onClick="{{ nav.cHome }}" style="flex:1;text-align:center;cursor:pointer;color:{{ cTabHomeColor }}"><div style="font-size:18px">⌂</div><div style="font-size:10px;font-weight:700">Home</div></div>
+<div onClick="{{ nav.cApply }}" style="flex:1;text-align:center;cursor:pointer;color:{{ cTabServicesColor }}"><div style="font-size:18px">▦</div><div style="font-size:10px;font-weight:600">Services</div></div>
+<div onClick="{{ nav.cTrack }}" style="flex:1;text-align:center;cursor:pointer;color:{{ cTabTrackColor }}"><div style="font-size:18px">◔</div><div style="font-size:10px;font-weight:600">Track</div></div>
+</div>
+</div>
+</x-import>
+</div>
+</div>
+<div style="font-size:12px;color:rgba(0,0,0,.5)">Static 36-screen canvas: <a href="Maritime Mobile Apps.dc.html">Maritime Mobile Apps</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;offlineMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Scenario&quot;},&quot;showAiHints&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Scenario&quot;}}">
+class Component extends DCLogic {
+  state = { a: 'home', c: 'home', q1: null, q2: null, approved: false, paid: false };
+  renderVals() {
+    const s = this.state, offline = this.props.offlineMode ?? true;
+    const go = (k, v) => () => this.setState({ [k]: v });
+    const yes = { bg: '#E7F6EE', color: '#1E8E5A', border: '#1E8E5A' };
+    const no = { bg: '#FBEAEA', color: '#C43D3D', border: '#C43D3D' };
+    const idle = { bg: '#fff', color: '#647080', border: '#DFE4EB' };
+    const pick = (v, want) => (v === want ? (want === 'yes' ? yes : no) : idle);
+    const checked = (s.q1 ? 1 : 0) + (s.q2 ? 1 : 0);
+    const active = '#00265D', dim = '#8B96A5';
+    return {
+      aiHints: this.props.showAiHints ?? true,
+      connDotColor: offline ? '#F5B942' : '#4BD48B',
+      connLabel: offline ? 'Offline · 3 queued' : 'Online · synced',
+      aHome: s.a === 'home', aDossier: s.a === 'dossier', aChecklist: s.a === 'checklist',
+      aReport: s.a === 'report', aSigned: s.a === 'signed',
+      cHome: s.c === 'home', cApply: s.c === 'apply', cPay: s.c === 'pay',
+      cReceipt: s.c === 'receipt', cTrack: s.c === 'track',
+      nav: {
+        aHome: go('a', 'home'), aDossier: go('a', 'dossier'), aChecklist: go('a', 'checklist'),
+        aReport: go('a', 'report'),
+        cHome: go('c', 'home'), cApply: go('c', 'apply'), cPay: go('c', 'pay'), cTrack: go('c', 'track'),
+      },
+      set071yes: () => this.setState({ q1: 'yes' }), set071no: () => this.setState({ q1: 'no' }),
+      set072yes: () => this.setState({ q2: 'yes' }), set072no: () => this.setState({ q2: 'no' }),
+      q1YesBg: pick(s.q1, 'yes').bg, q1YesColor: pick(s.q1, 'yes').color, q1YesBorder: pick(s.q1, 'yes').border,
+      q1NoBg: pick(s.q1, 'no').bg, q1NoColor: pick(s.q1, 'no').color, q1NoBorder: pick(s.q1, 'no').border,
+      q2YesBg: pick(s.q2, 'yes').bg, q2YesColor: pick(s.q2, 'yes').color, q2YesBorder: pick(s.q2, 'yes').border,
+      q2NoBg: pick(s.q2, 'no').bg, q2NoColor: pick(s.q2, 'no').color, q2NoBorder: pick(s.q2, 'no').border,
+      q2IsNo: s.q2 === 'no',
+      checkedCount: checked, progressPct: (checked / 2) * 100 + '%',
+      finishBg: checked === 2 ? '#00265D' : '#8B96A5',
+      approveFinding: () => this.setState({ approved: !s.approved }),
+      approveBg: s.approved ? '#E7F6EE' : '#fff', approveColor: s.approved ? '#1E8E5A' : '#647080',
+      approveBorder: s.approved ? '#1E8E5A' : '#DFE4EB',
+      approveLabel: s.approved ? '✓ Approved' : 'Tap to approve',
+      trySign: () => { if (s.approved) this.setState({ a: 'signed' }); },
+      signBg: s.approved ? '#00265D' : '#8B96A5',
+      signHint: s.approved ? 'Digitally signed as Insp. R. Al Marzooqi · immutable audit trail' : 'Approve all findings to enable signing',
+      payNow: () => this.setState({ paid: true, c: 'receipt' }),
+      renewDone: s.paid, renewNotDone: !s.paid,
+      inProgressCount: s.paid ? 3 : 2, actionDueCount: s.paid ? 0 : 1,
+      trackAppId: s.paid ? 'APP-2026-04431' : 'APP-2026-04412',
+      aTabHomeColor: s.a === 'home' ? active : dim,
+      aTabInspectColor: s.a === 'checklist' || s.a === 'dossier' ? active : dim,
+      aTabReportColor: s.a === 'report' || s.a === 'signed' ? active : dim,
+      cTabHomeColor: s.c === 'home' ? active : dim,
+      cTabServicesColor: s.c === 'apply' || s.c === 'pay' ? active : dim,
+      cTabTrackColor: s.c === 'track' || s.c === 'receipt' ? active : dim,
+    };
+  }
+}
+</script>
+</body>
+</html>
