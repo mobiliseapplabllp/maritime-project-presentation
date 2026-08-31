@@ -27,6 +27,10 @@ portal/deploy/letsencrypt/
 # design bundle upload (106MB, contains doc copies) — design-reference/ in mobile-app is the tracked subset
 Mobile app for Seaport Management.zip
 
+# mobile prototype build output (vite) — mobile-app/dist is generated,
+# unlike the root dist/ which is a tracked deliverable.
+mobile-app/dist/
+
 # Flutter build artifacts
 mobile-flutter/build/
 mobile-flutter/.dart_tool/
